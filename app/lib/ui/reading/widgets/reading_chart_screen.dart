@@ -174,17 +174,19 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
         elevation: 0,
         title: const Text('나의 독서 상태'),
         centerTitle: false,
-        titleTextStyle: const TextStyle(
+        titleTextStyle: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: Colors.black,
+          color: isDark ? Colors.white : Colors.black,
         ),
         actions: [
           // 🎨 Mock 데이터 토글 버튼
@@ -371,11 +373,12 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                     // 필터 버튼
                     Row(
                       children: [
-                        const Text(
+                        Text(
                           '기간 선택',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
+                            color: isDark ? Colors.white : Colors.black,
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -396,9 +399,13 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                                     }
                                   },
                                   selectedColor: Colors.blue,
-                                  backgroundColor: Colors.grey[200],
+                                  backgroundColor: isDark
+                                      ? Colors.grey[800]
+                                      : Colors.grey[200],
                                   labelStyle: TextStyle(
-                                    color: isSelected ? Colors.white : Colors.black87,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : (isDark ? Colors.white70 : Colors.black87),
                                     fontWeight: isSelected
                                         ? FontWeight.bold
                                         : FontWeight.normal,
@@ -414,11 +421,12 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                     const SizedBox(height: 24),
 
                     // 차트
-                    const Text(
+                    Text(
                       '누적 페이지 차트',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
+                        color: isDark ? Colors.white : Colors.black,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -426,9 +434,11 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                       height: 300,
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.grey[50],
+                        color: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey[200]!),
+                        border: Border.all(
+                          color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+                        ),
                       ),
                       child: LineChart(
                         LineChartData(
@@ -465,7 +475,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                                     value.toInt().toString(),
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.grey[600],
+                                      color: isDark ? Colors.grey[400] : Colors.grey[600],
                                     ),
                                   );
                                 },
@@ -493,7 +503,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                                       _formatDate(date, _selectedFilter),
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: Colors.grey[600],
+                                        color: isDark ? Colors.grey[400] : Colors.grey[600],
                                       ),
                                     ),
                                   );
@@ -510,7 +520,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                             horizontalInterval: null,
                             getDrawingHorizontalLine: (value) {
                               return FlLine(
-                                color: Colors.grey[300],
+                                color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
                                 strokeWidth: 1,
                               );
                             },
@@ -518,8 +528,14 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                           borderData: FlBorderData(
                             show: true,
                             border: Border(
-                              bottom: BorderSide(color: Colors.grey[300]!, width: 1),
-                              left: BorderSide(color: Colors.grey[300]!, width: 1),
+                              bottom: BorderSide(
+                                color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                                width: 1,
+                              ),
+                              left: BorderSide(
+                                color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                                width: 1,
+                              ),
                             ),
                           ),
                           minY: 0,
@@ -530,11 +546,12 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                     const SizedBox(height: 32),
 
                     // 일별 증감 리스트
-                    const Text(
+                    Text(
                       '일별 읽은 페이지',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
+                        color: isDark ? Colors.white : Colors.black,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -553,9 +570,11 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                           margin: const EdgeInsets.only(bottom: 8),
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey[200]!),
+                            border: Border.all(
+                              color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+                            ),
                           ),
                           child: Row(
                             children: [
@@ -584,9 +603,10 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                                   children: [
                                     Text(
                                       '${date.year}년 ${date.month}월 ${date.day}일',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontWeight: FontWeight.w600,
                                         fontSize: 14,
+                                        color: isDark ? Colors.white : Colors.black,
                                       ),
                                     ),
                                     const SizedBox(height: 4),
@@ -594,7 +614,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                                       '누적: $cumulativePage 페이지',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: Colors.grey[600],
+                                        color: isDark ? Colors.grey[400] : Colors.grey[600],
                                       ),
                                     ),
                                   ],
@@ -624,7 +644,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                                     '페이지',
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.grey[600],
+                                      color: isDark ? Colors.grey[400] : Colors.grey[600],
                                     ),
                                   ),
                                 ],

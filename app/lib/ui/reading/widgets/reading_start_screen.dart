@@ -142,12 +142,18 @@ class _ReadingStartScreenState extends State<ReadingStartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? Colors.white : Colors.black,
+          ),
           onPressed: () {
             if (_currentPage > 0) {
               _previousPage();
@@ -156,23 +162,23 @@ class _ReadingStartScreenState extends State<ReadingStartScreen> {
             }
           },
         ),
-        title: const Text(
+        title: Text(
           '독서 시작하기',
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: isDark ? Colors.white : Colors.black),
         ),
       ),
       body: PageView(
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: [
-          _buildBookTitleInputPage(),
-          _buildReadingSchedulePage(),
+          _buildBookTitleInputPage(isDark),
+          _buildReadingSchedulePage(isDark),
         ],
       ),
     );
   }
 
-  Widget _buildBookTitleInputPage() {
+  Widget _buildBookTitleInputPage(bool isDark) {
     return Stack(
       children: [
         Padding(
@@ -183,24 +189,34 @@ class _ReadingStartScreenState extends State<ReadingStartScreen> {
               const SizedBox(height: 40),
               TextField(
                 controller: _titleController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: '책 이름을 입력해주세요.',
                   hintStyle: TextStyle(
-                    color: Colors.grey,
+                    color: isDark ? Colors.grey[600] : Colors.grey,
                     fontSize: 16,
                   ),
                   border: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
+                    borderSide: BorderSide(
+                      color: isDark ? Colors.grey[700]! : Colors.grey,
+                    ),
                   ),
-                  focusedBorder: OutlineInputBorder(
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: isDark ? Colors.grey[700]! : Colors.grey,
+                    ),
+                  ),
+                  focusedBorder: const OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.blue),
                   ),
-                  contentPadding: EdgeInsets.symmetric(
+                  contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 12,
                   ),
                 ),
-                style: const TextStyle(fontSize: 16),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
                 onSubmitted: (_) {},
                 onChanged: (_) {},
               ),
@@ -219,10 +235,11 @@ class _ReadingStartScreenState extends State<ReadingStartScreen> {
                           _isSameBook(_selectedBook!, book);
                       return Card(
                         margin: const EdgeInsets.symmetric(vertical: 4),
+                        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                         child: ListTile(
                           selected: isSelected,
                           tileColor:
-                              isSelected ? Colors.blue.withOpacity(0.06) : null,
+                              isSelected ? Colors.blue.withOpacity(0.12) : null,
                           leading: book.imageUrl != null
                               ? ClipRRect(
                                   borderRadius: BorderRadius.circular(4),
@@ -345,7 +362,7 @@ class _ReadingStartScreenState extends State<ReadingStartScreen> {
     );
   }
 
-  Widget _buildReadingSchedulePage() {
+  Widget _buildReadingSchedulePage(bool isDark) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),

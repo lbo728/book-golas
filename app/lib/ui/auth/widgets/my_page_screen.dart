@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../data/services/auth_service.dart';
+import '../../core/view_model/theme_view_model.dart';
 import 'login_screen.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -114,10 +115,12 @@ class _MyPageScreenState extends State<MyPageScreen> {
       appBar: AppBar(
         title: const Text('마이페이지'),
         centerTitle: false,
-        titleTextStyle: const TextStyle(
+        titleTextStyle: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: Colors.black,
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white
+              : Colors.black,
         ),
       ),
       body: RefreshIndicator(
@@ -327,6 +330,35 @@ class _MyPageScreenState extends State<MyPageScreen> {
                   Text('이메일: ${user.email}'),
                   const SizedBox(height: 32),
                 ],
+                const Divider(),
+                const SizedBox(height: 16),
+                const Text(
+                  '설정',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Consumer<ThemeViewModel>(
+                  builder: (context, themeViewModel, child) {
+                    return ListTile(
+                      leading: Icon(
+                        themeViewModel.isDarkMode
+                            ? Icons.dark_mode
+                            : Icons.light_mode,
+                      ),
+                      title: const Text('다크 모드'),
+                      trailing: Switch(
+                        value: themeViewModel.isDarkMode,
+                        onChanged: (value) {
+                          themeViewModel.toggleTheme();
+                        },
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 32),
                 Center(
                   child: Column(
                     children: [
