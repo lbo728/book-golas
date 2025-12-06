@@ -11,6 +11,7 @@ import 'package:lit_goal/config/app_config.dart';
 import 'package:lit_goal/data/repositories/book_repository.dart';
 import 'package:lit_goal/data/services/book_service.dart';
 import 'package:lit_goal/ui/home/view_model/home_view_model.dart';
+import 'package:lit_goal/ui/core/view_model/theme_view_model.dart';
 import 'data/services/auth_service.dart';
 import 'ui/auth/widgets/login_screen.dart';
 import 'ui/auth/widgets/my_page_screen.dart';
@@ -54,15 +55,33 @@ class MyApp extends StatelessWidget {
           ),
         ),
         ChangeNotifierProvider(create: (_) => AuthService()),
+        ChangeNotifierProvider(create: (_) => ThemeViewModel()),
       ],
-      child: MaterialApp(
-        title: 'LitGoal',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-          useMaterial3: true,
-        ),
-        home: const AuthWrapper(),
+      child: Consumer<ThemeViewModel>(
+        builder: (context, themeViewModel, child) {
+          return MaterialApp(
+            title: 'LitGoal',
+            debugShowCheckedModeBanner: false,
+            themeMode: themeViewModel.themeMode,
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Colors.blue,
+                brightness: Brightness.light,
+              ),
+              useMaterial3: true,
+              scaffoldBackgroundColor: Colors.grey[50],
+            ),
+            darkTheme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Colors.blue,
+                brightness: Brightness.dark,
+              ),
+              useMaterial3: true,
+              scaffoldBackgroundColor: const Color(0xFF121212),
+            ),
+            home: const AuthWrapper(),
+          );
+        },
       ),
     );
   }
@@ -202,11 +221,13 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Stack(
       children: [
         Scaffold(
           body: _pages[_selectedIndex],
-          backgroundColor: Colors.grey[50],
+          backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
           extendBody: true,
           bottomNavigationBar: _buildLiquidGlassBottomBar(),
         ),
@@ -248,7 +269,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
                       boxShadow: const [
                         BoxShadow(
                           color: Color.fromRGBO(0, 0, 0, 0.2),
@@ -283,13 +304,13 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                 top: 8,
                                 bottom: 8,
                               ),
-                              child: const Row(
+                              child: Row(
                                 children: [
                                   Icon(
                                     Icons.book,
-                                    color: Colors.black,
+                                    color: isDark ? Colors.white : Colors.black,
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 8,
                                   ),
                                   Text(
@@ -297,7 +318,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w400,
-                                      color: Colors.black,
+                                      color: isDark ? Colors.white : Colors.black,
                                       decoration: TextDecoration.none,
                                     ),
                                   ),
