@@ -162,12 +162,42 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(36),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+        child: Stack(
           children: [
-            _buildNavItem(0, CupertinoIcons.house_fill, CupertinoIcons.house, '홈'),
-            _buildNavItem(1, CupertinoIcons.chart_bar_square_fill, CupertinoIcons.chart_bar_square, '독서 상태'),
-            _buildNavItem(2, CupertinoIcons.person_crop_circle_fill, CupertinoIcons.person_crop_circle, '마이페이지'),
+            // 슬라이딩 배경 인디케이터
+            Positioned.fill(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final itemWidth = constraints.maxWidth / 3;
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                    transform: Matrix4.translationValues(
+                      itemWidth * _selectedIndex,
+                      0,
+                      0,
+                    ),
+                    width: itemWidth,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.18),
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            // 네비게이션 아이템들
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildNavItem(0, CupertinoIcons.house_fill, CupertinoIcons.house, '홈'),
+                _buildNavItem(1, CupertinoIcons.chart_bar_square_fill, CupertinoIcons.chart_bar_square, '독서 상태'),
+                _buildNavItem(2, CupertinoIcons.person_crop_circle_fill, CupertinoIcons.person_crop_circle, '마이페이지'),
+              ],
+            ),
           ],
         ),
       ),
@@ -185,17 +215,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             _animationController.forward(from: 0.0);
           }
         },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
+        child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? Colors.white.withOpacity(0.18)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(28),
-          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
