@@ -126,16 +126,18 @@ class _BookListScreenState extends State<BookListScreen>
                 // 슬라이딩 인디케이터
                 Positioned(
                   bottom: 0,
-                  left: 0,
-                  right: 0,
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      final tabWidth = constraints.maxWidth / 3;
+                      // 부모 Row의 너비를 가져오기 위해 MediaQuery 사용
+                      final screenWidth = MediaQuery.of(context).size.width;
+                      final tabWidth = screenWidth / 3;
                       return AnimatedContainer(
                         duration: const Duration(milliseconds: 250),
                         curve: Curves.easeInOut,
-                        margin: EdgeInsets.only(
-                          left: tabWidth * _selectedTabIndex,
+                        transform: Matrix4.translationValues(
+                          tabWidth * _selectedTabIndex,
+                          0,
+                          0,
                         ),
                         width: tabWidth,
                         height: 2,
