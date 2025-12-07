@@ -1860,7 +1860,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   Widget _buildTabbedSection(bool isDark) {
     return Column(
       children: [
-        // 탭 헤더 - 개선된 디자인
+        // 탭 헤더 - 슬라이딩 애니메이션 적용
         Container(
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
@@ -1872,72 +1872,78 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
               ),
             ),
           ),
-          child: Row(
+          child: Stack(
             children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    _tabController.animateTo(0);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: _tabController.index == 0
-                              ? (isDark ? Colors.white : Colors.black)
-                              : Colors.transparent,
-                          width: 2,
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        _tabController.animateTo(0);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Text(
+                          '인상적인 페이지',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: _tabController.index == 0
+                                ? FontWeight.w600
+                                : FontWeight.w400,
+                            color: _tabController.index == 0
+                                ? (isDark ? Colors.white : Colors.black)
+                                : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                          ),
                         ),
                       ),
                     ),
-                    child: Text(
-                      '인상적인 페이지',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: _tabController.index == 0
-                            ? FontWeight.w600
-                            : FontWeight.w400,
-                        color: _tabController.index == 0
-                            ? (isDark ? Colors.white : Colors.black)
-                            : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                  ),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        _tabController.animateTo(1);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Text(
+                          '진행률 히스토리',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: _tabController.index == 1
+                                ? FontWeight.w600
+                                : FontWeight.w400,
+                            color: _tabController.index == 1
+                                ? (isDark ? Colors.white : Colors.black)
+                                : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    _tabController.animateTo(1);
+              // 슬라이딩 인디케이터
+              Positioned(
+                bottom: 0,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final screenWidth = MediaQuery.of(context).size.width - 32; // 양쪽 패딩
+                    final tabWidth = screenWidth / 2;
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeInOut,
+                      transform: Matrix4.translationValues(
+                        tabWidth * _tabController.index,
+                        0,
+                        0,
+                      ),
+                      width: tabWidth,
+                      height: 2,
+                      color: isDark ? Colors.white : Colors.black,
+                    );
                   },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: _tabController.index == 1
-                              ? (isDark ? Colors.white : Colors.black)
-                              : Colors.transparent,
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                    child: Text(
-                      '진행률 히스토리',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: _tabController.index == 1
-                            ? FontWeight.w600
-                            : FontWeight.w400,
-                        color: _tabController.index == 1
-                            ? (isDark ? Colors.white : Colors.black)
-                            : (isDark ? Colors.grey[400] : Colors.grey[600]),
-                      ),
-                    ),
-                  ),
                 ),
               ),
             ],
