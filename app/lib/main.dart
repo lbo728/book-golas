@@ -25,6 +25,9 @@ Future<void> main() async {
   await Supabase.initialize(
     url: AppConfig.supabaseUrl,
     anonKey: AppConfig.supabaseAnonKey,
+    realtimeClientOptions: const RealtimeClientOptions(
+      logLevel: RealtimeLogLevel.info,
+    ),
   ).then((_) {
     debugPrint('Supabase 초기화 성공');
   }).catchError((error) {
