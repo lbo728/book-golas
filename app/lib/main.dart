@@ -165,25 +165,26 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         child: Stack(
           children: [
             // 슬라이딩 배경 인디케이터
-            Positioned.fill(
+            Positioned(
+              top: 4,
+              bottom: 4,
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  final itemWidth = constraints.maxWidth / 3;
+                  // 부모 컨테이너의 너비를 가져오기 위해 MediaQuery 사용
+                  final containerWidth = MediaQuery.of(context).size.width - 32 - 24; // margin + padding
+                  final itemWidth = containerWidth / 3;
                   return AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
                     transform: Matrix4.translationValues(
-                      itemWidth * _selectedIndex,
+                      itemWidth * _selectedIndex + 4,
                       0,
                       0,
                     ),
-                    width: itemWidth,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.18),
-                        borderRadius: BorderRadius.circular(28),
-                      ),
+                    width: itemWidth - 8,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.18),
+                      borderRadius: BorderRadius.circular(28),
                     ),
                   );
                 },
