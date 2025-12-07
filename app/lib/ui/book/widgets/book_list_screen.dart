@@ -54,99 +54,94 @@ class _BookListScreenState extends State<BookListScreen>
           preferredSize: const Size.fromHeight(50),
           child: Container(
             color: isDark ? const Color(0xFF121212) : Colors.white,
-            child: Row(
+            child: Stack(
               children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => _tabController.animateTo(0),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: _selectedTabIndex == 0
-                                ? (isDark ? Colors.white : Colors.black)
-                                : Colors.transparent,
-                            width: 2,
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _tabController.animateTo(0),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Text(
+                            '전체',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: _selectedTabIndex == 0
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                              color: _selectedTabIndex == 0
+                                  ? (isDark ? Colors.white : Colors.black)
+                                  : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                            ),
                           ),
                         ),
                       ),
-                      child: Text(
-                        '전체',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: _selectedTabIndex == 0
-                              ? FontWeight.w600
-                              : FontWeight.w400,
-                          color: _selectedTabIndex == 0
-                              ? (isDark ? Colors.white : Colors.black)
-                              : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _tabController.animateTo(1),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Text(
+                            '독서 중',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: _selectedTabIndex == 1
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                              color: _selectedTabIndex == 1
+                                  ? (isDark ? Colors.white : Colors.black)
+                                  : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _tabController.animateTo(2),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Text(
+                            '완독',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: _selectedTabIndex == 2
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                              color: _selectedTabIndex == 2
+                                  ? (isDark ? Colors.white : Colors.black)
+                                  : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => _tabController.animateTo(1),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: _selectedTabIndex == 1
-                                ? (isDark ? Colors.white : Colors.black)
-                                : Colors.transparent,
-                            width: 2,
-                          ),
+                // 슬라이딩 인디케이터
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final tabWidth = constraints.maxWidth / 3;
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeInOut,
+                        margin: EdgeInsets.only(
+                          left: tabWidth * _selectedTabIndex,
                         ),
-                      ),
-                      child: Text(
-                        '독서 중',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: _selectedTabIndex == 1
-                              ? FontWeight.w600
-                              : FontWeight.w400,
-                          color: _selectedTabIndex == 1
-                              ? (isDark ? Colors.white : Colors.black)
-                              : (isDark ? Colors.grey[400] : Colors.grey[600]),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => _tabController.animateTo(2),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: _selectedTabIndex == 2
-                                ? (isDark ? Colors.white : Colors.black)
-                                : Colors.transparent,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                      child: Text(
-                        '완독',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: _selectedTabIndex == 2
-                              ? FontWeight.w600
-                              : FontWeight.w400,
-                          color: _selectedTabIndex == 2
-                              ? (isDark ? Colors.white : Colors.black)
-                              : (isDark ? Colors.grey[400] : Colors.grey[600]),
-                        ),
-                      ),
-                    ),
+                        width: tabWidth,
+                        height: 2,
+                        color: isDark ? Colors.white : Colors.black,
+                      );
+                    },
                   ),
                 ),
               ],
