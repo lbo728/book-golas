@@ -41,6 +41,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   Map<String, bool> _dailyAchievements = {}; // 일차별 목표 달성 현황 (날짜: 성공/실패)
   bool _useMockProgressData = true; // 🎨 진행률 히스토리 목업 데이터 사용
 
+  // 캐싱: Future를 한번만 생성하여 재사용
+  late Future<List<Map<String, dynamic>>> _bookImagesFuture;
+  late Future<List<Map<String, dynamic>>> _progressHistoryFuture;
+
   @override
   void initState() {
     super.initState();
@@ -52,6 +56,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       setState(() {}); // 탭 변경 시 UI 업데이트
     });
     _loadDailyAchievements();
+
+    // Future를 initState에서 한번만 생성 (캐싱)
+    _bookImagesFuture = fetchBookImages(_currentBook.id!);
+    _progressHistoryFuture = fetchProgressHistory(_currentBook.id!);
   }
 
   @override
@@ -1468,7 +1476,11 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         .from('book_images')
         .delete()
         .eq('id', imageId);
-    setState(() {});
+
+    // 캐시 새로고침
+    setState(() {
+      _bookImagesFuture = fetchBookImages(_currentBook.id!);
+    });
   }
 
   void _confirmDeleteImage(String imageId, String imageUrl) {
@@ -1517,7 +1529,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       'caption': '',
     });
 
-    setState(() {});
+    // 캐시 새로고침
+    setState(() {
+      _bookImagesFuture = fetchBookImages(_currentBook.id!);
+    });
   }
 
   void _showAddImageBottomSheet() {
@@ -1966,7 +1981,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
   Widget _buildMemorablePagesTab(bool isDark) {
     return FutureBuilder<List<Map<String, dynamic>>>(
-      future: fetchBookImages(_currentBook.id!),
+      future: _bookImagesFuture, // 캐시된 Future 사용
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -2089,7 +2104,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
   Widget _buildProgressHistoryTab(bool isDark) {
     return FutureBuilder<List<Map<String, dynamic>>>(
-      future: fetchProgressHistory(_currentBook.id!),
+      future: _progressHistoryFuture, // 캐시된 Future 사용
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
