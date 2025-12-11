@@ -26,10 +26,10 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>com.litgoal.app</string>
+			<string>com.bookgolas.app</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>litgoal</string>
+				<string>bookgolas</string>
 			</array>
 		</dict>
 		<dict>

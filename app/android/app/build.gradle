@@ -1,5 +1,8 @@
 plugins {
     id "com.android.application"
+    // START: FlutterFire Configuration
+    id 'com.google.gms.google-services'
+    // END: FlutterFire Configuration
     id "kotlin-android"
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
@@ -12,7 +15,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.litgoal.app"
+    namespace = "com.bookgolas.app"
     compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
@@ -26,7 +29,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.litgoal.app"
+        applicationId = "com.bookgolas.app"
         minSdk = 21
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
