@@ -2,25 +2,49 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import 'package:lit_goal/ui/reading/widgets/reading_chart_screen.dart';
+import 'package:book_golas/ui/reading/widgets/reading_chart_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:lit_goal/ui/book/widgets/book_list_screen.dart';
-import 'package:lit_goal/ui/reading/widgets/reading_start_screen.dart';
-import 'package:lit_goal/config/app_config.dart';
-import 'package:lit_goal/data/repositories/book_repository.dart';
-import 'package:lit_goal/data/services/book_service.dart';
-import 'package:lit_goal/ui/home/view_model/home_view_model.dart';
-import 'package:lit_goal/ui/core/view_model/theme_view_model.dart';
+import 'package:book_golas/ui/book/widgets/book_list_screen.dart';
+import 'package:book_golas/ui/reading/widgets/reading_start_screen.dart';
+import 'package:book_golas/config/app_config.dart';
+import 'package:book_golas/data/repositories/book_repository.dart';
+import 'package:book_golas/data/services/book_service.dart';
+import 'package:book_golas/ui/home/view_model/home_view_model.dart';
+import 'package:book_golas/ui/core/view_model/theme_view_model.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'firebase_options.dart';
 import 'data/services/auth_service.dart';
+import 'data/services/fcm_service.dart';
 import 'ui/auth/widgets/login_screen.dart';
 import 'ui/auth/widgets/my_page_screen.dart';
+
+// 백그라운드 메시지 핸들러 (main 함수 밖에 정의)
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  debugPrint('Background message: ${message.notification?.title}');
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
 
   AppConfig.validateApiKeys();
+
+  // Firebase 초기화
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  debugPrint('Firebase 초기화 완료');
+
+  // 백그라운드 메시지 핸들러 등록
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // FCM 서비스 초기화
+  await FCMService().initialize();
+  debugPrint('FCM 서비스 초기화 완료');
 
   await Supabase.initialize(
     url: AppConfig.supabaseUrl,
@@ -90,14 +114,33 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class AuthWrapper extends StatelessWidget {
+class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
+
+  @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<AuthWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    // 로그인 상태 확인 및 토큰 저장
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authService = context.read<AuthService>();
+      if (authService.currentUser != null) {
+        FCMService().saveTokenToSupabase();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthService>(
       builder: (context, authService, _) {
+        // 로그인 상태가 변경될 때마다 토큰 저장
         if (authService.currentUser != null) {
+          FCMService().saveTokenToSupabase();
           return const MainScreen();
         }
         return const LoginScreen();

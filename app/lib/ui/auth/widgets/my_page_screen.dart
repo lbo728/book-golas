@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../data/services/auth_service.dart';
+import '../../../data/services/fcm_service.dart';
 import '../../core/view_model/theme_view_model.dart';
 import 'login_screen.dart';
 import 'dart:io';
@@ -19,6 +20,10 @@ class _MyPageScreenState extends State<MyPageScreen> {
 
   File? _pendingAvatarFile;
 
+  // 알림 설정 관련 변수
+  bool _notificationEnabled = false;
+  TimeOfDay _notificationTime = const TimeOfDay(hour: 21, minute: 0);
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -36,6 +41,20 @@ class _MyPageScreenState extends State<MyPageScreen> {
   void initState() {
     super.initState();
     Future.microtask(() => context.read<AuthService>().fetchCurrentUser());
+    _loadNotificationSettings();
+  }
+
+  Future<void> _loadNotificationSettings() async {
+    final settings = await FCMService().getNotificationSettings();
+    if (mounted) {
+      setState(() {
+        _notificationEnabled = settings['enabled'];
+        _notificationTime = TimeOfDay(
+          hour: settings['hour'],
+          minute: settings['minute'],
+        );
+      });
+    }
   }
 
   void _showDeleteAccountDialog(BuildContext context) {
@@ -104,6 +123,92 @@ class _MyPageScreenState extends State<MyPageScreen> {
         );
       }
     }
+  }
+
+  Widget _buildNotificationSettings() {
+    return Column(
+      children: [
+        ListTile(
+          leading: const Icon(Icons.notifications),
+          title: const Text('매일 독서 목표 알림'),
+          subtitle: Text(_notificationEnabled
+              ? '매일 ${_notificationTime.format(context)}에 알림을 받습니다'
+              : '알림을 받지 않습니다'),
+          trailing: Switch(
+            value: _notificationEnabled,
+            onChanged: (value) async {
+              setState(() {
+                _notificationEnabled = value;
+              });
+
+              if (value) {
+                await FCMService().scheduleDailyNotification(
+                  hour: _notificationTime.hour,
+                  minute: _notificationTime.minute,
+                );
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('알림이 활성화되었습니다'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              } else {
+                await FCMService().cancelDailyNotification();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('알림이 비활성화되었습니다'),
+                    ),
+                  );
+                }
+              }
+            },
+          ),
+        ),
+        if (_notificationEnabled)
+          ListTile(
+            leading: const SizedBox(width: 24),
+            title: const Text('알림 시간'),
+            trailing: TextButton(
+              onPressed: () async {
+                final time = await showTimePicker(
+                  context: context,
+                  initialTime: _notificationTime,
+                );
+
+                if (time != null) {
+                  setState(() {
+                    _notificationTime = time;
+                  });
+
+                  await FCMService().scheduleDailyNotification(
+                    hour: time.hour,
+                    minute: time.minute,
+                  );
+
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('알림 시간이 ${time.format(context)}으로 변경되었습니다'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                }
+              },
+              child: Text(
+                _notificationTime.format(context),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
   }
 
   @override
@@ -358,6 +463,9 @@ class _MyPageScreenState extends State<MyPageScreen> {
                     );
                   },
                 ),
+                const Divider(),
+                const SizedBox(height: 16),
+                _buildNotificationSettings(),
                 const SizedBox(height: 32),
                 Center(
                   child: Column(
