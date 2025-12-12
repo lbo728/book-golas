@@ -3,7 +3,7 @@
 ## 작업 브랜치
 `feature/fcm-push-notifications`
 
-## 완료된 작업 (13/14)
+## 완료된 작업 (14/14)
 
 ### ✅ 1. FCM 구현 계획 문서 작성
 - **파일**: `FCM_IMPLEMENTATION.md`
@@ -79,8 +79,9 @@
   - import 경로 lit_goal → book_golas 변경
 
 ### ✅ 10. Supabase fcm_tokens 테이블 생성
-- **상태**: SQL 제공 완료
-- **작업 필요**: 사용자가 Supabase Dashboard에서 SQL 실행 필요
+- **상태**: 완료
+- **커밋**: `feat: FCM 서비스 구현 및 iOS 설정 완료`
+- **내용**: Supabase MCP를 통해 fcm_tokens 테이블 생성 및 RLS 정책 설정
 
 ### ✅ 11. FCM 토큰 저장 기능 구현
 - **파일**: `app/lib/data/services/fcm_service.dart`
@@ -100,15 +101,34 @@
   - `isNotificationPermissionGranted()` 메서드
   - `requestNotificationPermission()` 메서드
 
+### ✅ 14. iOS Info.plist UIBackgroundModes 추가
+- **파일**: `app/ios/Runner/Info.plist`
+- **커밋**: `feat: FCM 서비스 구현 및 iOS 설정 완료`
+- **내용**: remote-notification 백그라운드 모드 추가
+
 ---
 
-## 대기 중인 작업 (1/14)
+## 다음 단계: Xcode 수동 설정 및 테스트
 
-### ⏭️ 14. 매일 정해진 시간 알림 스케줄링 테스트
+### ⚠️ 필수: Xcode에서 수동 설정
 
-**현재 상태**: 구현 완료, 테스트 대기 중
+1. **Xcode 열기**
+   ```bash
+   open app/ios/Runner.xcworkspace
+   ```
 
-**테스트 체크리스트**:
+2. **Push Notifications Capability 추가**
+   - Xcode에서 Runner 타겟 선택
+   - Signing & Capabilities 탭 선택
+   - `+ Capability` 버튼 클릭
+   - **Push Notifications** 검색 후 추가
+
+3. **Background Modes Capability 추가**
+   - 같은 화면에서 `+ Capability` 버튼 다시 클릭
+   - **Background Modes** 검색 후 추가
+   - **Remote notifications** 체크박스 선택
+
+### 📱 테스트 체크리스트
 
 1. **권한 확인**
    - [ ] iOS: Xcode에서 Push Notifications capability 추가 완료
@@ -155,34 +175,19 @@ ElevatedButton(
 ),
 ```
 
----
+### 📲 앱 실행 및 기본 테스트
 
-## 다음 작업: Supabase 테이블 생성 및 테스트
+```bash
+cd app
+flutter run
+```
 
-### 필수 작업: Supabase fcm_tokens 테이블 생성
-1. Supabase Dashboard 접속: https://app.supabase.com
-2. `book-golas` 프로젝트 선택
-3. SQL Editor 열기
-4. 위의 섹션에서 제공된 SQL 실행
-
-### 테스트 준비
-1. **iOS Xcode 설정** (필수):
-   - `ios/Runner.xcworkspace` 열기
-   - Runner 타겟 선택 → Signing & Capabilities
-   - **Push Notifications** capability 추가
-   - **Background Modes** capability 추가 → **Remote notifications** 체크
-
-2. **앱 실행 및 테스트**:
-   ```bash
-   cd /Users/byungskersmacbook/Documents/GitHub/book-golas/app
-   flutter run
-   ```
-
-3. **테스트 항목**:
-   - 앱 실행 시 FCM 토큰이 콘솔에 출력되는지 확인
-   - MyPage에서 알림 설정 UI 확인
-   - 알림 토글 on/off 동작 확인
-   - 알림 시간 설정 동작 확인
+**확인 사항:**
+- [ ] 앱 실행 시 FCM 토큰이 콘솔에 출력됨
+- [ ] Supabase fcm_tokens 테이블에 토큰 저장됨
+- [ ] MyPage에서 알림 설정 UI가 표시됨
+- [ ] 알림 토글 on/off 동작 확인
+- [ ] 알림 시간 설정 다이얼로그가 열림
 
 ---
 
@@ -209,20 +214,16 @@ ElevatedButton(
 
 ## 커밋 히스토리
 
-```bash
-git log --oneline
-```
-
-1. `docs: FCM 푸시 알림 구현 계획 문서 작성`
-2. `refactor: 앱 패키지 이름을 litgoal에서 bookgolas로 변경`
-3. `feat: FCM 푸시 알림 패키지 추가`
+1. `docs: FCM Push Notification 구현 계획 문서 추가`
+2. `refactor: 앱 패키지 이름 litgoal → bookgolas 변경 및 Firebase 설정`
+3. `build: FCM 관련 패키지 추가`
 4. `feat: iOS Firebase 및 푸시 알림 네이티브 설정`
-5. `docs: FCM 구현 작업 현황 문서 작성` (FCM_PROGRESS.md)
-6. (다음 커밋 예정) `feat: FCM 서비스 구현 및 알림 설정 UI 추가`
-   - FCMService 클래스 구현
-   - main.dart FCM 초기화
-   - MyPageScreen 알림 설정 UI
-   - import 경로 변경 (lit_goal → book_golas)
+5. `docs: FCM 구현 작업 현황 문서 작성`
+6. `feat: FCM 서비스 구현 및 iOS 설정 완료` ✅
+   - FCMService 클래스 구현 (로컬 알림 스케줄링, 토큰 관리)
+   - iOS Info.plist에 UIBackgroundModes 추가
+   - Supabase fcm_tokens 테이블 생성 완료
+   - FCMService에서 last_used_at → updated_at로 수정
 
 ---
 
