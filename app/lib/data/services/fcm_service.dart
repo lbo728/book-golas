@@ -198,6 +198,33 @@ class FCMService {
     };
   }
 
+  // 테스트용 알림 (30초 후)
+  Future<void> scheduleTestNotification({int seconds = 30}) async {
+    final scheduledTime = tz.TZDateTime.now(tz.local).add(Duration(seconds: seconds));
+
+    await _localNotifications.zonedSchedule(
+      999, // 테스트용 notification id
+      '🔔 테스트 알림',
+      '알림이 정상적으로 작동합니다!',
+      scheduledTime,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'test_channel',
+          'Test Notifications',
+          channelDescription: '테스트 알림',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
+
+    print('테스트 알림 예약 완료: ${seconds}초 후 ($scheduledTime)');
+  }
+
   // FCM 토큰을 Supabase에 저장
   Future<void> saveTokenToSupabase() async {
     if (_fcmToken == null) {
