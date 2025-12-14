@@ -33,11 +33,15 @@ Future<void> main() async {
 
   AppConfig.validateApiKeys();
 
-  // Firebase 초기화
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  debugPrint('Firebase 초기화 완료');
+  // Firebase 초기화 (이미 초기화되어 있으면 스킵)
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    debugPrint('Firebase 초기화 완료');
+  } else {
+    debugPrint('Firebase 이미 초기화됨');
+  }
 
   // 백그라운드 메시지 핸들러 등록
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);

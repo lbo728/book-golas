@@ -466,6 +466,35 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 const Divider(),
                 const SizedBox(height: 16),
                 _buildNotificationSettings(),
+                const SizedBox(height: 16),
+                // 테스트용 알림 버튼
+                Center(
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      await FCMService().scheduleTestNotification(seconds: 30);
+
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('30초 후에 테스트 알림이 발송됩니다! 📱'),
+                            backgroundColor: Colors.green,
+                            duration: Duration(seconds: 3),
+                          ),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.notifications_active),
+                    label: const Text('테스트 알림 (30초 후)'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 32),
                 Center(
                   child: Column(
