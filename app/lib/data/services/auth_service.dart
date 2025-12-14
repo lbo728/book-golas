@@ -144,9 +144,29 @@ class AuthService extends ChangeNotifier {
   Future<UserModel?> fetchCurrentUser() async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return null;
+
+    // maybeSingle()을 사용해서 null 허용
     final data =
-        await _supabase.from('users').select().eq('id', userId).single();
-    _currentUser = UserModel.fromJson(data);
+        await _supabase.from('users').select().eq('id', userId).maybeSingle();
+
+    // 사용자 레코드가 없으면 생성
+    if (data == null) {
+      final email = _supabase.auth.currentUser?.email ?? '';
+      final nickname = email.split('@').first; // 이메일의 @ 앞부분을 닉네임으로
+
+      await _supabase.from('users').insert({
+        'id': userId,
+        'email': email,
+        'nickname': nickname,
+      });
+
+      // 다시 조회
+      final newData = await _supabase.from('users').select().eq('id', userId).single();
+      _currentUser = UserModel.fromJson(newData);
+    } else {
+      _currentUser = UserModel.fromJson(data);
+    }
+
     notifyListeners();
     return _currentUser;
   }
