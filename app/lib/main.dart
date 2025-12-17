@@ -252,6 +252,15 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await FCMService().initialize();
       debugPrint('FCM 서비스 초기화 완료');
+
+      // 알림 터치 시 홈 화면(책 목록)으로 이동
+      FCMService().onNotificationTap = () {
+        debugPrint('📚 알림 터치: 책 목록으로 이동');
+        setState(() {
+          _selectedIndex = 0; // 홈 탭으로 이동
+        });
+      };
+
       // 로그인된 사용자의 토큰을 Supabase에 저장
       FCMService().saveTokenToSupabase();
     });

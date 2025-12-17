@@ -5,7 +5,7 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart';
 
 class FCMService {
   static final FCMService _instance = FCMService._internal();
@@ -19,10 +19,14 @@ class FCMService {
   String? _fcmToken;
   String? get fcmToken => _fcmToken;
 
+  // 알림 터치 콜백
+  Function()? onNotificationTap;
+
   // 초기화
   Future<void> initialize() async {
     // 타임존 데이터 초기화
     tz.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation('Asia/Seoul'));
 
     // 로컬 알림 초기화
     await _initializeLocalNotifications();
@@ -96,8 +100,9 @@ class FCMService {
 
   // 알림 탭 처리
   void _handleNotificationTap(NotificationResponse response) {
-    print('Notification tapped: ${response.payload}');
-    // TODO: 화면 이동 로직 구현
+    debugPrint('📱 알림 탭: ${response.payload}');
+    // 콜백 호출 (현재 읽고 있는 책 페이지로 이동)
+    onNotificationTap?.call();
   }
 
   // 로컬 알림 표시
@@ -133,11 +138,15 @@ class FCMService {
     required int hour,
     required int minute,
   }) async {
+    final scheduledTime = _nextInstanceOfTime(hour, minute);
+    debugPrint('📅 알림 스케줄링: ${hour}시 ${minute}분');
+    debugPrint('📅 다음 알림 시간: $scheduledTime');
+
     await _localNotifications.zonedSchedule(
       0, // notification id
       '오늘의 독서 목표',
       '오늘도 힘차게 독서를 시작해보아요!\n목표 페이지 수를 설정해주세요!',
-      _nextInstanceOfTime(hour, minute),
+      scheduledTime,
       const NotificationDetails(
         android: AndroidNotificationDetails(
           'daily_reminder',
@@ -146,13 +155,19 @@ class FCMService {
           importance: Importance.high,
           priority: Priority.high,
         ),
-        iOS: DarwinNotificationDetails(),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
     );
+
+    debugPrint('✅ 알림 스케줄링 완료');
 
     // SharedPreferences에 설정 저장
     final prefs = await SharedPreferences.getInstance();
