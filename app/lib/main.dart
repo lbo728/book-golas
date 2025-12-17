@@ -29,40 +29,129 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  runApp(const AppBootstrap());
+}
 
-  AppConfig.validateApiKeys();
+class AppBootstrap extends StatelessWidget {
+  const AppBootstrap({super.key});
 
-  // Firebase 초기화 (이미 초기화되어 있으면 스킵)
-  if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    debugPrint('Firebase 초기화 완료');
-  } else {
-    debugPrint('Firebase 이미 초기화됨');
+  Future<void> _init() async {
+    try {
+      debugPrint('🚀 초기화 시작');
+
+      // .env 파일 로드
+      debugPrint('📄 .env 파일 로드 시작');
+      try {
+        await dotenv.load(fileName: ".env");
+        debugPrint('✅ .env 파일 로드 완료');
+      } catch (e) {
+        debugPrint('⚠️ .env 파일 로드 실패: $e');
+        // .env 파일이 없어도 계속 진행 (환경변수로 대체 가능)
+      }
+
+      debugPrint('🔑 API 키 검증 시작');
+      try {
+        AppConfig.validateApiKeys();
+        debugPrint('✅ API 키 검증 완료');
+      } catch (e) {
+        debugPrint('⚠️ API 키 검증 실패: $e');
+      }
+
+      // Firebase 초기화 (이미 초기화되어 있으면 스킵)
+      debugPrint('🔥 Firebase 초기화 시작');
+      if (Firebase.apps.isEmpty) {
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+        debugPrint('✅ Firebase 초기화 완료');
+      } else {
+        debugPrint('✅ Firebase 이미 초기화됨');
+      }
+
+      // 백그라운드 메시지 핸들러 등록
+      debugPrint('📱 FCM 백그라운드 핸들러 등록');
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+      debugPrint('✅ FCM 백그라운드 핸들러 등록 완료');
+
+      // Supabase 초기화
+      debugPrint('🗄️ Supabase 초기화 시작');
+      await Supabase.initialize(
+        url: AppConfig.supabaseUrl,
+        anonKey: AppConfig.supabaseAnonKey,
+        realtimeClientOptions: const RealtimeClientOptions(
+          logLevel: RealtimeLogLevel.info,
+        ),
+      );
+      debugPrint('✅ Supabase 초기화 성공');
+
+      debugPrint('🎉 모든 초기화 완료');
+    } catch (e, stackTrace) {
+      debugPrint('❌ 초기화 중 에러 발생: $e');
+      debugPrint('Stack trace: $stackTrace');
+      rethrow;
+    }
   }
 
-  // 백그라운드 메시지 핸들러 등록
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: _init(),
+      builder: (context, snapshot) {
+        // 에러 발생 시
+        if (snapshot.hasError) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: Scaffold(
+              body: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                      const SizedBox(height: 16),
+                      const Text(
+                        '초기화 중 오류가 발생했습니다',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${snapshot.error}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
 
-  // FCM 서비스 초기화
-  await FCMService().initialize();
-  debugPrint('FCM 서비스 초기화 완료');
+        // 초기화 중
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: Scaffold(
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text('앱을 초기화하는 중...'),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
 
-  await Supabase.initialize(
-    url: AppConfig.supabaseUrl,
-    anonKey: AppConfig.supabaseAnonKey,
-    realtimeClientOptions: const RealtimeClientOptions(
-      logLevel: RealtimeLogLevel.info,
-    ),
-  ).then((_) {
-    debugPrint('Supabase 초기화 성공');
-  }).catchError((error) {
-    debugPrint('Supabase 초기화 실패: $error');
-  });
-
-  runApp(const MyApp());
+        // 초기화 완료
+        return const MyApp();
+      },
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -127,24 +216,10 @@ class AuthWrapper extends StatefulWidget {
 
 class _AuthWrapperState extends State<AuthWrapper> {
   @override
-  void initState() {
-    super.initState();
-    // 로그인 상태 확인 및 토큰 저장
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final authService = context.read<AuthService>();
-      if (authService.currentUser != null) {
-        FCMService().saveTokenToSupabase();
-      }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Consumer<AuthService>(
       builder: (context, authService, _) {
-        // 로그인 상태가 변경될 때마다 토큰 저장
         if (authService.currentUser != null) {
-          FCMService().saveTokenToSupabase();
           return const MainScreen();
         }
         return const LoginScreen();
@@ -172,6 +247,14 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
+
+    // FCM 초기화를 첫 프레임 이후에 실행
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await FCMService().initialize();
+      debugPrint('FCM 서비스 초기화 완료');
+      // 로그인된 사용자의 토큰을 Supabase에 저장
+      FCMService().saveTokenToSupabase();
+    });
   }
 
   @override
