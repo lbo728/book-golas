@@ -53,9 +53,9 @@ class FCMService {
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: false,
-      requestBadgePermission: false,
-      requestSoundPermission: false,
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
     );
 
     const initSettings = InitializationSettings(
@@ -136,7 +136,7 @@ class FCMService {
     await _localNotifications.zonedSchedule(
       0, // notification id
       '오늘의 독서 목표',
-      '오늘의 목표 페이지 수를 설정해주세요!',
+      '오늘도 힘차게 독서를 시작해보아요!\n목표 페이지 수를 설정해주세요!',
       _nextInstanceOfTime(hour, minute),
       const NotificationDetails(
         android: AndroidNotificationDetails(
