@@ -19,6 +19,8 @@ import 'data/services/auth_service.dart';
 import 'data/services/fcm_service.dart';
 import 'ui/auth/widgets/login_screen.dart';
 import 'ui/auth/widgets/my_page_screen.dart';
+import 'domain/models/book.dart';
+import 'ui/book/widgets/book_detail_screen_redesigned.dart';
 
 // 백그라운드 메시지 핸들러 (main 함수 밖에 정의)
 @pragma('vm:entry-point')
@@ -253,16 +255,70 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       await FCMService().initialize();
       debugPrint('FCM 서비스 초기화 완료');
 
-      // 알림 터치 시 홈 화면(책 목록)으로 이동
-      FCMService().onNotificationTap = () {
-        debugPrint('📚 알림 터치: 책 목록으로 이동');
-        setState(() {
-          _selectedIndex = 0; // 홈 탭으로 이동
-        });
+      // 알림 터치 시 현재 읽고 있는 책 상세 페이지로 이동
+      FCMService().onNotificationTap = () async {
+        debugPrint('📚 알림 터치: 현재 읽고 있는 책 페이지로 이동');
+
+        try {
+          final supabase = Supabase.instance.client;
+          final userId = supabase.auth.currentUser?.id;
+
+          if (userId == null) {
+            debugPrint('❌ 사용자 로그인되지 않음');
+            return;
+          }
+
+          // 현재 읽고 있는 책 조회 (완독하지 않은 책 중 가장 최근 업데이트된 책)
+          final response = await supabase
+              .from('books')
+              .select()
+              .eq('user_id', userId)
+              .order('updated_at', ascending: false);
+
+          if (response.isEmpty) {
+            debugPrint('❌ 책이 없습니다');
+            return;
+          }
+
+          // 완독하지 않은 책 찾기
+          final unfinishedBooks = (response as List)
+              .where((bookData) =>
+                  (bookData['current_page'] as int) < (bookData['total_pages'] as int))
+              .toList();
+
+          if (unfinishedBooks.isEmpty) {
+            debugPrint('❌ 현재 읽고 있는 책이 없습니다');
+            // 책이 없으면 홈 화면으로 이동
+            if (mounted) {
+              setState(() {
+                _selectedIndex = 0;
+              });
+            }
+            return;
+          }
+
+          // Book 객체로 변환
+          final book = Book.fromJson(unfinishedBooks.first);
+
+          // 책 상세 페이지로 이동
+          if (mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BookDetailScreenRedesigned(book: book),
+              ),
+            );
+          }
+        } catch (e) {
+          debugPrint('❌ 책 조회 중 에러: $e');
+        }
       };
 
       // 로그인된 사용자의 토큰을 Supabase에 저장
       FCMService().saveTokenToSupabase();
+
+      // 오후 9시 고정 알림 스케줄링
+      FCMService().scheduleEveningReflectionNotification();
     });
   }
 

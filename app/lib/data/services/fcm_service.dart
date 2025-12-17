@@ -240,6 +240,43 @@ class FCMService {
     print('테스트 알림 예약 완료: ${seconds}초 후 ($scheduledTime)');
   }
 
+  // 오후 9시 고정 알림 (독서 현황 업데이트 알림)
+  Future<void> scheduleEveningReflectionNotification() async {
+    const hour = 21; // 오후 9시
+    const minute = 0;
+
+    final scheduledTime = _nextInstanceOfTime(hour, minute);
+    debugPrint('📅 오후 9시 알림 스케줄링');
+    debugPrint('📅 다음 알림 시간: $scheduledTime');
+
+    await _localNotifications.zonedSchedule(
+      1, // notification id (사용자 설정 알림과 구분하기 위해 1 사용)
+      '오늘 독서는 어땠나요?',
+      '현황을 업데이트해주세요!',
+      scheduledTime,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'evening_reflection',
+          'Evening Reading Reflection',
+          channelDescription: '저녁 독서 현황 알림',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
+    );
+
+    debugPrint('✅ 오후 9시 알림 스케줄링 완료');
+  }
+
   // FCM 토큰을 Supabase에 저장
   Future<void> saveTokenToSupabase() async {
     if (_fcmToken == null) {
