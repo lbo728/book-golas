@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../../../data/services/auth_service.dart';
 import '../../../data/services/fcm_service.dart';
@@ -125,6 +126,105 @@ class _MyPageScreenState extends State<MyPageScreen> {
     }
   }
 
+  Future<TimeOfDay?> _showCupertinoTimePicker({
+    required BuildContext context,
+    required TimeOfDay initialTime,
+  }) async {
+    DateTime initialDateTime = DateTime(
+      2025,
+      1,
+      1,
+      initialTime.hour,
+      initialTime.minute,
+    );
+
+    DateTime selectedDateTime = initialDateTime;
+
+    return showModalBottomSheet<TimeOfDay>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          height: 350,
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            children: [
+              // 헤더
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Colors.grey.withOpacity(0.3),
+                      width: 0.5,
+                    ),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text(
+                        '취소',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 17,
+                        ),
+                      ),
+                    ),
+                    const Text(
+                      '시간 설정',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                        final time = TimeOfDay(
+                          hour: selectedDateTime.hour,
+                          minute: selectedDateTime.minute,
+                        );
+                        Navigator.of(context).pop(time);
+                      },
+                      child: const Text(
+                        '확인',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // 날짜 선택기
+              Expanded(
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.time,
+                  initialDateTime: initialDateTime,
+                  use24hFormat: false,
+                  onDateTimeChanged: (DateTime newDateTime) {
+                    selectedDateTime = newDateTime;
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildNotificationSettings() {
     return Column(
       children: [
@@ -173,7 +273,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
             title: const Text('알림 시간'),
             trailing: TextButton(
               onPressed: () async {
-                final time = await showTimePicker(
+                final time = await _showCupertinoTimePicker(
                   context: context,
                   initialTime: _notificationTime,
                 );
