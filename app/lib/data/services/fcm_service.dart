@@ -19,8 +19,8 @@ class FCMService {
   String? _fcmToken;
   String? get fcmToken => _fcmToken;
 
-  // 알림 터치 콜백
-  Function()? onNotificationTap;
+  // 알림 터치 콜백 (payload 포함)
+  void Function(Map<String, dynamic>? payload)? onNotificationTap;
 
   // 초기화
   Future<void> initialize() async {
@@ -87,28 +87,66 @@ class FCMService {
 
   // 포그라운드 메시지 처리
   void _handleForegroundMessage(RemoteMessage message) {
-    print('Foreground message: ${message.notification?.title}');
+    debugPrint('📨 포그라운드 메시지 수신: ${message.notification?.title}');
+    debugPrint('📦 데이터 페이로드: ${message.data}');
 
-    // 로컬 알림으로 표시
+    // 서버에서 보낸 푸시 알림을 로컬 알림으로 표시
     if (message.notification != null) {
       _showLocalNotification(
         title: message.notification!.title ?? '',
         body: message.notification!.body ?? '',
+        payload: message.data.toString(), // 데이터 페이로드 전달
       );
+    }
+
+    // 데이터 페이로드가 있으면 콜백 호출 (딥링크 처리)
+    if (message.data.isNotEmpty) {
+      debugPrint('🔗 딥링크 데이터 처리: ${message.data}');
+      onNotificationTap?.call(message.data);
     }
   }
 
   // 알림 탭 처리
   void _handleNotificationTap(NotificationResponse response) {
     debugPrint('📱 알림 탭: ${response.payload}');
-    // 콜백 호출 (현재 읽고 있는 책 페이지로 이동)
-    onNotificationTap?.call();
+    Map<String, dynamic>? payload;
+    if (response.payload != null && response.payload!.isNotEmpty) {
+      try {
+        payload = _parsePayloadString(response.payload!);
+        debugPrint('📦 파싱된 페이로드: $payload');
+      } catch (e) {
+        debugPrint('페이로드 파싱 실패: $e');
+      }
+    }
+    onNotificationTap?.call(payload);
+  }
+
+  // 페이로드 문자열 파싱 헬퍼
+  // "{bookId: abc, bookTitle: xyz}" 형태를 Map으로 변환
+  Map<String, dynamic> _parsePayloadString(String payloadStr) {
+    final cleanStr = payloadStr.substring(1, payloadStr.length - 1);
+    final map = <String, dynamic>{};
+
+    // 콤마로 분리하되 값에 콤마가 있을 수 있으므로 key: value 패턴으로 파싱
+    final regex = RegExp(r'(\w+):\s*([^,}]+)');
+    final matches = regex.allMatches(cleanStr);
+
+    for (final match in matches) {
+      final key = match.group(1)?.trim();
+      final value = match.group(2)?.trim();
+      if (key != null && value != null) {
+        map[key] = value;
+      }
+    }
+
+    return map;
   }
 
   // 로컬 알림 표시
   Future<void> _showLocalNotification({
     required String title,
     required String body,
+    String? payload,
   }) async {
     const androidDetails = AndroidNotificationDetails(
       'daily_reminder',
@@ -130,6 +168,7 @@ class FCMService {
       title,
       body,
       details,
+      payload: payload, // 페이로드 추가
     );
   }
 
@@ -139,7 +178,7 @@ class FCMService {
     required int minute,
   }) async {
     final scheduledTime = _nextInstanceOfTime(hour, minute);
-    debugPrint('📅 알림 스케줄링: ${hour}시 ${minute}분');
+    debugPrint('📅 알림 스케줄링: $hour시 $minute분');
     debugPrint('📅 다음 알림 시간: $scheduledTime');
 
     await _localNotifications.zonedSchedule(
@@ -215,7 +254,8 @@ class FCMService {
 
   // 테스트용 알림 (30초 후)
   Future<void> scheduleTestNotification({int seconds = 30}) async {
-    final scheduledTime = tz.TZDateTime.now(tz.local).add(Duration(seconds: seconds));
+    final scheduledTime =
+        tz.TZDateTime.now(tz.local).add(Duration(seconds: seconds));
 
     await _localNotifications.zonedSchedule(
       999, // 테스트용 notification id
@@ -237,12 +277,12 @@ class FCMService {
           UILocalNotificationDateInterpretation.absoluteTime,
     );
 
-    print('테스트 알림 예약 완료: ${seconds}초 후 ($scheduledTime)');
+    print('테스트 알림 예약 완료: $seconds초 후 ($scheduledTime)');
   }
 
   // 오후 9시 고정 알림 (독서 현황 업데이트 알림)
   Future<void> scheduleEveningReflectionNotification() async {
-    const hour = 21; // 오후 9시
+    const hour = 2; // 오후 9시
     const minute = 0;
 
     final scheduledTime = _nextInstanceOfTime(hour, minute);
@@ -349,6 +389,46 @@ class FCMService {
       // iOS에서는 한 번 거부하면 앱 설정에서 수동으로 켜야 함
       // 사용자에게 안내 다이얼로그 표시
       print('Please enable notifications in Settings');
+    }
+  }
+
+  // 서버에서 푸시 알림 전송 요청 (테스트용)
+  // 실제 운영에서는 서버에서 자동으로 호출됨
+  Future<bool> requestServerPush({
+    required String title,
+    required String body,
+    Map<String, dynamic>? data,
+  }) async {
+    try {
+      final supabase = Supabase.instance.client;
+      final userId = supabase.auth.currentUser?.id;
+
+      if (userId == null) {
+        debugPrint('❌ 사용자가 로그인되지 않음');
+        return false;
+      }
+
+      // Supabase Edge Function 호출
+      final response = await supabase.functions.invoke(
+        'send-fcm-push',
+        body: {
+          'userId': userId,
+          'title': title,
+          'body': body,
+          'data': data ?? {},
+        },
+      );
+
+      if (response.status == 200) {
+        debugPrint('✅ 서버 푸시 전송 성공');
+        return true;
+      } else {
+        debugPrint('❌ 서버 푸시 전송 실패: ${response.status}');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('❌ 서버 푸시 전송 중 에러: $e');
+      return false;
     }
   }
 }

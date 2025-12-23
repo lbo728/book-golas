@@ -26,7 +26,11 @@ import 'ui/book/widgets/book_detail_screen_redesigned.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  debugPrint('Background message: ${message.notification?.title}');
+  debugPrint('📨 백그라운드 메시지 수신: ${message.notification?.title}');
+  debugPrint('📦 데이터 페이로드: ${message.data}');
+  
+  // 백그라운드에서도 데이터 페이로드를 활용할 수 있음
+  // 예: 로컬 알림 스케줄링, 데이터 저장 등
 }
 
 Future<void> main() async {
@@ -255,9 +259,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       await FCMService().initialize();
       debugPrint('FCM 서비스 초기화 완료');
 
-      // 알림 터치 시 현재 읽고 있는 책 상세 페이지로 이동
-      FCMService().onNotificationTap = () async {
-        debugPrint('📚 알림 터치: 현재 읽고 있는 책 페이지로 이동');
+      // 알림 터치 시 책 상세 페이지로 이동 (딥링크 지원)
+      FCMService().onNotificationTap = (Map<String, dynamic>? payload) async {
+        debugPrint('📚 알림 터치: payload=$payload');
 
         try {
           final supabase = Supabase.instance.client;
@@ -268,44 +272,68 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             return;
           }
 
-          // 현재 읽고 있는 책 조회 (완독하지 않은 책 중 가장 최근 업데이트된 책)
-          final response = await supabase
-              .from('books')
-              .select()
-              .eq('user_id', userId)
-              .order('updated_at', ascending: false);
+          Book? book;
+          final String? bookId = payload?['bookId'];
 
-          if (response.isEmpty) {
-            debugPrint('❌ 책이 없습니다');
-            return;
-          }
+          // 1. bookId가 있으면 해당 책 조회
+          if (bookId != null) {
+            debugPrint('📖 딥링크: 특정 책 조회 (bookId: $bookId)');
+            final response = await supabase
+                .from('books')
+                .select()
+                .eq('id', bookId)
+                .eq('user_id', userId)
+                .maybeSingle();
 
-          // 완독하지 않은 책 찾기
-          final unfinishedBooks = (response as List)
-              .where((bookData) =>
-                  (bookData['current_page'] as int) < (bookData['total_pages'] as int))
-              .toList();
-
-          if (unfinishedBooks.isEmpty) {
-            debugPrint('❌ 현재 읽고 있는 책이 없습니다');
-            // 책이 없으면 홈 화면으로 이동
-            if (mounted) {
-              setState(() {
-                _selectedIndex = 0;
-              });
+            if (response != null) {
+              book = Book.fromJson(response);
+              debugPrint('✅ 책 찾음: ${book.title}');
+            } else {
+              debugPrint('⚠️ bookId로 책을 찾지 못함, 기본 로직 실행');
             }
-            return;
           }
 
-          // Book 객체로 변환
-          final book = Book.fromJson(unfinishedBooks.first);
+          // 2. bookId가 없거나 책을 찾지 못한 경우: 현재 읽고 있는 책 조회
+          if (book == null) {
+            debugPrint('📖 기본 로직: 현재 읽고 있는 책 조회');
+            final response = await supabase
+                .from('books')
+                .select()
+                .eq('user_id', userId)
+                .order('updated_at', ascending: false);
 
-          // 책 상세 페이지로 이동
+            if (response.isEmpty) {
+              debugPrint('❌ 책이 없습니다');
+              return;
+            }
+
+            // 완독하지 않은 책 찾기
+            final unfinishedBooks = (response as List)
+                .where((bookData) =>
+                    (bookData['current_page'] as int) <
+                    (bookData['total_pages'] as int))
+                .toList();
+
+            if (unfinishedBooks.isEmpty) {
+              debugPrint('❌ 현재 읽고 있는 책이 없습니다');
+              if (mounted) {
+                setState(() {
+                  _selectedIndex = 0;
+                });
+              }
+              return;
+            }
+
+            book = Book.fromJson(unfinishedBooks.first);
+          }
+
+          // 3. 책 상세 페이지로 이동
           if (mounted) {
+            final targetBook = book; // non-null 보장
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => BookDetailScreenRedesigned(book: book),
+                builder: (context) => BookDetailScreenRedesigned(book: targetBook),
               ),
             );
           }
