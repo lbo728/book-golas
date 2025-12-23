@@ -1,1 +1,30 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"book-golas","appId":"1:817480840922:android:d98d65121a0161ca73d7e3","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"book-golas","appId":"1:817480840922:ios:a6d9bcdceddd457773d7e3","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"book-golas","configurations":{"android":"1:817480840922:android:d98d65121a0161ca73d7e3","ios":"1:817480840922:ios:a6d9bcdceddd457773d7e3"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "book-golas",
+          "appId": "1:817480840922:android:d98d65121a0161ca73d7e3",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "book-golas",
+          "appId": "1:817480840922:ios:a6d9bcdceddd457773d7e3",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "book-golas",
+          "configurations": {
+            "android": "1:817480840922:android:d98d65121a0161ca73d7e3",
+            "ios": "1:817480840922:ios:a6d9bcdceddd457773d7e3"
+          }
+        }
+      }
+    }
+  }
+}
