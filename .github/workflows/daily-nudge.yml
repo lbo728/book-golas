@@ -1,12 +1,11 @@
-name: Daily Smart Nudge
+name: Hourly Smart Nudge
 
-# 매일 오전 9시, 오후 9시 (한국 시간)에 스마트 넛지 푸시 알림 전송
-# UTC 기준: 00:00 (KST 09:00), 12:00 (KST 21:00)
+# 매 시간 정각에 실행하여 사용자별 선호 시간대에 맞춰 푸시 알림 전송
+# Edge Function에서 현재 KST 시간과 사용자의 preferred_hour를 비교하여 해당 사용자만 처리
 
 on:
   schedule:
-    - cron: '0 0 * * *'   # UTC 00:00 = KST 09:00 (오전 넛지)
-    - cron: '0 12 * * *'  # UTC 12:00 = KST 21:00 (저녁 넛지)
+    - cron: '0 * * * *'   # 매 시간 정각 (UTC)
   workflow_dispatch:  # 수동 실행 가능
 
 jobs:

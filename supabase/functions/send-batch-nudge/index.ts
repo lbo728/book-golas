@@ -1,6 +1,6 @@
 // Supabase Edge Function: 배치 스마트 넛지 푸시 알림 (HTTP v1 API)
-// 모든 활성 사용자를 대상으로 스마트 넛지 분석 후 조건에 맞는 사용자에게 푸시 전송
-// GitHub Actions 스케줄러에서 매일 오전 9시, 오후 9시에 호출
+// 사용자별 선호 시간대에 맞춰 스마트 넛지 분석 후 푸시 전송
+// GitHub Actions 스케줄러에서 매 시간 호출 → 현재 시간과 preferred_hour가 일치하는 사용자만 처리
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -186,10 +186,17 @@ serve(async (req) => {
       }
     );
 
-    // FCM 토큰이 있는 모든 사용자 조회
+    // 현재 KST 시간 계산
+    const now = new Date();
+    const kstHour = (now.getUTCHours() + 9) % 24;
+    console.log(`Current KST hour: ${kstHour}`);
+
+    // 알림 활성화 + 현재 시간대에 알림 받기를 원하는 사용자만 조회
     const { data: usersWithTokens, error: usersError } = await supabaseClient
       .from("fcm_tokens")
-      .select("user_id, token")
+      .select("user_id, token, preferred_hour")
+      .eq("notification_enabled", true)
+      .eq("preferred_hour", kstHour)
       .order("user_id");
 
     if (usersError) {
@@ -205,7 +212,11 @@ serve(async (req) => {
 
     if (!usersWithTokens || usersWithTokens.length === 0) {
       return new Response(
-        JSON.stringify({ message: "No users with FCM tokens found", sent: 0 }),
+        JSON.stringify({
+          message: `No users with FCM tokens found for hour ${kstHour} KST`,
+          currentHourKST: kstHour,
+          sent: 0,
+        }),
         { status: 200, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -312,6 +323,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
+        currentHourKST: kstHour,
         summary: {
           totalUsers: userTokensMap.size,
           sent: totalSent,

@@ -361,13 +361,15 @@ class FCMService {
         }).eq('id', existing['id']);
         print('FCM token updated');
       } else {
-        // 새 토큰 삽입
+        // 새 토큰 삽입 (기본 알림 설정 포함)
         await supabase.from('fcm_tokens').insert({
           'user_id': userId,
           'token': _fcmToken,
           'device_type': deviceType,
+          'preferred_hour': 9,
+          'notification_enabled': true,
         });
-        print('FCM token saved');
+        print('FCM token saved with default notification settings');
       }
     } catch (e) {
       print('Error saving FCM token: $e');
