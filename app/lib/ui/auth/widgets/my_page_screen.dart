@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../../../data/services/auth_service.dart';
+import '../../../data/services/fcm_service.dart';
+import '../../../data/services/notification_settings_service.dart';
+import '../../core/view_model/theme_view_model.dart';
 import 'login_screen.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -34,7 +38,10 @@ class _MyPageScreenState extends State<MyPageScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => context.read<AuthService>().fetchCurrentUser());
+    Future.microtask(() {
+      context.read<AuthService>().fetchCurrentUser();
+      context.read<NotificationSettingsService>().loadSettings();
+    });
   }
 
   void _showDeleteAccountDialog(BuildContext context) {
@@ -105,6 +112,220 @@ class _MyPageScreenState extends State<MyPageScreen> {
     }
   }
 
+  Future<int?> _showHourPicker({
+    required BuildContext context,
+    required int initialHour,
+  }) async {
+    final hours = NotificationSettingsService.getAvailableHours();
+    int selectedIndex = initialHour;
+
+    return showModalBottomSheet<int>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          height: 350,
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Colors.grey.withOpacity(0.3),
+                      width: 0.5,
+                    ),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text(
+                        '취소',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 17,
+                        ),
+                      ),
+                    ),
+                    const Text(
+                      '알림 시간 설정',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                        Navigator.of(context).pop(selectedIndex);
+                      },
+                      child: const Text(
+                        '확인',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: CupertinoPicker(
+                  scrollController: FixedExtentScrollController(
+                    initialItem: initialHour,
+                  ),
+                  itemExtent: 44,
+                  onSelectedItemChanged: (int index) {
+                    selectedIndex = index;
+                  },
+                  children: hours.map((hourData) {
+                    return Center(
+                      child: Text(
+                        hourData['label'] as String,
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildNotificationSettings() {
+    return Consumer<NotificationSettingsService>(
+      builder: (context, settingsService, child) {
+        final settings = settingsService.settings;
+        final isLoading = settingsService.isLoading;
+
+        return Column(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.notifications),
+              title: const Text('매일 독서 목표 알림'),
+              subtitle: Text(
+                settings.notificationEnabled
+                    ? '매일 ${settingsService.getFormattedTime()}에 알림을 받습니다'
+                    : '알림을 받지 않습니다',
+              ),
+              trailing: isLoading
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Switch(
+                      value: settings.notificationEnabled,
+                      onChanged: (value) async {
+                        final success = await settingsService.updateNotificationEnabled(value);
+
+                        if (success) {
+                          if (value) {
+                            await FCMService().scheduleDailyNotification(
+                              hour: settings.preferredHour,
+                              minute: 0,
+                            );
+                          } else {
+                            await FCMService().cancelDailyNotification();
+                          }
+
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  value ? '알림이 활성화되었습니다' : '알림이 비활성화되었습니다',
+                                ),
+                                backgroundColor: value ? Colors.green : null,
+                              ),
+                            );
+                          }
+                        } else if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                settingsService.error ?? '알림 설정 변경에 실패했습니다',
+                              ),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      },
+                    ),
+            ),
+            if (settings.notificationEnabled)
+              ListTile(
+                leading: const SizedBox(width: 24),
+                title: const Text('알림 시간'),
+                trailing: TextButton(
+                  onPressed: isLoading
+                      ? null
+                      : () async {
+                          final selectedHour = await _showHourPicker(
+                            context: context,
+                            initialHour: settings.preferredHour,
+                          );
+
+                          if (selectedHour != null) {
+                            final success = await settingsService.updatePreferredHour(selectedHour);
+
+                            if (success) {
+                              await FCMService().scheduleDailyNotification(
+                                hour: selectedHour,
+                                minute: 0,
+                              );
+
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      '알림 시간이 ${settingsService.getFormattedTime()}으로 변경되었습니다',
+                                    ),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              }
+                            } else if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    settingsService.error ?? '알림 시간 변경에 실패했습니다',
+                                  ),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          }
+                        },
+                  child: Text(
+                    settingsService.getFormattedTime(),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final authService = context.watch<AuthService>();
@@ -114,10 +335,12 @@ class _MyPageScreenState extends State<MyPageScreen> {
       appBar: AppBar(
         title: const Text('마이페이지'),
         centerTitle: false,
-        titleTextStyle: const TextStyle(
+        titleTextStyle: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: Colors.black,
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white
+              : Colors.black,
         ),
       ),
       body: RefreshIndicator(
@@ -327,6 +550,67 @@ class _MyPageScreenState extends State<MyPageScreen> {
                   Text('이메일: ${user.email}'),
                   const SizedBox(height: 32),
                 ],
+                const Divider(),
+                const SizedBox(height: 16),
+                const Text(
+                  '설정',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Consumer<ThemeViewModel>(
+                  builder: (context, themeViewModel, child) {
+                    return ListTile(
+                      leading: Icon(
+                        themeViewModel.isDarkMode
+                            ? Icons.dark_mode
+                            : Icons.light_mode,
+                      ),
+                      title: const Text('다크 모드'),
+                      trailing: Switch(
+                        value: themeViewModel.isDarkMode,
+                        onChanged: (value) {
+                          themeViewModel.toggleTheme();
+                        },
+                      ),
+                    );
+                  },
+                ),
+                const Divider(),
+                const SizedBox(height: 16),
+                _buildNotificationSettings(),
+                const SizedBox(height: 16),
+                // 테스트용 알림 버튼
+                Center(
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      await FCMService().scheduleTestNotification(seconds: 30);
+
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('30초 후에 테스트 알림이 발송됩니다! 📱'),
+                            backgroundColor: Colors.green,
+                            duration: Duration(seconds: 3),
+                          ),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.notifications_active),
+                    label: const Text('테스트 알림 (30초 후)'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
                 Center(
                   child: Column(
                     children: [

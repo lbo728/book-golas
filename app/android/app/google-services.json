@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "817480840922",
+    "project_id": "book-golas",
+    "storage_bucket": "book-golas.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:817480840922:android:d98d65121a0161ca73d7e3",
+        "android_client_info": {
+          "package_name": "com.bookgolas.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhDEH-wSFEW4xyP6GGKjhMbcDj6huMPoY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:817480840922:android:d281dcf820e0fe1573d7e3",
+        "android_client_info": {
+          "package_name": "com.litgoal.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhDEH-wSFEW4xyP6GGKjhMbcDj6huMPoY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

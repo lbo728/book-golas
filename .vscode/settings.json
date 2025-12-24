@@ -1,0 +1,7 @@
+{
+  "cSpell.words": ["golas", "prefs", "supabase"],
+  "deno.enable": true,
+  "deno.enablePaths": ["supabase/functions"],
+  "deno.lint": true,
+  "deno.unstable": true
+}

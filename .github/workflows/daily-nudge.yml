@@ -1,0 +1,39 @@
+name: Hourly Smart Nudge
+
+# 매 시간 정각에 실행하여 사용자별 선호 시간대에 맞춰 푸시 알림 전송
+# Edge Function에서 현재 KST 시간과 사용자의 preferred_hour를 비교하여 해당 사용자만 처리
+
+on:
+  schedule:
+    - cron: '0 * * * *'   # 매 시간 정각 (UTC)
+  workflow_dispatch:  # 수동 실행 가능
+
+jobs:
+  send-batch-nudge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Smart Nudge to All Users
+        run: |
+          echo "🚀 Triggering batch smart nudge..."
+
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/send-batch-nudge" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/json")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+
+          echo "📊 Response (HTTP $HTTP_CODE):"
+          echo "$BODY" | jq . || echo "$BODY"
+
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "✅ Batch nudge completed successfully!"
+          else
+            echo "❌ Batch nudge failed with HTTP $HTTP_CODE"
+            exit 1
+          fi
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

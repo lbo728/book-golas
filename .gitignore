@@ -1,0 +1,11 @@
+# Firebase Service Account (절대 커밋하지 마세요!)
+book-golas-*.json
+*-firebase-adminsdk-*.json
+firebase-service-account*.json
+
+# Supabase
+supabase/.env
+
+# OS
+.DS_Store
+firebase-debug.log
