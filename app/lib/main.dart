@@ -17,6 +17,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
 import 'data/services/auth_service.dart';
 import 'data/services/fcm_service.dart';
+import 'data/services/notification_settings_service.dart';
 import 'ui/auth/widgets/login_screen.dart';
 import 'ui/auth/widgets/my_page_screen.dart';
 import 'domain/models/book.dart';
@@ -182,6 +183,7 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (_) => AuthService()),
         ChangeNotifierProvider(create: (_) => ThemeViewModel()),
+        ChangeNotifierProvider(create: (_) => NotificationSettingsService()),
       ],
       child: Consumer<ThemeViewModel>(
         builder: (context, themeViewModel, child) {
