@@ -29,7 +29,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   debugPrint('📨 백그라운드 메시지 수신: ${message.notification?.title}');
   debugPrint('📦 데이터 페이로드: ${message.data}');
-  
+
   // 백그라운드에서도 데이터 페이로드를 활용할 수 있음
   // 예: 로컬 알림 스케줄링, 데이터 저장 등
 }
@@ -77,7 +77,8 @@ class AppBootstrap extends StatelessWidget {
 
       // 백그라운드 메시지 핸들러 등록
       debugPrint('📱 FCM 백그라운드 핸들러 등록');
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+      FirebaseMessaging.onBackgroundMessage(
+          _firebaseMessagingBackgroundHandler);
       debugPrint('✅ FCM 백그라운드 핸들러 등록 완료');
 
       // Supabase 초기화
@@ -115,11 +116,13 @@ class AppBootstrap extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                      const Icon(Icons.error_outline,
+                          size: 48, color: Colors.red),
                       const SizedBox(height: 16),
                       const Text(
                         '초기화 중 오류가 발생했습니다',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -243,7 +246,8 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateMixin {
+class _MainScreenState extends State<MainScreen>
+    with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
   bool _isDropdownOpen = false;
   late AnimationController _animationController;
@@ -335,7 +339,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => BookDetailScreenRedesigned(book: targetBook),
+                builder: (context) =>
+                    BookDetailScreenRedesigned(book: targetBook),
               ),
             );
           }
@@ -396,7 +401,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   // 부모 컨테이너의 너비를 가져오기 위해 MediaQuery 사용
-                  final containerWidth = MediaQuery.of(context).size.width - 32 - 24; // margin + padding
+                  final containerWidth = MediaQuery.of(context).size.width -
+                      32 -
+                      24; // margin + padding
                   final itemWidth = containerWidth / 3;
                   return AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
@@ -419,9 +426,12 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(0, CupertinoIcons.house_fill, CupertinoIcons.house, '홈'),
-                _buildNavItem(1, CupertinoIcons.chart_bar_square_fill, CupertinoIcons.chart_bar_square, '독서 상태'),
-                _buildNavItem(2, CupertinoIcons.person_crop_circle_fill, CupertinoIcons.person_crop_circle, '마이페이지'),
+                _buildNavItem(
+                    0, CupertinoIcons.house_fill, CupertinoIcons.house, '홈'),
+                _buildNavItem(1, CupertinoIcons.chart_bar_square_fill,
+                    CupertinoIcons.chart_bar_square, '독서 상태'),
+                _buildNavItem(2, CupertinoIcons.person_crop_circle_fill,
+                    CupertinoIcons.person_crop_circle, '마이페이지'),
               ],
             ),
           ],
@@ -430,7 +440,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildNavItem(int index, IconData activeIcon, IconData inactiveIcon, String label) {
+  Widget _buildNavItem(
+      int index, IconData activeIcon, IconData inactiveIcon, String label) {
     final isSelected = _selectedIndex == index;
 
     return Expanded(
@@ -568,7 +579,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w400,
-                                      color: isDark ? Colors.white : Colors.black,
+                                      color:
+                                          isDark ? Colors.white : Colors.black,
                                       decoration: TextDecoration.none,
                                     ),
                                   ),
