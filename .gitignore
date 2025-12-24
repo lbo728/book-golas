@@ -8,3 +8,4 @@ supabase/.env
 
 # OS
 .DS_Store
+firebase-debug.log

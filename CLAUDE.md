@@ -4,7 +4,67 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**LitGoal (북골라스 / Bookgolas)** is a reading goal tracking mobile application built with Flutter. Users can set reading goals, track their progress, and manage their reading history through a simple and intuitive interface.
+**북골라스 / Bookgolas** is a reading goal tracking mobile application built with Flutter. Users can set reading goals, track their progress, and manage their reading history through a simple and intuitive interface.
+
+## Git Commit Rules
+
+- 반드시 **lbo728** 계정으로 커밋, 푸시, PR을 진행해야해.
+- 커밋 메세지는 영문 컨벤셔널 커밋으로 해야해.(단, description은 한글 불릿 포인트로 작성해.)
+- 요청한 작업이 '덩어리' 단위라면 맥락에 맞추어 브랜치를 생성해서 작업해야해.
+  - 맥락 별로 커밋을 만들며 진행해야해.
+  - 작업 덩어리가 완료된다면 main(dev가 있다면 dev)브랜치를 향하는 PR을 생성해서 코멘트를 작성해야해.(하단 템플릿에서 인용문을 지우고 해당 내용을 작성하면돼. PR 이름은 브랜치 이름)
+
+```
+> 이번 PR의 목적을 한 문장으로 요약해주세요.
+>
+> - 예: 사용자가 프로필 정보를 수정할 수 있는 기능을 추가했습니다.
+
+## 📋 Changes
+
+> 주요 변경사항을 bullet로 정리해주세요.
+>
+> - 예:
+>   - `UserProfileEdit.tsx` 컴포넌트 추가
+>   - `/api/user/profile` PUT 엔드포인트 연결
+>   - Validation 로직 추가
+
+## 🧠 Context & Background
+
+> 이 변경이 필요한 이유를 설명해주세요.
+> 관련된 이슈나 문서 링크를 첨부해도 좋아요.
+>
+> - 예: 유저 피드백에 따라 프로필 수정 기능이 필요했습니다. (#45)
+
+## ✅ How to Test
+
+> 테스트 방법을 단계별로 작성해주세요.
+>
+> - 예:
+>   1. `/profile/edit` 페이지로 이동
+>   2. 이름 수정 후 저장 클릭
+>   3. 수정 내용이 DB에 반영되는지 확인
+
+## 🧾 Screenshots or Videos (Optional)
+
+> UI 변경이 있을 경우, Before / After 이미지를 첨부해주세요.
+> 또는 Loom, GitHub Video를 추가해도 좋아요.
+
+## 🔗 Related Issues
+
+> 연관된 이슈를 연결해주세요.
+>
+> - 예:
+>   - Closes: #123
+>   - Related: #456
+
+## 🙌 Additional Notes (Optional)
+
+> 기타 참고사항, TODO, 리뷰어에게 요청사항 등을 작성해주세요. - 예: 스타일 관련 부분은 별도 PR로 분리 예정입니다.
+```
+
+## Code Rules
+
+나에게 리뷰할 때만 주석을 포함해서 알려주고, 커밋 및 푸시 시점에는 주석은 삭제해야해.
 
 ## Tech Stack
 
@@ -18,18 +78,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ### Setup
+
 ```bash
 cd app
 flutter pub get
 ```
 
 ### Running the App
+
 ```bash
 cd app
 flutter run
 ```
 
 ### Testing
+
 ```bash
 cd app
 # Run all tests
@@ -43,12 +106,14 @@ flutter test --coverage
 ```
 
 ### Code Analysis
+
 ```bash
 cd app
 flutter analyze
 ```
 
 ### Build
+
 ```bash
 cd app
 # Android
@@ -62,6 +127,7 @@ flutter build ios
 ## Environment Configuration
 
 The app requires a `.env` file in the `app/` directory with:
+
 - `ALADIN_TTB_KEY`: Aladin API key for book search
 - `SUPABASE_URL`: Supabase project URL
 - `SUPABASE_ANON_KEY`: Supabase anonymous key
@@ -74,16 +140,19 @@ Configuration is validated at app startup via `AppConfig.validateApiKeys()` in m
 ### Layer Structure (3-Layer)
 
 **UI Layer** (`lib/ui/`)
+
 - Feature-based organization with ViewModels and Widgets
 - ViewModels extend `ChangeNotifier` for reactive state management
 - Each feature has its own folder: `home/`, `book/`, `reading/`, `calendar/`, `auth/`
 - Common UI components in `ui/core/ui/`
 
 **Domain Layer** (`lib/domain/`)
+
 - Business models: `Book`, `BookSearchResult`, `UserModel`
 - Pure Dart classes with no framework dependencies
 
 **Data Layer** (`lib/data/`)
+
 - `repositories/`: Data access abstraction (Repository pattern)
 - `services/`: External API communication (Aladin, Supabase) and business services
 - `BookService` acts as an in-memory cache singleton
@@ -91,6 +160,7 @@ Configuration is validated at app startup via `AppConfig.validateApiKeys()` in m
 ### Key Patterns
 
 **MVVM Flow:**
+
 1. View (Widget) triggers user action
 2. ViewModel method is called
 3. ViewModel requests data via Repository
@@ -106,23 +176,27 @@ Provider pattern with `MultiProvider` in main.dart:41-57. Services → Repositor
 ## Core Features
 
 ### Authentication Flow
+
 - Entry point: `AuthWrapper` in main.dart:71-84
 - Uses Supabase Auth with Apple Sign-In support
 - `AuthService` manages user state via `ChangeNotifier`
 - Logged-in users see `MainScreen`, others see `LoginScreen`
 
 ### Navigation
+
 - Bottom navigation with 3 tabs: Home (BookListScreen), Reading Stats (ReadingChartScreen), My Page (MyPageScreen)
 - Floating Action Button for "Start New Reading"
 - Routing definitions in `routing/app_router.dart`
 
 ### Book Management
+
 - Search books via Aladin API (`AladinApiService.searchBooks()`)
 - Aladin API makes two calls per book: ItemSearch for list, then ItemLookUp for detailed page count
 - Books stored in Supabase `books` table
 - CRUD operations through `BookRepository` → `BookService`
 
 ### Reading Progress Tracking
+
 - Users set start date, target completion date, and daily page goals
 - Current page updates tracked with timestamps
 - Progress visualization in charts using fl_chart
@@ -131,6 +205,7 @@ Provider pattern with `MultiProvider` in main.dart:41-57. Services → Repositor
 ## Database Schema
 
 **books table** (Supabase):
+
 - `id` (UUID, PK)
 - `user_id` (UUID, FK to auth.users)
 - `title` (TEXT)
@@ -144,12 +219,14 @@ Provider pattern with `MultiProvider` in main.dart:41-57. Services → Repositor
 - `created_at`, `updated_at` (TIMESTAMP)
 
 **reading_progress table**:
+
 - Tracks daily page updates with timestamps
 - Used for historical charts and streak calculations
 
 ## Important Implementation Notes
 
 ### Aladin API Integration
+
 - Base URL: `http://www.aladin.co.kr/ttb/api/`
 - Search endpoint: `ItemSearch.aspx`
 - Detail endpoint: `ItemLookUp.aspx`
@@ -158,16 +235,19 @@ Provider pattern with `MultiProvider` in main.dart:41-57. Services → Repositor
 - Implementation: app/lib/data/services/aladin_api_service.dart
 
 ### Supabase Integration
+
 - Initialized in main.dart:24-31 before app runs
 - Row-Level Security (RLS) should be enabled for production
 - Currently allows all access in development (see PRD.md:289)
 
 ### State Management
+
 - HomeViewModel tracks book list state, loading, and errors
 - Provider's `Consumer` widgets listen to ViewModels
 - Call `notifyListeners()` after any state change
 
 ### Image Handling
+
 - Book covers from Aladin API
 - Fallback icon for missing images
 - Widget: `BookImageWidget` in ui/core/ui/
@@ -175,6 +255,7 @@ Provider pattern with `MultiProvider` in main.dart:41-57. Services → Repositor
 ## Common Development Workflows
 
 ### Adding a New Feature Screen
+
 1. Create feature folder in `lib/ui/<feature_name>/`
 2. Add `view_model/` for ViewModel (extends ChangeNotifier)
 3. Add `widgets/` for UI screens
@@ -182,12 +263,14 @@ Provider pattern with `MultiProvider` in main.dart:41-57. Services → Repositor
 5. Add route in `app_router.dart`
 
 ### Adding a New Data Model
+
 1. Create model in `lib/domain/models/`
 2. Add JSON serialization methods (`fromJson`, `toJson`)
 3. Update Repository interface if needed
 4. Implement in Service layer
 
 ### API Integration
+
 1. Add API calls in `lib/data/services/`
 2. Handle errors with try-catch blocks
 3. Return null or empty lists on failure
@@ -196,6 +279,7 @@ Provider pattern with `MultiProvider` in main.dart:41-57. Services → Repositor
 ## Project Roadmap
 
 See BOOKGOLAS_ROADMAP.md for detailed roadmap. Key upcoming features:
+
 - Enhanced UI/UX redesign
 - AI-powered book recommendations
 - Reading calendar with streak tracking
