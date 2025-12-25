@@ -66,39 +66,18 @@ export default function TestPushPage() {
       setTemplates(templatesData);
     }
 
-    // Fetch ALL users with FCM tokens (notification_enabled 필터 제거)
-    const { data: tokensData, error: tokensError } = await supabase
-      .from("fcm_tokens")
-      .select("user_id, token, device_type");
+    // Fetch ALL users with FCM tokens via API route (bypasses RLS)
+    try {
+      const response = await fetch("/api/admin/fcm-tokens");
+      const data = await response.json();
 
-    console.log("Tokens:", tokensData, tokensError);
+      console.log("FCM Tokens API response:", data);
 
-    if (tokensData && tokensData.length > 0) {
-      // Group by user and count tokens
-      const userMap = new Map<string, { user_id: string; token_count: number; device_type: string }>();
-      tokensData.forEach((row) => {
-        const existing = userMap.get(row.user_id);
-        if (existing) {
-          existing.token_count++;
-        } else {
-          userMap.set(row.user_id, {
-            user_id: row.user_id,
-            token_count: 1,
-            device_type: row.device_type || "unknown",
-          });
-        }
-      });
-
-      const usersWithEmail: UserWithToken[] = [];
-      for (const [userId, data] of userMap) {
-        usersWithEmail.push({
-          user_id: userId,
-          email: userId.slice(0, 8) + "...",
-          token_count: data.token_count,
-          device_type: data.device_type,
-        });
+      if (data.users && data.users.length > 0) {
+        setUsers(data.users);
       }
-      setUsers(usersWithEmail);
+    } catch (error) {
+      console.error("Error fetching FCM tokens:", error);
     }
 
     setLoading(false);
