@@ -34,8 +34,8 @@ function LoginForm() {
       return;
     }
 
-    router.push("/admin");
-    router.refresh();
+    // 하드 리다이렉트로 세션 쿠키가 제대로 반영되도록 함
+    window.location.href = "/admin";
   }
 
   return (
