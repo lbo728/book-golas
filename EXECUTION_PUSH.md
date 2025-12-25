@@ -46,7 +46,7 @@ book-golas/
 - [x] 클릭 이벤트 수집 API (log-push-click)
 - [ ] Flutter 클릭 이벤트 전송 (앱 작업 필요)
 
-### Phase 4: 웹 어드민 ✅ 거의 완료
+### Phase 4: 웹 어드민 ✅ 완료
 - [x] Next.js 16 + shadcn/ui 프로젝트 구축
 - [x] Supabase 연동
 - [x] 대시보드 (/admin) - 오늘 발송량, CTR, 타입별 분포
@@ -54,7 +54,7 @@ book-golas/
 - [x] 발송 로그 조회 (/admin/push-logs)
 - [x] 테스트 발송 (/admin/test-push) - 추가 구현
 - [x] Vercel 배포
-- [ ] 관리자 인증 (middleware)
+- [x] 관리자 인증 (middleware) - 이메일 화이트리스트 기반
 
 ### 미구현
 - [ ] Anti-Nudge (3회 미클릭 시 중단)
@@ -404,11 +404,11 @@ Day 4+: 확장
 - [ ] time_currency 타입 추가
 - [ ] 남은 시간 계산 로직
 
-### Phase 4: 웹 어드민
+### Phase 4: 웹 어드민 ✅
 - [x] Next.js 프로젝트 초기화
 - [x] shadcn/ui 설치 및 설정
 - [x] Supabase 연동
-- [ ] 관리자 인증 (middleware)
+- [x] 관리자 인증 (middleware)
 - [x] 대시보드 페이지 (/admin)
 - [x] 푸시 템플릿 CRUD (/admin/push-templates)
 - [x] 발송 로그 조회 (/admin/push-logs)
