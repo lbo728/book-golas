@@ -14,7 +14,17 @@ interface UserWithToken {
   user_id: string;
   email: string;
   token_count: number;
+  device_type: string;
 }
+
+// 템플릿별 필요한 변수 정의
+const TEMPLATE_VARIABLES: Record<string, string[]> = {
+  inactive: ["days", "bookTitle"],
+  deadline: ["bookTitle", "days"],
+  progress: ["bookTitle", "percent"],
+  streak: ["days"],
+  achievement: ["bookTitle"],
+};
 
 export default function TestPushPage() {
   const [templates, setTemplates] = useState<PushTemplate[]>([]);
@@ -29,6 +39,13 @@ export default function TestPushPage() {
   const [customTitle, setCustomTitle] = useState("테스트 푸시 알림");
   const [customBody, setCustomBody] = useState("이것은 테스트 메시지입니다.");
 
+  // 템플릿 변수 값
+  const [variables, setVariables] = useState<Record<string, string>>({
+    days: "3",
+    bookTitle: "클린 코드",
+    percent: "85",
+  });
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -37,50 +54,63 @@ export default function TestPushPage() {
     setLoading(true);
 
     // Fetch templates
-    const { data: templatesData } = await supabase
+    const { data: templatesData, error: templatesError } = await supabase
       .from("push_templates")
       .select("*")
       .eq("is_active", true)
       .order("priority");
 
+    console.log("Templates:", templatesData, templatesError);
+
     if (templatesData) {
       setTemplates(templatesData);
     }
 
-    // Fetch users with FCM tokens
-    const { data: tokensData } = await supabase
+    // Fetch ALL users with FCM tokens (notification_enabled 필터 제거)
+    const { data: tokensData, error: tokensError } = await supabase
       .from("fcm_tokens")
-      .select("user_id, token")
-      .eq("notification_enabled", true);
+      .select("user_id, token, device_type");
 
-    if (tokensData) {
+    console.log("Tokens:", tokensData, tokensError);
+
+    if (tokensData && tokensData.length > 0) {
       // Group by user and count tokens
-      const userMap = new Map<string, { user_id: string; token_count: number }>();
+      const userMap = new Map<string, { user_id: string; token_count: number; device_type: string }>();
       tokensData.forEach((row) => {
         const existing = userMap.get(row.user_id);
         if (existing) {
           existing.token_count++;
         } else {
-          userMap.set(row.user_id, { user_id: row.user_id, token_count: 1 });
+          userMap.set(row.user_id, {
+            user_id: row.user_id,
+            token_count: 1,
+            device_type: row.device_type || "unknown",
+          });
         }
       });
 
-      // Fetch user emails
-      const userIds = Array.from(userMap.keys());
-      if (userIds.length > 0) {
-        const usersWithEmail: UserWithToken[] = [];
-        for (const [userId, data] of userMap) {
-          usersWithEmail.push({
-            user_id: userId,
-            email: userId.slice(0, 8) + "...", // Truncate UUID for display
-            token_count: data.token_count,
-          });
-        }
-        setUsers(usersWithEmail);
+      const usersWithEmail: UserWithToken[] = [];
+      for (const [userId, data] of userMap) {
+        usersWithEmail.push({
+          user_id: userId,
+          email: userId.slice(0, 8) + "...",
+          token_count: data.token_count,
+          device_type: data.device_type,
+        });
       }
+      setUsers(usersWithEmail);
     }
 
     setLoading(false);
+  }
+
+  // 변수 치환 함수
+  function replaceVariables(text: string): string {
+    let result = text;
+    for (const [key, value] of Object.entries(variables)) {
+      result = result.replace(new RegExp(`\\{${key}\\}`, "g"), value);
+    }
+    return result;
   }
 
   async function handleSendTest() {
@@ -93,15 +123,22 @@ export default function TestPushPage() {
     setResult(null);
 
     try {
-      const selectedTemplateData = templates.find(t => t.type === selectedTemplate);
+      const selectedTemplateData = templates.find((t) => t.type === selectedTemplate);
 
-      const title = selectedTemplate === "custom"
-        ? customTitle
-        : selectedTemplateData?.title || customTitle;
+      let title: string;
+      let body: string;
 
-      const body = selectedTemplate === "custom"
-        ? customBody
-        : selectedTemplateData?.body_template || customBody;
+      if (selectedTemplate === "custom") {
+        title = customTitle;
+        body = customBody;
+      } else if (selectedTemplateData) {
+        // 템플릿의 변수를 치환
+        title = selectedTemplateData.title;
+        body = replaceVariables(selectedTemplateData.body_template);
+      } else {
+        title = customTitle;
+        body = customBody;
+      }
 
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/send-test-push`,
@@ -109,7 +146,7 @@ export default function TestPushPage() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
           },
           body: JSON.stringify({
             userId: selectedUser,
@@ -125,25 +162,34 @@ export default function TestPushPage() {
       if (response.ok && data.success) {
         setResult({
           success: true,
-          message: `발송 성공! ${data.sentCount}개 디바이스에 전송되었습니다.`
+          message: `발송 성공! ${data.sentCount}개 디바이스에 전송되었습니다.`,
         });
       } else {
         setResult({
           success: false,
-          message: data.error || "발송에 실패했습니다."
+          message: data.error || "발송에 실패했습니다.",
         });
       }
     } catch (error) {
       setResult({
         success: false,
-        message: `에러 발생: ${error instanceof Error ? error.message : "알 수 없는 에러"}`
+        message: `에러 발생: ${error instanceof Error ? error.message : "알 수 없는 에러"}`,
       });
     } finally {
       setSending(false);
     }
   }
 
-  const selectedTemplateData = templates.find(t => t.type === selectedTemplate);
+  const selectedTemplateData = templates.find((t) => t.type === selectedTemplate);
+  const requiredVariables = selectedTemplate !== "custom" ? TEMPLATE_VARIABLES[selectedTemplate] || [] : [];
+
+  // 미리보기용 본문 (변수 치환 적용)
+  const previewBody =
+    selectedTemplate === "custom"
+      ? customBody
+      : selectedTemplateData
+        ? replaceVariables(selectedTemplateData.body_template)
+        : "본문";
 
   return (
     <div className="space-y-6">
@@ -170,13 +216,13 @@ export default function TestPushPage() {
                 <SelectContent>
                   {users.map((user) => (
                     <SelectItem key={user.user_id} value={user.user_id}>
-                      {user.email} ({user.token_count}개 디바이스)
+                      {user.email} ({user.token_count}개 디바이스, {user.device_type})
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <p className="text-xs text-gray-500">
-                알림이 활성화된 사용자만 표시됩니다.
+                FCM 토큰이 등록된 사용자: {users.length}명
               </p>
             </div>
 
@@ -222,20 +268,43 @@ export default function TestPushPage() {
               </>
             )}
 
+            {/* 템플릿 변수 입력 */}
+            {selectedTemplate !== "custom" && requiredVariables.length > 0 && (
+              <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
+                <Label className="text-sm font-medium">템플릿 변수</Label>
+                {requiredVariables.map((varName) => (
+                  <div key={varName} className="space-y-1">
+                    <Label htmlFor={varName} className="text-xs text-gray-600">
+                      {varName === "days" && "일수 (days)"}
+                      {varName === "bookTitle" && "책 제목 (bookTitle)"}
+                      {varName === "percent" && "진행률 % (percent)"}
+                    </Label>
+                    <Input
+                      id={varName}
+                      value={variables[varName] || ""}
+                      onChange={(e) =>
+                        setVariables((prev) => ({ ...prev, [varName]: e.target.value }))
+                      }
+                      placeholder={`{${varName}} 값 입력`}
+                      className="h-8 text-sm"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* 발송 버튼 */}
-            <Button
-              onClick={handleSendTest}
-              disabled={sending || !selectedUser}
-              className="w-full"
-            >
+            <Button onClick={handleSendTest} disabled={sending || !selectedUser} className="w-full">
               {sending ? "발송 중..." : "테스트 발송"}
             </Button>
 
             {/* 결과 메시지 */}
             {result && (
-              <div className={`p-3 rounded-md ${
-                result.success ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
-              }`}>
+              <div
+                className={`p-3 rounded-md ${
+                  result.success ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                }`}
+              >
                 {result.message}
               </div>
             )}
@@ -264,11 +333,7 @@ export default function TestPushPage() {
                       ? customTitle
                       : selectedTemplateData?.title || "제목"}
                   </p>
-                  <p className="text-sm text-gray-300 mt-0.5 truncate">
-                    {selectedTemplate === "custom"
-                      ? customBody
-                      : selectedTemplateData?.body_template || "본문"}
-                  </p>
+                  <p className="text-sm text-gray-300 mt-0.5">{previewBody}</p>
                 </div>
               </div>
             </div>
@@ -284,24 +349,21 @@ export default function TestPushPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">대상</span>
-                  <span>{selectedUser ? users.find(u => u.user_id === selectedUser)?.email : "-"}</span>
+                  <span>
+                    {selectedUser ? users.find((u) => u.user_id === selectedUser)?.email : "-"}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">디바이스</span>
-                  <span>{selectedUser ? users.find(u => u.user_id === selectedUser)?.token_count || 0 : 0}개</span>
+                  <span>
+                    {selectedUser
+                      ? users.find((u) => u.user_id === selectedUser)?.token_count || 0
+                      : 0}
+                    개
+                  </span>
                 </div>
               </div>
             </div>
-
-            {/* 변수 안내 */}
-            {selectedTemplate !== "custom" && selectedTemplateData && (
-              <div className="mt-6 p-3 bg-yellow-50 rounded-md">
-                <p className="text-xs text-yellow-800">
-                  <strong>참고:</strong> 템플릿의 변수({"{days}"}, {"{bookTitle}"} 등)는
-                  테스트 발송 시 실제 값으로 치환되지 않습니다.
-                </p>
-              </div>
-            )}
           </CardContent>
         </Card>
       </div>
@@ -318,7 +380,12 @@ export default function TestPushPage() {
           {loading ? (
             <p className="text-gray-500">로딩 중...</p>
           ) : users.length === 0 ? (
-            <p className="text-gray-500">FCM 토큰이 등록된 사용자가 없습니다.</p>
+            <div className="text-center py-8">
+              <p className="text-gray-500 mb-2">FCM 토큰이 등록된 사용자가 없습니다.</p>
+              <p className="text-xs text-gray-400">
+                앱에서 푸시 알림을 허용한 사용자만 표시됩니다.
+              </p>
+            </div>
           ) : (
             <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
               {users.map((user) => (
@@ -332,8 +399,11 @@ export default function TestPushPage() {
                   onClick={() => setSelectedUser(user.user_id)}
                 >
                   <div className="font-mono text-sm">{user.user_id.slice(0, 8)}...</div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    {user.token_count}개 디바이스
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-gray-500">{user.token_count}개 디바이스</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {user.device_type}
+                    </Badge>
                   </div>
                 </div>
               ))}
