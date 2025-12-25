@@ -8,6 +8,7 @@ const navItems = [
   { href: "/admin", label: "대시보드", icon: "📊" },
   { href: "/admin/push-templates", label: "푸시 템플릿", icon: "📝" },
   { href: "/admin/push-logs", label: "발송 로그", icon: "📋" },
+  { href: "/admin/test-push", label: "테스트 발송", icon: "🚀" },
 ];
 
 export default function AdminLayout({
