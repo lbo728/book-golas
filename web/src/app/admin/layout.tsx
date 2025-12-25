@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/lib/supabase";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 
 const navItems = [
   { href: "/admin", label: "대시보드", icon: "📊" },
@@ -17,6 +20,26 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function getUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserEmail(user?.email || null);
+    }
+    getUser();
+  }, []);
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    router.push("/admin/login");
+    router.refresh();
+  }
+
+  if (pathname === "/admin/login") {
+    return <>{children}</>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -44,6 +67,14 @@ export default function AdminLayout({
                   </Link>
                 ))}
               </div>
+            </div>
+            <div className="flex items-center gap-4">
+              {userEmail && (
+                <span className="text-sm text-gray-500">{userEmail}</span>
+              )}
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                로그아웃
+              </Button>
             </div>
           </div>
         </div>

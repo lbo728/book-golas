@@ -33,21 +33,33 @@ book-golas/
 
 ---
 
-## 현재 상태 요약
+## 현재 상태 요약 (2025-12-25 업데이트)
 
-### 구현 완료
+### Phase 1: 푸시 관리 인프라 ✅ 완료
 - [x] 기본 FCM 인프라 (send-fcm-push, send-smart-nudge, send-batch-nudge)
 - [x] 사용자별 알림 시간 설정 (preferred_hour)
 - [x] 알림 ON/OFF 토글
 - [x] 넛지 타입: inactive, deadline, progress, streak, achievement
 - [x] Deep Link 처리 (bookId → 상세 화면)
+- [x] push_logs 테이블 (발송/클릭 이력)
+- [x] push_templates 테이블 (메시지 관리)
+- [x] 클릭 이벤트 수집 API (log-push-click)
+- [ ] Flutter 클릭 이벤트 전송 (앱 작업 필요)
+
+### Phase 4: 웹 어드민 ✅ 거의 완료
+- [x] Next.js 16 + shadcn/ui 프로젝트 구축
+- [x] Supabase 연동
+- [x] 대시보드 (/admin) - 오늘 발송량, CTR, 타입별 분포
+- [x] 푸시 템플릿 CRUD (/admin/push-templates)
+- [x] 발송 로그 조회 (/admin/push-logs)
+- [x] 테스트 발송 (/admin/test-push) - 추가 구현
+- [x] Vercel 배포
+- [ ] 관리자 인증 (middleware)
 
 ### 미구현
-- [ ] push_logs 테이블 (발송/클릭 이력)
-- [ ] push_templates 테이블 (메시지 관리)
 - [ ] Anti-Nudge (3회 미클릭 시 중단)
 - [ ] Time Currency (남은 시간 계산)
-- [ ] 클릭 이벤트 수집 API
+- [ ] 랜딩 페이지
 
 ---
 
@@ -375,13 +387,13 @@ Day 4+: 확장
 
 ---
 
-## 체크리스트
+## 체크리스트 (2025-12-25 업데이트)
 
 ### Phase 1: 푸시 관리 인프라
-- [ ] push_templates 마이그레이션
-- [ ] push_logs 마이그레이션
-- [ ] send-batch-nudge 로그 저장 추가
-- [ ] log-push-click Edge Function
+- [x] push_templates 마이그레이션
+- [x] push_logs 마이그레이션
+- [x] send-batch-nudge 로그 저장 추가
+- [x] log-push-click Edge Function
 - [ ] Flutter 클릭 이벤트 전송
 
 ### Phase 2: Anti-Nudge
@@ -393,14 +405,15 @@ Day 4+: 확장
 - [ ] 남은 시간 계산 로직
 
 ### Phase 4: 웹 어드민
-- [ ] Next.js 프로젝트 초기화
-- [ ] shadcn/ui 설치 및 설정
-- [ ] Supabase 연동
+- [x] Next.js 프로젝트 초기화
+- [x] shadcn/ui 설치 및 설정
+- [x] Supabase 연동
 - [ ] 관리자 인증 (middleware)
-- [ ] 대시보드 페이지 (/admin)
-- [ ] 푸시 템플릿 CRUD (/admin/push-templates)
-- [ ] 발송 로그 조회 (/admin/push-logs)
-- [ ] Vercel 배포
+- [x] 대시보드 페이지 (/admin)
+- [x] 푸시 템플릿 CRUD (/admin/push-templates)
+- [x] 발송 로그 조회 (/admin/push-logs)
+- [x] 테스트 발송 (/admin/test-push)
+- [x] Vercel 배포
 
 ### Phase 5: 랜딩 페이지 (선택)
 - [ ] 랜딩 페이지 디자인
