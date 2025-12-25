@@ -274,6 +274,15 @@ serve(async (req) => {
         if (successCount > 0) {
           results.push({ userId, nudgeType: nudge.type, success: true });
           totalSent++;
+
+          // push_logs에 발송 기록 저장
+          await supabaseClient.from("push_logs").insert({
+            user_id: userId,
+            push_type: nudge.type,
+            book_id: nudge.data?.bookId || null,
+            title: nudge.title,
+            body: nudge.body,
+          });
         } else {
           results.push({
             userId,
@@ -352,6 +361,36 @@ serve(async (req) => {
   }
 });
 
+// 푸시 템플릿 캐시
+let templatesCache: Map<string, { title: string; body_template: string }> | null = null;
+
+// 푸시 템플릿 로드
+async function loadPushTemplates(supabaseClient: any): Promise<Map<string, { title: string; body_template: string }>> {
+  if (templatesCache) return templatesCache;
+
+  const { data: templates } = await supabaseClient
+    .from("push_templates")
+    .select("type, title, body_template")
+    .eq("is_active", true);
+
+  templatesCache = new Map();
+  if (templates) {
+    templates.forEach((t: any) => {
+      templatesCache!.set(t.type, { title: t.title, body_template: t.body_template });
+    });
+  }
+  return templatesCache;
+}
+
+// 템플릿 변수 치환
+function replaceTemplateVariables(template: string, variables: Record<string, string>): string {
+  let result = template;
+  for (const [key, value] of Object.entries(variables)) {
+    result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value);
+  }
+  return result;
+}
+
 // 사용자의 독서 상태를 분석하여 맞춤형 넛지 생성
 async function analyzeUserReadingState(
   supabaseClient: any,
@@ -413,71 +452,49 @@ async function analyzeUserReadingState(
 
   // 5. 넛지 타입 결정 (우선순위: 비활성 > 마감일 임박 > 진행률 > 연속일)
   let nudgeType: string = "";
+  let variables: Record<string, string> = {};
 
   if (daysSinceLastReading !== null && daysSinceLastReading >= 3) {
     nudgeType = "inactive";
+    variables = { days: String(daysSinceLastReading), bookTitle: currentBook.title };
   } else if (
     daysUntilDeadline !== null &&
     daysUntilDeadline > 0 &&
     daysUntilDeadline <= 3
   ) {
     nudgeType = "deadline";
+    variables = { days: String(daysUntilDeadline), bookTitle: currentBook.title };
   } else if (progress >= 0.8 && progress < 1.0) {
     nudgeType = "progress";
+    variables = { percent: String(Math.round(progress * 100)), bookTitle: currentBook.title };
   } else if (streak > 0 && streak < 7) {
     nudgeType = "streak";
+    variables = { days: String(streak) };
   } else {
     return null;
   }
 
-  // 6. 맞춤형 메시지 생성
+  // 6. 템플릿에서 메시지 생성
+  const templates = await loadPushTemplates(supabaseClient);
+  const template = templates.get(nudgeType);
+
   let title = "";
   let body = "";
-  let data: Record<string, string> = {};
 
-  switch (nudgeType) {
-    case "inactive":
-      title = "독서를 잊지 마세요! 📚";
-      body = `${daysSinceLastReading}일째 독서를 안 했네요. 다시 시작해볼까요?`;
-      data = {
-        bookId: currentBook.id,
-        bookTitle: currentBook.title,
-        daysInactive: String(daysSinceLastReading),
-      };
-      break;
-
-    case "deadline":
-      title = "목표 완료까지 얼마 안 남았어요! ⏰";
-      body = `"${currentBook.title}" 완독까지 ${daysUntilDeadline}일 남았습니다.`;
-      data = {
-        bookId: currentBook.id,
-        bookTitle: currentBook.title,
-        daysRemaining: String(daysUntilDeadline),
-      };
-      break;
-
-    case "progress":
-      const progressPercent = Math.round(progress * 100);
-      title = "목표 달성까지 조금만 더! 🎯";
-      body = `"${currentBook.title}" ${progressPercent}% 완독했습니다. 조금만 더 화이팅!`;
-      data = {
-        bookId: currentBook.id,
-        bookTitle: currentBook.title,
-        progress: String(progressPercent),
-      };
-      break;
-
-    case "streak":
-      title = "독서 연속일을 이어가세요! 🔥";
-      body = `독서 연속일이 ${streak}일입니다! 오늘도 읽어볼까요?`;
-      data = {
-        streak: String(streak),
-      };
-      break;
-
-    default:
-      return null;
+  if (template) {
+    title = template.title;
+    body = replaceTemplateVariables(template.body_template, variables);
+  } else {
+    // 템플릿이 없을 경우 기본 메시지 (fallback)
+    title = "독서 알림 📚";
+    body = "오늘도 독서 목표를 향해 나아가세요!";
   }
+
+  const data: Record<string, string> = {
+    bookId: currentBook.id,
+    bookTitle: currentBook.title,
+    ...variables,
+  };
 
   return {
     type: nudgeType as any,
