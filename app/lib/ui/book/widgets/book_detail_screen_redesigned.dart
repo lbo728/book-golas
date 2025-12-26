@@ -48,6 +48,9 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   late Future<List<Map<String, dynamic>>> _bookImagesFuture;
   late Future<List<Map<String, dynamic>>> _progressHistoryFuture;
 
+  // 로컬 캐시: 서버 데이터 로드 완료 후 로컬에서 관리
+  List<Map<String, dynamic>>? _cachedImages;
+
   @override
   void initState() {
     super.initState();
@@ -77,7 +80,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
     entry = OverlayEntry(
       builder: (context) => Positioned(
-        bottom: 100,
+        bottom: 24,
         left: 16,
         right: 16,
         child: Material(
@@ -1623,8 +1626,12 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         .delete()
         .eq('id', imageId);
 
-    // 캐시 새로고침
+    // 로컬 캐시에서 직접 제거 (리로딩 없이 즉시 반영)
     setState(() {
+      if (_cachedImages != null) {
+        _cachedImages = _cachedImages!.where((img) => img['id'] != imageId).toList();
+      }
+      // 백그라운드에서 서버 데이터 동기화
       _bookImagesFuture = fetchBookImages(_currentBook.id!);
     });
   }
@@ -1842,48 +1849,9 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         opaque: false,
         barrierColor: Colors.black87,
         pageBuilder: (context, animation, secondaryAnimation) {
-          return FadeTransition(
-            opacity: animation,
-            child: Scaffold(
-              backgroundColor: Colors.transparent,
-              body: Stack(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: Container(
-                      color: Colors.transparent,
-                      width: double.infinity,
-                      height: double.infinity,
-                    ),
-                  ),
-                  Center(
-                    child: InteractiveViewer(
-                      minScale: 0.5,
-                      maxScale: 4.0,
-                      child: Image.memory(
-                        imageBytes,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-                  SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Colors.black54,
-                        ),
-                        icon: const Icon(
-                          CupertinoIcons.xmark,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          return _DraggableDismissImage(
+            animation: animation,
+            imageBytes: imageBytes,
           );
         },
       ),
@@ -1906,15 +1874,21 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       publicUrl = storage.from('book-images').getPublicUrl(fileName);
     }
 
-    await Supabase.instance.client.from('book_images').insert({
+    // insert 후 새 레코드 반환받기
+    final result = await Supabase.instance.client.from('book_images').insert({
       'book_id': _currentBook.id,
       'image_url': publicUrl,
       'caption': '',
       'extracted_text': extractedText.isEmpty ? null : extractedText,
       'page_number': pageNumber,
-    });
+    }).select().single();
 
+    // 로컬 캐시에 직접 추가 (리로딩 없이 즉시 반영)
     setState(() {
+      if (_cachedImages != null) {
+        _cachedImages = [result, ..._cachedImages!];
+      }
+      // 백그라운드에서 서버 데이터 동기화
       _bookImagesFuture = fetchBookImages(_currentBook.id!);
     });
 
@@ -1940,6 +1914,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     String extractedText = '';
     int? pageNumber;
     bool isUploading = false;
+    String? pageValidationError; // 페이지 유효성 검사 에러
 
     final textController = TextEditingController();
     final pageController = TextEditingController();
@@ -1950,8 +1925,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      isDismissible: false,
-      enableDrag: false,
+      isDismissible: true,
+      enableDrag: true,
       backgroundColor: Colors.transparent,
       builder: (modalContext) {
         return StatefulBuilder(
@@ -1965,13 +1940,15 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                 padding: EdgeInsets.only(
                   bottom: MediaQuery.of(context).viewInsets.bottom,
                 ),
-                child: Container(
-                  height: MediaQuery.of(context).size.height * 0.85,
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                  ),
-                  child: Column(
+                child: Stack(
+                  children: [
+                    Container(
+                      height: MediaQuery.of(context).size.height * 0.85,
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                      ),
+                      child: Column(
                     children: [
                       const SizedBox(height: 12),
                       Container(
@@ -2007,23 +1984,28 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                               ),
                             ),
                             TextButton(
-                              onPressed: isUploading || textController.text.isEmpty
+                              onPressed: isUploading || textController.text.isEmpty || pageValidationError != null
                                   ? null
                                   : () async {
                                       setModalState(() => isUploading = true);
-                                      Navigator.pop(context);
-                                      await _uploadAndSaveMemorablePage(
-                                        imageBytes: fullImageBytes,
-                                        extractedText: textController.text,
-                                        pageNumber: int.tryParse(pageController.text),
-                                      );
+                                      try {
+                                        await _uploadAndSaveMemorablePage(
+                                          imageBytes: fullImageBytes,
+                                          extractedText: textController.text,
+                                          pageNumber: int.tryParse(pageController.text),
+                                        );
+                                      } finally {
+                                        if (mounted) {
+                                          Navigator.pop(context);
+                                        }
+                                      }
                                     },
                               child: Text(
                                 '업로드',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: (isUploading || textController.text.isEmpty)
+                                  color: (isUploading || textController.text.isEmpty || pageValidationError != null)
                                       ? Colors.grey
                                       : const Color(0xFF5B7FFF),
                                 ),
@@ -2156,6 +2138,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                         ),
                                       )
                                     : GestureDetector(
+                                        behavior: HitTestBehavior.opaque,
                                         onTap: () => _showImageSourceActionSheet(
                                           onImageSelected: (imageBytes, ocrText, extractedPageNum) {
                                             setModalState(() {
@@ -2169,7 +2152,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                             });
                                           },
                                         ),
-                                        child: Column(
+                                        child: Center(
+                                          child: Column(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
                                             Icon(
@@ -2196,59 +2180,117 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                           ],
                                         ),
                                       ),
+                                    ),
                               ),
                               const SizedBox(height: 20),
 
                               // 페이지 수 필드
-                              Row(
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(
-                                    CupertinoIcons.book,
-                                    size: 16,
-                                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        CupertinoIcons.book,
+                                        size: 16,
+                                        color: pageValidationError != null
+                                            ? Colors.red[400]
+                                            : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '페이지 수',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: pageValidationError != null
+                                              ? Colors.red[400]
+                                              : (isDark ? Colors.white : Colors.black),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      SizedBox(
+                                        width: 80,
+                                        child: TextField(
+                                          controller: pageController,
+                                          focusNode: pageFocusNode,
+                                          keyboardType: TextInputType.number,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: pageValidationError != null
+                                                ? Colors.red[400]
+                                                : (isDark ? Colors.white : Colors.black),
+                                          ),
+                                          onChanged: (value) {
+                                            if (value.isEmpty) {
+                                              setModalState(() {
+                                                pageNumber = null;
+                                                pageValidationError = null;
+                                              });
+                                              return;
+                                            }
+                                            final parsed = int.tryParse(value);
+                                            if (parsed != null) {
+                                              if (parsed > _currentBook.totalPages) {
+                                                setModalState(() {
+                                                  pageNumber = parsed;
+                                                  pageValidationError = '전체 페이지 수를 초과할 수 없습니다.';
+                                                });
+                                              } else {
+                                                setModalState(() {
+                                                  pageNumber = parsed;
+                                                  pageValidationError = null;
+                                                });
+                                              }
+                                            }
+                                          },
+                                          decoration: InputDecoration(
+                                            hintText: '페이지 수',
+                                            hintStyle: TextStyle(
+                                              fontSize: 13,
+                                              color: isDark ? Colors.grey[600] : Colors.grey[400],
+                                            ),
+                                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(8),
+                                              borderSide: BorderSide(
+                                                color: pageValidationError != null
+                                                    ? Colors.red[400]!
+                                                    : (isDark ? Colors.grey[700]! : Colors.grey[300]!),
+                                              ),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(8),
+                                              borderSide: BorderSide(
+                                                color: pageValidationError != null
+                                                    ? Colors.red[400]!
+                                                    : (isDark ? Colors.grey[700]! : Colors.grey[300]!),
+                                              ),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(8),
+                                              borderSide: BorderSide(
+                                                color: pageValidationError != null
+                                                    ? Colors.red[400]!
+                                                    : const Color(0xFF5B7FFF),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '페이지',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: isDark ? Colors.white : Colors.black,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  SizedBox(
-                                    width: 80,
-                                    child: TextField(
-                                      controller: pageController,
-                                      focusNode: pageFocusNode,
-                                      keyboardType: TextInputType.number,
-                                      textAlign: TextAlign.center,
+                                  if (pageValidationError != null) ...[
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      pageValidationError!,
                                       style: TextStyle(
-                                        fontSize: 16,
-                                        color: isDark ? Colors.white : Colors.black,
-                                      ),
-                                      decoration: InputDecoration(
-                                        hintText: '-',
-                                        hintStyle: TextStyle(
-                                          color: isDark ? Colors.grey[600] : Colors.grey[400],
-                                        ),
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(8),
-                                          borderSide: BorderSide(
-                                            color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(8),
-                                          borderSide: BorderSide(
-                                            color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                                          ),
-                                        ),
+                                        fontSize: 12,
+                                        color: Colors.red[400],
                                       ),
                                     ),
-                                  ),
+                                  ],
                                 ],
                               ),
                               const SizedBox(height: 20),
@@ -2341,6 +2383,37 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                       ),
                     ],
                   ),
+                ),
+                    // 업로드 중 스피너 오버레이
+                    if (isUploading)
+                      Positioned.fill(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.5),
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                          ),
+                          child: const Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircularProgressIndicator(
+                                  color: Color(0xFF5B7FFF),
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  '업로드 중...',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             );
@@ -3537,61 +3610,30 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                       ),
                                     ),
                                   ),
-                                )
-                              else
-                                Container(
-                                  width: double.infinity,
-                                  height: 120,
-                                  decoration: BoxDecoration(
-                                    color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                      color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                                    ),
-                                  ),
-                                  child: Center(
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                ),
+                              if (hasImage) const SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment: hasImage ? MainAxisAlignment.spaceBetween : MainAxisAlignment.end,
+                                children: [
+                                  if (hasImage)
+                                    Row(
                                       children: [
                                         Icon(
                                           CupertinoIcons.doc_text,
-                                          size: 32,
-                                          color: isDark ? Colors.grey[600] : Colors.grey[400],
+                                          size: 18,
+                                          color: isDark ? Colors.grey[400] : Colors.grey[600],
                                         ),
-                                        const SizedBox(height: 8),
+                                        const SizedBox(width: 8),
                                         Text(
-                                          '텍스트만 저장된 항목입니다',
+                                          '추출된 텍스트',
                                           style: TextStyle(
-                                            fontSize: 13,
-                                            color: isDark ? Colors.grey[500] : Colors.grey[600],
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w600,
+                                            color: isDark ? Colors.white : Colors.black,
                                           ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                ),
-                              const SizedBox(height: 20),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        CupertinoIcons.doc_text,
-                                        size: 18,
-                                        color: isDark ? Colors.grey[400] : Colors.grey[600],
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        '추출된 텍스트',
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600,
-                                          color: isDark ? Colors.white : Colors.black,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
                                   if (!isEditing)
                                     Row(
                                       children: [
@@ -3633,18 +3675,18 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                           },
                                           child: Row(
                                             children: [
-                                              Icon(
+                                              const Icon(
                                                 CupertinoIcons.pencil,
                                                 size: 14,
-                                                color: const Color(0xFF5B7FFF),
+                                                color: Color(0xFF5B7FFF),
                                               ),
                                               const SizedBox(width: 4),
-                                              Text(
+                                              const Text(
                                                 '수정하기',
                                                 style: TextStyle(
                                                   fontSize: 13,
                                                   fontWeight: FontWeight.w500,
-                                                  color: const Color(0xFF5B7FFF),
+                                                  color: Color(0xFF5B7FFF),
                                                 ),
                                               ),
                                             ],
@@ -3655,46 +3697,13 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                 ],
                               ),
                               const SizedBox(height: 12),
-                              if (isEditing && focusNode.hasFocus)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: isDark ? Colors.grey[850] : Colors.grey[200],
-                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () => focusNode.unfocus(),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFF5B7FFF),
-                                            borderRadius: BorderRadius.circular(6),
-                                          ),
-                                          child: const Text(
-                                            '완료',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
                               Container(
                                 constraints: const BoxConstraints(
                                   minHeight: 150,
                                 ),
                                 decoration: BoxDecoration(
                                   color: isDark ? Colors.grey[900] : Colors.grey[100],
-                                  borderRadius: (isEditing && focusNode.hasFocus)
-                                      ? const BorderRadius.vertical(bottom: Radius.circular(12))
-                                      : BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
                                     color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
                                   ),
@@ -3762,13 +3771,20 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: _bookImagesFuture, // 캐시된 Future 사용
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        // 최초 로드 시에만 로딩 표시, 이후에는 캐시된 데이터 사용
+        if (snapshot.connectionState == ConnectionState.waiting && _cachedImages == null) {
           return const Center(
             child: CircularProgressIndicator(),
           );
         }
 
-        final images = snapshot.data ?? [];
+        // 데이터 로드 완료 시 캐시에 저장
+        if (snapshot.hasData) {
+          _cachedImages = snapshot.data;
+        }
+
+        // 캐시된 데이터 우선 사용
+        final images = _cachedImages ?? snapshot.data ?? [];
 
         if (images.isEmpty) {
           return Container(
@@ -3816,49 +3832,51 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
           );
         }
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(4),
-          itemCount: images.length + 1,
-          itemBuilder: (context, index) {
-            if (index == 0) {
-              return GestureDetector(
-                onTap: _showAddMemorablePageModal,
-                child: Container(
-                  height: 80,
-                  margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                      width: 2,
-                      style: BorderStyle.solid,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        CupertinoIcons.add_circled,
-                        size: 24,
-                        color: isDark ? Colors.grey[400] : Colors.grey[600],
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '인상적인 페이지 추가',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: isDark ? Colors.grey[400] : Colors.grey[600],
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
+        return Column(
+          children: [
+            // 고정된 추가 버튼
+            GestureDetector(
+              onTap: _showAddMemorablePageModal,
+              child: Container(
+                height: 56,
+                margin: const EdgeInsets.fromLTRB(4, 4, 4, 12),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                    width: 2,
+                    style: BorderStyle.solid,
                   ),
                 ),
-              );
-            }
-
-            final image = images[index - 1];
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      CupertinoIcons.add_circled,
+                      size: 24,
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '추가',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // 스크롤 가능한 리스트
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                itemCount: images.length,
+                itemBuilder: (context, index) {
+                  final image = images[index];
             final imageId = image['id'] as String;
             final imageUrl = image['image_url'] as String?;
             final extractedText = image['extracted_text'] as String?;
@@ -3927,120 +3945,65 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Stack(
-                      children: [
-                        Hero(
-                          tag: 'book_image_$imageId',
-                          child: ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(12),
-                              bottomLeft: Radius.circular(12),
-                            ),
-                            child: SizedBox(
-                              width: 100,
-                              height: 100,
-                              child: hasImageUrl
-                                  ? Image.network(
-                                      imageUrl,
-                                      fit: BoxFit.cover,
-                                      loadingBuilder: (context, child, loadingProgress) {
-                                        if (loadingProgress == null) return child;
-                                        return Container(
-                                          color: isDark ? Colors.grey[800] : Colors.grey[200],
-                                          child: const Center(
-                                            child: CircularProgressIndicator(strokeWidth: 2),
-                                          ),
-                                        );
-                                      },
-                                    )
-                                  : Container(
-                                      color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
-                                      child: Center(
-                                        child: Icon(
-                                          CupertinoIcons.doc_text,
-                                          size: 32,
-                                          color: isDark ? Colors.grey[600] : Colors.grey[400],
-                                        ),
-                                      ),
-                                    ),
+                    if (hasImageUrl)
+                      Hero(
+                        tag: 'book_image_$imageId',
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(12),
+                            bottomLeft: Radius.circular(12),
+                          ),
+                          child: SizedBox(
+                            width: 80,
+                            height: 80,
+                            child: Image.network(
+                              imageUrl!,
+                              fit: BoxFit.cover,
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(
+                                  color: isDark ? Colors.grey[800] : Colors.grey[200],
+                                  child: const Center(
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
-                        if (pageNumber != null)
-                          Positioned(
-                            top: 4,
-                            right: 4,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.black54,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                'p.$pageNumber',
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
+                      ),
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.all(12),
+                        padding: EdgeInsets.only(
+                          left: hasImageUrl ? 12 : 16,
+                          right: 8,
+                          top: 12,
+                          bottom: 12,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            if (previewText.isNotEmpty) ...[
-                              Text(
-                                previewText,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  height: 1.4,
-                                  color: isDark ? Colors.grey[300] : Colors.grey[800],
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
+                            Text(
+                              previewText.isNotEmpty ? previewText : '탭하여 상세 보기',
+                              style: TextStyle(
+                                fontSize: 13,
+                                height: 1.5,
+                                color: previewText.isNotEmpty
+                                    ? (isDark ? Colors.grey[300] : Colors.grey[800])
+                                    : (isDark ? Colors.grey[500] : Colors.grey[500]),
                               ),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Icon(
-                                    CupertinoIcons.doc_text,
-                                    size: 12,
-                                    color: const Color(0xFF5B7FFF),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    '텍스트 추출됨',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: const Color(0xFF5B7FFF),
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ] else ...[
-                              Text(
-                                '탭하여 크게 보기',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: isDark ? Colors.grey[500] : Colors.grey[500],
-                                ),
-                              ),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (pageNumber != null) ...[
                               const SizedBox(height: 8),
                               Text(
-                                '← 스와이프하여 삭제',
+                                'p.$pageNumber',
                                 style: TextStyle(
-                                  fontSize: 11,
-                                  color: isDark ? Colors.grey[600] : Colors.grey[400],
+                                  fontSize: 12,
+                                  color: isDark ? Colors.grey[500] : Colors.grey[600],
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
@@ -4061,7 +4024,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
               ),
             ),
           );
-          },
+                },
+              ),
+            ),
+          ],
         );
       },
     );
@@ -4570,5 +4536,101 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         }
       }
     }
+  }
+}
+
+/// 드래그로 해제 가능한 전체보기 이미지 위젯
+class _DraggableDismissImage extends StatefulWidget {
+  final Animation<double> animation;
+  final Uint8List imageBytes;
+
+  const _DraggableDismissImage({
+    required this.animation,
+    required this.imageBytes,
+  });
+
+  @override
+  State<_DraggableDismissImage> createState() => _DraggableDismissImageState();
+}
+
+class _DraggableDismissImageState extends State<_DraggableDismissImage> {
+  double _dragOffset = 0;
+  bool _isDragging = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final opacity = (1.0 - (_dragOffset.abs() / 300)).clamp(0.3, 1.0);
+
+    return FadeTransition(
+      opacity: widget.animation,
+      child: Scaffold(
+        backgroundColor: Colors.black.withValues(alpha: 0.87 * opacity),
+        body: GestureDetector(
+          onVerticalDragStart: (_) {
+            setState(() => _isDragging = true);
+          },
+          onVerticalDragUpdate: (details) {
+            setState(() {
+              _dragOffset += details.delta.dy;
+            });
+          },
+          onVerticalDragEnd: (details) {
+            if (_dragOffset.abs() > 100 ||
+                details.velocity.pixelsPerSecond.dy.abs() > 500) {
+              Navigator.of(context).pop();
+            } else {
+              setState(() {
+                _dragOffset = 0;
+                _isDragging = false;
+              });
+            }
+          },
+          child: Stack(
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: Container(
+                  color: Colors.transparent,
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
+              ),
+              AnimatedContainer(
+                duration: _isDragging
+                    ? Duration.zero
+                    : const Duration(milliseconds: 200),
+                curve: Curves.easeOut,
+                transform: Matrix4.translationValues(0, _dragOffset, 0),
+                child: Center(
+                  child: InteractiveViewer(
+                    minScale: 0.5,
+                    maxScale: 4.0,
+                    child: Image.memory(
+                      widget.imageBytes,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ),
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.black54,
+                    ),
+                    icon: const Icon(
+                      CupertinoIcons.xmark,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
