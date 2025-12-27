@@ -14,6 +14,10 @@ class AppConfig {
   static String get supabaseAnonKey =>
       dotenv.env['SUPABASE_ANON_KEY'] ?? 'your_supabase_anon_key_here';
 
+  // Google Cloud Vision API 설정
+  static String get googleCloudVisionApiKey =>
+      dotenv.env['GOOGLE_CLOUD_VISION_API_KEY'] ?? '';
+
   static const int maxSearchResults = 10;
   static const String apiVersion = '20131101';
 
@@ -30,4 +34,7 @@ class AppConfig {
           'SUPABASE_ANON_KEY is required but not properly configured');
     }
   }
+
+  static bool get hasGoogleCloudVisionApiKey =>
+      googleCloudVisionApiKey.isNotEmpty;
 }

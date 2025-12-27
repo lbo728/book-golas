@@ -386,6 +386,10 @@ class _BookListScreenState extends State<BookListScreen>
     final progressPercentage =
         totalDays > 0 ? (daysPassed / totalDays * 100).clamp(0, 100) : 0;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final pageProgress = book.totalPages > 0
+        ? (book.currentPage / book.totalPages).clamp(0.0, 1.0)
+        : 0.0;
+    final isCompleted = book.currentPage >= book.totalPages && book.totalPages > 0;
 
     return GestureDetector(
       onTap: () {
@@ -449,19 +453,44 @@ class _BookListScreenState extends State<BookListScreen>
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'D-${daysPassed + 1} (${progressPercentage.toStringAsFixed(0)}% 진행)',
+                    'D-${daysPassed + 1} · ${book.currentPage}/${book.totalPages}페이지',
                     style: TextStyle(
                       fontSize: 14,
                       color: isDark ? Colors.grey[400] : Colors.grey[600],
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${book.currentPage}/${book.totalPages}페이지',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
-                    ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: pageProgress,
+                            backgroundColor: isDark
+                                ? Colors.grey[700]
+                                : Colors.grey[200],
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              isCompleted
+                                  ? const Color(0xFF10B981)
+                                  : const Color(0xFF5B7FFF),
+                            ),
+                            minHeight: 6,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${(pageProgress * 100).toStringAsFixed(0)}%',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: isCompleted
+                              ? const Color(0xFF10B981)
+                              : const Color(0xFF5B7FFF),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
