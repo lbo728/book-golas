@@ -51,6 +51,9 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   // 로컬 캐시: 서버 데이터 로드 완료 후 로컬에서 관리
   List<Map<String, dynamic>>? _cachedImages;
 
+  // 메모리에 수정된 텍스트 저장 (저장 버튼 누르기 전까지 유지)
+  final Map<String, String> _editedTexts = {};
+
   @override
   void initState() {
     super.initState();
@@ -212,31 +215,53 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       body: Stack(
         children: [
           SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Hero Section: D-day + Progress (축소)
-                  _buildCompactHeroSection(isDark),
-                  const SizedBox(height: 20),
+            child: NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) {
+                return [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Hero Section: D-day + Progress (축소)
+                          _buildCompactHeroSection(isDark),
+                          const SizedBox(height: 20),
 
-                  // Book Info Card
-                  _buildBookInfoCard(isDark),
-                  const SizedBox(height: 16),
+                          // Book Info Card
+                          _buildBookInfoCard(isDark),
+                          const SizedBox(height: 16),
 
-                  // Reading Schedule Card
-                  _buildReadingScheduleCard(isDark),
-                  const SizedBox(height: 16),
+                          // Reading Schedule Card
+                          _buildReadingScheduleCard(isDark),
+                          const SizedBox(height: 16),
 
-                  // Today's Goal Card with Achievement Stamps
-                  _buildTodayGoalCardWithStamps(isDark),
-                  const SizedBox(height: 20),
-
-                  // Tabbed Section: Memorable Pages + Progress History
-                  _buildTabbedSection(isDark),
-                  const SizedBox(height: 20),
-                ],
+                          // Today's Goal Card with Achievement Stamps
+                          _buildTodayGoalCardWithStamps(isDark),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Sticky Tab Bar
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: _StickyTabBarDelegate(
+                      child: _buildTabBarOnly(isDark),
+                      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FA),
+                    ),
+                  ),
+                ];
+              },
+              body: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildMemorablePagesTab(isDark),
+                    _buildProgressHistoryTab(isDark),
+                  ],
+                ),
               ),
             ),
           ),
@@ -2966,7 +2991,101 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
-  /// 탭 섹션: 인상적인 페이지 + 진행률 히스토리
+  /// 탭 바만 반환 (스티키 헤더용)
+  Widget _buildTabBarOnly(bool isDark) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border(
+          bottom: BorderSide(
+            color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+            width: 1,
+          ),
+        ),
+      ),
+      child: Stack(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    _tabController.animateTo(0);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      '인상적인 페이지',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: _tabController.index == 0
+                            ? FontWeight.w600
+                            : FontWeight.w400,
+                        color: _tabController.index == 0
+                            ? (isDark ? Colors.white : Colors.black)
+                            : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    _tabController.animateTo(1);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      '진행률 히스토리',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: _tabController.index == 1
+                            ? FontWeight.w600
+                            : FontWeight.w400,
+                        color: _tabController.index == 1
+                            ? (isDark ? Colors.white : Colors.black)
+                            : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          // 슬라이딩 인디케이터
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final tabWidth = constraints.maxWidth / 2;
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeInOut,
+                  transform: Matrix4.translationValues(
+                    tabWidth * _tabController.index,
+                    0,
+                    0,
+                  ),
+                  width: tabWidth,
+                  height: 2,
+                  color: isDark ? Colors.white : Colors.black,
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 탭 섹션: 인상적인 페이지 + 진행률 히스토리 (레거시)
   Widget _buildTabbedSection(bool isDark) {
     return Column(
       children: [
@@ -3290,65 +3409,12 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     Navigator.of(context).push(
       PageRouteBuilder(
         opaque: false,
-        barrierColor: Colors.black87,
+        barrierColor: Colors.transparent,
         pageBuilder: (context, animation, secondaryAnimation) {
-          return FadeTransition(
-            opacity: animation,
-            child: Scaffold(
-              backgroundColor: Colors.transparent,
-              body: Stack(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: Container(
-                      color: Colors.transparent,
-                      width: double.infinity,
-                      height: double.infinity,
-                    ),
-                  ),
-                  Center(
-                    child: InteractiveViewer(
-                      minScale: 0.5,
-                      maxScale: 4.0,
-                      child: Hero(
-                        tag: 'book_image_$imageId',
-                        child: Image.network(
-                          imageUrl,
-                          fit: BoxFit.contain,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Center(
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes != null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes!
-                                    : null,
-                                color: Colors.white,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                  SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Colors.black54,
-                        ),
-                        icon: const Icon(
-                          CupertinoIcons.xmark,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          return _DraggableDismissNetworkImage(
+            animation: animation,
+            imageUrl: imageUrl,
+            imageId: imageId,
           );
         },
         transitionDuration: const Duration(milliseconds: 200),
@@ -3363,7 +3429,9 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     int? pageNumber,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textController = TextEditingController(text: extractedText ?? '');
+    // 메모리에 저장된 텍스트가 있으면 사용, 없으면 DB에서 가져온 값 사용
+    final cachedText = _editedTexts[imageId] ?? extractedText ?? '';
+    final textController = TextEditingController(text: cachedText);
     final focusNode = FocusNode();
     bool isEditing = false;
     bool isSaving = false;
@@ -3450,6 +3518,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                               .from('book_images')
                                               .update({'extracted_text': textController.text})
                                               .eq('id', imageId);
+                                          // 저장 성공 시 메모리 캐시 제거 (DB 값이 우선)
+                                          _editedTexts.remove(imageId);
                                           _bookImagesFuture = fetchBookImages(_currentBook.id!);
                                           if (context.mounted) {
                                             Navigator.pop(context);
@@ -3497,14 +3567,14 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         ),
                       ),
                       Expanded(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (hasImage)
-                                GestureDetector(
-                                  onTap: () => _showFullScreenImage(imageId, imageUrl!),
+                        child: hasImage
+                            ? SingleChildScrollView(
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () => _showFullScreenImage(imageId, imageUrl!),
                                   child: Container(
                                     width: double.infinity,
                                     height: 250,
@@ -3751,10 +3821,140 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                               ),
                                       ),
                               ),
-                              const SizedBox(height: 40),
-                            ],
-                          ),
-                        ),
+                                    const SizedBox(height: 40),
+                                  ],
+                                ),
+                              )
+                            : Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        if (!isEditing)
+                                          Row(
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () {
+                                                  if (textController.text.isNotEmpty) {
+                                                    Clipboard.setData(ClipboardData(text: textController.text));
+                                                    _showTopLevelToast(context, '텍스트가 복사되었습니다.');
+                                                  }
+                                                },
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      CupertinoIcons.doc_on_clipboard,
+                                                      size: 14,
+                                                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                                    ),
+                                                    const SizedBox(width: 4),
+                                                    Text(
+                                                      '복사하기',
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        fontWeight: FontWeight.w500,
+                                                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 16),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  setModalState(() {
+                                                    isEditing = true;
+                                                  });
+                                                  Future.delayed(const Duration(milliseconds: 100), () {
+                                                    focusNode.requestFocus();
+                                                  });
+                                                },
+                                                child: const Row(
+                                                  children: [
+                                                    Icon(
+                                                      CupertinoIcons.pencil,
+                                                      size: 14,
+                                                      color: Color(0xFF5B7FFF),
+                                                    ),
+                                                    SizedBox(width: 4),
+                                                    Text(
+                                                      '수정하기',
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        fontWeight: FontWeight.w500,
+                                                        color: Color(0xFF5B7FFF),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Expanded(
+                                      child: Container(
+                                        width: double.infinity,
+                                        decoration: BoxDecoration(
+                                          color: isDark ? Colors.grey[900] : Colors.grey[100],
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                                          ),
+                                        ),
+                                        child: isEditing
+                                            ? TextField(
+                                                controller: textController,
+                                                focusNode: focusNode,
+                                                maxLines: null,
+                                                expands: true,
+                                                keyboardType: TextInputType.multiline,
+                                                textInputAction: TextInputAction.newline,
+                                                textAlignVertical: TextAlignVertical.top,
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  height: 1.6,
+                                                  color: isDark ? Colors.white : Colors.black,
+                                                ),
+                                                decoration: InputDecoration(
+                                                  hintText: '텍스트를 입력하세요...',
+                                                  hintStyle: TextStyle(
+                                                    color: isDark ? Colors.grey[600] : Colors.grey[400],
+                                                  ),
+                                                  border: InputBorder.none,
+                                                  contentPadding: const EdgeInsets.all(16),
+                                                ),
+                                              )
+                                            : SingleChildScrollView(
+                                                padding: const EdgeInsets.all(16),
+                                                child: textController.text.isEmpty
+                                                    ? Text(
+                                                        '추출된 텍스트가 없습니다.',
+                                                        style: TextStyle(
+                                                          fontSize: 15,
+                                                          height: 1.6,
+                                                          color: isDark ? Colors.grey[500] : Colors.grey[500],
+                                                        ),
+                                                      )
+                                                    : SelectableText(
+                                                        textController.text,
+                                                        style: TextStyle(
+                                                          fontSize: 15,
+                                                          height: 1.6,
+                                                          color: isDark ? Colors.white : Colors.black,
+                                                        ),
+                                                      ),
+                                              ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 20),
+                                  ],
+                                ),
+                              ),
                       ),
                     ],
                   ),
@@ -3764,7 +3964,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
           },
         );
       },
-    );
+    ).then((_) {
+      // 모달이 닫힐 때 수정된 텍스트를 메모리에 저장
+      _editedTexts[imageId] = textController.text;
+    });
   }
 
   Widget _buildMemorablePagesTab(bool isDark) {
@@ -3894,29 +4097,20 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
               },
               background: Container(
                 margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(12),
-                ),
                 alignment: Alignment.centerRight,
-                padding: const EdgeInsets.only(right: 20),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Icon(
-                      CupertinoIcons.trash,
-                      color: Colors.white,
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      '삭제',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
+                padding: const EdgeInsets.only(right: 16),
+                child: Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFF3B30),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.trash_fill,
+                    color: Colors.white,
+                    size: 24,
+                  ),
                 ),
               ),
               child: GestureDetector(
@@ -3936,42 +4130,42 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+                      color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
                   ],
                 ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (hasImageUrl)
-                      Hero(
-                        tag: 'book_image_$imageId',
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(12),
-                            bottomLeft: Radius.circular(12),
-                          ),
-                          child: SizedBox(
-                            width: 80,
-                            height: 80,
-                            child: Image.network(
-                              imageUrl!,
-                              fit: BoxFit.cover,
-                              loadingBuilder: (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Container(
-                                  color: isDark ? Colors.grey[800] : Colors.grey[200],
-                                  child: const Center(
-                                    child: CircularProgressIndicator(strokeWidth: 2),
-                                  ),
-                                );
-                              },
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (hasImageUrl)
+                        Hero(
+                          tag: 'book_image_$imageId',
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(12),
+                              bottomLeft: Radius.circular(12),
+                            ),
+                            child: SizedBox(
+                              width: 80,
+                              child: Image.network(
+                                imageUrl!,
+                                fit: BoxFit.cover,
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Container(
+                                    color: isDark ? Colors.grey[800] : Colors.grey[200],
+                                    child: const Center(
+                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
                           ),
                         ),
-                      ),
                     Expanded(
                       child: Padding(
                         padding: EdgeInsets.only(
@@ -4011,15 +4205,16 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Icon(
-                        CupertinoIcons.chevron_right,
-                        size: 16,
-                        color: isDark ? Colors.grey[600] : Colors.grey[400],
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Icon(
+                          CupertinoIcons.chevron_right,
+                          size: 16,
+                          color: isDark ? Colors.grey[600] : Colors.grey[400],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -4632,5 +4827,152 @@ class _DraggableDismissImageState extends State<_DraggableDismissImage> {
         ),
       ),
     );
+  }
+}
+
+/// 드래그로 해제 가능한 네트워크 이미지 전체보기 위젯
+class _DraggableDismissNetworkImage extends StatefulWidget {
+  final Animation<double> animation;
+  final String imageUrl;
+  final String imageId;
+
+  const _DraggableDismissNetworkImage({
+    required this.animation,
+    required this.imageUrl,
+    required this.imageId,
+  });
+
+  @override
+  State<_DraggableDismissNetworkImage> createState() =>
+      _DraggableDismissNetworkImageState();
+}
+
+class _DraggableDismissNetworkImageState
+    extends State<_DraggableDismissNetworkImage> {
+  double _dragOffset = 0;
+  bool _isDragging = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final opacity = (1.0 - (_dragOffset.abs() / 300)).clamp(0.3, 1.0);
+
+    return FadeTransition(
+      opacity: widget.animation,
+      child: Scaffold(
+        backgroundColor: Colors.black.withValues(alpha: 0.87 * opacity),
+        body: GestureDetector(
+          onVerticalDragStart: (_) {
+            setState(() => _isDragging = true);
+          },
+          onVerticalDragUpdate: (details) {
+            setState(() {
+              _dragOffset += details.delta.dy;
+            });
+          },
+          onVerticalDragEnd: (details) {
+            if (_dragOffset.abs() > 100 ||
+                details.velocity.pixelsPerSecond.dy.abs() > 500) {
+              Navigator.of(context).pop();
+            } else {
+              setState(() {
+                _dragOffset = 0;
+                _isDragging = false;
+              });
+            }
+          },
+          child: Stack(
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: Container(
+                  color: Colors.transparent,
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
+              ),
+              AnimatedContainer(
+                duration: _isDragging
+                    ? Duration.zero
+                    : const Duration(milliseconds: 200),
+                curve: Curves.easeOut,
+                transform: Matrix4.translationValues(0, _dragOffset, 0),
+                child: Center(
+                  child: InteractiveViewer(
+                    minScale: 0.5,
+                    maxScale: 4.0,
+                    child: Hero(
+                      tag: 'book_image_${widget.imageId}',
+                      child: Image.network(
+                        widget.imageUrl,
+                        fit: BoxFit.contain,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                              color: Colors.white,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.black54,
+                    ),
+                    icon: const Icon(
+                      CupertinoIcons.xmark,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 스티키 탭 바 델리게이트
+class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+  final Color backgroundColor;
+
+  const _StickyTabBarDelegate({
+    required this.child,
+    required this.backgroundColor,
+  });
+
+  @override
+  double get minExtent => 56; // 탭 바 높이
+
+  @override
+  double get maxExtent => 56;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return SizedBox.expand(
+      child: Container(
+        color: backgroundColor,
+        child: child,
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant _StickyTabBarDelegate oldDelegate) {
+    return child != oldDelegate.child || backgroundColor != oldDelegate.backgroundColor;
   }
 }
