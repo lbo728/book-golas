@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -50,6 +51,9 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   int _animatedCurrentPage = 0;
   double _animatedProgress = 0.0;
 
+  // 스크롤 컨트롤러
+  final ScrollController _scrollController = ScrollController();
+
   // 캐싱: Future를 한번만 생성하여 재사용
   late Future<List<Map<String, dynamic>>> _bookImagesFuture;
   late Future<List<Map<String, dynamic>>> _progressHistoryFuture;
@@ -93,6 +97,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   void dispose() {
     _tabController.dispose();
     _progressAnimController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -235,6 +240,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         children: [
           SafeArea(
             child: NestedScrollView(
+              controller: _scrollController,
               headerSliverBuilder: (context, innerBoxIsScrolled) {
                 return [
                   SliverToBoxAdapter(
@@ -291,108 +297,169 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
-  /// Compact Hero Section: 축소된 D-day + Progress
+  /// Compact Hero Section: Circular Progress + D-day (Radial Progress Indicator)
   Widget _buildCompactHeroSection(bool isDark) {
+    final progressPercent = (_animatedProgress * 100).toStringAsFixed(0);
+    final isOverdue = _daysLeft < 0;
+
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF5B7FFF),
-            Color(0xFF4A6FE8),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF5B7FFF).withOpacity(0.3),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Row(
         children: [
-          // D-day
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          // Circular Progress (Radial Progress Indicator)
+          SizedBox(
+            width: 120,
+            height: 120,
+            child: Stack(
+              alignment: Alignment.center,
               children: [
-                Text(
-                  _daysLeft >= 0 ? 'D-$_daysLeft' : 'D+${_daysLeft.abs()}',
-                  style: const TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                    height: 1.0,
+                // Background ring
+                SizedBox(
+                  width: 120,
+                  height: 120,
+                  child: CustomPaint(
+                    painter: _CircularProgressPainter(
+                      progress: _animatedProgress.clamp(0.0, 1.0),
+                      strokeWidth: 10,
+                      backgroundColor: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : const Color(0xFFEEF2FF),
+                      progressColor: const Color(0xFF5B7FFF),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  _daysLeft >= 0 ? '남음' : '초과',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white.withOpacity(0.85),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Progress
-          Expanded(
-            flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                // Center text
+                Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '${(_animatedProgress * 100).toStringAsFixed(0)}%',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                      '$progressPercent%',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w800,
+                        color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                        height: 1.0,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(height: 2),
                     Text(
-                      '$_animatedCurrentPage/${_currentBook.totalPages}p',
+                      '진행률',
                       style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white.withOpacity(0.85),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.6)
+                            : const Color(0xFF888888),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Stack(
-                    children: [
-                      Container(
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.25),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      FractionallySizedBox(
-                        widthFactor: _animatedProgress.clamp(0.0, 1.0),
-                        child: Container(
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 24),
+          // Stats
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // D-day
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: isOverdue
+                        ? const Color(0xFFFFEBEB)
+                        : const Color(0xFFEEF2FF),
+                    borderRadius: BorderRadius.circular(20),
                   ),
+                  child: Text(
+                    isOverdue ? 'D+${_daysLeft.abs()}' : 'D-$_daysLeft',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: isOverdue
+                          ? const Color(0xFFE53935)
+                          : const Color(0xFF5B7FFF),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Pages
+                Row(
+                  children: [
+                    Icon(
+                      Icons.menu_book_rounded,
+                      size: 18,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.6)
+                          : const Color(0xFF888888),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '$_animatedCurrentPage',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color:
+                            isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      ),
+                    ),
+                    Text(
+                      ' / ${_currentBook.totalPages}p',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.6)
+                            : const Color(0xFF888888),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                // Pages remaining
+                Row(
+                  children: [
+                    Icon(
+                      Icons.trending_up_rounded,
+                      size: 18,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.6)
+                          : const Color(0xFF888888),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '$_pagesLeft',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color:
+                            isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      ),
+                    ),
+                    Text(
+                      ' 페이지 남음',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.6)
+                            : const Color(0xFF888888),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -1525,7 +1592,16 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
         setState(() {
           _currentBook = updatedBook;
+          // 진행률 히스토리 새로고침
+          _progressHistoryFuture = fetchProgressHistory(_currentBook.id!);
         });
+
+        // 최상단으로 스크롤
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOutCubic,
+        );
 
         if (mounted) {
           final pagesRead = newPage - oldPage;
@@ -2971,135 +3047,219 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     return mockData;
   }
 
-  /// 새로운 위젯: 오늘의 목표 카드 with 스탬프
+  /// 목표 달성 현황 카드 (Contribution Graph 스타일)
   Widget _buildTodayGoalCardWithStamps(bool isDark) {
     final totalDays =
         _currentBook.targetDate.difference(_currentBook.startDate).inDays + 1;
+    final now = DateTime.now();
+    final todayIndex = now.difference(_currentBook.startDate).inDays;
+
+    // 달성률 계산
+    int achievedCount = 0;
+    int passedDays = 0;
+    for (int i = 0; i < totalDays && i <= todayIndex; i++) {
+      final date = _currentBook.startDate.add(Duration(days: i));
+      final dateKey =
+          '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      if (_dailyAchievements[dateKey] == true) achievedCount++;
+      passedDays++;
+    }
+    final achievementRate =
+        passedDays > 0 ? (achievedCount / passedDays * 100).round() : 0;
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFFFF3E0),
-            Color(0xFFFFE0B2),
-          ],
-        ),
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.orange.withOpacity(0.15),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 헤더 with 달성률
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(10),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF10B981), Color(0xFF059669)],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   CupertinoIcons.flame_fill,
                   size: 20,
-                  color: Color(0xFFFF6B35),
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                '목표 달성 현황',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFFE65100),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '목표 달성 현황',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '$passedDays일 중 $achievedCount일 달성',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.6)
+                            : const Color(0xFF888888),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // 달성률 badge
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: achievementRate >= 80
+                      ? const Color(0xFFD1FAE5)
+                      : achievementRate >= 50
+                          ? const Color(0xFFFEF3C7)
+                          : const Color(0xFFFEE2E2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      achievementRate >= 80
+                          ? CupertinoIcons.star_fill
+                          : achievementRate >= 50
+                              ? CupertinoIcons.hand_thumbsup_fill
+                              : CupertinoIcons.flame_fill,
+                      size: 14,
+                      color: achievementRate >= 80
+                          ? const Color(0xFF059669)
+                          : achievementRate >= 50
+                              ? const Color(0xFFD97706)
+                              : const Color(0xFFDC2626),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$achievementRate%',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: achievementRate >= 80
+                            ? const Color(0xFF059669)
+                            : achievementRate >= 50
+                                ? const Color(0xFFD97706)
+                                : const Color(0xFFDC2626),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 20),
+
+          // Contribution Graph 스타일 그리드
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final cellSize = 28.0;
+              final spacing = 4.0;
+              final columns =
+                  ((constraints.maxWidth + spacing) / (cellSize + spacing))
+                      .floor();
+
+              return Wrap(
+                spacing: spacing,
+                runSpacing: spacing,
+                children: List.generate(totalDays, (index) {
+                  final date =
+                      _currentBook.startDate.add(Duration(days: index));
+                  final dateKey =
+                      '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+                  final isFuture =
+                      date.isAfter(DateTime(now.year, now.month, now.day));
+                  final isToday = date.year == now.year &&
+                      date.month == now.month &&
+                      date.day == now.day;
+                  final isAchieved = _dailyAchievements[dateKey];
+
+                  Color cellColor;
+                  if (isFuture) {
+                    cellColor = isDark
+                        ? Colors.white.withValues(alpha: 0.05)
+                        : const Color(0xFFF3F4F6);
+                  } else if (isAchieved == true) {
+                    cellColor = const Color(0xFF10B981);
+                  } else if (isAchieved == false) {
+                    cellColor = const Color(0xFFFCA5A5);
+                  } else {
+                    cellColor = isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : const Color(0xFFE5E7EB);
+                  }
+
+                  return Tooltip(
+                    message:
+                        '${date.month}/${date.day} (Day ${index + 1})${isAchieved == true ? ' ✓' : isAchieved == false ? ' ✗' : ''}',
+                    child: Container(
+                      width: cellSize,
+                      height: cellSize,
+                      decoration: BoxDecoration(
+                        color: cellColor,
+                        borderRadius: BorderRadius.circular(6),
+                        border: isToday
+                            ? Border.all(
+                                color: const Color(0xFF5B7FFF),
+                                width: 2,
+                              )
+                            : null,
+                      ),
+                      child: Center(
+                        child: isToday
+                            ? Container(
+                                width: 6,
+                                height: 6,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFF5B7FFF),
+                                  shape: BoxShape.circle,
+                                ),
+                              )
+                            : null,
+                      ),
+                    ),
+                  );
+                }),
+              );
+            },
+          ),
+
           const SizedBox(height: 16),
 
-          // 스탬프 UI
-          SizedBox(
-            height: 120,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: totalDays,
-              itemBuilder: (context, index) {
-                final date = _currentBook.startDate.add(Duration(days: index));
-                final dateKey =
-                    '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-                final now = DateTime.now();
-                final isFuture =
-                    date.isAfter(DateTime(now.year, now.month, now.day));
-                final isAchieved = _dailyAchievements[dateKey];
-
-                return Container(
-                  width: 80,
-                  margin: const EdgeInsets.only(right: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.7),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isAchieved == true
-                          ? const Color(0xFF10B981)
-                          : isAchieved == false
-                              ? const Color(0xFFEF4444)
-                              : Colors.grey[300]!,
-                      width: 2,
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // 아이콘
-                      if (isFuture)
-                        Icon(
-                          CupertinoIcons.circle,
-                          size: 32,
-                          color: Colors.grey[400],
-                        )
-                      else if (isAchieved == true)
-                        const Icon(
-                          CupertinoIcons.checkmark_circle_fill,
-                          size: 32,
-                          color: Color(0xFF10B981),
-                        )
-                      else
-                        const Icon(
-                          CupertinoIcons.xmark_circle_fill,
-                          size: 32,
-                          color: Color(0xFFEF4444),
-                        ),
-                      const SizedBox(height: 8),
-                      // 날짜
-                      Text(
-                        '${date.month}/${date.day}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[800],
-                        ),
-                      ),
-                      Text(
-                        'Day ${index + 1}',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+          // Legend
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildLegendItem('달성', const Color(0xFF10B981), isDark),
+              const SizedBox(width: 16),
+              _buildLegendItem('미달성', const Color(0xFFFCA5A5), isDark),
+              const SizedBox(width: 16),
+              _buildLegendItem('예정', isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFF3F4F6), isDark),
+            ],
           ),
         ],
       ),
@@ -4783,72 +4943,232 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
-  /// 목표일 변경 (컨펌 알럿 포함)
+  /// 목표일 변경 (바텀시트)
   void _showUpdateTargetDateDialogWithConfirm() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final nextAttempt = _attemptCount + 1;
+    DateTime selectedDate = _currentBook.targetDate;
 
-    final confirmed = await showDialog<bool>(
+    await showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('목표일 변경'),
-        content: Text(
-          '목표일을 변경하시겠어요?\n$nextAttempt번째 도전으로 상태가 변경됩니다.',
-          style: const TextStyle(height: 1.5),
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('취소'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF5B7FFF),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final daysRemaining = selectedDate.difference(DateTime.now()).inDays;
+
+            return Container(
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               ),
-            ),
-            child: const Text('확인'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true && mounted) {
-      final picked = await showDatePicker(
-        context: context,
-        initialDate: _currentBook.targetDate,
-        firstDate: DateTime.now(),
-        lastDate: DateTime(2100),
-      );
-
-      if (picked != null && mounted) {
-        final updatedBook = _currentBook.copyWith(targetDate: picked);
-        final result =
-            await _bookService.updateBook(_currentBook.id!, updatedBook);
-
-        if (result != null) {
-          setState(() {
-            _currentBook = result;
-            _attemptCount = nextAttempt;
-          });
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('$nextAttempt번째 도전이 시작되었습니다!'),
-                backgroundColor: const Color(0xFF10B981),
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF6B6B).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.calendar_month,
+                          color: Color(0xFFFF6B6B),
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '목표일 변경',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                            ),
+                            Text(
+                              '$nextAttempt번째 도전으로 변경됩니다',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: isDark ? Colors.grey[400] : Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  // 날짜 선택 버튼
+                  GestureDetector(
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: selectedDate,
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime(2100),
+                      );
+                      if (picked != null) {
+                        setModalState(() {
+                          selectedDate = picked;
+                        });
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.edit_calendar,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '새 목표일',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: isDark ? Colors.grey[500] : Colors.grey[600],
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${selectedDate.year}년 ${selectedDate.month}월 ${selectedDate.day}일',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? Colors.white : Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: daysRemaining > 0
+                                  ? const Color(0xFF10B981).withOpacity(0.1)
+                                  : const Color(0xFFFF6B6B).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              daysRemaining > 0 ? 'D-$daysRemaining' : 'D-Day',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: daysRemaining > 0
+                                    ? const Color(0xFF10B981)
+                                    : const Color(0xFFFF6B6B),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          child: const Text('취소'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            await _updateTargetDate(selectedDate, nextAttempt);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF5B7FFF),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            '변경하기',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
+                ],
               ),
             );
-          }
-        }
-      }
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _updateTargetDate(DateTime newDate, int newAttempt) async {
+    final oldDaysLeft = _daysLeft;
+    final updatedBook = _currentBook.copyWith(targetDate: newDate);
+    final result = await _bookService.updateBook(_currentBook.id!, updatedBook);
+
+    if (result != null && mounted) {
+      setState(() {
+        _currentBook = result;
+        _attemptCount = newAttempt;
+      });
+
+      // 스크롤 최상단으로
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOutCubic,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.flag, color: Colors.white, size: 20),
+              const SizedBox(width: 8),
+              Text('$newAttempt번째 도전 시작! D-${_daysLeft} 🚀'),
+            ],
+          ),
+          backgroundColor: const Color(0xFF5B7FFF),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
 }
@@ -5093,5 +5413,59 @@ class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(covariant _StickyTabBarDelegate oldDelegate) {
     return child != oldDelegate.child || backgroundColor != oldDelegate.backgroundColor;
+  }
+}
+
+/// Circular Progress Painter (Radial Progress Indicator)
+class _CircularProgressPainter extends CustomPainter {
+  final double progress;
+  final double strokeWidth;
+  final Color backgroundColor;
+  final Color progressColor;
+
+  _CircularProgressPainter({
+    required this.progress,
+    required this.strokeWidth,
+    required this.backgroundColor,
+    required this.progressColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = (size.width - strokeWidth) / 2;
+
+    // Background circle
+    final backgroundPaint = Paint()
+      ..color = backgroundColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawCircle(center, radius, backgroundPaint);
+
+    // Progress arc
+    final progressPaint = Paint()
+      ..color = progressColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    final sweepAngle = 2 * math.pi * progress;
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -math.pi / 2, // Start from top
+      sweepAngle,
+      false,
+      progressPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _CircularProgressPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.strokeWidth != strokeWidth ||
+        oldDelegate.backgroundColor != backgroundColor ||
+        oldDelegate.progressColor != progressColor;
   }
 }
