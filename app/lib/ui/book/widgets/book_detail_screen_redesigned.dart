@@ -615,27 +615,38 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Book Cover
-          Hero(
-            tag: 'book_cover_${_currentBook.id}',
-            child: Container(
-              width: 90,
-              height: 130,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+          // Book Cover (탭하면 전체보기)
+          GestureDetector(
+            onTap: () {
+              if (_currentBook.imageUrl != null &&
+                  _currentBook.imageUrl!.isNotEmpty) {
+                _showFullScreenImage(
+                  'book_cover_${_currentBook.id}',
+                  _currentBook.imageUrl!,
+                );
+              }
+            },
+            child: Hero(
+              tag: 'book_cover_${_currentBook.id}',
+              child: Container(
+                width: 90,
+                height: 130,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: BookImageWidget(
+                    imageUrl: _currentBook.imageUrl,
+                    iconSize: 60,
                   ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: BookImageWidget(
-                  imageUrl: _currentBook.imageUrl,
-                  iconSize: 60,
                 ),
               ),
             ),
