@@ -70,7 +70,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     _currentBook = widget.book;
     _todayStartPage = _currentBook.startDate.day;
     _todayTargetPage = _currentBook.targetDate.day;
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       setState(() {}); // 탭 변경 시 UI 업데이트
     });
@@ -249,20 +249,20 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Book Info Card
-                          _buildBookInfoCard(isDark),
+                          // Compact Book Header (Dashboard Style)
+                          _buildCompactBookHeader(isDark),
                           const SizedBox(height: 16),
 
-                          // Progress Section: Circular Progress + D-day
-                          _buildCompactHeroSection(isDark),
+                          // Dashboard Progress (2-Column)
+                          _buildDashboardProgress(isDark),
                           const SizedBox(height: 16),
 
-                          // Reading Schedule Card
-                          _buildReadingScheduleCard(isDark),
-                          const SizedBox(height: 16),
+                          // Dual CTA Row (기록 추가 + 페이지 업데이트)
+                          _buildDualCTARow(isDark),
+                          const SizedBox(height: 12),
 
-                          // Today's Goal Card with Achievement Stamps
-                          _buildTodayGoalCardWithStamps(isDark),
+                          // Compact Streak Row (7일 도트)
+                          _buildCompactStreakRow(isDark),
                           const SizedBox(height: 20),
                         ],
                       ),
@@ -285,13 +285,12 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                   children: [
                     _buildMemorablePagesTab(isDark),
                     _buildProgressHistoryTab(isDark),
+                    _buildDetailTab(isDark),
                   ],
                 ),
               ),
             ),
           ),
-          // Floating Update Button
-          _buildFloatingUpdateButton(isDark),
         ],
       ),
     );
@@ -3058,6 +3057,448 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     return mockData;
   }
 
+  /// 컴팩트 책 헤더 (Dashboard 스타일)
+  Widget _buildCompactBookHeader(bool isDark) {
+    final isCompleted = _currentBook.currentPage >= _currentBook.totalPages &&
+        _currentBook.totalPages > 0;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // 작은 표지 (탭하면 전체보기)
+          GestureDetector(
+            onTap: () {
+              if (_currentBook.imageUrl != null &&
+                  _currentBook.imageUrl!.isNotEmpty) {
+                _showFullScreenImage(
+                  'book_cover_compact_${_currentBook.id}',
+                  _currentBook.imageUrl!,
+                );
+              }
+            },
+            child: Hero(
+              tag: 'book_cover_compact_${_currentBook.id}',
+              child: Container(
+                width: 60,
+                height: 85,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.12),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: BookImageWidget(
+                    imageUrl: _currentBook.imageUrl,
+                    iconSize: 30,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 14),
+
+          // 제목 + 저자 + 상태
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _currentBook.title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    height: 1.3,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    if (_currentBook.author != null) ...[
+                      Flexible(
+                        child: Text(
+                          _currentBook.author!,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Text(
+                        ' · ',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: isDark ? Colors.grey[500] : Colors.grey[400],
+                        ),
+                      ),
+                    ],
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: isCompleted
+                            ? const Color(0xFF10B981).withOpacity(0.12)
+                            : const Color(0xFF5B7FFF).withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        isCompleted ? '✓ 완독' : '● 독서 중',
+                        style: TextStyle(
+                          color: isCompleted
+                              ? const Color(0xFF10B981)
+                              : const Color(0xFF5B7FFF),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 대시보드 스타일 진행률 (2-Column)
+  Widget _buildDashboardProgress(bool isDark) {
+    final progressPercent = (_animatedProgress * 100).toStringAsFixed(0);
+    final isOverdue = _daysLeft < 0;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // 왼쪽: 원형 진행률
+          Expanded(
+            child: Column(
+              children: [
+                SizedBox(
+                  width: 100,
+                  height: 100,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        width: 100,
+                        height: 100,
+                        child: CustomPaint(
+                          painter: _CircularProgressPainter(
+                            progress: _animatedProgress.clamp(0.0, 1.0),
+                            strokeWidth: 10,
+                            backgroundColor: isDark
+                                ? Colors.white.withValues(alpha: 0.1)
+                                : const Color(0xFFEEF2FF),
+                            progressColor: const Color(0xFF5B7FFF),
+                          ),
+                        ),
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '$progressPercent%',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w800,
+                              color: isDark ? Colors.white : Colors.black,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '${_currentBook.currentPage} / ${_currentBook.totalPages}p',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.grey[300] : Colors.grey[700],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 구분선
+          Container(
+            width: 1,
+            height: 100,
+            color: isDark ? Colors.grey[700] : Colors.grey[200],
+          ),
+
+          // 오른쪽: D-day + 남은 페이지 + 오늘 목표
+          Expanded(
+            child: Column(
+              children: [
+                // D-day
+                Text(
+                  isOverdue ? 'D+${_daysLeft.abs()}' : 'D-$_daysLeft',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w800,
+                    color: isOverdue
+                        ? const Color(0xFFEF4444)
+                        : const Color(0xFF5B7FFF),
+                    letterSpacing: -1,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // 남은 페이지
+                Text(
+                  '남은 $_pagesLeft페이지',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                // 오늘 목표 (남은 페이지 / 남은 일수)
+                Builder(
+                  builder: (context) {
+                    final dailyTarget = _daysLeft > 0
+                        ? (_pagesLeft / _daysLeft).ceil()
+                        : _pagesLeft;
+                    if (dailyTarget > 0) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '오늘 목표: ${dailyTarget}p',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF10B981),
+                          ),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Dual CTA Row (인상적인 페이지 추가 + 페이지 업데이트)
+  Widget _buildDualCTARow(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 0),
+      child: Row(
+        children: [
+          // 인상적인 페이지 추가 (Secondary - Outlined)
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: _showAddMemorablePageModal,
+              icon: Icon(
+                CupertinoIcons.pencil_outline,
+                size: 18,
+                color: isDark ? Colors.white : const Color(0xFF5B7FFF),
+              ),
+              label: Text(
+                '기록 추가',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : const Color(0xFF5B7FFF),
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                side: BorderSide(
+                  color: isDark
+                      ? Colors.grey[600]!
+                      : const Color(0xFF5B7FFF).withOpacity(0.5),
+                  width: 1.5,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          // 페이지 업데이트 (Primary - Filled)
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: _showUpdatePageDialog,
+              icon: const Icon(
+                CupertinoIcons.arrow_up_circle_fill,
+                size: 18,
+                color: Colors.white,
+              ),
+              label: const Text(
+                '페이지 업데이트',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF5B7FFF),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 상세 탭 (독서 일정 + 풀 Contribution Graph)
+  Widget _buildDetailTab(bool isDark) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 100),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 독서 일정 섹션
+          _buildReadingScheduleCard(isDark),
+          const SizedBox(height: 16),
+
+          // 목표 달성 현황 (풀 Contribution Graph)
+          _buildTodayGoalCardWithStamps(isDark),
+        ],
+      ),
+    );
+  }
+
+  /// 컴팩트 스트릭 Row (최근 7일 도트 + N일 연속)
+  Widget _buildCompactStreakRow(bool isDark) {
+    // 최근 7일 달성 현황 계산
+    final now = DateTime.now();
+    final recentDays = <bool>[];
+
+    for (int i = 6; i >= 0; i--) {
+      final date = now.subtract(Duration(days: i));
+      final dateKey =
+          '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      final isAchieved = _dailyAchievements[dateKey] == true;
+      recentDays.add(isAchieved);
+    }
+
+    // 연속 달성일 계산
+    int streak = 0;
+    for (int i = recentDays.length - 1; i >= 0; i--) {
+      if (recentDays[i]) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // 불꽃 아이콘
+          Icon(
+            CupertinoIcons.flame_fill,
+            size: 20,
+            color: streak > 0 ? const Color(0xFFFF6B35) : Colors.grey[400],
+          ),
+          const SizedBox(width: 8),
+          // 연속 달성 텍스트
+          Text(
+            streak > 0 ? '$streak일 연속 달성!' : '오늘 첫 기록을 남겨보세요',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: streak > 0
+                  ? (isDark ? Colors.white : Colors.black87)
+                  : (isDark ? Colors.grey[400] : Colors.grey[600]),
+            ),
+          ),
+          const Spacer(),
+          // 최근 7일 도트
+          Row(
+            children: List.generate(7, (index) {
+              final isAchieved = recentDays[index];
+              return Container(
+                width: 10,
+                height: 10,
+                margin: EdgeInsets.only(left: index > 0 ? 4 : 0),
+                decoration: BoxDecoration(
+                  color: isAchieved
+                      ? const Color(0xFF10B981)
+                      : (isDark
+                          ? Colors.white.withOpacity(0.15)
+                          : Colors.grey[300]),
+                  shape: BoxShape.circle,
+                ),
+              );
+            }),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// 목표 달성 현황 카드 (Contribution Graph 스타일)
   Widget _buildTodayGoalCardWithStamps(bool isDark) {
     final totalDays =
@@ -3277,8 +3718,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
-  /// 탭 바만 반환 (스티키 헤더용)
+  /// 탭 바만 반환 (스티키 헤더용) - 3탭
   Widget _buildTabBarOnly(bool isDark) {
+    final tabLabels = ['인상적인 페이지', '히스토리', '상세'];
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
@@ -3294,54 +3737,31 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       child: Stack(
         children: [
           Row(
-            children: [
-              Expanded(
+            children: List.generate(3, (index) {
+              return Expanded(
                 child: GestureDetector(
                   onTap: () {
-                    _tabController.animateTo(0);
+                    _tabController.animateTo(index);
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     child: Text(
-                      '인상적인 페이지',
+                      tabLabels[index],
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: _tabController.index == 0
+                        fontSize: 14,
+                        fontWeight: _tabController.index == index
                             ? FontWeight.w600
                             : FontWeight.w400,
-                        color: _tabController.index == 0
+                        color: _tabController.index == index
                             ? (isDark ? Colors.white : Colors.black)
                             : (isDark ? Colors.grey[400] : Colors.grey[600]),
                       ),
                     ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    _tabController.animateTo(1);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Text(
-                      '진행률 히스토리',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: _tabController.index == 1
-                            ? FontWeight.w600
-                            : FontWeight.w400,
-                        color: _tabController.index == 1
-                            ? (isDark ? Colors.white : Colors.black)
-                            : (isDark ? Colors.grey[400] : Colors.grey[600]),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+              );
+            }),
           ),
           // 슬라이딩 인디케이터
           Positioned(
@@ -3351,7 +3771,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
             height: 2,
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final tabWidth = constraints.maxWidth / 2;
+                final tabWidth = constraints.maxWidth / 3;
                 return Stack(
                   children: [
                     AnimatedPositioned(
