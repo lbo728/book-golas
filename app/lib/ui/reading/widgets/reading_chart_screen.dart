@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:collection';
+import 'package:book_golas/data/services/reading_progress_service.dart';
 
 enum TimeFilter { daily, weekly, monthly }
 
@@ -15,6 +16,7 @@ class ReadingChartScreen extends StatefulWidget {
 class _ReadingChartScreenState extends State<ReadingChartScreen> {
   TimeFilter _selectedFilter = TimeFilter.daily;
   bool _useMockData = false; // 🎨 Mock 데이터 사용 여부
+  final ReadingProgressService _progressService = ReadingProgressService();
 
   /// 🎨 Mock 데이터 생성 (데모용)
   List<Map<String, dynamic>> _generateMockData() {
@@ -150,6 +152,52 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
     };
   }
 
+  /// 연속 독서일(스트릭) 계산
+  int _calculateStreak(List<Map<String, dynamic>> aggregatedData) {
+    if (aggregatedData.isEmpty) return 0;
+
+    int streak = 0;
+    final today = DateTime.now();
+    final todayNormalized = DateTime(today.year, today.month, today.day);
+
+    // 날짜별로 정렬 (최신순)
+    final sortedDates = aggregatedData
+        .map((e) => e['date'] as DateTime)
+        .toList()
+      ..sort((a, b) => b.compareTo(a));
+
+    DateTime expectedDate = todayNormalized;
+
+    // 오늘 기록이 없으면 어제부터 시작
+    if (sortedDates.isEmpty ||
+        !_isSameDay(sortedDates.first, todayNormalized)) {
+      expectedDate = todayNormalized.subtract(const Duration(days: 1));
+    }
+
+    for (final date in sortedDates) {
+      final normalizedDate = DateTime(date.year, date.month, date.day);
+
+      if (_isSameDay(normalizedDate, expectedDate)) {
+        streak++;
+        expectedDate = expectedDate.subtract(const Duration(days: 1));
+      } else if (normalizedDate.isBefore(expectedDate)) {
+        // 날짜가 건너뛰어졌으면 스트릭 종료
+        break;
+      }
+    }
+
+    return streak;
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  /// 목표 달성률 계산 (오늘 기준)
+  Future<double> _calculateGoalRate() async {
+    return await _progressService.calculateGoalAchievementRate();
+  }
+
   String _getFilterLabel(TimeFilter filter) {
     switch (filter) {
       case TimeFilter.daily:
@@ -283,6 +331,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
 
                 final aggregated = aggregateByDate(rawData, _selectedFilter);
                 final stats = calculateStatistics(aggregated);
+                final streak = _calculateStreak(aggregated);
 
                 final spots = aggregated.asMap().entries.map((entry) {
                   final idx = entry.key;
@@ -361,6 +410,29 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                                 '최소',
                                 '${stats['min_daily']}',
                                 Icons.trending_down,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          // 스트릭 & 목표 달성률
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              _buildStatItem(
+                                '연속 독서',
+                                '$streak일',
+                                Icons.local_fire_department,
+                              ),
+                              FutureBuilder<double>(
+                                future: _calculateGoalRate(),
+                                builder: (context, snapshot) {
+                                  final goalRate = snapshot.data ?? 0.0;
+                                  return _buildStatItem(
+                                    '오늘 목표',
+                                    '${(goalRate * 100).toStringAsFixed(0)}%',
+                                    Icons.flag,
+                                  );
+                                },
                               ),
                             ],
                           ),

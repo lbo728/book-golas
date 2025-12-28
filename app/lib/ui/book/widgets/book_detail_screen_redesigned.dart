@@ -42,7 +42,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   late TabController _tabController;
   int _attemptCount = 1; // 도전 횟수
   Map<String, bool> _dailyAchievements = {}; // 일차별 목표 달성 현황 (날짜: 성공/실패)
-  bool _useMockProgressData = true; // 🎨 진행률 히스토리 목업 데이터 사용
+  bool _useMockProgressData = false; // 🎨 진행률 히스토리 목업 데이터 사용 (실제 데이터 연결 완료)
 
   // 캐싱: Future를 한번만 생성하여 재사용
   late Future<List<Map<String, dynamic>>> _bookImagesFuture;
@@ -254,7 +254,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                 ];
               },
               body: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                 child: TabBarView(
                   controller: _tabController,
                   children: [
@@ -3062,20 +3062,23 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
             bottom: 0,
             left: 0,
             right: 0,
+            height: 2,
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final tabWidth = constraints.maxWidth / 2;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  curve: Curves.easeInOut,
-                  transform: Matrix4.translationValues(
-                    tabWidth * _tabController.index,
-                    0,
-                    0,
-                  ),
-                  width: tabWidth,
-                  height: 2,
-                  color: isDark ? Colors.white : Colors.black,
+                return Stack(
+                  children: [
+                    AnimatedPositioned(
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeInOut,
+                      left: tabWidth * _tabController.index,
+                      width: tabWidth,
+                      height: 2,
+                      child: Container(
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                    ),
+                  ],
                 );
               },
             ),
@@ -4076,7 +4079,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
             // 스크롤 가능한 리스트
             Expanded(
               child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
+                padding: const EdgeInsets.only(left: 4, right: 4, bottom: 100),
                 itemCount: images.length,
                 itemBuilder: (context, index) {
                   final image = images[index];
@@ -4297,6 +4300,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
             : 50.0;
 
         return SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 100),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
