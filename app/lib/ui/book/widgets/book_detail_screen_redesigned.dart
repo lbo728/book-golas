@@ -34,7 +34,7 @@ class BookDetailScreenRedesigned extends StatefulWidget {
 }
 
 class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final BookService _bookService = BookService();
   late Book _currentBook;
   int? _todayStartPage;
@@ -43,6 +43,12 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   int _attemptCount = 1; // 도전 횟수
   Map<String, bool> _dailyAchievements = {}; // 일차별 목표 달성 현황 (날짜: 성공/실패)
   bool _useMockProgressData = false; // 🎨 진행률 히스토리 목업 데이터 사용 (실제 데이터 연결 완료)
+
+  // 페이지 카운터 & 프로그레스바 애니메이션
+  late AnimationController _progressAnimController;
+  late Animation<double> _progressAnimation;
+  int _animatedCurrentPage = 0;
+  double _animatedProgress = 0.0;
 
   // 캐싱: Future를 한번만 생성하여 재사용
   late Future<List<Map<String, dynamic>>> _bookImagesFuture;
@@ -66,6 +72,18 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     });
     _loadDailyAchievements();
 
+    // 페이지 애니메이션 초기화
+    _animatedCurrentPage = _currentBook.currentPage;
+    _animatedProgress = _currentBook.currentPage / _currentBook.totalPages;
+    _progressAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _progressAnimation = CurvedAnimation(
+      parent: _progressAnimController,
+      curve: Curves.elasticOut,
+    );
+
     // Future를 initState에서 한번만 생성 (캐싱)
     _bookImagesFuture = fetchBookImages(_currentBook.id!);
     _progressHistoryFuture = fetchProgressHistory(_currentBook.id!);
@@ -74,6 +92,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   @override
   void dispose() {
     _tabController.dispose();
+    _progressAnimController.dispose();
     super.dispose();
   }
 
@@ -332,7 +351,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      '${_progressPercentage.toStringAsFixed(0)}%',
+                      '${(_animatedProgress * 100).toStringAsFixed(0)}%',
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -341,7 +360,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      '${_currentBook.currentPage}/${_currentBook.totalPages}p',
+                      '$_animatedCurrentPage/${_currentBook.totalPages}p',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -363,7 +382,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         ),
                       ),
                       FractionallySizedBox(
-                        widthFactor: _progressPercentage / 100,
+                        widthFactor: _animatedProgress.clamp(0.0, 1.0),
                         child: Container(
                           height: 8,
                           decoration: BoxDecoration(
@@ -1493,23 +1512,39 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   }
 
   Future<void> _updateCurrentPage(int newPage) async {
+    final oldPage = _currentBook.currentPage;
+    final oldProgress = oldPage / _currentBook.totalPages;
+    final newProgress = newPage / _currentBook.totalPages;
+
     try {
       final updatedBook =
           await _bookService.updateCurrentPage(_currentBook.id!, newPage);
       if (updatedBook != null) {
+        // 애니메이션 실행
+        _animateProgress(oldPage, newPage, oldProgress, newProgress);
+
         setState(() {
           _currentBook = updatedBook;
         });
+
         if (mounted) {
+          final pagesRead = newPage - oldPage;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('페이지가 업데이트되었습니다.'),
+              content: Row(
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
+                  Text('+$pagesRead 페이지! ${newPage}p 도달 🎉'),
+                ],
+              ),
               backgroundColor: const Color(0xFF10B981),
               behavior: SnackBarBehavior.floating,
               margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
+              duration: const Duration(seconds: 2),
             ),
           );
         }
@@ -1529,6 +1564,29 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         );
       }
     }
+  }
+
+  void _animateProgress(int fromPage, int toPage, double fromProgress, double toProgress) {
+    _progressAnimController.reset();
+
+    final pageAnimation = IntTween(begin: fromPage, end: toPage).animate(_progressAnimation);
+    final progressTween = Tween<double>(begin: fromProgress, end: toProgress).animate(_progressAnimation);
+
+    void listener() {
+      setState(() {
+        _animatedCurrentPage = pageAnimation.value;
+        _animatedProgress = progressTween.value;
+      });
+    }
+
+    _progressAnimation.addListener(listener);
+    _progressAnimController.forward().then((_) {
+      _progressAnimation.removeListener(listener);
+      setState(() {
+        _animatedCurrentPage = toPage;
+        _animatedProgress = toProgress;
+      });
+    });
   }
 
   void _showUpdateTargetDateDialog() async {
