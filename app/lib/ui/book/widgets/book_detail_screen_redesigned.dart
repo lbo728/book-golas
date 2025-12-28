@@ -249,12 +249,12 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Hero Section: D-day + Progress (축소)
-                          _buildCompactHeroSection(isDark),
-                          const SizedBox(height: 20),
-
                           // Book Info Card
                           _buildBookInfoCard(isDark),
+                          const SizedBox(height: 16),
+
+                          // Progress Section: Circular Progress + D-day
+                          _buildCompactHeroSection(isDark),
                           const SizedBox(height: 16),
 
                           // Reading Schedule Card
@@ -4636,38 +4636,35 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                     const SizedBox(height: 20),
                     SizedBox(
                       height: 250,
-                      child: Stack(
-                        children: [
-                          // 일일 페이지 막대 (배경)
-                          LineChart(
-                            LineChartData(
-                              lineBarsData: dailyPagesSpots.map((spot) {
-                                return LineChartBarData(
-                                  spots: [
-                                    FlSpot(spot.x, 0),
-                                    spot,
-                                  ],
-                                  isCurved: false,
-                                  gradient: const LinearGradient(
-                                    colors: [Color(0xFF10B981), Color(0xFF059669)],
-                                  ),
-                                  barWidth: 8,
-                                  dotData: const FlDotData(show: false),
-                                );
-                              }).toList(),
-                              titlesData: const FlTitlesData(
-                                show: false,
-                              ),
-                              gridData: const FlGridData(show: false),
-                              borderData: FlBorderData(show: false),
-                              minY: 0,
-                              maxY: maxDailyPage * 1.2,
-                            ),
-                          ),
-                          // 누적 페이지 라인 (전경)
-                          LineChart(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final chartWidth = constraints.maxWidth - 40; // left reserved
+                          final barWidth = data.length > 1
+                              ? (chartWidth / data.length * 0.4).clamp(4.0, 16.0)
+                              : 16.0;
+
+                          // 일일 페이지 스케일을 누적 페이지 스케일에 맞춤
+                          final scaledMaxY = (maxPage * 1.1).ceilToDouble();
+                          final barScaleFactor = scaledMaxY / (maxDailyPage > 0 ? maxDailyPage * 1.5 : 1);
+
+                          return LineChart(
                             LineChartData(
                               lineBarsData: [
+                                // 일일 페이지 막대 (스케일 조정된 값)
+                                ...dailyPagesSpots.map((spot) {
+                                  final scaledY = spot.y * barScaleFactor * 0.3; // 막대 높이를 차트 하단 30%로 제한
+                                  return LineChartBarData(
+                                    spots: [
+                                      FlSpot(spot.x, 0),
+                                      FlSpot(spot.x, scaledY.clamp(0, scaledMaxY * 0.35)),
+                                    ],
+                                    isCurved: false,
+                                    color: const Color(0xFF10B981),
+                                    barWidth: barWidth,
+                                    dotData: const FlDotData(show: false),
+                                  );
+                                }),
+                                // 누적 페이지 라인
                                 LineChartBarData(
                                   spots: spots,
                                   isCurved: true,
@@ -4692,8 +4689,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                     show: true,
                                     gradient: LinearGradient(
                                       colors: [
-                                        const Color(0xFF5B7FFF).withOpacity(0.15),
-                                        const Color(0xFF5B7FFF).withOpacity(0.0),
+                                        const Color(0xFF5B7FFF).withValues(alpha: 0.15),
+                                        const Color(0xFF5B7FFF).withValues(alpha: 0.0),
                                       ],
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
@@ -4701,92 +4698,94 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                   ),
                                 ),
                               ],
-                          titlesData: FlTitlesData(
-                            leftTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 40,
-                                getTitlesWidget: (value, meta) {
-                                  return Text(
-                                    value.toInt().toString(),
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: isDark
-                                          ? Colors.grey[400]
-                                          : Colors.grey[600],
-                                    ),
+                              titlesData: FlTitlesData(
+                                leftTitles: AxisTitles(
+                                  sideTitles: SideTitles(
+                                    showTitles: true,
+                                    reservedSize: 40,
+                                    getTitlesWidget: (value, meta) {
+                                      return Text(
+                                        value.toInt().toString(),
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: isDark
+                                              ? Colors.grey[400]
+                                              : Colors.grey[600],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                rightTitles: const AxisTitles(
+                                  sideTitles: SideTitles(showTitles: false),
+                                ),
+                                topTitles: const AxisTitles(
+                                  sideTitles: SideTitles(showTitles: false),
+                                ),
+                                bottomTitles: AxisTitles(
+                                  sideTitles: SideTitles(
+                                    showTitles: true,
+                                    reservedSize: 30,
+                                    getTitlesWidget: (value, meta) {
+                                      final idx = value.toInt();
+                                      if (idx < 0 || idx >= data.length) {
+                                        return const SizedBox();
+                                      }
+                                      final date =
+                                          data[idx]['created_at'] as DateTime;
+                                      return Padding(
+                                        padding: const EdgeInsets.only(top: 8),
+                                        child: Text(
+                                          '${date.month}/${date.day}',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: isDark
+                                                ? Colors.grey[400]
+                                                : Colors.grey[600],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    interval: data.length > 5
+                                        ? (data.length / 4).ceilToDouble()
+                                        : 1,
+                                  ),
+                                ),
+                              ),
+                              gridData: FlGridData(
+                                show: true,
+                                drawVerticalLine: false,
+                                getDrawingHorizontalLine: (value) {
+                                  return FlLine(
+                                    color: isDark
+                                        ? Colors.grey[800]!
+                                        : Colors.grey[300]!,
+                                    strokeWidth: 1,
                                   );
                                 },
                               ),
-                            ),
-                            rightTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            topTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 30,
-                                getTitlesWidget: (value, meta) {
-                                  final idx = value.toInt();
-                                  if (idx < 0 || idx >= data.length) {
-                                    return const SizedBox();
-                                  }
-                                  final date =
-                                      data[idx]['created_at'] as DateTime;
-                                  return Padding(
-                                    padding: const EdgeInsets.only(top: 8),
-                                    child: Text(
-                                      '${date.month}/${date.day}',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: isDark
-                                            ? Colors.grey[400]
-                                            : Colors.grey[600],
-                                      ),
-                                    ),
-                                  );
-                                },
-                                interval: data.length > 5
-                                    ? (data.length / 4).ceilToDouble()
-                                    : 1,
+                              borderData: FlBorderData(
+                                show: true,
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: isDark
+                                        ? Colors.grey[800]!
+                                        : Colors.grey[300]!,
+                                  ),
+                                  left: BorderSide(
+                                    color: isDark
+                                        ? Colors.grey[800]!
+                                        : Colors.grey[300]!,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          gridData: FlGridData(
-                            show: true,
-                            drawVerticalLine: false,
-                            getDrawingHorizontalLine: (value) {
-                              return FlLine(
-                                color: isDark
-                                    ? Colors.grey[800]!
-                                    : Colors.grey[300]!,
-                                strokeWidth: 1,
-                              );
-                            },
-                          ),
-                          borderData: FlBorderData(
-                            show: true,
-                            border: Border(
-                              bottom: BorderSide(
-                                color: isDark
-                                    ? Colors.grey[800]!
-                                    : Colors.grey[300]!,
-                              ),
-                              left: BorderSide(
-                                color: isDark
-                                    ? Colors.grey[800]!
-                                    : Colors.grey[300]!,
-                              ),
-                            ),
-                          ),
+                              minX: -0.5,
+                              maxX: data.length - 0.5,
                               minY: 0,
-                              maxY: (maxPage * 1.1).ceilToDouble(),
+                              maxY: scaledMaxY,
                             ),
-                          ),
-                        ],
+                          );
+                        },
                       ),
                     ),
                   ],
