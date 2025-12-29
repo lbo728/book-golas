@@ -69,6 +69,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   // 메모리에 수정된 텍스트 저장 (저장 버튼 누르기 전까지 유지)
   final Map<String, String> _editedTexts = {};
 
+  // 인상적인 페이지 선택 모드
+  bool _isSelectionMode = false;
+  final Set<String> _selectedImageIds = {};
+
   @override
   void initState() {
     super.initState();
@@ -1949,6 +1953,136 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       // 백그라운드에서 서버 데이터 동기화
       _bookImagesFuture = fetchBookImages(_currentBook.id!);
     });
+  }
+
+  Future<void> _deleteSelectedImages() async {
+    if (_selectedImageIds.isEmpty) return;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final count = _selectedImageIds.length;
+
+    // 삭제 확인 다이얼로그
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFEE2E2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  CupertinoIcons.trash_fill,
+                  size: 32,
+                  color: Color(0xFFFF3B30),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '$count개 항목을 삭제하시겠습니까?',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '삭제한 항목은 복구할 수 없습니다.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(sheetContext),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                          ),
+                        ),
+                      ),
+                      child: Text(
+                        '취소',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? Colors.grey[300] : Colors.grey[700],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () async {
+                        Navigator.pop(sheetContext);
+
+                        // 선택된 항목들 삭제
+                        final idsToDelete = _selectedImageIds.toList();
+                        for (final imageId in idsToDelete) {
+                          final image = _cachedImages?.firstWhere(
+                            (img) => img['id'] == imageId,
+                            orElse: () => {},
+                          );
+                          final imageUrl = image?['image_url'] as String?;
+                          await _deleteBookImage(imageId, imageUrl);
+                        }
+
+                        setState(() {
+                          _selectedImageIds.clear();
+                          _isSelectionMode = false;
+                        });
+
+                        if (mounted) {
+                          CustomSnackbar.show(
+                            context,
+                            message: '$count개 항목이 삭제되었습니다',
+                            type: SnackbarType.success,
+                          );
+                        }
+                      },
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        backgroundColor: const Color(0xFFFF3B30),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        '삭제',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _confirmDeleteImage(String imageId, String? imageUrl, {bool dismissParentOnDelete = false}) {
@@ -5083,6 +5217,64 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
         return Column(
           children: [
+            // 선택 모드 헤더
+            Padding(
+              padding: const EdgeInsets.only(left: 4, right: 4, bottom: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (_isSelectionMode)
+                    Text(
+                      '${_selectedImageIds.length}개 선택됨',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
+                    )
+                  else
+                    const SizedBox(),
+                  Row(
+                    children: [
+                      if (_isSelectionMode && _selectedImageIds.isNotEmpty)
+                        TextButton.icon(
+                          onPressed: () => _deleteSelectedImages(),
+                          icon: const Icon(
+                            CupertinoIcons.trash,
+                            size: 18,
+                            color: Color(0xFFFF3B30),
+                          ),
+                          label: const Text(
+                            '삭제',
+                            style: TextStyle(
+                              color: Color(0xFFFF3B30),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            if (_isSelectionMode) {
+                              _selectedImageIds.clear();
+                            }
+                            _isSelectionMode = !_isSelectionMode;
+                          });
+                        },
+                        child: Text(
+                          _isSelectionMode ? '완료' : '선택',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF5B7FFF),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
             // 스크롤 가능한 리스트
             Expanded(
               child: ListView.builder(
@@ -5097,39 +5289,27 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
             final hasImageUrl = imageUrl != null && imageUrl.isNotEmpty;
             final ocrService = GoogleVisionOcrService();
             final previewText = ocrService.getPreviewText(extractedText, maxLines: 2);
+            final isSelected = _selectedImageIds.contains(imageId);
 
-            return Dismissible(
-              key: Key(imageId),
-              direction: DismissDirection.endToStart,
-              confirmDismiss: (direction) async {
-                _confirmDeleteImage(imageId, imageUrl);
-                return false;
+            return GestureDetector(
+              onTap: () {
+                if (_isSelectionMode) {
+                  setState(() {
+                    if (isSelected) {
+                      _selectedImageIds.remove(imageId);
+                    } else {
+                      _selectedImageIds.add(imageId);
+                    }
+                  });
+                } else {
+                  _showExistingImageModal(
+                    imageId,
+                    imageUrl,
+                    extractedText,
+                    pageNumber: pageNumber,
+                  );
+                }
               },
-              background: Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.only(right: 16),
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFF3B30),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    CupertinoIcons.trash_fill,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-              ),
-              child: GestureDetector(
-                onTap: () => _showExistingImageModal(
-                  imageId,
-                  imageUrl,
-                  extractedText,
-                  pageNumber: pageNumber,
-                ),
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 12),
                 decoration: BoxDecoration(
@@ -5221,20 +5401,48 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         ),
                       ),
                     ),
-                      Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Icon(
-                          CupertinoIcons.chevron_right,
-                          size: 16,
-                          color: isDark ? Colors.grey[600] : Colors.grey[400],
+                      // 선택 모드: 체크박스 / 일반 모드: 화살표
+                      if (_isSelectionMode)
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isSelected
+                                  ? const Color(0xFF5B7FFF)
+                                  : Colors.transparent,
+                              border: Border.all(
+                                color: isSelected
+                                    ? const Color(0xFF5B7FFF)
+                                    : (isDark ? Colors.grey[600]! : Colors.grey[400]!),
+                                width: 2,
+                              ),
+                            ),
+                            child: isSelected
+                                ? const Icon(
+                                    Icons.check,
+                                    size: 16,
+                                    color: Colors.white,
+                                  )
+                                : null,
+                          ),
+                        )
+                      else
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Icon(
+                            CupertinoIcons.chevron_right,
+                            size: 16,
+                            color: isDark ? Colors.grey[600] : Colors.grey[400],
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),
               ),
-            ),
-          );
+            );
                 },
               ),
             ),
