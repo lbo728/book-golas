@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 enum SnackbarType { success, error, info, warning }
@@ -91,30 +92,17 @@ class _AnimatedSnackbarState extends State<_AnimatedSnackbar>
     super.dispose();
   }
 
-  Color _getBackgroundColor() {
-    switch (widget.type) {
-      case SnackbarType.success:
-        return const Color(0xFF10B981);
-      case SnackbarType.error:
-        return const Color(0xFFEF4444);
-      case SnackbarType.info:
-        return const Color(0xFF5B7FFF);
-      case SnackbarType.warning:
-        return const Color(0xFFF59E0B);
-    }
-  }
-
   IconData _getIcon() {
     if (widget.icon != null) return widget.icon!;
     switch (widget.type) {
       case SnackbarType.success:
-        return Icons.check_circle_rounded;
+        return Icons.check_circle_outline_rounded;
       case SnackbarType.error:
-        return Icons.error_rounded;
+        return Icons.error_outline_rounded;
       case SnackbarType.info:
-        return Icons.info_rounded;
+        return Icons.info_outline_rounded;
       case SnackbarType.warning:
-        return Icons.warning_rounded;
+        return Icons.warning_amber_rounded;
     }
   }
 
@@ -122,46 +110,74 @@ class _AnimatedSnackbarState extends State<_AnimatedSnackbar>
   Widget build(BuildContext context) {
     return Positioned(
       bottom: 100,
-      left: 16,
-      right: 16,
+      left: 20,
+      right: 20,
       child: SlideTransition(
         position: _slideAnimation,
         child: FadeTransition(
           opacity: _fadeAnimation,
           child: Material(
             color: Colors.transparent,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                color: _getBackgroundColor(),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: _getBackgroundColor().withValues(alpha: 0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    _getIcon(),
-                    color: Colors.white,
-                    size: 22,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      widget.message,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.white.withValues(alpha: 0.15),
+                        Colors.white.withValues(alpha: 0.08),
+                      ],
                     ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
-                ],
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.5),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Icon(
+                          _getIcon(),
+                          color: Colors.white.withValues(alpha: 0.9),
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Text(
+                          widget.message,
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.95),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
