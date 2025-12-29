@@ -381,8 +381,12 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   Widget _buildBookCard(Book book) {
-    final daysPassed = DateTime.now().difference(book.startDate).inDays;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final target = DateTime(book.targetDate.year, book.targetDate.month, book.targetDate.day);
+    final daysLeft = target.difference(today).inDays;
     final totalDays = book.targetDate.difference(book.startDate).inDays;
+    final daysPassed = DateTime.now().difference(book.startDate).inDays;
     final progressPercentage =
         totalDays > 0 ? (daysPassed / totalDays * 100).clamp(0, 100) : 0;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -453,10 +457,12 @@ class _BookListScreenState extends State<BookListScreen>
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'D-${daysPassed + 1} · ${book.currentPage}/${book.totalPages}페이지',
+                    '${daysLeft >= 0 ? 'D-$daysLeft' : 'D+${daysLeft.abs()}'} · ${book.currentPage}/${book.totalPages}페이지',
                     style: TextStyle(
                       fontSize: 14,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      color: daysLeft < 0
+                          ? const Color(0xFFEF4444)
+                          : (isDark ? Colors.grey[400] : Colors.grey[600]),
                     ),
                   ),
                   const SizedBox(height: 8),

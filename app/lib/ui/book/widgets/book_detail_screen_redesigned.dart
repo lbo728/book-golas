@@ -2383,7 +2383,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                               ),
                             ),
                             TextButton(
-                              onPressed: isUploading || textController.text.isEmpty || pageValidationError != null
+                              onPressed: isUploading || textController.text.isEmpty || pageController.text.isEmpty || pageValidationError != null
                                   ? null
                                   : () async {
                                       setModalState(() => isUploading = true);
@@ -2404,7 +2404,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: (isUploading || textController.text.isEmpty || pageValidationError != null)
+                                  color: (isUploading || textController.text.isEmpty || pageController.text.isEmpty || pageValidationError != null)
                                       ? Colors.grey
                                       : const Color(0xFF5B7FFF),
                                 ),
@@ -5124,41 +5124,36 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         final images = _cachedImages ?? snapshot.data ?? [];
 
         if (images.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+          return SizedBox(
+            height: 200,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    CupertinoIcons.photo_on_rectangle,
+                    size: 48,
+                    color: isDark ? Colors.grey[600] : Colors.grey[400],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    '아직 추가된 사진이 없습니다',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '하단 + 버튼으로 추가해보세요',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? Colors.grey[500] : Colors.grey[500],
+                    ),
+                  ),
+                ],
               ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  CupertinoIcons.photo_on_rectangle,
-                  size: 64,
-                  color: isDark ? Colors.grey[600] : Colors.grey[400],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  '아직 추가된 사진이 없습니다',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: isDark ? Colors.grey[400] : Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '하단 + 버튼으로 추가해보세요',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isDark ? Colors.grey[500] : Colors.grey[500],
-                  ),
-                ),
-              ],
             ),
           );
         }
@@ -5411,33 +5406,28 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         final data = snapshot.data ?? [];
 
         if (data.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
-              ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  CupertinoIcons.chart_bar,
-                  size: 64,
-                  color: isDark ? Colors.grey[600] : Colors.grey[400],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  '진행률 기록이 없습니다',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: isDark ? Colors.grey[400] : Colors.grey[600],
-                    fontWeight: FontWeight.w500,
+          return SizedBox(
+            height: 200,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    CupertinoIcons.chart_bar,
+                    size: 48,
+                    color: isDark ? Colors.grey[600] : Colors.grey[400],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  Text(
+                    '진행률 기록이 없습니다',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         }
@@ -5934,15 +5924,12 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
             final canFinishOnTime = daysToComplete <= _daysLeft;
 
             return Container(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.85,
-              ),
+              height: MediaQuery.of(context).size.height * 0.75,
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(24),
@@ -6165,89 +6152,108 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                       ],
                     ),
                   ),
-                  // 스케줄 테이블 (확장 시)
-                  if (showSchedule)
-                    Flexible(
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 24),
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[50],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          itemCount: schedule.length > 14 ? 14 : schedule.length,
-                          itemBuilder: (context, index) {
-                            final item = schedule[index];
-                            final date = item['date'] as DateTime;
-                            final isToday = item['isToday'] as bool;
+                  // 스케줄 테이블 영역 (항상 고정 높이 유지)
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 24),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[50],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: showSchedule
+                          ? ListView.builder(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              itemCount: schedule.length > 14 ? 14 : schedule.length,
+                              itemBuilder: (context, index) {
+                                final item = schedule[index];
+                                final date = item['date'] as DateTime;
+                                final isToday = item['isToday'] as bool;
 
-                            return Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 10,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isToday
-                                    ? const Color(0xFF5B7FFF).withValues(alpha: 0.1)
-                                    : null,
-                              ),
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: 100,
-                                    child: Text(
-                                      '${date.month}/${date.day} (${item['weekday']})',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: isToday ? FontWeight.bold : FontWeight.w400,
-                                        color: isToday
-                                            ? const Color(0xFF5B7FFF)
-                                            : (isDark ? Colors.grey[300] : Colors.grey[700]),
-                                      ),
-                                    ),
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 10,
                                   ),
-                                  Expanded(
-                                    child: Container(
-                                      height: 6,
-                                      margin: const EdgeInsets.symmetric(horizontal: 12),
-                                      decoration: BoxDecoration(
-                                        color: isDark ? Colors.grey[700] : Colors.grey[200],
-                                        borderRadius: BorderRadius.circular(3),
-                                      ),
-                                      child: FractionallySizedBox(
-                                        alignment: Alignment.centerLeft,
-                                        widthFactor: (item['pages'] as int) / newDailyTarget,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFF10B981),
-                                            borderRadius: BorderRadius.circular(3),
+                                  decoration: BoxDecoration(
+                                    color: isToday
+                                        ? const Color(0xFF5B7FFF).withValues(alpha: 0.1)
+                                        : null,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 100,
+                                        child: Text(
+                                          '${date.month}/${date.day} (${item['weekday']})',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: isToday ? FontWeight.bold : FontWeight.w400,
+                                            color: isToday
+                                                ? const Color(0xFF5B7FFF)
+                                                : (isDark ? Colors.grey[300] : Colors.grey[700]),
                                           ),
                                         ),
                                       ),
-                                    ),
+                                      Expanded(
+                                        child: Container(
+                                          height: 6,
+                                          margin: const EdgeInsets.symmetric(horizontal: 12),
+                                          decoration: BoxDecoration(
+                                            color: isDark ? Colors.grey[700] : Colors.grey[200],
+                                            borderRadius: BorderRadius.circular(3),
+                                          ),
+                                          child: FractionallySizedBox(
+                                            alignment: Alignment.centerLeft,
+                                            widthFactor: (item['pages'] as int) / newDailyTarget,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFF10B981),
+                                                borderRadius: BorderRadius.circular(3),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        '${item['pages']}p',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: isDark ? Colors.white : Colors.black,
+                                        ),
+                                      ),
+                                    ],
                                   ),
+                                );
+                              },
+                            )
+                          : Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    CupertinoIcons.calendar,
+                                    size: 48,
+                                    color: isDark ? Colors.grey[600] : Colors.grey[400],
+                                  ),
+                                  const SizedBox(height: 12),
                                   Text(
-                                    '${item['pages']}p',
+                                    '예상 스케줄을 펼쳐서 확인하세요',
                                     style: TextStyle(
                                       fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: isDark ? Colors.white : Colors.black,
+                                      color: isDark ? Colors.grey[500] : Colors.grey[500],
                                     ),
                                   ),
                                 ],
                               ),
-                            );
-                          },
-                        ),
-                      ),
+                            ),
                     ),
+                  ),
                   // 버튼
                   Padding(
                     padding: EdgeInsets.fromLTRB(
                       24,
-                      showSchedule ? 16 : 0,
+                      16,
                       24,
                       24 + MediaQuery.of(context).viewInsets.bottom,
                     ),

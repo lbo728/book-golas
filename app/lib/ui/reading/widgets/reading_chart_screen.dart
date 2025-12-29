@@ -342,105 +342,67 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 통계 카드
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.blue[400]!, Colors.blue[600]!],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                    // 통계 카드 (2x3 그리드)
+                    GridView.count(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
+                      childAspectRatio: 1.6,
+                      children: [
+                        _buildStatCard(
+                          '총 읽은 페이지',
+                          '${stats['total_pages']}p',
+                          Icons.menu_book_rounded,
+                          const Color(0xFF5B7FFF),
+                          isDark,
                         ),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.blue.withOpacity(0.3),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Row(
-                            children: [
-                              Icon(
-                                Icons.auto_graph,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                '독서 통계',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              _buildStatItem(
-                                '총 읽은 페이지',
-                                '${stats['total_pages']}',
-                                Icons.book,
-                              ),
-                              _buildStatItem(
-                                '일평균',
-                                '${(stats['average_daily'] as double).toStringAsFixed(1)}',
-                                Icons.calendar_today,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              _buildStatItem(
-                                '최대',
-                                '${stats['max_daily']}',
-                                Icons.trending_up,
-                              ),
-                              _buildStatItem(
-                                '최소',
-                                '${stats['min_daily']}',
-                                Icons.trending_down,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          // 스트릭 & 목표 달성률
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              _buildStatItem(
-                                '연속 독서',
-                                '$streak일',
-                                Icons.local_fire_department,
-                              ),
-                              FutureBuilder<double>(
-                                future: _calculateGoalRate(),
-                                builder: (context, snapshot) {
-                                  final goalRate = snapshot.data ?? 0.0;
-                                  return _buildStatItem(
-                                    '오늘 목표',
-                                    '${(goalRate * 100).toStringAsFixed(0)}%',
-                                    Icons.flag,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                        _buildStatCard(
+                          '일평균',
+                          '${(stats['average_daily'] as double).toStringAsFixed(1)}p',
+                          Icons.calendar_today_rounded,
+                          const Color(0xFF10B981),
+                          isDark,
+                        ),
+                        _buildStatCard(
+                          '최고 기록',
+                          '${stats['max_daily']}p',
+                          Icons.trending_up_rounded,
+                          const Color(0xFFF59E0B),
+                          isDark,
+                        ),
+                        _buildStatCard(
+                          '연속 독서',
+                          '$streak일',
+                          Icons.local_fire_department_rounded,
+                          const Color(0xFFEF4444),
+                          isDark,
+                        ),
+                        _buildStatCard(
+                          '최저 기록',
+                          '${stats['min_daily']}p',
+                          Icons.trending_down_rounded,
+                          const Color(0xFF8B5CF6),
+                          isDark,
+                        ),
+                        FutureBuilder<double>(
+                          future: _calculateGoalRate(),
+                          builder: (context, snapshot) {
+                            final goalRate = snapshot.data ?? 0.0;
+                            return _buildStatCard(
+                              '오늘 목표',
+                              '${(goalRate * 100).toStringAsFixed(0)}%',
+                              Icons.flag_rounded,
+                              const Color(0xFF06B6D4),
+                              isDark,
+                            );
+                          },
+                        ),
+                      ],
                     ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
 
                     // 필터 버튼
                     Row(
@@ -533,7 +495,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                               ),
                               belowBarData: BarAreaData(
                                 show: true,
-                                color: Colors.blue.withOpacity(0.1),
+                                color: Colors.blue.withValues(alpha: 0.1),
                               ),
                             ),
                           ],
@@ -654,7 +616,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                                 width: 48,
                                 height: 48,
                                 decoration: BoxDecoration(
-                                  color: Colors.blue.withOpacity(0.1),
+                                  color: Colors.blue.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Center(
@@ -736,45 +698,69 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(12),
+  Widget _buildStatCard(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+    bool isDark,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  icon,
-                  color: Colors.white,
-                  size: 16,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white.withOpacity(0.9),
-                  ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.grey.withValues(alpha: 0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
               ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
             ),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+            child: Icon(
+              icon,
+              color: color,
+              size: 20,
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
               ),
-            ),
-          ],
-        ),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
