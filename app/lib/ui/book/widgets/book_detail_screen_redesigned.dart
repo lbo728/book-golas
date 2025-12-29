@@ -4317,6 +4317,97 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
+  void _showReplaceImageOptionsOverModal({
+    required String imageId,
+    required String currentText,
+    required VoidCallback onReplaced,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[400],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                '이미지 교체',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.camera,
+                    color: Color(0xFF5B7FFF),
+                  ),
+                ),
+                title: const Text('카메라로 촬영'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _pickImageAndExtractText(
+                    ImageSource.camera,
+                    (imageBytes, ocrText, pageNumber) async {
+                      await _replaceImage(imageId, imageBytes, ocrText.isEmpty ? currentText : ocrText, pageNumber);
+                      onReplaced();
+                    },
+                  );
+                },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.photo,
+                    color: Color(0xFF10B981),
+                  ),
+                ),
+                title: const Text('갤러리에서 선택'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _pickImageAndExtractText(
+                    ImageSource.gallery,
+                    (imageBytes, ocrText, pageNumber) async {
+                      await _replaceImage(imageId, imageBytes, ocrText.isEmpty ? currentText : ocrText, pageNumber);
+                      onReplaced();
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _replaceImage(String imageId, Uint8List imageBytes, String extractedText, int? pageNumber) async {
     try {
       final fileName = '${DateTime.now().millisecondsSinceEpoch}_${_currentBook.id}.jpg';
@@ -4628,8 +4719,15 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                             left: 8,
                                             child: GestureDetector(
                                               onTap: () {
-                                                Navigator.pop(context);
-                                                _showReplaceImageOptions(imageId, textController.text);
+                                                // 모달은 유지하고 그 위에 바텀시트 표시
+                                                _showReplaceImageOptionsOverModal(
+                                                  imageId: imageId,
+                                                  currentText: textController.text,
+                                                  onReplaced: () {
+                                                    // 교체 완료 후 모달 닫기
+                                                    Navigator.pop(context);
+                                                  },
+                                                );
                                               },
                                               behavior: HitTestBehavior.opaque,
                                               child: Container(
