@@ -10,8 +10,10 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../domain/models/book.dart';
+import '../../../data/services/image_cache_manager.dart';
 import '../../../data/services/book_service.dart';
 import '../../../data/services/google_vision_ocr_service.dart';
 import '../../core/ui/book_image_widget.dart';
@@ -1256,20 +1258,15 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         child: hasImage
                             ? CachedNetworkImage(
                                 imageUrl: imageUrl,
+                                cacheManager: BookImageCacheManager.instance,
                                 fit: BoxFit.cover,
                                 width: double.infinity,
                                 height: double.infinity,
-                                placeholder: (context, url) => Container(
-                                  color: isDark ? Colors.grey[800] : Colors.grey[200],
-                                  child: Center(
-                                    child: SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: isDark ? Colors.grey[600] : Colors.grey[400],
-                                      ),
-                                    ),
+                                placeholder: (context, url) => Shimmer.fromColors(
+                                  baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                                  highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
+                                  child: Container(
+                                    color: isDark ? Colors.grey[800] : Colors.grey[200],
                                   ),
                                 ),
                                 errorWidget: (context, url, error) => Container(
@@ -4576,11 +4573,13 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                             tag: 'book_image_$imageId',
                                             child: CachedNetworkImage(
                                               imageUrl: imageUrl!,
+                                              cacheManager: BookImageCacheManager.instance,
                                               fit: BoxFit.cover,
-                                              placeholder: (context, url) => Container(
-                                                color: isDark ? Colors.grey[800] : Colors.grey[200],
-                                                child: const Center(
-                                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                              placeholder: (context, url) => Shimmer.fromColors(
+                                                baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                                                highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
+                                                child: Container(
+                                                  color: isDark ? Colors.grey[800] : Colors.grey[200],
                                                 ),
                                               ),
                                               errorWidget: (context, url, error) => Container(
@@ -5101,11 +5100,13 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                               width: 80,
                               child: CachedNetworkImage(
                                 imageUrl: imageUrl!,
+                                cacheManager: BookImageCacheManager.instance,
                                 fit: BoxFit.cover,
-                                placeholder: (context, url) => Container(
-                                  color: isDark ? Colors.grey[800] : Colors.grey[200],
-                                  child: const Center(
-                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                placeholder: (context, url) => Shimmer.fromColors(
+                                  baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                                  highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
+                                  child: Container(
+                                    color: isDark ? Colors.grey[800] : Colors.grey[200],
                                   ),
                                 ),
                                 errorWidget: (context, url, error) => Container(
@@ -6330,10 +6331,15 @@ class _DraggableDismissNetworkImageState
                       tag: 'book_image_${widget.imageId}',
                       child: CachedNetworkImage(
                         imageUrl: widget.imageUrl,
+                        cacheManager: BookImageCacheManager.instance,
                         fit: BoxFit.contain,
-                        placeholder: (context, url) => const Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
+                        placeholder: (context, url) => Shimmer.fromColors(
+                          baseColor: Colors.grey[800]!,
+                          highlightColor: Colors.grey[700]!,
+                          child: Container(
+                            width: 200,
+                            height: 200,
+                            color: Colors.grey[800],
                           ),
                         ),
                         errorWidget: (context, url, error) => const Center(
