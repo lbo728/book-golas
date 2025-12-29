@@ -9,8 +9,9 @@ class CustomSnackbar {
     SnackbarType type = SnackbarType.success,
     IconData? icon,
     Duration duration = const Duration(seconds: 2),
+    bool rootOverlay = false,
   }) {
-    final overlay = Overlay.of(context);
+    final overlay = Overlay.of(context, rootOverlay: rootOverlay);
     final overlayEntry = OverlayEntry(
       builder: (context) => _AnimatedSnackbar(
         message: message,

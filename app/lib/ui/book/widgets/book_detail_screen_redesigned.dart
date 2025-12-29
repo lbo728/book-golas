@@ -110,58 +110,6 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     super.dispose();
   }
 
-  void _showTopLevelToast(BuildContext modalContext, String message) {
-    final overlay = Overlay.of(modalContext, rootOverlay: true);
-    late OverlayEntry entry;
-
-    entry = OverlayEntry(
-      builder: (context) => Positioned(
-        bottom: 24,
-        left: 16,
-        right: 16,
-        child: Material(
-          color: Colors.transparent,
-          child: TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0.0, end: 1.0),
-            duration: const Duration(milliseconds: 200),
-            builder: (context, value, child) => Opacity(
-              opacity: value,
-              child: child,
-            ),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF10B981),
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Text(
-                message,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    overlay.insert(entry);
-
-    Future.delayed(const Duration(seconds: 2), () {
-      entry.remove();
-    });
-  }
 
   Future<void> _loadDailyAchievements() async {
     // TODO: Supabase에서 일차별 달성 현황 불러오기
@@ -4893,7 +4841,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                           onTap: () {
                                             if (textController.text.isNotEmpty) {
                                               Clipboard.setData(ClipboardData(text: textController.text));
-                                              _showTopLevelToast(context, '텍스트가 복사되었습니다.');
+                                              CustomSnackbar.show(context, message: '텍스트가 복사되었습니다.', rootOverlay: true);
                                             }
                                           },
                                           child: Row(
@@ -5022,7 +4970,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                                 onTap: () {
                                                   if (textController.text.isNotEmpty) {
                                                     Clipboard.setData(ClipboardData(text: textController.text));
-                                                    _showTopLevelToast(context, '텍스트가 복사되었습니다.');
+                                                    CustomSnackbar.show(context, message: '텍스트가 복사되었습니다.', rootOverlay: true);
                                                   }
                                                 },
                                                 child: Row(
@@ -5964,6 +5912,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       return schedule;
     }
 
+    // 캐시된 스케줄 (dailyTarget 변경 시에만 재계산)
+    var cachedSchedule = calculateSchedule(currentDailyTarget);
+    int lastCalculatedTarget = currentDailyTarget;
+
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -5971,7 +5923,12 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            final schedule = calculateSchedule(newDailyTarget);
+            // dailyTarget이 변경된 경우에만 재계산
+            if (newDailyTarget != lastCalculatedTarget) {
+              cachedSchedule = calculateSchedule(newDailyTarget);
+              lastCalculatedTarget = newDailyTarget;
+            }
+            final schedule = cachedSchedule;
             final daysToComplete = schedule.length;
             final targetDate = _currentBook.targetDate;
             final canFinishOnTime = daysToComplete <= _daysLeft;
