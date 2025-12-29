@@ -5655,10 +5655,9 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
-  /// 목표일 변경 (바텀시트)
+  /// 일일 목표 페이지 변경 (수평 다이얼 + 스케줄 테이블)
   void _showDailyTargetChangeDialog() async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final nextAttempt = _attemptCount + 1;
 
     // 현재 일일 목표 계산
     final currentDailyTarget = _daysLeft > 0
@@ -5666,6 +5665,34 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         : _pagesLeft;
 
     int newDailyTarget = currentDailyTarget;
+    bool showSchedule = false;
+
+    // 스케줄 계산 함수
+    List<Map<String, dynamic>> calculateSchedule(int dailyTarget) {
+      final schedule = <Map<String, dynamic>>[];
+      int remainingPages = _pagesLeft;
+      DateTime currentDate = DateTime.now();
+      final targetDate = _currentBook.targetDate;
+
+      while (remainingPages > 0 && !currentDate.isAfter(targetDate)) {
+        final pagesToRead = remainingPages > dailyTarget ? dailyTarget : remainingPages;
+        final weekday = ['월', '화', '수', '목', '금', '토', '일'][currentDate.weekday - 1];
+
+        schedule.add({
+          'date': currentDate,
+          'weekday': weekday,
+          'pages': pagesToRead,
+          'isToday': currentDate.day == DateTime.now().day &&
+              currentDate.month == DateTime.now().month &&
+              currentDate.year == DateTime.now().year,
+        });
+
+        remainingPages -= pagesToRead;
+        currentDate = currentDate.add(const Duration(days: 1));
+      }
+
+      return schedule;
+    }
 
     await showModalBottomSheet(
       context: context,
@@ -5674,66 +5701,74 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            // 새 목표일 계산 (오늘 + 남은 페이지 / 일일 목표)
-            final daysNeeded = newDailyTarget > 0
-                ? (_pagesLeft / newDailyTarget).ceil()
-                : _pagesLeft;
-            final newTargetDate = DateTime.now().add(Duration(days: daysNeeded));
+            final schedule = calculateSchedule(newDailyTarget);
+            final daysToComplete = schedule.length;
+            final targetDate = _currentBook.targetDate;
+            final canFinishOnTime = daysToComplete <= _daysLeft;
 
             return Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.85,
+              ),
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               ),
-              padding: const EdgeInsets.all(24),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 헤더
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF10B981).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          CupertinoIcons.book,
-                          color: Color(0xFF10B981),
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 헤더
+                        Row(
                           children: [
-                            Text(
-                              '일일 목표 페이지 변경',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                                color: isDark ? Colors.white : Colors.black,
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                CupertinoIcons.book,
+                                color: Color(0xFF10B981),
+                                size: 24,
                               ),
                             ),
-                            RichText(
-                              text: TextSpan(
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  TextSpan(
-                                    text: '$_pagesLeft페이지',
+                                  Text(
+                                    '일일 목표 페이지 변경',
                                     style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      color: isDark ? Colors.grey[300] : Colors.grey[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                      color: isDark ? Colors.white : Colors.black,
                                     ),
                                   ),
-                                  TextSpan(
-                                    text: ' 남았어요',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                  RichText(
+                                    text: TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: '$_pagesLeft페이지',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: isDark ? Colors.grey[300] : Colors.grey[700],
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: ' 남았어요 · D-$_daysLeft',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
@@ -5741,204 +5776,293 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 28),
-                  // 일일 목표 조절 UI
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          '하루 목표',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        const SizedBox(height: 28),
+                        // 수평 다이얼 피커
+                        Container(
+                          height: 120,
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // 감소 버튼
-                            GestureDetector(
-                              onTap: () {
-                                if (newDailyTarget > 1) {
-                                  setModalState(() {
-                                    newDailyTarget--;
-                                  });
-                                }
-                              },
-                              child: Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  color: isDark
-                                      ? Colors.white.withValues(alpha: 0.1)
-                                      : Colors.grey[200],
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  CupertinoIcons.minus,
-                                  color: isDark ? Colors.white : Colors.grey[700],
-                                  size: 24,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 24),
-                            // 페이지 수
-                            Column(
-                              children: [
-                                Text(
-                                  '$newDailyTarget',
-                                  style: TextStyle(
-                                    fontSize: 48,
-                                    fontWeight: FontWeight.bold,
-                                    color: const Color(0xFF10B981),
-                                  ),
-                                ),
-                                Text(
-                                  '페이지',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: isDark ? Colors.grey[400] : Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(width: 24),
-                            // 증가 버튼
-                            GestureDetector(
-                              onTap: () {
-                                if (newDailyTarget < _pagesLeft) {
-                                  setModalState(() {
-                                    newDailyTarget++;
-                                  });
-                                }
-                              },
-                              child: Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  color: isDark
-                                      ? Colors.white.withValues(alpha: 0.1)
-                                      : Colors.grey[200],
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  CupertinoIcons.plus,
-                                  color: isDark ? Colors.white : Colors.grey[700],
-                                  size: 24,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // 예상 완료일 표시
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          CupertinoIcons.calendar,
-                          color: const Color(0xFF5B7FFF),
-                          size: 20,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          child: Stack(
                             children: [
-                              Text(
-                                '예상 완료일',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                              // 중앙 선택 영역 강조
+                              Center(
+                                child: Container(
+                                  width: 70,
+                                  height: 80,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: const Color(0xFF10B981),
+                                      width: 2,
+                                    ),
+                                  ),
                                 ),
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                '${newTargetDate.year}년 ${newTargetDate.month}월 ${newTargetDate.day}일',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white : Colors.black,
+                              // 수평 피커
+                              RotatedBox(
+                                quarterTurns: 3,
+                                child: ListWheelScrollView.useDelegate(
+                                  controller: FixedExtentScrollController(
+                                    initialItem: newDailyTarget - 1,
+                                  ),
+                                  itemExtent: 70,
+                                  perspective: 0.005,
+                                  diameterRatio: 1.5,
+                                  physics: const FixedExtentScrollPhysics(),
+                                  onSelectedItemChanged: (index) {
+                                    setModalState(() {
+                                      newDailyTarget = index + 1;
+                                    });
+                                  },
+                                  childDelegate: ListWheelChildBuilderDelegate(
+                                    childCount: _pagesLeft.clamp(1, 200),
+                                    builder: (context, index) {
+                                      final value = index + 1;
+                                      final isSelected = value == newDailyTarget;
+                                      return RotatedBox(
+                                        quarterTurns: 1,
+                                        child: Center(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                '$value',
+                                                style: TextStyle(
+                                                  fontSize: isSelected ? 32 : 20,
+                                                  fontWeight: isSelected
+                                                      ? FontWeight.bold
+                                                      : FontWeight.w400,
+                                                  color: isSelected
+                                                      ? const Color(0xFF10B981)
+                                                      : (isDark
+                                                          ? Colors.grey[500]
+                                                          : Colors.grey[400]),
+                                                ),
+                                              ),
+                                              if (isSelected)
+                                                Text(
+                                                  '페이지/일',
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                    color: isDark
+                                                        ? Colors.grey[400]
+                                                        : Colors.grey[600],
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
                             ],
                           ),
                         ),
+                        const SizedBox(height: 16),
+                        // 목표 달성 가능 여부 표시
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF5B7FFF).withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(8),
+                            color: canFinishOnTime
+                                ? const Color(0xFF10B981).withValues(alpha: 0.1)
+                                : const Color(0xFFFF6B6B).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Text(
-                            'D-$daysNeeded',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF5B7FFF),
+                          child: Row(
+                            children: [
+                              Icon(
+                                canFinishOnTime
+                                    ? CupertinoIcons.checkmark_circle
+                                    : CupertinoIcons.exclamationmark_circle,
+                                color: canFinishOnTime
+                                    ? const Color(0xFF10B981)
+                                    : const Color(0xFFFF6B6B),
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  canFinishOnTime
+                                      ? '${targetDate.month}/${targetDate.day}까지 완료 가능!'
+                                      : '목표일까지 $daysToComplete일 필요 (${daysToComplete - _daysLeft}일 초과)',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: canFinishOnTime
+                                        ? const Color(0xFF10B981)
+                                        : const Color(0xFFFF6B6B),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        // 예상 스케줄 보기 버튼
+                        GestureDetector(
+                          onTap: () {
+                            setModalState(() {
+                              showSchedule = !showSchedule;
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  showSchedule
+                                      ? CupertinoIcons.chevron_up
+                                      : CupertinoIcons.chevron_down,
+                                  size: 16,
+                                  color: const Color(0xFF5B7FFF),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  showSchedule ? '스케줄 닫기' : '예상 스케줄 보기',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF5B7FFF),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  // 버튼
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                          child: const Text('취소'),
+                  // 스케줄 테이블 (확장 시)
+                  if (showSchedule)
+                    Flexible(
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 24),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[50],
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        flex: 2,
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            Navigator.pop(context);
-                            await _updateTargetDate(newTargetDate, nextAttempt);
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          itemCount: schedule.length > 14 ? 14 : schedule.length,
+                          itemBuilder: (context, index) {
+                            final item = schedule[index];
+                            final date = item['date'] as DateTime;
+                            final isToday = item['isToday'] as bool;
+
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isToday
+                                    ? const Color(0xFF5B7FFF).withValues(alpha: 0.1)
+                                    : null,
+                              ),
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 100,
+                                    child: Text(
+                                      '${date.month}/${date.day} (${item['weekday']})',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: isToday ? FontWeight.bold : FontWeight.w400,
+                                        color: isToday
+                                            ? const Color(0xFF5B7FFF)
+                                            : (isDark ? Colors.grey[300] : Colors.grey[700]),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Container(
+                                      height: 6,
+                                      margin: const EdgeInsets.symmetric(horizontal: 12),
+                                      decoration: BoxDecoration(
+                                        color: isDark ? Colors.grey[700] : Colors.grey[200],
+                                        borderRadius: BorderRadius.circular(3),
+                                      ),
+                                      child: FractionallySizedBox(
+                                        alignment: Alignment.centerLeft,
+                                        widthFactor: (item['pages'] as int) / newDailyTarget,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF10B981),
+                                            borderRadius: BorderRadius.circular(3),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    '${item['pages']}p',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: isDark ? Colors.white : Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF10B981),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  // 버튼
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      24,
+                      showSchedule ? 16 : 0,
+                      24,
+                      24 + MediaQuery.of(context).viewInsets.bottom,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
                             ),
+                            child: const Text('취소'),
                           ),
-                          child: const Text(
-                            '변경하기',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          flex: 2,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              // 일일 목표는 계획 도구로만 사용 (DB 저장 없음)
+                              // 스케줄 확인 후 닫기
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF10B981),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              '확인',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
                 ],
               ),
             );
