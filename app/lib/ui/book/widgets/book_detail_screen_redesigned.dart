@@ -17,6 +17,7 @@ import '../../../data/services/image_cache_manager.dart';
 import '../../../data/services/book_service.dart';
 import '../../../data/services/google_vision_ocr_service.dart';
 import '../../core/ui/book_image_widget.dart';
+import '../../core/ui/custom_snackbar.dart';
 
 /// 시니어 프로덕트 디자이너가 재설계한 독서 상세 화면
 ///
@@ -1756,38 +1757,19 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
         if (mounted) {
           final pagesRead = newPage - oldPage;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(Icons.check_circle, color: Colors.white, size: 20),
-                  const SizedBox(width: 8),
-                  Text('+$pagesRead 페이지! ${newPage}p 도달 🎉'),
-                ],
-              ),
-              backgroundColor: const Color(0xFF10B981),
-              behavior: SnackBarBehavior.floating,
-              margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              duration: const Duration(seconds: 2),
-            ),
+          CustomSnackbar.show(
+            context,
+            message: '+$pagesRead 페이지! ${newPage}p 도달',
+            type: SnackbarType.success,
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('오류가 발생했습니다: $e'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
+        CustomSnackbar.show(
+          context,
+          message: '오류가 발생했습니다',
+          type: SnackbarType.error,
         );
       }
     }
@@ -2234,16 +2216,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         curve: Curves.easeOut,
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('인상적인 페이지가 저장되었습니다.'),
-          backgroundColor: const Color(0xFF10B981),
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
+      CustomSnackbar.show(
+        context,
+        message: '인상적인 페이지가 저장되었습니다',
+        type: SnackbarType.success,
       );
     }
   }
@@ -2825,10 +2801,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         }
                       : () {
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('시뮬레이터에서는 카메라를 사용할 수 없습니다.'),
-                            ),
+                          CustomSnackbar.show(
+                            this.context,
+                            message: '시뮬레이터에서는 카메라를 사용할 수 없습니다',
+                            type: SnackbarType.warning,
                           );
                         },
                 ),
@@ -4431,24 +4407,18 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       setState(() {});
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('이미지가 교체되었습니다.'),
-            backgroundColor: const Color(0xFF10B981),
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
-          ),
+        CustomSnackbar.show(
+          context,
+          message: '이미지가 교체되었습니다',
+          type: SnackbarType.success,
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('이미지 교체 실패: $e'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
-          ),
+        CustomSnackbar.show(
+          context,
+          message: '이미지 교체 실패',
+          type: SnackbarType.error,
         );
       }
     }
@@ -4594,16 +4564,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                             if (mounted) {
                                               setState(() {});
                                             }
-                                            ScaffoldMessenger.of(this.context).showSnackBar(
-                                              SnackBar(
-                                                content: const Text('텍스트가 저장되었습니다.'),
-                                                backgroundColor: const Color(0xFF10B981),
-                                                behavior: SnackBarBehavior.floating,
-                                                margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                ),
-                                              ),
+                                            CustomSnackbar.show(
+                                              this.context,
+                                              message: '텍스트가 저장되었습니다',
+                                              type: SnackbarType.success,
                                             );
                                           }
                                         } catch (e) {
@@ -6497,23 +6461,11 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         curve: Curves.easeOutCubic,
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.flag, color: Colors.white, size: 20),
-              const SizedBox(width: 8),
-              Text('$newAttempt번째 도전 시작! D-${_daysLeft} 🚀'),
-            ],
-          ),
-          backgroundColor: const Color(0xFF5B7FFF),
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          duration: const Duration(seconds: 2),
-        ),
+      CustomSnackbar.show(
+        context,
+        message: '$newAttempt번째 도전 시작! D-$_daysLeft',
+        type: SnackbarType.info,
+        icon: Icons.flag,
       );
     }
   }
