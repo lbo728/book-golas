@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../domain/models/book.dart';
 import '../../../data/services/book_service.dart';
@@ -252,7 +253,11 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         children: [
                           // Compact Book Header (Dashboard Style)
                           _buildCompactBookHeader(isDark),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 10),
+
+                          // Compact Reading Schedule (시작일/목표일)
+                          _buildCompactReadingSchedule(isDark),
+                          const SizedBox(height: 12),
 
                           // Dashboard Progress (2-Column)
                           _buildDashboardProgress(isDark),
@@ -679,17 +684,22 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                 ),
                 const SizedBox(height: 12),
 
-                // Title
-                Text(
-                  _currentBook.title,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    height: 1.3,
-                    color: isDark ? Colors.white : Colors.black,
+                // Title (탭하면 전체 제목 표시)
+                GestureDetector(
+                  onTap: _currentBook.title.length > 30
+                      ? () => _showFullTitleDialog(_currentBook.title)
+                      : null,
+                  child: Text(
+                    _currentBook.title,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      height: 1.3,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
 
                 // Author
@@ -705,6 +715,121 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                   ),
                 ],
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 컴팩트 독서 일정 Row (시작일/목표일 + 변경 버튼)
+  Widget _buildCompactReadingSchedule(bool isDark) {
+    final startDateStr = _currentBook.startDate
+        .toString()
+        .substring(0, 10)
+        .replaceAll('-', '.');
+    final targetDateStr = _currentBook.targetDate
+        .toString()
+        .substring(0, 10)
+        .replaceAll('-', '.');
+    // 총 일수 계산
+    final totalDays =
+        _currentBook.targetDate.difference(_currentBook.startDate).inDays + 1;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // 캘린더 아이콘
+          Icon(
+            CupertinoIcons.calendar,
+            size: 16,
+            color: const Color(0xFF5B7FFF),
+          ),
+          const SizedBox(width: 10),
+          // 시작일
+          Text(
+            startDateStr,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.grey[300] : Colors.grey[700],
+            ),
+          ),
+          const SizedBox(width: 6),
+          Icon(
+            CupertinoIcons.arrow_right,
+            size: 12,
+            color: isDark ? Colors.grey[500] : Colors.grey[400],
+          ),
+          const SizedBox(width: 6),
+          // 목표일
+          Text(
+            targetDateStr,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white : Colors.black87,
+            ),
+          ),
+          const SizedBox(width: 4),
+          // 총 일수 표시
+          Text(
+            '($totalDays일)',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.grey[500] : Colors.grey[500],
+            ),
+          ),
+          // N번째 도전 뱃지
+          if (_attemptCount > 1) ...[
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFF6B35).withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                '$_attemptCount번째',
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFFFF6B35),
+                ),
+              ),
+            ),
+          ],
+          const Spacer(),
+          // 변경 버튼
+          GestureDetector(
+            onTap: _showUpdateTargetDateDialogWithConfirm,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: const Text(
+                '변경',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF5B7FFF),
+                ),
+              ),
             ),
           ),
         ],
@@ -1129,11 +1254,31 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                       ClipRRect(
                         borderRadius: BorderRadius.circular(12),
                         child: hasImage
-                            ? Image.network(
-                                imageUrl,
+                            ? CachedNetworkImage(
+                                imageUrl: imageUrl,
                                 fit: BoxFit.cover,
                                 width: double.infinity,
                                 height: double.infinity,
+                                placeholder: (context, url) => Container(
+                                  color: isDark ? Colors.grey[800] : Colors.grey[200],
+                                  child: Center(
+                                    child: SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: isDark ? Colors.grey[600] : Colors.grey[400],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) => Container(
+                                  color: isDark ? Colors.grey[800] : Colors.grey[200],
+                                  child: Icon(
+                                    CupertinoIcons.photo,
+                                    color: isDark ? Colors.grey[600] : Colors.grey[400],
+                                  ),
+                                ),
                               )
                             : Container(
                                 width: double.infinity,
@@ -1674,40 +1819,6 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     });
   }
 
-  void _showUpdateTargetDateDialog() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _currentBook.targetDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2100),
-    );
-
-    if (picked != null) {
-      final updatedBook = _currentBook.copyWith(targetDate: picked);
-      final result =
-          await _bookService.updateBook(_currentBook.id!, updatedBook);
-
-      if (result != null) {
-        setState(() {
-          _currentBook = result;
-        });
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('목표 완료일이 변경되었습니다.'),
-              backgroundColor: const Color(0xFF10B981),
-              behavior: SnackBarBehavior.floating,
-              margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          );
-        }
-      }
-    }
-  }
-
   void _showTodayGoalSheet() {
     final startController =
         TextEditingController(text: _todayStartPage?.toString() ?? '');
@@ -2118,6 +2229,14 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     });
 
     if (mounted) {
+      // 인상적인 페이지 탭으로 이동 후 스크롤 상단으로
+      _tabController.animateTo(0);
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('인상적인 페이지가 저장되었습니다.'),
@@ -3120,16 +3239,21 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  _currentBook.title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    height: 1.3,
-                    color: isDark ? Colors.white : Colors.black,
+                GestureDetector(
+                  onTap: _currentBook.title.length > 20
+                      ? () => _showFullTitleDialog(_currentBook.title)
+                      : null,
+                  child: Text(
+                    _currentBook.title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      height: 1.3,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Row(
@@ -3270,49 +3394,77 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
           Expanded(
             child: Column(
               children: [
-                // D-day
+                // D-day (3일 이하일 때 레드)
                 Text(
                   isOverdue ? 'D+${_daysLeft.abs()}' : 'D-$_daysLeft',
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.w800,
-                    color: isOverdue
+                    color: isOverdue || _daysLeft <= 3
                         ? const Color(0xFFEF4444)
                         : const Color(0xFF5B7FFF),
                     letterSpacing: -1,
                   ),
                 ),
                 const SizedBox(height: 8),
-                // 남은 페이지
-                Text(
-                  '남은 $_pagesLeft페이지',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                // 남은 페이지 ("OO페이지 남았어요" 형식, 페이지 수 볼드)
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '$_pagesLeft페이지',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.grey[300] : Colors.grey[700],
+                        ),
+                      ),
+                      TextSpan(
+                        text: ' 남았어요',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 4),
-                // 오늘 목표 (남은 페이지 / 남은 일수)
+                // 오늘 목표 (남은 페이지 / 남은 일수) + 변경 버튼
                 Builder(
                   builder: (context) {
                     final dailyTarget = _daysLeft > 0
                         ? (_pagesLeft / _daysLeft).ceil()
                         : _pagesLeft;
                     if (dailyTarget > 0) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF10B981).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          '오늘 목표: ${dailyTarget}p',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF10B981),
+                      return GestureDetector(
+                        onTap: _showDailyTargetChangeDialog,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '오늘 목표: ${dailyTarget}p',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF10B981),
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(
+                                CupertinoIcons.pencil,
+                                size: 11,
+                                color: Color(0xFF10B981),
+                              ),
+                            ],
                           ),
                         ),
                       );
@@ -3455,24 +3607,32 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
-  /// 컴팩트 스트릭 Row (최근 7일 도트 + N일 연속)
+  /// 컴팩트 스트릭 Row (최근 7일 도트 + N일 연속 + 요일 라벨)
   Widget _buildCompactStreakRow(bool isDark) {
+    // 요일 이름 (한글)
+    const dayLabels = ['일', '월', '화', '수', '목', '금', '토'];
+
     // 최근 7일 달성 현황 계산
     final now = DateTime.now();
-    final recentDays = <bool>[];
+    final recentDays = <Map<String, dynamic>>[];
 
     for (int i = 6; i >= 0; i--) {
       final date = now.subtract(Duration(days: i));
       final dateKey =
           '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
       final isAchieved = _dailyAchievements[dateKey] == true;
-      recentDays.add(isAchieved);
+      final isToday = i == 0;
+      recentDays.add({
+        'achieved': isAchieved,
+        'dayLabel': dayLabels[date.weekday % 7],
+        'isToday': isToday,
+      });
     }
 
     // 연속 달성일 계산
     int streak = 0;
     for (int i = recentDays.length - 1; i >= 0; i--) {
-      if (recentDays[i]) {
+      if (recentDays[i]['achieved'] == true) {
         streak++;
       } else {
         break;
@@ -3486,51 +3646,95 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Row(
+      child: Column(
         children: [
-          // 불꽃 아이콘
-          Icon(
-            CupertinoIcons.flame_fill,
-            size: 20,
-            color: streak > 0 ? const Color(0xFFFF6B35) : Colors.grey[400],
-          ),
-          const SizedBox(width: 8),
-          // 연속 달성 텍스트
-          Text(
-            streak > 0 ? '$streak일 연속 달성!' : '오늘 첫 기록을 남겨보세요',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: streak > 0
-                  ? (isDark ? Colors.white : Colors.black87)
-                  : (isDark ? Colors.grey[400] : Colors.grey[600]),
-            ),
-          ),
-          const Spacer(),
-          // 최근 7일 도트
+          // 1행: 최근 7일 도트 + 요일 라벨 (크게)
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(7, (index) {
-              final isAchieved = recentDays[index];
+              final dayInfo = recentDays[index];
+              final isAchieved = dayInfo['achieved'] as bool;
+              final dayLabel = dayInfo['dayLabel'] as String;
+              final isToday = dayInfo['isToday'] as bool;
               return Container(
-                width: 10,
-                height: 10,
-                margin: EdgeInsets.only(left: index > 0 ? 4 : 0),
-                decoration: BoxDecoration(
-                  color: isAchieved
-                      ? const Color(0xFF10B981)
-                      : (isDark
-                          ? Colors.white.withOpacity(0.15)
-                          : Colors.grey[300]),
-                  shape: BoxShape.circle,
+                width: 38,
+                margin: EdgeInsets.only(left: index > 0 ? 6 : 0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 요일 라벨
+                    Text(
+                      dayLabel,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
+                        color: isToday
+                            ? const Color(0xFF5B7FFF)
+                            : (isDark ? Colors.grey[400] : Colors.grey[500]),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    // 도트
+                    Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: isAchieved
+                            ? const Color(0xFF10B981)
+                            : (isDark
+                                ? Colors.white.withValues(alpha: 0.12)
+                                : Colors.grey[200]),
+                        shape: BoxShape.circle,
+                        border: isToday
+                            ? Border.all(
+                                color: const Color(0xFF5B7FFF),
+                                width: 2,
+                              )
+                            : null,
+                      ),
+                      child: isAchieved
+                          ? const Icon(
+                              CupertinoIcons.checkmark,
+                              size: 12,
+                              color: Colors.white,
+                            )
+                          : null,
+                    ),
+                  ],
                 ),
               );
             }),
+          ),
+          const SizedBox(height: 10),
+          // 2행: 불꽃 아이콘 + 스트릭 텍스트
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                CupertinoIcons.flame_fill,
+                size: 16,
+                color: streak > 0
+                    ? const Color(0xFFF97316)
+                    : (isDark ? Colors.grey[500] : Colors.grey[400]),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                streak > 0 ? '$streak일 연속 달성!' : '오늘 첫 기록을 남겨보세요',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: streak > 0
+                      ? (isDark ? Colors.white : Colors.grey[800])
+                      : (isDark ? Colors.grey[400] : Colors.grey[500]),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -3801,7 +4005,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
               );
             }),
           ),
-          // 슬라이딩 인디케이터
+          // 슬라이딩 인디케이터 (스와이프 제스처와 동기화)
           Positioned(
             bottom: 0,
             left: 0,
@@ -3810,19 +4014,29 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final tabWidth = constraints.maxWidth / 3;
-                return Stack(
-                  children: [
-                    AnimatedPositioned(
-                      duration: const Duration(milliseconds: 250),
-                      curve: Curves.easeInOut,
-                      left: tabWidth * _tabController.index,
-                      width: tabWidth,
-                      height: 2,
-                      child: Container(
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                    ),
-                  ],
+                final indicatorWidth = tabWidth * 0.5; // 탭 너비의 50%
+                return AnimatedBuilder(
+                  animation: _tabController.animation!,
+                  builder: (context, child) {
+                    final animValue = _tabController.animation!.value;
+                    // 각 탭의 중앙 위치 계산
+                    final centerPosition = tabWidth * animValue + (tabWidth - indicatorWidth) / 2;
+                    return Stack(
+                      children: [
+                        Positioned(
+                          left: centerPosition,
+                          child: Container(
+                            width: indicatorWidth,
+                            height: 2,
+                            decoration: BoxDecoration(
+                              color: isDark ? Colors.white : Colors.black,
+                              borderRadius: BorderRadius.circular(1),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 );
               },
             ),
@@ -4244,13 +4458,29 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                 ),
                               ),
                             ),
-                            Text(
-                              '인상적인 페이지',
-                              style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w600,
-                                color: isDark ? Colors.white : Colors.black,
-                              ),
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '인상적인 페이지',
+                                  style: TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark ? Colors.white : Colors.black,
+                                  ),
+                                ),
+                                if (pageNumber != null) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'p.$pageNumber',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: isDark ? Colors.grey[400] : Colors.grey[500],
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                             if (isEditing)
                               TextButton(
@@ -4267,9 +4497,15 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                               .eq('id', imageId);
                                           // 저장 성공 시 메모리 캐시 제거 (DB 값이 우선)
                                           _editedTexts.remove(imageId);
+                                          // 캐시 무효화 및 새로운 데이터 로드
+                                          _cachedImages = null;
                                           _bookImagesFuture = fetchBookImages(_currentBook.id!);
                                           if (context.mounted) {
                                             Navigator.pop(context);
+                                            // setState로 리스트 갱신 트리거
+                                            if (mounted) {
+                                              setState(() {});
+                                            }
                                             ScaffoldMessenger.of(this.context).showSnackBar(
                                               SnackBar(
                                                 content: const Text('텍스트가 저장되었습니다.'),
@@ -4338,18 +4574,22 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                         children: [
                                           Hero(
                                             tag: 'book_image_$imageId',
-                                            child: Image.network(
-                                              imageUrl!,
+                                            child: CachedNetworkImage(
+                                              imageUrl: imageUrl!,
                                               fit: BoxFit.cover,
-                                              loadingBuilder: (context, child, loadingProgress) {
-                                                if (loadingProgress == null) return child;
-                                                return Container(
-                                                  color: isDark ? Colors.grey[800] : Colors.grey[200],
-                                                  child: const Center(
-                                                    child: CircularProgressIndicator(strokeWidth: 2),
-                                                  ),
-                                                );
-                                              },
+                                              placeholder: (context, url) => Container(
+                                                color: isDark ? Colors.grey[800] : Colors.grey[200],
+                                                child: const Center(
+                                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                                ),
+                                              ),
+                                              errorWidget: (context, url, error) => Container(
+                                                color: isDark ? Colors.grey[800] : Colors.grey[200],
+                                                child: Icon(
+                                                  CupertinoIcons.photo,
+                                                  color: isDark ? Colors.grey[600] : Colors.grey[400],
+                                                ),
+                                              ),
                                             ),
                                           ),
                                           Positioned(
@@ -4647,11 +4887,15 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                       child: Container(
                                         width: double.infinity,
                                         decoration: BoxDecoration(
-                                          color: isDark ? Colors.grey[900] : Colors.grey[100],
+                                          color: isEditing
+                                              ? (isDark ? Colors.grey[900] : Colors.grey[100])
+                                              : Colors.transparent,
                                           borderRadius: BorderRadius.circular(12),
-                                          border: Border.all(
-                                            color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                                          ),
+                                          border: isEditing
+                                              ? Border.all(
+                                                  color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                                                )
+                                              : null,
                                         ),
                                         child: isEditing
                                             ? TextField(
@@ -4690,8 +4934,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                                     : SelectableText(
                                                         textController.text,
                                                         style: TextStyle(
-                                                          fontSize: 15,
-                                                          height: 1.6,
+                                                          fontSize: 17,
+                                                          height: 1.8,
                                                           color: isDark ? Colors.white : Colors.black,
                                                         ),
                                                       ),
@@ -4855,18 +5099,22 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                             ),
                             child: SizedBox(
                               width: 80,
-                              child: Image.network(
-                                imageUrl!,
+                              child: CachedNetworkImage(
+                                imageUrl: imageUrl!,
                                 fit: BoxFit.cover,
-                                loadingBuilder: (context, child, loadingProgress) {
-                                  if (loadingProgress == null) return child;
-                                  return Container(
-                                    color: isDark ? Colors.grey[800] : Colors.grey[200],
-                                    child: const Center(
-                                      child: CircularProgressIndicator(strokeWidth: 2),
-                                    ),
-                                  );
-                                },
+                                placeholder: (context, url) => Container(
+                                  color: isDark ? Colors.grey[800] : Colors.grey[200],
+                                  child: const Center(
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) => Container(
+                                  color: isDark ? Colors.grey[800] : Colors.grey[200],
+                                  child: Icon(
+                                    CupertinoIcons.photo,
+                                    color: isDark ? Colors.grey[600] : Colors.grey[400],
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -5369,7 +5617,336 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
+  /// 전체 제목 표시 다이얼로그
+  void _showFullTitleDialog(String title) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Text(
+          '도서 제목',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: isDark ? Colors.grey[400] : Colors.grey[600],
+          ),
+        ),
+        content: Text(
+          title,
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+            height: 1.4,
+            color: isDark ? Colors.white : Colors.black,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('확인'),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// 목표일 변경 (바텀시트)
+  void _showDailyTargetChangeDialog() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final nextAttempt = _attemptCount + 1;
+
+    // 현재 일일 목표 계산
+    final currentDailyTarget = _daysLeft > 0
+        ? (_pagesLeft / _daysLeft).ceil()
+        : _pagesLeft;
+
+    int newDailyTarget = currentDailyTarget;
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            // 새 목표일 계산 (오늘 + 남은 페이지 / 일일 목표)
+            final daysNeeded = newDailyTarget > 0
+                ? (_pagesLeft / newDailyTarget).ceil()
+                : _pagesLeft;
+            final newTargetDate = DateTime.now().add(Duration(days: daysNeeded));
+
+            return Container(
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 헤더
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          CupertinoIcons.book,
+                          color: Color(0xFF10B981),
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '일일 목표 페이지 변경',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                            ),
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: '$_pagesLeft페이지',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: isDark ? Colors.grey[300] : Colors.grey[700],
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: ' 남았어요',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 28),
+                  // 일일 목표 조절 UI
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          '하루 목표',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // 감소 버튼
+                            GestureDetector(
+                              onTap: () {
+                                if (newDailyTarget > 1) {
+                                  setModalState(() {
+                                    newDailyTarget--;
+                                  });
+                                }
+                              },
+                              child: Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? Colors.white.withValues(alpha: 0.1)
+                                      : Colors.grey[200],
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  CupertinoIcons.minus,
+                                  color: isDark ? Colors.white : Colors.grey[700],
+                                  size: 24,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 24),
+                            // 페이지 수
+                            Column(
+                              children: [
+                                Text(
+                                  '$newDailyTarget',
+                                  style: TextStyle(
+                                    fontSize: 48,
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFF10B981),
+                                  ),
+                                ),
+                                Text(
+                                  '페이지',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 24),
+                            // 증가 버튼
+                            GestureDetector(
+                              onTap: () {
+                                if (newDailyTarget < _pagesLeft) {
+                                  setModalState(() {
+                                    newDailyTarget++;
+                                  });
+                                }
+                              },
+                              child: Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? Colors.white.withValues(alpha: 0.1)
+                                      : Colors.grey[200],
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  CupertinoIcons.plus,
+                                  color: isDark ? Colors.white : Colors.grey[700],
+                                  size: 24,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // 예상 완료일 표시
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          CupertinoIcons.calendar,
+                          color: const Color(0xFF5B7FFF),
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '예상 완료일',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '${newTargetDate.year}년 ${newTargetDate.month}월 ${newTargetDate.day}일',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white : Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF5B7FFF).withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'D-$daysNeeded',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF5B7FFF),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // 버튼
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          child: const Text('취소'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            await _updateTargetDate(newTargetDate, nextAttempt);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF10B981),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            '변경하기',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   void _showUpdateTargetDateDialogWithConfirm() async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final nextAttempt = _attemptCount + 1;
@@ -5434,81 +6011,65 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                     ],
                   ),
                   const SizedBox(height: 24),
-                  // 날짜 선택 버튼
-                  GestureDetector(
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: selectedDate,
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime(2100),
-                      );
-                      if (picked != null) {
-                        setModalState(() {
-                          selectedDate = picked;
-                        });
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                  // 선택된 날짜 표시 + D-day
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${selectedDate.year}년 ${selectedDate.month}월 ${selectedDate.day}일',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
                         ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.edit_calendar,
-                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        const SizedBox(width: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: daysRemaining > 0
+                                ? const Color(0xFF10B981).withValues(alpha: 0.1)
+                                : const Color(0xFFFF6B6B).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '새 목표일',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: isDark ? Colors.grey[500] : Colors.grey[600],
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '${selectedDate.year}년 ${selectedDate.month}월 ${selectedDate.day}일',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: isDark ? Colors.white : Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
+                          child: Text(
+                            daysRemaining > 0 ? 'D-$daysRemaining' : 'D-Day',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
                               color: daysRemaining > 0
-                                  ? const Color(0xFF10B981).withOpacity(0.1)
-                                  : const Color(0xFFFF6B6B).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              daysRemaining > 0 ? 'D-$daysRemaining' : 'D-Day',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: daysRemaining > 0
-                                    ? const Color(0xFF10B981)
-                                    : const Color(0xFFFF6B6B),
-                              ),
+                                  ? const Color(0xFF10B981)
+                                  : const Color(0xFFFF6B6B),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // 다이얼 피커 (Cupertino 스타일)
+                  Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: CupertinoDatePicker(
+                      mode: CupertinoDatePickerMode.date,
+                      initialDateTime: selectedDate,
+                      minimumDate: DateTime.now(),
+                      maximumDate: DateTime(2100),
+                      onDateTimeChanged: (DateTime newDate) {
+                        setModalState(() {
+                          selectedDate = newDate;
+                        });
+                      },
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -5767,21 +6328,21 @@ class _DraggableDismissNetworkImageState
                     maxScale: 4.0,
                     child: Hero(
                       tag: 'book_image_${widget.imageId}',
-                      child: Image.network(
-                        widget.imageUrl,
+                      child: CachedNetworkImage(
+                        imageUrl: widget.imageUrl,
                         fit: BoxFit.contain,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
-                                  : null,
-                              color: Colors.white,
-                            ),
-                          );
-                        },
+                        placeholder: (context, url) => const Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => const Center(
+                          child: Icon(
+                            CupertinoIcons.photo,
+                            color: Colors.white,
+                            size: 48,
+                          ),
+                        ),
                       ),
                     ),
                   ),
