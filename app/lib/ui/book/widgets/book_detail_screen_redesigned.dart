@@ -3328,125 +3328,110 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
-  /// Linear 스타일 리퀴드 글래스 플로팅 바
+  /// Linear 스타일 리퀴드 글래스 플로팅 바 (분리형)
   Widget _buildLiquidGlassFloatingBar(bool isDark) {
     return Positioned(
       left: 20,
       right: 20,
       bottom: 20,
       child: SafeArea(
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(
-              height: 56,
-              decoration: BoxDecoration(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.12)
-                    : Colors.black.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.2)
-                      : Colors.black.withValues(alpha: 0.08),
-                  width: 0.5,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  // 페이지 업데이트 버튼 (대부분의 영역)
-                  Expanded(
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: _showUpdatePageDialog,
-                        borderRadius: const BorderRadius.horizontal(
-                          left: Radius.circular(20),
-                        ),
-                        child: Container(
-                          height: 56,
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                CupertinoIcons.book_fill,
-                                size: 18,
-                                color: isDark
-                                    ? Colors.white.withValues(alpha: 0.9)
-                                    : Colors.black.withValues(alpha: 0.7),
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                '페이지 업데이트',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: isDark
-                                      ? Colors.white.withValues(alpha: 0.9)
-                                      : Colors.black.withValues(alpha: 0.7),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // 구분선
-                  Container(
-                    width: 1,
-                    height: 28,
-                    color: isDark
-                        ? Colors.white.withValues(alpha: 0.15)
-                        : Colors.black.withValues(alpha: 0.1),
-                  ),
-
-                  // + 버튼 (원형, 인상적인 페이지 추가)
-                  Material(
+        child: Row(
+          children: [
+            // 페이지 업데이트 버튼 (메인 바 - 분리됨)
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(18),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                  child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: _showAddMemorablePageModal,
-                      borderRadius: const BorderRadius.horizontal(
-                        right: Radius.circular(20),
-                      ),
+                      onTap: _showUpdatePageDialog,
+                      borderRadius: BorderRadius.circular(18),
                       child: Container(
-                        width: 56,
-                        height: 56,
-                        alignment: Alignment.center,
-                        child: Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.12)
+                              : Colors.black.withValues(alpha: 0.06),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
                             color: isDark
-                                ? Colors.white.withValues(alpha: 0.15)
-                                : const Color(0xFF5B7FFF).withValues(alpha: 0.15),
-                            shape: BoxShape.circle,
+                                ? Colors.white.withValues(alpha: 0.2)
+                                : Colors.black.withValues(alpha: 0.08),
+                            width: 0.5,
                           ),
-                          child: Icon(
-                            CupertinoIcons.plus,
-                            size: 20,
-                            color: isDark
-                                ? Colors.white.withValues(alpha: 0.9)
-                                : const Color(0xFF5B7FFF),
-                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              CupertinoIcons.book_fill,
+                              size: 17,
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.85)
+                                  : Colors.black.withValues(alpha: 0.65),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '페이지 업데이트',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.85)
+                                    : Colors.black.withValues(alpha: 0.65),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ),
-                ],
+                ),
               ),
             ),
-          ),
+
+            const SizedBox(width: 10),
+
+            // + 버튼 (완전 분리된 원형)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(26),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: _showAddMemorablePageModal,
+                    borderRadius: BorderRadius.circular(26),
+                    child: Container(
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.12)
+                            : Colors.black.withValues(alpha: 0.06),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.2)
+                              : Colors.black.withValues(alpha: 0.08),
+                          width: 0.5,
+                        ),
+                      ),
+                      child: Icon(
+                        CupertinoIcons.plus,
+                        size: 22,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.85)
+                            : Colors.black.withValues(alpha: 0.65),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
