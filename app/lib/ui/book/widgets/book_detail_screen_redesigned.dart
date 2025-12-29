@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -255,10 +256,6 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
                           // Dashboard Progress (2-Column)
                           _buildDashboardProgress(isDark),
-                          const SizedBox(height: 16),
-
-                          // Dual CTA Row (기록 추가 + 페이지 업데이트)
-                          _buildDualCTARow(isDark),
                           const SizedBox(height: 12),
 
                           // Compact Streak Row (7일 도트)
@@ -291,6 +288,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
               ),
             ),
           ),
+          // Linear 스타일 리퀴드 글래스 플로팅 바
+          _buildLiquidGlassFloatingBar(isDark),
         ],
       ),
     );
@@ -3329,72 +3328,126 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
-  /// Dual CTA Row (인상적인 페이지 추가 + 페이지 업데이트)
-  Widget _buildDualCTARow(bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 0),
-      child: Row(
-        children: [
-          // 인상적인 페이지 추가 (Secondary - Outlined)
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: _showAddMemorablePageModal,
-              icon: Icon(
-                CupertinoIcons.pencil_outline,
-                size: 18,
-                color: isDark ? Colors.white : const Color(0xFF5B7FFF),
-              ),
-              label: Text(
-                '기록 추가',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : const Color(0xFF5B7FFF),
-                ),
-              ),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                side: BorderSide(
+  /// Linear 스타일 리퀴드 글래스 플로팅 바
+  Widget _buildLiquidGlassFloatingBar(bool isDark) {
+    return Positioned(
+      left: 20,
+      right: 20,
+      bottom: 20,
+      child: SafeArea(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              height: 56,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.12)
+                    : Colors.black.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
                   color: isDark
-                      ? Colors.grey[600]!
-                      : const Color(0xFF5B7FFF).withOpacity(0.5),
-                  width: 1.5,
+                      ? Colors.white.withValues(alpha: 0.2)
+                      : Colors.black.withValues(alpha: 0.08),
+                  width: 0.5,
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  // 페이지 업데이트 버튼 (대부분의 영역)
+                  Expanded(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: _showUpdatePageDialog,
+                        borderRadius: const BorderRadius.horizontal(
+                          left: Radius.circular(20),
+                        ),
+                        child: Container(
+                          height: 56,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                CupertinoIcons.book_fill,
+                                size: 18,
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.9)
+                                    : Colors.black.withValues(alpha: 0.7),
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                '페이지 업데이트',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark
+                                      ? Colors.white.withValues(alpha: 0.9)
+                                      : Colors.black.withValues(alpha: 0.7),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // 구분선
+                  Container(
+                    width: 1,
+                    height: 28,
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.15)
+                        : Colors.black.withValues(alpha: 0.1),
+                  ),
+
+                  // + 버튼 (원형, 인상적인 페이지 추가)
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: _showAddMemorablePageModal,
+                      borderRadius: const BorderRadius.horizontal(
+                        right: Radius.circular(20),
+                      ),
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        alignment: Alignment.center,
+                        child: Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.15)
+                                : const Color(0xFF5B7FFF).withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            CupertinoIcons.plus,
+                            size: 20,
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.9)
+                                : const Color(0xFF5B7FFF),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          const SizedBox(width: 12),
-          // 페이지 업데이트 (Primary - Filled)
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: _showUpdatePageDialog,
-              icon: const Icon(
-                CupertinoIcons.arrow_up_circle_fill,
-                size: 18,
-                color: Colors.white,
-              ),
-              label: const Text(
-                '페이지 업데이트',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5B7FFF),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -4725,18 +4778,12 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 12),
-                ElevatedButton.icon(
-                  onPressed: _showAddMemorablePageModal,
-                  icon: const Icon(CupertinoIcons.add, size: 18),
-                  label: const Text('추가'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5B7FFF),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                const SizedBox(height: 8),
+                Text(
+                  '하단 + 버튼으로 추가해보세요',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.grey[500] : Colors.grey[500],
                   ),
                 ),
               ],
@@ -4746,42 +4793,6 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
         return Column(
           children: [
-            // 고정된 추가 버튼
-            GestureDetector(
-              onTap: _showAddMemorablePageModal,
-              child: Container(
-                height: 56,
-                margin: const EdgeInsets.fromLTRB(4, 4, 4, 12),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                    width: 2,
-                    style: BorderStyle.solid,
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      CupertinoIcons.add_circled,
-                      size: 24,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '추가',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: isDark ? Colors.grey[400] : Colors.grey[600],
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
             // 스크롤 가능한 리스트
             Expanded(
               child: ListView.builder(
