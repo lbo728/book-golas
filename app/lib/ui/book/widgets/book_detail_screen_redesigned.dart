@@ -6072,6 +6072,143 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
+  Widget _buildKoreanDatePicker({
+    required bool isDark,
+    required DateTime selectedDate,
+    required DateTime minimumDate,
+    required Function(DateTime) onDateChanged,
+  }) {
+    final currentYear = DateTime.now().year;
+    final years = List.generate(10, (i) => currentYear + i);
+    final months = List.generate(12, (i) => i + 1);
+
+    int getDaysInMonth(int year, int month) {
+      return DateTime(year, month + 1, 0).day;
+    }
+
+    final yearController = FixedExtentScrollController(
+      initialItem: years.indexOf(selectedDate.year),
+    );
+    final monthController = FixedExtentScrollController(
+      initialItem: selectedDate.month - 1,
+    );
+    final dayController = FixedExtentScrollController(
+      initialItem: selectedDate.day - 1,
+    );
+
+    Widget buildWheel({
+      required List<int> items,
+      required FixedExtentScrollController controller,
+      required String suffix,
+      required Function(int) onSelected,
+      double width = 80,
+    }) {
+      return SizedBox(
+        width: width,
+        child: ListWheelScrollView.useDelegate(
+          controller: controller,
+          itemExtent: 40,
+          physics: const FixedExtentScrollPhysics(),
+          diameterRatio: 1.5,
+          perspective: 0.003,
+          onSelectedItemChanged: (index) => onSelected(items[index]),
+          childDelegate: ListWheelChildBuilderDelegate(
+            childCount: items.length,
+            builder: (context, index) {
+              final isSelected = controller.hasClients
+                  ? controller.selectedItem == index
+                  : items.indexOf(items[index]) == controller.initialItem;
+              return Center(
+                child: Text(
+                  '${items[index]}$suffix',
+                  style: TextStyle(
+                    fontSize: isSelected ? 20 : 16,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    color: isSelected
+                        ? (isDark ? Colors.white : Colors.black)
+                        : (isDark ? Colors.grey[600] : Colors.grey[400]),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
+
+    int currentYear_ = selectedDate.year;
+    int currentMonth = selectedDate.month;
+    int currentDay = selectedDate.day;
+
+    return StatefulBuilder(
+      builder: (context, setState) {
+        final daysInCurrentMonth = getDaysInMonth(currentYear_, currentMonth);
+        final validDay = currentDay > daysInCurrentMonth ? daysInCurrentMonth : currentDay;
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            buildWheel(
+              items: years,
+              controller: yearController,
+              suffix: '년',
+              width: 90,
+              onSelected: (year) {
+                setState(() {
+                  currentYear_ = year;
+                  final maxDay = getDaysInMonth(year, currentMonth);
+                  if (currentDay > maxDay) {
+                    currentDay = maxDay;
+                    dayController.jumpToItem(currentDay - 1);
+                  }
+                });
+                final newDate = DateTime(year, currentMonth, validDay);
+                if (!newDate.isBefore(minimumDate)) {
+                  onDateChanged(newDate);
+                }
+              },
+            ),
+            buildWheel(
+              items: months,
+              controller: monthController,
+              suffix: '월',
+              width: 70,
+              onSelected: (month) {
+                setState(() {
+                  currentMonth = month;
+                  final maxDay = getDaysInMonth(currentYear_, month);
+                  if (currentDay > maxDay) {
+                    currentDay = maxDay;
+                    dayController.jumpToItem(currentDay - 1);
+                  }
+                });
+                final newDate = DateTime(currentYear_, month, validDay);
+                if (!newDate.isBefore(minimumDate)) {
+                  onDateChanged(newDate);
+                }
+              },
+            ),
+            buildWheel(
+              items: List.generate(daysInCurrentMonth, (i) => i + 1),
+              controller: dayController,
+              suffix: '일',
+              width: 70,
+              onSelected: (day) {
+                setState(() {
+                  currentDay = day;
+                });
+                final newDate = DateTime(currentYear_, currentMonth, day);
+                if (!newDate.isBefore(minimumDate)) {
+                  onDateChanged(newDate);
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _showUpdateTargetDateDialogWithConfirm() async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final nextAttempt = _attemptCount + 1;
@@ -6178,19 +6315,18 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // 다이얼 피커 (Cupertino 스타일)
+                  // 한국식 다이얼 피커 (년/월/일)
                   Container(
-                    height: 200,
+                    height: 180,
                     decoration: BoxDecoration(
                       color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: CupertinoDatePicker(
-                      mode: CupertinoDatePickerMode.date,
-                      initialDateTime: selectedDate,
+                    child: _buildKoreanDatePicker(
+                      isDark: isDark,
+                      selectedDate: selectedDate,
                       minimumDate: DateTime.now(),
-                      maximumDate: DateTime(2100),
-                      onDateTimeChanged: (DateTime newDate) {
+                      onDateChanged: (DateTime newDate) {
                         setModalState(() {
                           selectedDate = newDate;
                         });
