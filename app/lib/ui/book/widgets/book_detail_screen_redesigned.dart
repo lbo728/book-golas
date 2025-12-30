@@ -5144,6 +5144,141 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
+  Future<void> _showReExtractConfirmation({
+    required String imageUrl,
+    required Function(String extractedText) onConfirm,
+  }) async {
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => PopScope(
+          canPop: false,
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF2A2A2A)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(
+                    color: Color(0xFF5B7FFF),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    '이미지 불러오는 중...',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final httpClient = HttpClient();
+      final request = await httpClient.getUrl(Uri.parse(imageUrl));
+      final response = await request.close();
+      final bytes = await consolidateHttpClientResponseBytes(response);
+
+      final tempDir = Directory.systemTemp;
+      final tempFile = File('${tempDir.path}/temp_image_${DateTime.now().millisecondsSinceEpoch}.jpg');
+      await tempFile.writeAsBytes(bytes);
+
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop();
+
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: tempFile.path,
+        uiSettings: [
+          IOSUiSettings(
+            title: '텍스트 추출 영역 선택',
+            cancelButtonTitle: '취소',
+            doneButtonTitle: '완료',
+            aspectRatioLockEnabled: false,
+            resetAspectRatioEnabled: true,
+            rotateButtonsHidden: false,
+            rotateClockwiseButtonHidden: true,
+          ),
+          AndroidUiSettings(
+            toolbarTitle: '텍스트 추출 영역 선택',
+            toolbarColor: const Color(0xFF5B7FFF),
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false,
+            hideBottomControls: false,
+          ),
+        ],
+      );
+
+      await tempFile.delete();
+
+      if (croppedFile == null) return;
+
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => PopScope(
+          canPop: false,
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF2A2A2A)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(
+                    color: Color(0xFF5B7FFF),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    '텍스트 추출 중...',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final ocrService = GoogleVisionOcrService();
+      final croppedBytes = await croppedFile.readAsBytes();
+      final ocrText = await ocrService.extractTextFromBytes(croppedBytes) ?? '';
+
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop();
+
+      onConfirm(ocrText);
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop();
+      CustomSnackbar.show(context, message: '텍스트 다시 추출에 실패했습니다.', rootOverlay: true);
+    }
+  }
+
   Future<void> _replaceImage(String imageId, Uint8List imageBytes, String extractedText, int? pageNumber) async {
     try {
       final fileName = '${DateTime.now().millisecondsSinceEpoch}_${_currentBook.id}.jpg';
@@ -5274,9 +5409,15 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             TextButton(
-                              onPressed: () => Navigator.pop(context),
+                              onPressed: isEditing
+                                  ? () {
+                                      setModalState(() {
+                                        isEditing = false;
+                                      });
+                                    }
+                                  : () => Navigator.pop(context),
                               child: Text(
-                                '닫기',
+                                isEditing ? '취소' : '닫기',
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -5416,32 +5557,45 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                           Positioned(
                                             bottom: 8,
                                             right: 8,
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 10,
-                                                vertical: 6,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: Colors.black54,
-                                                borderRadius: BorderRadius.circular(8),
-                                              ),
-                                              child: const Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(
-                                                    CupertinoIcons.fullscreen,
-                                                    size: 14,
-                                                    color: Colors.white,
-                                                  ),
-                                                  SizedBox(width: 4),
-                                                  Text(
-                                                    '전체보기',
-                                                    style: TextStyle(
-                                                      fontSize: 12,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                _showReExtractConfirmation(
+                                                  imageUrl: imageUrl!,
+                                                  onConfirm: (extractedOcrText) {
+                                                    setModalState(() {
+                                                      textController.text = extractedOcrText;
+                                                    });
+                                                  },
+                                                );
+                                              },
+                                              behavior: HitTestBehavior.opaque,
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                  vertical: 6,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black54,
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                                child: const Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    Icon(
+                                                      CupertinoIcons.arrow_2_circlepath,
+                                                      size: 14,
                                                       color: Colors.white,
                                                     ),
-                                                  ),
-                                                ],
+                                                    SizedBox(width: 4),
+                                                    Text(
+                                                      '다시 추출',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -5578,6 +5732,32 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                           ),
                                         ),
                                       ],
+                                    )
+                                  else
+                                    GestureDetector(
+                                      onTap: () {
+                                        setModalState(() {
+                                          textController.clear();
+                                        });
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            CupertinoIcons.trash,
+                                            size: 14,
+                                            color: Colors.red[400],
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            '모두 지우기',
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.red[400],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                 ],
                               ),
