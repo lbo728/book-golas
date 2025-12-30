@@ -82,7 +82,7 @@ export default function PushLogsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">발송 로그</h1>
+        <h1 className="text-2xl font-bold text-foreground">발송 로그</h1>
         <div className="flex items-center gap-4">
           <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); setPage(0); }}>
             <SelectTrigger className="w-40">
@@ -113,10 +113,10 @@ export default function PushLogsPage() {
         <CardContent>
           {loading ? (
             <div className="flex items-center justify-center h-32">
-              <div className="text-gray-500">로딩 중...</div>
+              <div className="text-muted-foreground">로딩 중...</div>
             </div>
           ) : logs.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-muted-foreground">
               발송 로그가 없습니다
             </div>
           ) : (
@@ -134,7 +134,7 @@ export default function PushLogsPage() {
                 <TableBody>
                   {logs.map((log) => (
                     <TableRow key={log.id}>
-                      <TableCell className="text-sm text-gray-600">
+                      <TableCell className="text-sm text-muted-foreground">
                         {formatDate(log.sent_at)}
                       </TableCell>
                       <TableCell>
@@ -145,14 +145,14 @@ export default function PushLogsPage() {
                       </TableCell>
                       <TableCell className="text-center">
                         {log.is_clicked ? (
-                          <span className="text-green-600 font-medium">
+                          <span className="text-green-400 font-medium">
                             ✅ Clicked
                           </span>
                         ) : (
-                          <span className="text-gray-400">⏳ Pending</span>
+                          <span className="text-muted-foreground">⏳ Pending</span>
                         )}
                       </TableCell>
-                      <TableCell className="text-sm text-gray-600">
+                      <TableCell className="text-sm text-muted-foreground">
                         {log.clicked_at ? formatDate(log.clicked_at) : "-"}
                       </TableCell>
                     </TableRow>
@@ -160,7 +160,7 @@ export default function PushLogsPage() {
                 </TableBody>
               </Table>
 
-              <div className="flex items-center justify-between mt-4 pt-4 border-t">
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
                 <Button
                   variant="outline"
                   disabled={page === 0}
@@ -168,7 +168,7 @@ export default function PushLogsPage() {
                 >
                   ← 이전
                 </Button>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-muted-foreground">
                   페이지 {page + 1}
                 </span>
                 <Button

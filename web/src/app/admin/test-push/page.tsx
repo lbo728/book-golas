@@ -173,8 +173,8 @@ export default function TestPushPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">테스트 발송</h1>
-        <p className="text-gray-500">특정 사용자에게 테스트 푸시 알림을 발송합니다.</p>
+        <h1 className="text-2xl font-bold text-foreground">테스트 발송</h1>
+        <p className="text-muted-foreground">특정 사용자에게 테스트 푸시 알림을 발송합니다.</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -200,7 +200,7 @@ export default function TestPushPage() {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 FCM 토큰이 등록된 사용자: {users.length}명
               </p>
             </div>
@@ -249,11 +249,11 @@ export default function TestPushPage() {
 
             {/* 템플릿 변수 입력 */}
             {selectedTemplate !== "custom" && requiredVariables.length > 0 && (
-              <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
+              <div className="space-y-3 p-3 bg-muted rounded-lg">
                 <Label className="text-sm font-medium">템플릿 변수</Label>
                 {requiredVariables.map((varName) => (
                   <div key={varName} className="space-y-1">
-                    <Label htmlFor={varName} className="text-xs text-gray-600">
+                    <Label htmlFor={varName} className="text-xs text-muted-foreground">
                       {varName === "days" && "일수 (days)"}
                       {varName === "bookTitle" && "책 제목 (bookTitle)"}
                       {varName === "percent" && "진행률 % (percent)"}
@@ -318,23 +318,23 @@ export default function TestPushPage() {
             </div>
 
             <div className="mt-6 space-y-3">
-              <h4 className="font-medium text-sm">발송 정보</h4>
+              <h4 className="font-medium text-sm text-foreground">발송 정보</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">타입</span>
+                  <span className="text-muted-foreground">타입</span>
                   <Badge variant="outline">
                     {selectedTemplate === "custom" ? "test" : selectedTemplate}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">대상</span>
-                  <span>
+                  <span className="text-muted-foreground">대상</span>
+                  <span className="text-foreground">
                     {selectedUser ? users.find((u) => u.user_id === selectedUser)?.email : "-"}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">디바이스</span>
-                  <span>
+                  <span className="text-muted-foreground">디바이스</span>
+                  <span className="text-foreground">
                     {selectedUser
                       ? users.find((u) => u.user_id === selectedUser)?.token_count || 0
                       : 0}
@@ -357,11 +357,11 @@ export default function TestPushPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-gray-500">로딩 중...</p>
+            <p className="text-muted-foreground">로딩 중...</p>
           ) : users.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-500 mb-2">FCM 토큰이 등록된 사용자가 없습니다.</p>
-              <p className="text-xs text-gray-400">
+              <p className="text-muted-foreground mb-2">FCM 토큰이 등록된 사용자가 없습니다.</p>
+              <p className="text-xs text-muted-foreground/70">
                 앱에서 푸시 알림을 허용한 사용자만 표시됩니다.
               </p>
             </div>
@@ -372,14 +372,14 @@ export default function TestPushPage() {
                   key={user.user_id}
                   className={`p-3 border rounded-lg cursor-pointer transition-colors ${
                     selectedUser === user.user_id
-                      ? "border-blue-500 bg-blue-50"
-                      : "hover:bg-gray-50"
+                      ? "border-blue-500 bg-blue-500/10"
+                      : "hover:bg-accent"
                   }`}
                   onClick={() => setSelectedUser(user.user_id)}
                 >
-                  <div className="font-mono text-sm">{user.user_id.slice(0, 8)}...</div>
+                  <div className="font-mono text-sm text-foreground">{user.user_id.slice(0, 8)}...</div>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-gray-500">{user.token_count}개 디바이스</span>
+                    <span className="text-xs text-muted-foreground">{user.token_count}개 디바이스</span>
                     <Badge variant="secondary" className="text-xs">
                       {user.device_type}
                     </Badge>

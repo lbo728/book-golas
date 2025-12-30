@@ -96,57 +96,57 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-500">로딩 중...</div>
+        <div className="text-muted-foreground">로딩 중...</div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Push Notification Dashboard</h1>
+      <h1 className="text-2xl font-bold text-foreground">Push Notification Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               오늘 발송
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats.todaySent}</div>
+            <div className="text-3xl font-bold text-foreground">{stats.todaySent}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               CTR
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats.ctr}%</div>
+            <div className="text-3xl font-bold text-foreground">{stats.ctr}%</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               활성 유저
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats.activeUsers}</div>
+            <div className="text-3xl font-bold text-foreground">{stats.activeUsers}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               미클릭 3+
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-orange-500">
+            <div className="text-3xl font-bold text-orange-400">
               {stats.fatigueUsers}
             </div>
           </CardContent>
@@ -156,19 +156,19 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>타입별 발송 현황</CardTitle>
+            <CardTitle className="text-foreground">타입별 발송 현황</CardTitle>
           </CardHeader>
           <CardContent>
             {typeStats.length === 0 ? (
-              <div className="text-gray-500 text-center py-8">
+              <div className="text-muted-foreground text-center py-8">
                 오늘 발송된 알림이 없습니다
               </div>
             ) : (
               <div className="space-y-3">
                 {typeStats.map((stat) => (
                   <div key={stat.push_type} className="flex items-center gap-4">
-                    <div className="w-24 font-medium">{stat.push_type}</div>
-                    <div className="flex-1 bg-gray-100 rounded-full h-4">
+                    <div className="w-24 font-medium text-foreground">{stat.push_type}</div>
+                    <div className="flex-1 bg-muted rounded-full h-4">
                       <div
                         className="bg-blue-500 rounded-full h-4"
                         style={{
@@ -176,7 +176,7 @@ export default function AdminDashboard() {
                         }}
                       />
                     </div>
-                    <div className="w-32 text-sm text-gray-600">
+                    <div className="w-32 text-sm text-muted-foreground">
                       {stat.sent} (CTR {stat.ctr}%)
                     </div>
                   </div>
@@ -188,17 +188,17 @@ export default function AdminDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>최근 발송 로그</CardTitle>
+            <CardTitle className="text-foreground">최근 발송 로그</CardTitle>
             <a
               href="/admin/push-logs"
-              className="text-sm text-blue-500 hover:underline"
+              className="text-sm text-blue-400 hover:underline"
             >
               더보기 →
             </a>
           </CardHeader>
           <CardContent>
             {recentLogs.length === 0 ? (
-              <div className="text-gray-500 text-center py-8">
+              <div className="text-muted-foreground text-center py-8">
                 발송 로그가 없습니다
               </div>
             ) : (
@@ -206,10 +206,10 @@ export default function AdminDashboard() {
                 {recentLogs.slice(0, 5).map((log) => (
                   <div
                     key={log.id}
-                    className="flex items-center justify-between py-2 border-b last:border-0"
+                    className="flex items-center justify-between py-2 border-b border-border last:border-0"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-muted-foreground">
                         {new Date(log.sent_at).toLocaleTimeString("ko-KR", {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -219,9 +219,9 @@ export default function AdminDashboard() {
                     </div>
                     <div>
                       {log.is_clicked ? (
-                        <span className="text-green-500">✅ clicked</span>
+                        <span className="text-green-400">✅ clicked</span>
                       ) : (
-                        <span className="text-gray-400">⏳ pending</span>
+                        <span className="text-muted-foreground">⏳ pending</span>
                       )}
                     </div>
                   </div>
