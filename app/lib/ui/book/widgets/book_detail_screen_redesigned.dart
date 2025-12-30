@@ -76,6 +76,11 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   bool _isSelectionMode = false;
   final Set<String> _selectedImageIds = {};
 
+  // 추가 모달 임시 상태 저장 (모달 해제 후 재진입 시 유지)
+  Uint8List? _pendingImageBytes;
+  String _pendingExtractedText = '';
+  int? _pendingPageNumber;
+
   @override
   void initState() {
     super.initState();
@@ -2411,16 +2416,19 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   /// 인상적인 페이지 추가 모달 (새 UX 플로우)
   void _showAddMemorablePageModal() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    Uint8List? fullImageBytes;
-    String extractedText = '';
-    int? pageNumber;
+    Uint8List? fullImageBytes = _pendingImageBytes;
+    String extractedText = _pendingExtractedText;
+    int? pageNumber = _pendingPageNumber;
     bool isUploading = false;
     String? pageValidationError;
     bool isOcrExtracting = false;
     bool hideKeyboardAccessory = false;
+    bool uploadSuccess = false;
 
-    final textController = TextEditingController();
-    final pageController = TextEditingController();
+    final textController = TextEditingController(text: _pendingExtractedText);
+    final pageController = TextEditingController(
+      text: _pendingPageNumber != null ? _pendingPageNumber.toString() : '',
+    );
     final textFocusNode = FocusNode();
     final pageFocusNode = FocusNode();
     final scrollController = ScrollController();
@@ -2992,6 +3000,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                     pageNumber: int.tryParse(pageController.text),
                                   );
                                   if (success && mounted) {
+                                    uploadSuccess = true;
+                                    _pendingImageBytes = null;
+                                    _pendingExtractedText = '';
+                                    _pendingPageNumber = null;
                                     Navigator.pop(context);
                                   } else {
                                     setModalState(() => isUploading = false);
@@ -3089,7 +3101,13 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
           },
         );
       },
-    );
+    ).then((_) {
+      if (!uploadSuccess) {
+        _pendingImageBytes = fullImageBytes;
+        _pendingExtractedText = textController.text;
+        _pendingPageNumber = int.tryParse(pageController.text);
+      }
+    });
   }
 
   /// 이미지 소스 선택 액션시트
