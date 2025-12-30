@@ -2303,54 +2303,74 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
-  Future<void> _uploadAndSaveMemorablePage({
+  Future<bool> _uploadAndSaveMemorablePage({
     Uint8List? imageBytes,
     required String extractedText,
     int? pageNumber,
   }) async {
-    String? publicUrl;
+    try {
+      String? publicUrl;
 
-    // 이미지가 있으면 스토리지에 업로드
-    if (imageBytes != null) {
-      final fileName = 'book_images/${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final storage = Supabase.instance.client.storage;
-      await storage.from('book-images').uploadBinary(fileName, imageBytes,
-          fileOptions: const FileOptions(upsert: true));
-      publicUrl = storage.from('book-images').getPublicUrl(fileName);
-    }
-
-    // insert 후 새 레코드 반환받기
-    final result = await Supabase.instance.client.from('book_images').insert({
-      'book_id': _currentBook.id,
-      'image_url': publicUrl,
-      'caption': '',
-      'extracted_text': extractedText.isEmpty ? null : extractedText,
-      'page_number': pageNumber,
-    }).select().single();
-
-    // 로컬 캐시에 직접 추가 (리로딩 없이 즉시 반영)
-    setState(() {
-      if (_cachedImages != null) {
-        _cachedImages = [result, ..._cachedImages!];
+      // 이미지가 있으면 스토리지에 업로드
+      if (imageBytes != null) {
+        final fileName = 'book_images/${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final storage = Supabase.instance.client.storage;
+        await storage.from('book-images').uploadBinary(fileName, imageBytes,
+            fileOptions: const FileOptions(upsert: true));
+        publicUrl = storage.from('book-images').getPublicUrl(fileName);
       }
-      // 백그라운드에서 서버 데이터 동기화
-      _bookImagesFuture = fetchBookImages(_currentBook.id!);
-    });
 
-    if (mounted) {
-      // 인상적인 페이지 탭으로 이동 후 스크롤 상단으로
-      _tabController.animateTo(0);
-      _scrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+      // insert 후 새 레코드 반환받기
+      final result = await Supabase.instance.client.from('book_images').insert({
+        'book_id': _currentBook.id,
+        'image_url': publicUrl,
+        'caption': '',
+        'extracted_text': extractedText.isEmpty ? null : extractedText,
+        'page_number': pageNumber,
+      }).select().single();
 
-      CustomSnackbar.show(
-        context,
-        message: '인상적인 페이지가 저장되었습니다',
-        type: SnackbarType.success,
-      );
+      // 로컬 캐시에 직접 추가 (리로딩 없이 즉시 반영)
+      setState(() {
+        if (_cachedImages != null) {
+          _cachedImages = [result, ..._cachedImages!];
+        }
+        // 백그라운드에서 서버 데이터 동기화
+        _bookImagesFuture = fetchBookImages(_currentBook.id!);
+      });
+
+      if (mounted) {
+        // 인상적인 페이지 탭으로 이동 후 스크롤 상단으로
+        _tabController.animateTo(0);
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+
+        CustomSnackbar.show(
+          context,
+          message: '인상적인 페이지가 저장되었습니다',
+          type: SnackbarType.success,
+        );
+      }
+      return true;
+    } catch (e) {
+      if (mounted) {
+        showCupertinoDialog(
+          context: context,
+          builder: (context) => CupertinoAlertDialog(
+            title: const Text('업로드 실패'),
+            content: const Text('인상적인 페이지를 저장하는 중 오류가 발생했습니다. 다시 시도해주세요.'),
+            actions: [
+              CupertinoDialogAction(
+                child: const Text('확인'),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      }
+      return false;
     }
   }
 
@@ -2922,16 +2942,15 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                               ? null
                               : () async {
                                   setModalState(() => isUploading = true);
-                                  try {
-                                    await _uploadAndSaveMemorablePage(
-                                      imageBytes: fullImageBytes,
-                                      extractedText: textController.text,
-                                      pageNumber: int.tryParse(pageController.text),
-                                    );
-                                  } finally {
-                                    if (mounted) {
-                                      Navigator.pop(context);
-                                    }
+                                  final success = await _uploadAndSaveMemorablePage(
+                                    imageBytes: fullImageBytes,
+                                    extractedText: textController.text,
+                                    pageNumber: int.tryParse(pageController.text),
+                                  );
+                                  if (success && mounted) {
+                                    Navigator.pop(context);
+                                  } else {
+                                    setModalState(() => isUploading = false);
                                   }
                                 },
                           child: Container(
@@ -3132,60 +3151,12 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     final pickedFile = await picker.pickImage(source: source);
     if (pickedFile == null) return;
 
-    // 원본 이미지 바이트
+    // 원본 이미지 바이트 (저장용)
     final fullImageBytes = await pickedFile.readAsBytes();
 
     if (!mounted) return;
 
-    // 로딩 다이얼로그 표시
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => PopScope(
-        canPop: false,
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xFF2A2A2A)
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CircularProgressIndicator(
-                  color: Color(0xFF5B7FFF),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  '페이지 번호 추출 중...',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-
-    // 1단계: 전체 이미지에서 페이지 번호 먼저 추출 시도
-    final ocrService = GoogleVisionOcrService();
-    final fullImageOcrText = await ocrService.extractTextFromBytes(fullImageBytes) ?? '';
-    int? pageNumber = _extractPageNumber(fullImageOcrText);
-
-    if (!mounted) return;
-
-    // 로딩 다이얼로그 닫기
-    Navigator.of(context, rootNavigator: true).pop();
-
-    // 2단계: 크롭 화면 표시 (본문 텍스트 추출용)
+    // 1단계: 바로 크롭 화면 표시 (텍스트 추출 영역 선택)
     final croppedFile = await ImageCropper().cropImage(
       sourcePath: pickedFile.path,
       uiSettings: [
@@ -3213,7 +3184,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
     if (!mounted) return;
 
-    // 텍스트 추출 로딩 다이얼로그 표시
+    // 2단계: 텍스트 추출 로딩 다이얼로그 표시
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -3251,14 +3222,11 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       ),
     );
 
-    // 3단계: 크롭된 영역에서 본문 텍스트 OCR 추출
+    // 3단계: 크롭된 영역에서 OCR 추출 (텍스트 + 페이지 번호)
+    final ocrService = GoogleVisionOcrService();
     final croppedBytes = await croppedFile.readAsBytes();
     final ocrText = await ocrService.extractTextFromBytes(croppedBytes) ?? '';
-
-    // 크롭 영역에서도 페이지 번호를 찾지 못했으면 다시 시도
-    if (pageNumber == null) {
-      pageNumber = _extractPageNumber(ocrText);
-    }
+    final pageNumber = _extractPageNumber(ocrText);
 
     if (!mounted) return;
 
