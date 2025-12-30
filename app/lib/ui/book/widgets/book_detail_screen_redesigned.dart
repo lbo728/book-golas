@@ -76,6 +76,9 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   bool _isSelectionMode = false;
   final Set<String> _selectedImageIds = {};
 
+  // 인상적인 페이지 정렬 모드: 'page_desc' (페이지 내림차순), 'page_asc', 'date_desc', 'date_asc'
+  String _memorableSortMode = 'page_desc';
+
   // 추가 모달 임시 상태 저장 (모달 해제 후 재진입 시 유지)
   Uint8List? _pendingImageBytes;
   String _pendingExtractedText = '';
@@ -6736,7 +6739,30 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         }
 
         // 캐시된 데이터 우선 사용
-        final images = _cachedImages ?? snapshot.data ?? [];
+        var images = List<Map<String, dynamic>>.from(_cachedImages ?? snapshot.data ?? []);
+
+        // 정렬 적용
+        images.sort((a, b) {
+          switch (_memorableSortMode) {
+            case 'page_asc':
+              final pageA = a['page_number'] as int? ?? 0;
+              final pageB = b['page_number'] as int? ?? 0;
+              return pageA.compareTo(pageB);
+            case 'page_desc':
+              final pageA = a['page_number'] as int? ?? 0;
+              final pageB = b['page_number'] as int? ?? 0;
+              return pageB.compareTo(pageA);
+            case 'date_asc':
+              final dateA = a['created_at'] as String? ?? '';
+              final dateB = b['created_at'] as String? ?? '';
+              return dateA.compareTo(dateB);
+            case 'date_desc':
+            default:
+              final dateA = a['created_at'] as String? ?? '';
+              final dateB = b['created_at'] as String? ?? '';
+              return dateB.compareTo(dateA);
+          }
+        });
 
         if (images.isEmpty) {
           return SizedBox(
@@ -6791,7 +6817,93 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                       ),
                     )
                   else
-                    const SizedBox(),
+                    // 정렬 버튼
+                    PopupMenuButton<String>(
+                      onSelected: (value) {
+                        setState(() {
+                          _memorableSortMode = value;
+                        });
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'page_desc',
+                          child: Row(
+                            children: [
+                              if (_memorableSortMode == 'page_desc')
+                                const Icon(Icons.check, size: 18, color: Color(0xFF5B7FFF))
+                              else
+                                const SizedBox(width: 18),
+                              const SizedBox(width: 8),
+                              const Text('페이지 높은순'),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'page_asc',
+                          child: Row(
+                            children: [
+                              if (_memorableSortMode == 'page_asc')
+                                const Icon(Icons.check, size: 18, color: Color(0xFF5B7FFF))
+                              else
+                                const SizedBox(width: 18),
+                              const SizedBox(width: 8),
+                              const Text('페이지 낮은순'),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'date_desc',
+                          child: Row(
+                            children: [
+                              if (_memorableSortMode == 'date_desc')
+                                const Icon(Icons.check, size: 18, color: Color(0xFF5B7FFF))
+                              else
+                                const SizedBox(width: 18),
+                              const SizedBox(width: 8),
+                              const Text('최근 기록순'),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'date_asc',
+                          child: Row(
+                            children: [
+                              if (_memorableSortMode == 'date_asc')
+                                const Icon(Icons.check, size: 18, color: Color(0xFF5B7FFF))
+                              else
+                                const SizedBox(width: 18),
+                              const SizedBox(width: 8),
+                              const Text('오래된 기록순'),
+                            ],
+                          ),
+                        ),
+                      ],
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              CupertinoIcons.arrow_up_arrow_down,
+                              size: 14,
+                              color: isDark ? Colors.grey[400] : Colors.grey[600],
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              _memorableSortMode.contains('page') ? '페이지' : '날짜',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isDark ? Colors.grey[400] : Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   Row(
                     children: [
                       if (_isSelectionMode && _selectedImageIds.isNotEmpty)
@@ -6844,10 +6956,20 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
             final imageUrl = image['image_url'] as String?;
             final extractedText = image['extracted_text'] as String?;
             final pageNumber = image['page_number'] as int?;
+            final createdAt = image['created_at'] as String?;
             final hasImageUrl = imageUrl != null && imageUrl.isNotEmpty;
             final ocrService = GoogleVisionOcrService();
             final previewText = ocrService.getPreviewText(extractedText, maxLines: 2);
             final isSelected = _selectedImageIds.contains(imageId);
+
+            // 날짜 포맷팅
+            String formattedDate = '';
+            if (createdAt != null) {
+              try {
+                final date = DateTime.parse(createdAt);
+                formattedDate = '${date.month}/${date.day}';
+              } catch (_) {}
+            }
 
             return GestureDetector(
               onTap: () {
@@ -6947,15 +7069,36 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                   maxLines: 3,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                                if (pageNumber != null) ...[
+                                if (pageNumber != null || formattedDate.isNotEmpty) ...[
                                   const SizedBox(height: 8),
-                                  Text(
-                                    'p.$pageNumber',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: isDark ? Colors.grey[500] : Colors.grey[600],
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                  Row(
+                                    children: [
+                                      if (pageNumber != null)
+                                        Text(
+                                          'p.$pageNumber',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: isDark ? Colors.grey[500] : Colors.grey[600],
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      if (pageNumber != null && formattedDate.isNotEmpty)
+                                        Text(
+                                          ' · ',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: isDark ? Colors.grey[600] : Colors.grey[500],
+                                          ),
+                                        ),
+                                      if (formattedDate.isNotEmpty)
+                                        Text(
+                                          formattedDate,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: isDark ? Colors.grey[500] : Colors.grey[600],
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                 ],
                               ],
