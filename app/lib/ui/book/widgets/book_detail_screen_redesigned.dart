@@ -2408,7 +2408,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                 pageFocusNode.unfocus();
               },
               child: Padding(
-                padding: EdgeInsets.only(bottom: keyboardHeight),
+                padding: EdgeInsets.only(
+                  bottom: keyboardHeight,
+                  top: MediaQuery.of(context).padding.top,
+                ),
                 child: Stack(
                   children: [
                     Container(
@@ -5195,6 +5198,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
               child: Padding(
                 padding: EdgeInsets.only(
                   bottom: MediaQuery.of(context).viewInsets.bottom,
+                  top: MediaQuery.of(context).padding.top,
                 ),
                 child: Container(
                   height: MediaQuery.of(context).size.height * 0.85,
