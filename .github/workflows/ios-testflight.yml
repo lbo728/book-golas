@@ -50,6 +50,7 @@ jobs:
           echo "ENVIRONMENT=production" >> .env
 
       - name: Install Certificate and Provisioning Profile
+        id: install-cert
         env:
           CERTIFICATE_P12_BASE64: ${{ secrets.CERTIFICATE_P12_BASE64 }}
           CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
@@ -72,9 +73,25 @@ jobs:
           security list-keychain -d user -s $KEYCHAIN_PATH login.keychain-db
 
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin <<< $(/usr/bin/security cms -D -i $PROVISIONING_PROFILE_PATH))
+
+          PROFILE_PLIST=$(/usr/bin/security cms -D -i $PROVISIONING_PROFILE_PATH)
+          PROFILE_UUID=$(echo "$PROFILE_PLIST" | /usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin)
+          PROFILE_NAME=$(echo "$PROFILE_PLIST" | /usr/libexec/PlistBuddy -c "Print Name" /dev/stdin)
+
           cp $PROVISIONING_PROFILE_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$PROFILE_UUID.mobileprovision
-          echo "Installed provisioning profile with UUID: $PROFILE_UUID"
+
+          echo "PROVISIONING_PROFILE_UUID=$PROFILE_UUID" >> $GITHUB_OUTPUT
+          echo "PROVISIONING_PROFILE_NAME=$PROFILE_NAME" >> $GITHUB_OUTPUT
+
+          echo "✅ Installed provisioning profile:"
+          echo "   UUID: $PROFILE_UUID"
+          echo "   Name: $PROFILE_NAME"
+          echo ""
+          echo "📋 Installed profiles:"
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/
+          echo ""
+          echo "🔐 Keychain certificates:"
+          security find-identity -v -p codesigning $KEYCHAIN_PATH
 
       - name: Build Flutter iOS
         run: |
@@ -86,6 +103,7 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          PROVISIONING_PROFILE_NAME: ${{ steps.install-cert.outputs.PROVISIONING_PROFILE_NAME }}
         run: |
           cd app/ios
           bundle exec fastlane beta

@@ -10,6 +10,15 @@ platform :ios do
       is_key_content_base64: true
     )
 
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "Runner.xcodeproj",
+      team_id: "7PFH55UQ86",
+      bundle_identifier: "com.bookgolas.app",
+      code_sign_identity: "Apple Distribution",
+      profile_name: ENV["PROVISIONING_PROFILE_NAME"] || "Bookgolas App Store"
+    )
+
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "Runner",
