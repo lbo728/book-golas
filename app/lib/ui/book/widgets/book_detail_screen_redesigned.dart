@@ -3472,6 +3472,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     Uint8List imageBytes,
     Function(String extractedText, int? pageNumber) onComplete,
   ) async {
+    // 로딩 다이얼로그가 표시되었는지 추적
+    bool isLoadingDialogShown = false;
+    final parentContext = context;
+
     try {
       final tempDir = Directory.systemTemp;
       final tempFile = File('${tempDir.path}/temp_ocr_${DateTime.now().millisecondsSinceEpoch}.jpg');
@@ -3479,6 +3483,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
       if (!mounted) return;
 
+      debugPrint('🟡 OCR: 크롭 화면 표시 중...');
       final croppedFile = await ImageCropper().cropImage(
         sourcePath: tempFile.path,
         uiSettings: [
@@ -3502,22 +3507,32 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         ],
       );
 
-      await tempFile.delete();
+      // 임시 파일 삭제 시도
+      try {
+        await tempFile.delete();
+      } catch (_) {
+        // 삭제 실패해도 무시
+      }
 
-      if (croppedFile == null) return;
+      if (croppedFile == null) {
+        debugPrint('🟠 OCR: 사용자가 크롭을 취소했습니다.');
+        return;
+      }
 
       if (!mounted) return;
 
+      debugPrint('🟡 OCR: 크롭 완료, 텍스트 추출 시작...');
+      isLoadingDialogShown = true;
       showDialog(
-        context: context,
+        context: parentContext,
         barrierDismissible: false,
-        builder: (context) => PopScope(
+        builder: (dialogContext) => PopScope(
           canPop: false,
           child: Center(
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Theme.of(context).brightness == Brightness.dark
+                color: Theme.of(dialogContext).brightness == Brightness.dark
                     ? const Color(0xFF2A2A2A)
                     : Colors.white,
                 borderRadius: BorderRadius.circular(16),
@@ -3533,7 +3548,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                     '텍스트 추출 중...',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Theme.of(context).brightness == Brightness.dark
+                      color: Theme.of(dialogContext).brightness == Brightness.dark
                           ? Colors.white
                           : Colors.black,
                     ),
@@ -3547,19 +3562,41 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
       final ocrService = GoogleVisionOcrService();
       final croppedBytes = await croppedFile.readAsBytes();
-      final ocrText = await ocrService.extractTextFromBytes(croppedBytes) ?? '';
-      final pageNumber = _extractPageNumber(ocrText);
+      debugPrint('🟡 OCR: 크롭된 이미지 크기: ${croppedBytes.length} bytes');
+
+      final ocrText = await ocrService.extractTextFromBytes(croppedBytes);
+      final pageNumber = _extractPageNumber(ocrText ?? '');
 
       if (!mounted) return;
-      Navigator.of(context, rootNavigator: true).pop();
 
+      // 로딩 다이얼로그 닫기
+      if (isLoadingDialogShown) {
+        Navigator.of(parentContext, rootNavigator: true).pop();
+        isLoadingDialogShown = false;
+      }
+
+      if (ocrText == null || ocrText.isEmpty) {
+        debugPrint('🟠 OCR: 텍스트 추출 결과가 비어있습니다.');
+        CustomSnackbar.show(parentContext, message: '텍스트를 추출하지 못했습니다. 다른 영역을 선택해보세요.', rootOverlay: true);
+        return;
+      }
+
+      debugPrint('🟢 OCR: 텍스트 추출 성공 (길이: ${ocrText.length})');
       onComplete(ocrText, pageNumber);
     } catch (e) {
+      debugPrint('🔴 OCR: 예외 발생 - $e');
       if (!mounted) return;
-      if (Navigator.canPop(context)) {
-        Navigator.of(context, rootNavigator: true).pop();
+
+      // 로딩 다이얼로그가 표시되었으면 닫기
+      if (isLoadingDialogShown) {
+        try {
+          Navigator.of(parentContext, rootNavigator: true).pop();
+        } catch (_) {
+          // Navigator 에러 무시
+        }
       }
-      CustomSnackbar.show(context, message: '텍스트 추출에 실패했습니다.', rootOverlay: true);
+
+      CustomSnackbar.show(parentContext, message: '텍스트 추출에 실패했습니다. 다시 시도해주세요.', rootOverlay: true);
     }
   }
 
@@ -3568,94 +3605,132 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     ImageSource source,
     Function(Uint8List imageBytes, String ocrText, int? pageNumber) onComplete,
   ) async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: source);
-    if (pickedFile == null) return;
+    // 로딩 다이얼로그가 표시되었는지 추적
+    bool isLoadingDialogShown = false;
+    final parentContext = context;
 
-    // 원본 이미지 바이트 (저장용)
-    final fullImageBytes = await pickedFile.readAsBytes();
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: source);
+      if (pickedFile == null) return;
 
-    if (!mounted) return;
+      // 원본 이미지 바이트 (저장용)
+      final fullImageBytes = await pickedFile.readAsBytes();
 
-    // 1단계: 바로 크롭 화면 표시 (텍스트 추출 영역 선택)
-    final croppedFile = await ImageCropper().cropImage(
-      sourcePath: pickedFile.path,
-      uiSettings: [
-        IOSUiSettings(
-          title: '텍스트 추출 영역 선택',
-          cancelButtonTitle: '취소',
-          doneButtonTitle: '완료',
-          aspectRatioLockEnabled: false,
-          resetAspectRatioEnabled: true,
-          rotateButtonsHidden: false,
-          rotateClockwiseButtonHidden: true,
-        ),
-        AndroidUiSettings(
-          toolbarTitle: '텍스트 추출 영역 선택',
-          toolbarColor: const Color(0xFF5B7FFF),
-          toolbarWidgetColor: Colors.white,
-          initAspectRatio: CropAspectRatioPreset.original,
-          lockAspectRatio: false,
-          hideBottomControls: false,
-        ),
-      ],
-    );
+      if (!mounted) return;
 
-    if (croppedFile == null) return;
+      debugPrint('🟡 OCR: 크롭 화면 표시 중...');
+      // 1단계: 바로 크롭 화면 표시 (텍스트 추출 영역 선택)
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: pickedFile.path,
+        uiSettings: [
+          IOSUiSettings(
+            title: '텍스트 추출 영역 선택',
+            cancelButtonTitle: '취소',
+            doneButtonTitle: '완료',
+            aspectRatioLockEnabled: false,
+            resetAspectRatioEnabled: true,
+            rotateButtonsHidden: false,
+            rotateClockwiseButtonHidden: true,
+          ),
+          AndroidUiSettings(
+            toolbarTitle: '텍스트 추출 영역 선택',
+            toolbarColor: const Color(0xFF5B7FFF),
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false,
+            hideBottomControls: false,
+          ),
+        ],
+      );
 
-    if (!mounted) return;
+      if (croppedFile == null) {
+        debugPrint('🟠 OCR: 사용자가 크롭을 취소했습니다.');
+        return;
+      }
 
-    // 2단계: 텍스트 추출 로딩 다이얼로그 표시
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => PopScope(
-        canPop: false,
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xFF2A2A2A)
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CircularProgressIndicator(
-                  color: Color(0xFF5B7FFF),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  '텍스트 추출 중...',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
+      if (!mounted) return;
+
+      debugPrint('🟡 OCR: 크롭 완료, 텍스트 추출 시작...');
+      // 2단계: 텍스트 추출 로딩 다이얼로그 표시
+      isLoadingDialogShown = true;
+      showDialog(
+        context: parentContext,
+        barrierDismissible: false,
+        builder: (dialogContext) => PopScope(
+          canPop: false,
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(dialogContext).brightness == Brightness.dark
+                    ? const Color(0xFF2A2A2A)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(
+                    color: Color(0xFF5B7FFF),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  Text(
+                    '텍스트 추출 중...',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(dialogContext).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
 
-    // 3단계: 크롭된 영역에서 OCR 추출 (텍스트 + 페이지 번호)
-    final ocrService = GoogleVisionOcrService();
-    final croppedBytes = await croppedFile.readAsBytes();
-    final ocrText = await ocrService.extractTextFromBytes(croppedBytes) ?? '';
-    final pageNumber = _extractPageNumber(ocrText);
+      // 3단계: 크롭된 영역에서 OCR 추출 (텍스트 + 페이지 번호)
+      final ocrService = GoogleVisionOcrService();
+      final croppedBytes = await croppedFile.readAsBytes();
+      debugPrint('🟡 OCR: 크롭된 이미지 크기: ${croppedBytes.length} bytes');
 
-    if (!mounted) return;
+      final ocrText = await ocrService.extractTextFromBytes(croppedBytes);
+      final pageNumber = _extractPageNumber(ocrText ?? '');
 
-    // 로딩 다이얼로그 닫기
-    Navigator.of(context, rootNavigator: true).pop();
+      if (!mounted) return;
 
-    // 콜백 호출 (원본 이미지 + 크롭 영역 OCR 텍스트 + 페이지 번호)
-    onComplete(fullImageBytes, ocrText, pageNumber);
+      // 로딩 다이얼로그 닫기
+      if (isLoadingDialogShown) {
+        Navigator.of(parentContext, rootNavigator: true).pop();
+        isLoadingDialogShown = false;
+      }
+
+      if (ocrText == null || ocrText.isEmpty) {
+        debugPrint('🟠 OCR: 텍스트 추출 결과가 비어있습니다.');
+        CustomSnackbar.show(parentContext, message: '텍스트를 추출하지 못했습니다. 다른 영역을 선택해보세요.', rootOverlay: true);
+        return;
+      }
+
+      debugPrint('🟢 OCR: 텍스트 추출 성공 (길이: ${ocrText.length})');
+      // 콜백 호출 (원본 이미지 + 크롭 영역 OCR 텍스트 + 페이지 번호)
+      onComplete(fullImageBytes, ocrText, pageNumber);
+    } catch (e) {
+      debugPrint('🔴 OCR: 예외 발생 - $e');
+      if (!mounted) return;
+
+      // 로딩 다이얼로그가 표시되었으면 닫기
+      if (isLoadingDialogShown) {
+        try {
+          Navigator.of(parentContext, rootNavigator: true).pop();
+        } catch (_) {
+          // Navigator 에러 무시
+        }
+      }
+
+      CustomSnackbar.show(parentContext, message: '텍스트 추출에 실패했습니다. 다시 시도해주세요.', rootOverlay: true);
+    }
   }
 
   /// OCR 텍스트에서 페이지 번호 추출
