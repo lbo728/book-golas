@@ -5903,6 +5903,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     bool isSaving = false;
     bool hideKeyboardAccessory = false;
     String? imageUrl = initialImageUrl;
+    int? editingPageNumber = pageNumber;
+    final pageNumberController = TextEditingController(text: pageNumber?.toString() ?? '');
 
     showModalBottomSheet(
       context: context,
@@ -5934,7 +5936,119 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                 ? availableHeight.clamp(0.0, defaultModalHeight)
                 : defaultModalHeight;
 
-            return GestureDetector(
+            void showCancelConfirmation() {
+              final hasTextChanges = textController.text != originalText;
+              final hasPageChanges = editingPageNumber != pageNumber;
+              if (hasTextChanges || hasPageChanges) {
+                showModalBottomSheet(
+                  context: context,
+                  backgroundColor: Colors.transparent,
+                  builder: (bottomSheetContext) => Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 4,
+                          margin: const EdgeInsets.only(bottom: 20),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[400],
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                        Text(
+                          '수정 중인 내용이 있습니다.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: isDark ? Colors.white : Colors.black,
+                            height: 1.5,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(bottomSheetContext);
+                                  setModalState(() {
+                                    textController.text = originalText;
+                                    editingPageNumber = pageNumber;
+                                    pageNumberController.text = pageNumber?.toString() ?? '';
+                                    isEditing = false;
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  decoration: BoxDecoration(
+                                    color: isDark ? Colors.grey[800] : Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      '변경사항 무시',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: isDark ? Colors.grey[300] : Colors.grey[700],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => Navigator.pop(bottomSheetContext),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF5B7FFF),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Center(
+                                    child: Text(
+                                      '이어서 하기',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: MediaQuery.of(bottomSheetContext).padding.bottom + 8),
+                      ],
+                    ),
+                  ),
+                );
+              } else {
+                setModalState(() {
+                  isEditing = false;
+                });
+              }
+            }
+
+            return PopScope(
+              canPop: !isEditing,
+              onPopInvokedWithResult: (didPop, result) {
+                if (!didPop && isEditing) {
+                  showCancelConfirmation();
+                }
+              },
+              child: GestureDetector(
               onTap: () {
                 if (isEditing) {
                   focusNode.unfocus();
@@ -5971,107 +6085,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                           children: [
                             TextButton(
                               onPressed: isEditing
-                                  ? () {
-                                      final hasChanges = textController.text != originalText;
-                                      if (hasChanges) {
-                                        showModalBottomSheet(
-                                          context: context,
-                                          backgroundColor: Colors.transparent,
-                                          builder: (bottomSheetContext) => Container(
-                                            padding: const EdgeInsets.all(20),
-                                            decoration: BoxDecoration(
-                                              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                                              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                                            ),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Container(
-                                                  width: 40,
-                                                  height: 4,
-                                                  margin: const EdgeInsets.only(bottom: 20),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.grey[400],
-                                                    borderRadius: BorderRadius.circular(2),
-                                                  ),
-                                                ),
-                                                Text(
-                                                  '변경 중인 사항이 취소됩니다.\n취소하시겠어요?',
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: isDark ? Colors.white : Colors.black,
-                                                    height: 1.5,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 24),
-                                                Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: GestureDetector(
-                                                        onTap: () => Navigator.pop(bottomSheetContext),
-                                                        child: Container(
-                                                          padding: const EdgeInsets.symmetric(vertical: 14),
-                                                          decoration: BoxDecoration(
-                                                            color: isDark ? Colors.grey[800] : Colors.grey[200],
-                                                            borderRadius: BorderRadius.circular(12),
-                                                          ),
-                                                          child: Center(
-                                                            child: Text(
-                                                              '계속 수정',
-                                                              style: TextStyle(
-                                                                fontSize: 15,
-                                                                fontWeight: FontWeight.w600,
-                                                                color: isDark ? Colors.grey[300] : Colors.grey[700],
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 12),
-                                                    Expanded(
-                                                      child: GestureDetector(
-                                                        onTap: () {
-                                                          Navigator.pop(bottomSheetContext);
-                                                          setModalState(() {
-                                                            textController.text = originalText;
-                                                            isEditing = false;
-                                                          });
-                                                        },
-                                                        child: Container(
-                                                          padding: const EdgeInsets.symmetric(vertical: 14),
-                                                          decoration: BoxDecoration(
-                                                            color: Colors.red[400],
-                                                            borderRadius: BorderRadius.circular(12),
-                                                          ),
-                                                          child: const Center(
-                                                            child: Text(
-                                                              '취소하기',
-                                                              style: TextStyle(
-                                                                fontSize: 15,
-                                                                fontWeight: FontWeight.w600,
-                                                                color: Colors.white,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                SizedBox(height: MediaQuery.of(bottomSheetContext).padding.bottom + 8),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      } else {
-                                        setModalState(() {
-                                          isEditing = false;
-                                        });
-                                      }
-                                    }
+                                  ? () => showCancelConfirmation()
                                   : () => Navigator.pop(context),
                               child: Text(
                                 isEditing ? '취소' : '닫기',
@@ -6092,17 +6106,61 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                     color: isDark ? Colors.white : Colors.black,
                                   ),
                                 ),
-                                if (pageNumber != null) ...[
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    'p.$pageNumber',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: isDark ? Colors.grey[400] : Colors.grey[500],
+                                const SizedBox(height: 2),
+                                if (isEditing)
+                                  SizedBox(
+                                    width: 80,
+                                    height: 28,
+                                    child: TextField(
+                                      controller: pageNumberController,
+                                      keyboardType: TextInputType.number,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: isDark ? Colors.white : Colors.black,
+                                      ),
+                                      decoration: InputDecoration(
+                                        isDense: true,
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: BorderSide(color: Colors.grey[400]!),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: const BorderSide(color: Color(0xFF5B7FFF)),
+                                        ),
+                                        hintText: '페이지',
+                                        hintStyle: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[400],
+                                        ),
+                                      ),
+                                      onChanged: (value) {
+                                        final parsed = int.tryParse(value);
+                                        setModalState(() {
+                                          editingPageNumber = parsed;
+                                        });
+                                      },
+                                    ),
+                                  )
+                                else
+                                  GestureDetector(
+                                    onTap: () {
+                                      setModalState(() {
+                                        isEditing = true;
+                                      });
+                                    },
+                                    child: Text(
+                                      editingPageNumber != null ? 'p.$editingPageNumber' : '페이지 미설정',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: isDark ? Colors.grey[400] : Colors.grey[500],
+                                      ),
                                     ),
                                   ),
-                                ],
                               ],
                             ),
                             if (isEditing)
@@ -6116,7 +6174,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                         try {
                                           await Supabase.instance.client
                                               .from('book_images')
-                                              .update({'extracted_text': textController.text})
+                                              .update({
+                                                'extracted_text': textController.text,
+                                                'page_number': editingPageNumber,
+                                              })
                                               .eq('id', imageId);
                                           // 저장 성공 시 메모리 캐시 제거 (DB 값이 우선)
                                           _editedTexts.remove(imageId);
@@ -6131,7 +6192,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                             }
                                             CustomSnackbar.show(
                                               this.context,
-                                              message: '텍스트가 저장되었습니다',
+                                              message: '저장되었습니다',
                                               type: SnackbarType.success,
                                             );
                                           }
@@ -6647,6 +6708,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                   ],
                 ),
               ),
+            ),
             );
           },
         );
