@@ -13,12 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bookgolas",
+  title: "북골라스 - 매일의 독서가 목표가 되는 곳",
   description: "독서 목표 달성을 위한 스마트한 동반자",
-  icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
-  },
 };
 
 export default function RootLayout({
