@@ -2603,7 +2603,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                               ),
                             ),
                             Text(
-                              '인상적인 페이지',
+                              '기록 추가',
                               style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w600,
@@ -3178,8 +3178,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                           ),
                         ),
                       ),
-                    // 키보드 액세서리 바 (키보드가 열려있고 숨김 상태가 아닐 때만)
-                    if (isKeyboardOpen && !hideKeyboardAccessory)
+                    // 키보드 액세서리 바 (텍스트 키보드가 열려있을 때만, 숫자 키보드는 제외)
+                    if (isKeyboardOpen && textFocusNode.hasFocus && !hideKeyboardAccessory)
                       Positioned(
                         left: 0,
                         right: 0,
@@ -3191,7 +3191,6 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                               hideKeyboardAccessory = true;
                             });
                             textFocusNode.unfocus();
-                            pageFocusNode.unfocus();
                             Future.delayed(const Duration(milliseconds: 300), () {
                               if (context.mounted) {
                                 setModalState(() {
@@ -3622,8 +3621,117 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
       if (!mounted) return;
 
+      // 0단계: 텍스트 추출 여부 확인
+      final isDark = Theme.of(parentContext).brightness == Brightness.dark;
+      final shouldExtract = await showModalBottomSheet<bool>(
+        context: parentContext,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          return Container(
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                Icon(
+                  Icons.document_scanner_outlined,
+                  size: 48,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  '텍스트를 추출하시겠어요?',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '크레딧이 소모됩니다',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(
+                              color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                            ),
+                          ),
+                        ),
+                        child: Text(
+                          '괜찮아요',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF5B7FFF),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          '추출할게요',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: MediaQuery.of(context).padding.bottom),
+              ],
+            ),
+          );
+        },
+      );
+
+      if (!mounted) return;
+
+      // 사용자가 "괜찮아요"를 선택했거나 모달을 닫은 경우
+      if (shouldExtract != true) {
+        // 이미지만 등록하고 OCR 없이 반환
+        onComplete(fullImageBytes, '', null);
+        return;
+      }
+
       debugPrint('🟡 OCR: 크롭 화면 표시 중...');
-      // 1단계: 바로 크롭 화면 표시 (텍스트 추출 영역 선택)
+      // 1단계: 크롭 화면 표시 (텍스트 추출 영역 선택)
       final croppedFile = await ImageCropper().cropImage(
         sourcePath: pickedFile.path,
         uiSettings: [
@@ -5908,6 +6016,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     String? imageUrl = initialImageUrl;
     int? editingPageNumber = pageNumber;
     final pageNumberController = TextEditingController(text: pageNumber?.toString() ?? '');
+    bool pageNumberError = false;
+    final totalPages = _currentBook.totalPages;
 
     showModalBottomSheet(
       context: context,
@@ -6098,77 +6208,91 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                 ),
                               ),
                             ),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  '인상적인 페이지',
-                                  style: TextStyle(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w600,
-                                    color: isDark ? Colors.white : Colors.black,
+                            if (isEditing)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'p.',
+                                    style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w600,
+                                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 2),
-                                if (isEditing)
+                                  const SizedBox(width: 4),
                                   SizedBox(
-                                    width: 80,
-                                    height: 28,
+                                    width: 70,
+                                    height: 32,
                                     child: TextField(
                                       controller: pageNumberController,
                                       keyboardType: TextInputType.number,
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
-                                        fontSize: 14,
+                                        fontSize: 17,
                                         fontWeight: FontWeight.w600,
-                                        color: isDark ? Colors.white : Colors.black,
+                                        color: pageNumberError
+                                            ? Colors.red
+                                            : (isDark ? Colors.white : Colors.black),
                                       ),
                                       decoration: InputDecoration(
                                         isDense: true,
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(8),
-                                          borderSide: BorderSide(color: Colors.grey[400]!),
+                                          borderSide: BorderSide(
+                                            color: pageNumberError ? Colors.red : Colors.grey[400]!,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                            color: pageNumberError ? Colors.red : Colors.grey[400]!,
+                                          ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(8),
-                                          borderSide: const BorderSide(color: Color(0xFF5B7FFF)),
-                                        ),
-                                        hintText: '페이지',
-                                        hintStyle: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey[400],
+                                          borderSide: BorderSide(
+                                            color: pageNumberError ? Colors.red : const Color(0xFF5B7FFF),
+                                          ),
                                         ),
                                       ),
                                       onChanged: (value) {
                                         final parsed = int.tryParse(value);
-                                        setModalState(() {
-                                          editingPageNumber = parsed;
-                                        });
+                                        if (parsed != null && parsed > totalPages) {
+                                          HapticFeedback.heavyImpact();
+                                          setModalState(() {
+                                            pageNumberError = true;
+                                            editingPageNumber = parsed;
+                                          });
+                                          CustomSnackbar.show(
+                                            this.context,
+                                            message: '총 페이지 수($totalPages)를 초과할 수 없습니다',
+                                            type: SnackbarType.error,
+                                          );
+                                        } else {
+                                          setModalState(() {
+                                            pageNumberError = false;
+                                            editingPageNumber = parsed;
+                                          });
+                                        }
                                       },
                                     ),
-                                  )
-                                else
-                                  GestureDetector(
-                                    onTap: () {
-                                      setModalState(() {
-                                        isEditing = true;
-                                      });
-                                    },
-                                    child: Text(
-                                      editingPageNumber != null ? 'p.$editingPageNumber' : '페이지 미설정',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        color: isDark ? Colors.grey[400] : Colors.grey[500],
-                                      ),
-                                    ),
                                   ),
-                              ],
-                            ),
+                                ],
+                              )
+                            else
+                              Text(
+                                editingPageNumber != null ? 'p.$editingPageNumber' : '페이지 미설정',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark ? Colors.white : Colors.black,
+                                ),
+                              ),
                             if (isEditing)
                               TextButton(
-                                onPressed: isSaving
+                                onPressed: (isSaving || pageNumberError)
                                     ? null
                                     : () async {
                                         setModalState(() {
@@ -6303,7 +6427,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                                   mainAxisSize: MainAxisSize.min,
                                                   children: [
                                                     Icon(
-                                                      CupertinoIcons.arrow_2_circlepath,
+                                                      Icons.document_scanner_outlined,
                                                       size: 14,
                                                       color: Colors.white,
                                                     ),
@@ -6685,8 +6809,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                     ],
                   ),
                 ),
-                    // 키보드 액세서리 바 (수정 모드에서 키보드가 열려있을 때만)
-                    if (isEditing && isKeyboardOpen && !hideKeyboardAccessory)
+                    // 키보드 액세서리 바 (텍스트 필드가 포커스되었을 때만, 숫자 키보드는 제외)
+                    if (isEditing && isKeyboardOpen && focusNode.hasFocus && !hideKeyboardAccessory)
                       Positioned(
                         left: 0,
                         right: 0,
@@ -7981,8 +8105,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      isDismissible: false,
-      enableDrag: false,
+      isDismissible: true,
+      enableDrag: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
         return StatefulBuilder(
@@ -8017,9 +8141,12 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                       color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
                     ),
-                    child: CustomScrollView(
-                      controller: scrollController,
-                      slivers: [
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: CustomScrollView(
+                            controller: scrollController,
+                            slivers: [
                         SliverToBoxAdapter(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -8185,60 +8312,47 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                       ),
                                     ),
                                     const SizedBox(height: 12),
-                                    // 직접 입력 필드
+                                    // 직접 입력 필드 (레이블 없이)
                                     Center(
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            '직접 입력:',
-                                            style: TextStyle(
+                                      child: SizedBox(
+                                        width: 80,
+                                        height: 36,
+                                        child: TextField(
+                                          controller: inputController,
+                                          keyboardType: TextInputType.number,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: isDark ? Colors.white : Colors.black,
+                                          ),
+                                          decoration: InputDecoration(
+                                            isDense: true,
+                                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(10),
+                                              borderSide: BorderSide(color: Colors.grey[400]!),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(10),
+                                              borderSide: const BorderSide(color: Color(0xFF10B981)),
+                                            ),
+                                            suffixText: 'p',
+                                            suffixStyle: TextStyle(
                                               fontSize: 14,
                                               color: isDark ? Colors.grey[400] : Colors.grey[600],
                                             ),
                                           ),
-                                          const SizedBox(width: 8),
-                                          SizedBox(
-                                            width: 80,
-                                            height: 36,
-                                            child: TextField(
-                                              controller: inputController,
-                                              keyboardType: TextInputType.number,
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
-                                                color: isDark ? Colors.white : Colors.black,
-                                              ),
-                                              decoration: InputDecoration(
-                                                isDense: true,
-                                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                                border: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  borderSide: BorderSide(color: Colors.grey[400]!),
-                                                ),
-                                                focusedBorder: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  borderSide: const BorderSide(color: Color(0xFF10B981)),
-                                                ),
-                                                suffixText: 'p',
-                                                suffixStyle: TextStyle(
-                                                  fontSize: 14,
-                                                  color: isDark ? Colors.grey[400] : Colors.grey[600],
-                                                ),
-                                              ),
-                                              onChanged: (value) {
-                                                final parsed = int.tryParse(value);
-                                                if (parsed != null && parsed >= 1 && parsed <= _pagesLeft.clamp(1, 200)) {
-                                                  setModalState(() {
-                                                    newDailyTarget = parsed;
-                                                  });
-                                                  wheelController.jumpToItem(parsed - 1);
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                        ],
+                                          onChanged: (value) {
+                                            final parsed = int.tryParse(value);
+                                            if (parsed != null && parsed >= 1 && parsed <= _pagesLeft.clamp(1, 200)) {
+                                              setModalState(() {
+                                                newDailyTarget = parsed;
+                                              });
+                                              wheelController.jumpToItem(parsed - 1);
+                                            }
+                                          },
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(height: 16),
@@ -8373,76 +8487,81 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                             childCount: schedule.length,
                           ),
                         ),
-                        // 버튼 영역
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: EdgeInsets.fromLTRB(
-                              24,
-                              24,
-                              24,
-                              24 + MediaQuery.of(context).viewInsets.bottom,
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    style: TextButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(vertical: 16),
-                                    ),
-                                    child: const Text('취소'),
+                              // 하단 버튼 공간 확보용
+                              const SliverToBoxAdapter(
+                                child: SizedBox(height: 16),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // 버튼 영역 (하단 고정)
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            24,
+                            16,
+                            24,
+                            24 + MediaQuery.of(context).viewInsets.bottom,
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 16),
                                   ),
+                                  child: const Text('취소'),
                                 ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  flex: 2,
-                                  child: ElevatedButton(
-                                    onPressed: () async {
-                                      Navigator.pop(context);
-                                      // DB에 일일 목표 페이지 업데이트
-                                      try {
-                                        await Supabase.instance.client
-                                            .from('books')
-                                            .update({'daily_target_pages': newDailyTarget})
-                                            .eq('id', _currentBook.id!);
-                                        setState(() {});
-                                        if (mounted) {
-                                          CustomSnackbar.show(
-                                            parentContext,
-                                            message: '오늘 목표: ${newDailyTarget}p로 변경되었습니다',
-                                            type: SnackbarType.success,
-                                            bottomOffset: 100,
-                                          );
-                                        }
-                                      } catch (e) {
-                                        if (mounted) {
-                                          CustomSnackbar.show(
-                                            parentContext,
-                                            message: '목표 변경에 실패했습니다',
-                                            type: SnackbarType.error,
-                                            bottomOffset: 100,
-                                          );
-                                        }
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                flex: 2,
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    Navigator.pop(context);
+                                    // DB에 일일 목표 페이지 업데이트
+                                    try {
+                                      await Supabase.instance.client
+                                          .from('books')
+                                          .update({'daily_target_pages': newDailyTarget})
+                                          .eq('id', _currentBook.id!);
+                                      setState(() {});
+                                      if (mounted) {
+                                        CustomSnackbar.show(
+                                          parentContext,
+                                          message: '오늘 목표: ${newDailyTarget}p로 변경되었습니다',
+                                          type: SnackbarType.success,
+                                          bottomOffset: 100,
+                                        );
                                       }
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF10B981),
-                                      padding: const EdgeInsets.symmetric(vertical: 16),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
+                                    } catch (e) {
+                                      if (mounted) {
+                                        CustomSnackbar.show(
+                                          parentContext,
+                                          message: '목표 변경에 실패했습니다',
+                                          type: SnackbarType.error,
+                                          bottomOffset: 100,
+                                        );
+                                      }
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF10B981),
+                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                    child: const Text(
-                                      '변경',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
+                                  ),
+                                  child: const Text(
+                                    '변경',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
