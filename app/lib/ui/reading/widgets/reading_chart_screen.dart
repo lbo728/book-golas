@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:collection';
+import 'package:book_golas/data/services/reading_progress_service.dart';
 
 enum TimeFilter { daily, weekly, monthly }
 
@@ -15,6 +16,42 @@ class ReadingChartScreen extends StatefulWidget {
 class _ReadingChartScreenState extends State<ReadingChartScreen> {
   TimeFilter _selectedFilter = TimeFilter.daily;
   bool _useMockData = false; // 🎨 Mock 데이터 사용 여부
+  final ReadingProgressService _progressService = ReadingProgressService();
+
+  // 캐싱된 데이터
+  List<Map<String, dynamic>>? _cachedRawData;
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final data = await fetchUserProgressHistory();
+      if (mounted) {
+        setState(() {
+          _cachedRawData = data;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   /// 🎨 Mock 데이터 생성 (데모용)
   List<Map<String, dynamic>> _generateMockData() {
@@ -150,6 +187,52 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
     };
   }
 
+  /// 연속 독서일(스트릭) 계산
+  int _calculateStreak(List<Map<String, dynamic>> aggregatedData) {
+    if (aggregatedData.isEmpty) return 0;
+
+    int streak = 0;
+    final today = DateTime.now();
+    final todayNormalized = DateTime(today.year, today.month, today.day);
+
+    // 날짜별로 정렬 (최신순)
+    final sortedDates = aggregatedData
+        .map((e) => e['date'] as DateTime)
+        .toList()
+      ..sort((a, b) => b.compareTo(a));
+
+    DateTime expectedDate = todayNormalized;
+
+    // 오늘 기록이 없으면 어제부터 시작
+    if (sortedDates.isEmpty ||
+        !_isSameDay(sortedDates.first, todayNormalized)) {
+      expectedDate = todayNormalized.subtract(const Duration(days: 1));
+    }
+
+    for (final date in sortedDates) {
+      final normalizedDate = DateTime(date.year, date.month, date.day);
+
+      if (_isSameDay(normalizedDate, expectedDate)) {
+        streak++;
+        expectedDate = expectedDate.subtract(const Duration(days: 1));
+      } else if (normalizedDate.isBefore(expectedDate)) {
+        // 날짜가 건너뛰어졌으면 스트릭 종료
+        break;
+      }
+    }
+
+    return streak;
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  /// 목표 달성률 계산 (오늘 기준)
+  Future<double> _calculateGoalRate() async {
+    return await _progressService.calculateGoalAchievementRate();
+  }
+
   String _getFilterLabel(TimeFilter filter) {
     switch (filter) {
       case TimeFilter.daily:
@@ -201,6 +284,8 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                 setState(() {
                   _useMockData = !_useMockData;
                 });
+                // 목업 데이터 토글 시 데이터 다시 로드
+                _loadData();
               },
             ),
           ),
@@ -210,165 +295,165 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: FutureBuilder<List<Map<String, dynamic>>>(
-              future: fetchUserProgressHistory(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(32.0),
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                }
+            child: _buildContent(isDark),
+          ),
+        ),
+      ),
+    );
+  }
 
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(32.0),
-                      child: Column(
-                        children: [
-                          const Icon(
-                            Icons.error_outline,
-                            size: 48,
-                            color: Colors.red,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            '데이터를 불러올 수 없습니다',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
+  Widget _buildContent(bool isDark) {
+    // 로딩 중
+    if (_isLoading) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32.0),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
 
-                final rawData = snapshot.data ?? [];
-                if (rawData.isEmpty) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(32.0),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.menu_book_outlined,
-                            size: 64,
-                            color: Colors.grey[300],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            '아직 독서 기록이 없습니다',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '책을 읽고 페이지를 업데이트해보세요!',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[500],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
+    // 에러 발생
+    if (_errorMessage != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            children: [
+              const Icon(
+                Icons.error_outline,
+                size: 48,
+                color: Colors.red,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '데이터를 불러올 수 없습니다',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[700],
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _loadData,
+                child: const Text('다시 시도'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
-                final aggregated = aggregateByDate(rawData, _selectedFilter);
-                final stats = calculateStatistics(aggregated);
+    // 데이터 없음
+    final rawData = _cachedRawData ?? [];
+    if (rawData.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            children: [
+              Icon(
+                Icons.menu_book_outlined,
+                size: 64,
+                color: Colors.grey[300],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '아직 독서 기록이 없습니다',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '책을 읽고 페이지를 업데이트해보세요!',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[500],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
-                final spots = aggregated.asMap().entries.map((entry) {
-                  final idx = entry.key;
-                  final cumulativePage = entry.value['cumulative_page'] as int;
-                  return FlSpot(idx.toDouble(), cumulativePage.toDouble());
-                }).toList();
+    // 캐시된 데이터로 필터링 및 통계 계산 (필터 변경 시 즉시 반영)
+    final aggregated = aggregateByDate(rawData, _selectedFilter);
+    final stats = calculateStatistics(aggregated);
+    final streak = _calculateStreak(aggregated);
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 통계 카드
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.blue[400]!, Colors.blue[600]!],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+    final spots = aggregated.asMap().entries.map((entry) {
+      final idx = entry.key;
+      final cumulativePage = entry.value['cumulative_page'] as int;
+      return FlSpot(idx.toDouble(), cumulativePage.toDouble());
+    }).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+                    // 통계 카드 (2x3 그리드)
+                    GridView.count(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
+                      childAspectRatio: 1.5,
+                      children: [
+                        _buildStatCard(
+                          '총 읽은 페이지',
+                          '${stats['total_pages']}p',
+                          Icons.menu_book_rounded,
+                          const Color(0xFF5B7FFF),
+                          isDark,
                         ),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.blue.withOpacity(0.3),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Row(
-                            children: [
-                              Icon(
-                                Icons.auto_graph,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                '독서 통계',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              _buildStatItem(
-                                '총 읽은 페이지',
-                                '${stats['total_pages']}',
-                                Icons.book,
-                              ),
-                              _buildStatItem(
-                                '일평균',
-                                '${(stats['average_daily'] as double).toStringAsFixed(1)}',
-                                Icons.calendar_today,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              _buildStatItem(
-                                '최대',
-                                '${stats['max_daily']}',
-                                Icons.trending_up,
-                              ),
-                              _buildStatItem(
-                                '최소',
-                                '${stats['min_daily']}',
-                                Icons.trending_down,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                        _buildStatCard(
+                          '일평균',
+                          '${(stats['average_daily'] as double).toStringAsFixed(1)}p',
+                          Icons.calendar_today_rounded,
+                          const Color(0xFF10B981),
+                          isDark,
+                        ),
+                        _buildStatCard(
+                          '최고 기록',
+                          '${stats['max_daily']}p',
+                          Icons.trending_up_rounded,
+                          const Color(0xFFF59E0B),
+                          isDark,
+                        ),
+                        _buildStatCard(
+                          '연속 독서',
+                          '$streak일',
+                          Icons.local_fire_department_rounded,
+                          const Color(0xFFEF4444),
+                          isDark,
+                        ),
+                        _buildStatCard(
+                          '최저 기록',
+                          '${stats['min_daily']}p',
+                          Icons.trending_down_rounded,
+                          const Color(0xFF8B5CF6),
+                          isDark,
+                        ),
+                        FutureBuilder<double>(
+                          future: _calculateGoalRate(),
+                          builder: (context, snapshot) {
+                            final goalRate = snapshot.data ?? 0.0;
+                            return _buildStatCard(
+                              '오늘 목표',
+                              '${(goalRate * 100).toStringAsFixed(0)}%',
+                              Icons.flag_rounded,
+                              const Color(0xFF06B6D4),
+                              isDark,
+                            );
+                          },
+                        ),
+                      ],
                     ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
 
                     // 필터 버튼
                     Row(
@@ -432,7 +517,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                     const SizedBox(height: 16),
                     Container(
                       height: 300,
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
                       decoration: BoxDecoration(
                         color: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
                         borderRadius: BorderRadius.circular(12),
@@ -461,7 +546,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                               ),
                               belowBarData: BarAreaData(
                                 show: true,
-                                color: Colors.blue.withOpacity(0.1),
+                                color: Colors.blue.withValues(alpha: 0.1),
                               ),
                             ),
                           ],
@@ -582,7 +667,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                                 width: 48,
                                 height: 48,
                                 decoration: BoxDecoration(
-                                  color: Colors.blue.withOpacity(0.1),
+                                  color: Colors.blue.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Center(
@@ -656,53 +741,79 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                     ),
                   ],
                 );
-              },
+              }
+
+  Widget _buildStatCard(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+    bool isDark,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.grey.withValues(alpha: 0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              color: color,
+              size: 18,
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatItem(String label, String value, IconData icon) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  icon,
-                  color: Colors.white,
-                  size: 16,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
                 ),
-                const SizedBox(width: 4),
                 Text(
                   label,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.white.withOpacity(0.9),
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -1,5 +1,5 @@
 {
-  "cSpell.words": ["golas", "prefs", "supabase"],
+  "cSpell.words": ["bookgolas", "golas", "prefs", "supabase", "testflight", "xcworkspace"],
   "deno.enable": true,
   "deno.enablePaths": ["supabase/functions"],
   "deno.lint": true,

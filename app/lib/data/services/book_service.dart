@@ -99,6 +99,16 @@ class BookService {
 
   Future<Book?> updateCurrentPage(String bookId, int currentPage) async {
     try {
+      // 이전 페이지 가져오기 (히스토리 기록용)
+      int previousPage = 0;
+      try {
+        final existingBook = _books.firstWhere((b) => b.id == bookId);
+        previousPage = existingBook.currentPage;
+      } catch (_) {
+        // 로컬 캐시에 없으면 previousPage = 0
+      }
+
+      // books 테이블 업데이트
       final response = await _supabase
           .from(_tableName)
           .update({
@@ -111,9 +121,23 @@ class BookService {
 
       final updatedBook = Book.fromJson(response);
 
+      // 로컬 캐시 업데이트
       final index = _books.indexWhere((b) => b.id == bookId);
       if (index != -1) {
         _books[index] = updatedBook;
+      }
+
+      // 페이지가 증가한 경우에만 히스토리 기록
+      if (currentPage > previousPage) {
+        final userId = _supabase.auth.currentUser?.id;
+        if (userId != null) {
+          await _supabase.from('reading_progress_history').insert({
+            'user_id': userId,
+            'book_id': bookId,
+            'page': currentPage,
+            'previous_page': previousPage,
+          });
+        }
       }
 
       return updatedBook;

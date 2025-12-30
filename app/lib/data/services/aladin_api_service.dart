@@ -20,6 +20,7 @@ class AladinApiService {
         'SearchTarget': 'Book',
         'output': 'js',
         'Version': AppConfig.apiVersion,
+        'Cover': 'Big', // 200px 고화질 이미지
       });
 
       final searchResponse = await http.get(searchUri);
@@ -65,6 +66,7 @@ class AladinApiService {
         'output': 'js',
         'Version': AppConfig.apiVersion,
         'OptResult': 'ebookList,usedList,reviewList',
+        'Cover': 'Big', // 200px 고화질 이미지
       });
 
       print('📡 상품 조회 API 요청: $lookupUri');

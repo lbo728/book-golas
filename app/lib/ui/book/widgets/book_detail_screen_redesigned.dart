@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:math' as math;
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -7,11 +9,15 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../domain/models/book.dart';
+import '../../../data/services/image_cache_manager.dart';
 import '../../../data/services/book_service.dart';
 import '../../../data/services/google_vision_ocr_service.dart';
 import '../../core/ui/book_image_widget.dart';
+import '../../core/ui/custom_snackbar.dart';
 
 /// 시니어 프로덕트 디자이너가 재설계한 독서 상세 화면
 ///
@@ -34,15 +40,24 @@ class BookDetailScreenRedesigned extends StatefulWidget {
 }
 
 class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final BookService _bookService = BookService();
   late Book _currentBook;
   int? _todayStartPage;
   int? _todayTargetPage;
   late TabController _tabController;
-  int _attemptCount = 1; // 도전 횟수
+  late int _attemptCount; // 도전 횟수 (DB에서 로드)
   Map<String, bool> _dailyAchievements = {}; // 일차별 목표 달성 현황 (날짜: 성공/실패)
-  bool _useMockProgressData = true; // 🎨 진행률 히스토리 목업 데이터 사용
+  bool _useMockProgressData = false; // 🎨 진행률 히스토리 목업 데이터 사용 (실제 데이터 연결 완료)
+
+  // 페이지 카운터 & 프로그레스바 애니메이션
+  late AnimationController _progressAnimController;
+  late Animation<double> _progressAnimation;
+  int _animatedCurrentPage = 0;
+  double _animatedProgress = 0.0;
+
+  // 스크롤 컨트롤러
+  final ScrollController _scrollController = ScrollController();
 
   // 캐싱: Future를 한번만 생성하여 재사용
   late Future<List<Map<String, dynamic>>> _bookImagesFuture;
@@ -54,17 +69,34 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   // 메모리에 수정된 텍스트 저장 (저장 버튼 누르기 전까지 유지)
   final Map<String, String> _editedTexts = {};
 
+  // 인상적인 페이지 선택 모드
+  bool _isSelectionMode = false;
+  final Set<String> _selectedImageIds = {};
+
   @override
   void initState() {
     super.initState();
     _currentBook = widget.book;
+    _attemptCount = widget.book.attemptCount;
     _todayStartPage = _currentBook.startDate.day;
     _todayTargetPage = _currentBook.targetDate.day;
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       setState(() {}); // 탭 변경 시 UI 업데이트
     });
     _loadDailyAchievements();
+
+    // 페이지 애니메이션 초기화
+    _animatedCurrentPage = _currentBook.currentPage;
+    _animatedProgress = _currentBook.currentPage / _currentBook.totalPages;
+    _progressAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _progressAnimation = CurvedAnimation(
+      parent: _progressAnimController,
+      curve: Curves.elasticOut,
+    );
 
     // Future를 initState에서 한번만 생성 (캐싱)
     _bookImagesFuture = fetchBookImages(_currentBook.id!);
@@ -74,61 +106,11 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   @override
   void dispose() {
     _tabController.dispose();
+    _progressAnimController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  void _showTopLevelToast(BuildContext modalContext, String message) {
-    final overlay = Overlay.of(modalContext, rootOverlay: true);
-    late OverlayEntry entry;
-
-    entry = OverlayEntry(
-      builder: (context) => Positioned(
-        bottom: 24,
-        left: 16,
-        right: 16,
-        child: Material(
-          color: Colors.transparent,
-          child: TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0.0, end: 1.0),
-            duration: const Duration(milliseconds: 200),
-            builder: (context, value, child) => Opacity(
-              opacity: value,
-              child: child,
-            ),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF10B981),
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Text(
-                message,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    overlay.insert(entry);
-
-    Future.delayed(const Duration(seconds: 2), () {
-      entry.remove();
-    });
-  }
 
   Future<void> _loadDailyAchievements() async {
     // TODO: Supabase에서 일차별 달성 현황 불러오기
@@ -168,6 +150,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
 
     return Scaffold(
       backgroundColor:
@@ -216,6 +199,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         children: [
           SafeArea(
             child: NestedScrollView(
+              controller: _scrollController,
               headerSliverBuilder: (context, innerBoxIsScrolled) {
                 return [
                   SliverToBoxAdapter(
@@ -224,20 +208,20 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Hero Section: D-day + Progress (축소)
-                          _buildCompactHeroSection(isDark),
-                          const SizedBox(height: 20),
+                          // Compact Book Header (Dashboard Style)
+                          _buildCompactBookHeader(isDark),
+                          const SizedBox(height: 10),
 
-                          // Book Info Card
-                          _buildBookInfoCard(isDark),
-                          const SizedBox(height: 16),
+                          // Compact Reading Schedule (시작일/목표일)
+                          _buildCompactReadingSchedule(isDark),
+                          const SizedBox(height: 12),
 
-                          // Reading Schedule Card
-                          _buildReadingScheduleCard(isDark),
-                          const SizedBox(height: 16),
+                          // Dashboard Progress (2-Column)
+                          _buildDashboardProgress(isDark),
+                          const SizedBox(height: 12),
 
-                          // Today's Goal Card with Achievement Stamps
-                          _buildTodayGoalCardWithStamps(isDark),
+                          // Compact Streak Row (7일 도트)
+                          _buildCompactStreakRow(isDark),
                           const SizedBox(height: 20),
                         ],
                       ),
@@ -254,126 +238,191 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                 ];
               },
               body: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                 child: TabBarView(
                   controller: _tabController,
                   children: [
                     _buildMemorablePagesTab(isDark),
                     _buildProgressHistoryTab(isDark),
+                    _buildDetailTab(isDark),
                   ],
                 ),
               ),
             ),
           ),
-          // Floating Update Button
-          _buildFloatingUpdateButton(isDark),
+          // Linear 스타일 리퀴드 글래스 플로팅 바 (키보드가 열리면 완료 버튼으로 교체)
+          if (isKeyboardOpen)
+            _buildKeyboardDoneButton(isDark)
+          else
+            _buildLiquidGlassFloatingBar(isDark),
         ],
       ),
     );
   }
 
-  /// Compact Hero Section: 축소된 D-day + Progress
+  /// Compact Hero Section: Circular Progress + D-day (Radial Progress Indicator)
   Widget _buildCompactHeroSection(bool isDark) {
+    final progressPercent = (_animatedProgress * 100).toStringAsFixed(0);
+    final isOverdue = _daysLeft < 0;
+
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF5B7FFF),
-            Color(0xFF4A6FE8),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF5B7FFF).withOpacity(0.3),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Row(
         children: [
-          // D-day
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          // Circular Progress (Radial Progress Indicator)
+          SizedBox(
+            width: 120,
+            height: 120,
+            child: Stack(
+              alignment: Alignment.center,
               children: [
-                Text(
-                  _daysLeft >= 0 ? 'D-$_daysLeft' : 'D+${_daysLeft.abs()}',
-                  style: const TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                    height: 1.0,
+                // Background ring
+                SizedBox(
+                  width: 120,
+                  height: 120,
+                  child: CustomPaint(
+                    painter: _CircularProgressPainter(
+                      progress: _animatedProgress.clamp(0.0, 1.0),
+                      strokeWidth: 10,
+                      backgroundColor: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : const Color(0xFFEEF2FF),
+                      progressColor: const Color(0xFF5B7FFF),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  _daysLeft >= 0 ? '남음' : '초과',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white.withOpacity(0.85),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Progress
-          Expanded(
-            flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                // Center text
+                Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '${_progressPercentage.toStringAsFixed(0)}%',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                      '$progressPercent%',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w800,
+                        color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                        height: 1.0,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(height: 2),
                     Text(
-                      '${_currentBook.currentPage}/${_currentBook.totalPages}p',
+                      '진행률',
                       style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white.withOpacity(0.85),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.6)
+                            : const Color(0xFF888888),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Stack(
-                    children: [
-                      Container(
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.25),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      FractionallySizedBox(
-                        widthFactor: _progressPercentage / 100,
-                        child: Container(
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 24),
+          // Stats
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // D-day
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: isOverdue
+                        ? const Color(0xFFFFEBEB)
+                        : const Color(0xFFEEF2FF),
+                    borderRadius: BorderRadius.circular(20),
                   ),
+                  child: Text(
+                    isOverdue ? 'D+${_daysLeft.abs()}' : 'D-$_daysLeft',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: isOverdue
+                          ? const Color(0xFFE53935)
+                          : const Color(0xFF5B7FFF),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Pages
+                Row(
+                  children: [
+                    Icon(
+                      Icons.menu_book_rounded,
+                      size: 18,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.6)
+                          : const Color(0xFF888888),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '$_animatedCurrentPage',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color:
+                            isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      ),
+                    ),
+                    Text(
+                      ' / ${_currentBook.totalPages}p',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.6)
+                            : const Color(0xFF888888),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                // Pages remaining
+                Row(
+                  children: [
+                    Icon(
+                      Icons.trending_up_rounded,
+                      size: 18,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.6)
+                          : const Color(0xFF888888),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '$_pagesLeft',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color:
+                            isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      ),
+                    ),
+                    Text(
+                      ' 페이지 남음',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.6)
+                            : const Color(0xFF888888),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -529,27 +578,38 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Book Cover
-          Hero(
-            tag: 'book_cover_${_currentBook.id}',
-            child: Container(
-              width: 90,
-              height: 130,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+          // Book Cover (탭하면 전체보기)
+          GestureDetector(
+            onTap: () {
+              if (_currentBook.imageUrl != null &&
+                  _currentBook.imageUrl!.isNotEmpty) {
+                _showFullScreenImage(
+                  'book_cover_${_currentBook.id}',
+                  _currentBook.imageUrl!,
+                );
+              }
+            },
+            child: Hero(
+              tag: 'book_cover_${_currentBook.id}',
+              child: Container(
+                width: 90,
+                height: 130,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: BookImageWidget(
+                    imageUrl: _currentBook.imageUrl,
+                    iconSize: 60,
                   ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: BookImageWidget(
-                  imageUrl: _currentBook.imageUrl,
-                  iconSize: 60,
                 ),
               ),
             ),
@@ -584,17 +644,22 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                 ),
                 const SizedBox(height: 12),
 
-                // Title
-                Text(
-                  _currentBook.title,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    height: 1.3,
-                    color: isDark ? Colors.white : Colors.black,
+                // Title (탭하면 전체 제목 표시)
+                GestureDetector(
+                  onTap: _currentBook.title.length > 30
+                      ? () => _showFullTitleDialog(_currentBook.title)
+                      : null,
+                  child: Text(
+                    _currentBook.title,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      height: 1.3,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
 
                 // Author
@@ -610,6 +675,121 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                   ),
                 ],
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 컴팩트 독서 일정 Row (시작일/목표일 + 변경 버튼)
+  Widget _buildCompactReadingSchedule(bool isDark) {
+    final startDateStr = _currentBook.startDate
+        .toString()
+        .substring(0, 10)
+        .replaceAll('-', '.');
+    final targetDateStr = _currentBook.targetDate
+        .toString()
+        .substring(0, 10)
+        .replaceAll('-', '.');
+    // 총 일수 계산
+    final totalDays =
+        _currentBook.targetDate.difference(_currentBook.startDate).inDays + 1;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // 캘린더 아이콘
+          Icon(
+            CupertinoIcons.calendar,
+            size: 16,
+            color: const Color(0xFF5B7FFF),
+          ),
+          const SizedBox(width: 10),
+          // 시작일
+          Text(
+            startDateStr,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.grey[300] : Colors.grey[700],
+            ),
+          ),
+          const SizedBox(width: 6),
+          Icon(
+            CupertinoIcons.arrow_right,
+            size: 12,
+            color: isDark ? Colors.grey[500] : Colors.grey[400],
+          ),
+          const SizedBox(width: 6),
+          // 목표일
+          Text(
+            targetDateStr,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white : Colors.black87,
+            ),
+          ),
+          const SizedBox(width: 4),
+          // 총 일수 표시
+          Text(
+            '($totalDays일)',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.grey[500] : Colors.grey[500],
+            ),
+          ),
+          // N번째 도전 뱃지
+          if (_attemptCount > 1) ...[
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFF6B35).withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                '$_attemptCount번째',
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFFFF6B35),
+                ),
+              ),
+            ),
+          ],
+          const Spacer(),
+          // 변경 버튼
+          GestureDetector(
+            onTap: _showUpdateTargetDateDialogWithConfirm,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: const Text(
+                '변경',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF5B7FFF),
+                ),
+              ),
             ),
           ),
         ],
@@ -1034,11 +1214,26 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                       ClipRRect(
                         borderRadius: BorderRadius.circular(12),
                         child: hasImage
-                            ? Image.network(
-                                imageUrl,
+                            ? CachedNetworkImage(
+                                imageUrl: imageUrl,
+                                cacheManager: BookImageCacheManager.instance,
                                 fit: BoxFit.cover,
                                 width: double.infinity,
                                 height: double.infinity,
+                                placeholder: (context, url) => Shimmer.fromColors(
+                                  baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                                  highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
+                                  child: Container(
+                                    color: isDark ? Colors.grey[800] : Colors.grey[200],
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) => Container(
+                                  color: isDark ? Colors.grey[800] : Colors.grey[200],
+                                  child: Icon(
+                                    CupertinoIcons.photo,
+                                    color: isDark ? Colors.grey[600] : Colors.grey[400],
+                                  ),
+                                ),
                               )
                             : Container(
                                 width: double.infinity,
@@ -1319,193 +1514,245 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
   Future<void> _showUpdatePageDialog() async {
     final TextEditingController controller = TextEditingController(
-      text: _currentBook.currentPage.toString(),
+      text: '',
     );
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    String? errorText;
+    bool isValid = false;
+
+    String? validatePage(String value) {
+      if (value.isEmpty) {
+        return null;
+      }
+      final page = int.tryParse(value);
+      if (page == null) {
+        return '숫자를 입력해주세요';
+      }
+      if (page < 0) {
+        return '0 이상의 페이지를 입력해주세요';
+      }
+      if (page > _currentBook.totalPages) {
+        return '총 페이지(${_currentBook.totalPages})를 초과할 수 없습니다';
+      }
+      if (page <= _currentBook.currentPage) {
+        return '현재 페이지(${_currentBook.currentPage}) 이하입니다';
+      }
+      return null;
+    }
 
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return Container(
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          padding: EdgeInsets.only(
-            left: 24,
-            right: 24,
-            top: 24,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '현재 페이지 업데이트',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: isDark ? Colors.white : Colors.black,
-                ),
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               ),
-              const SizedBox(height: 8),
-              Text(
-                '총 ${_currentBook.totalPages} 페이지',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: isDark ? Colors.grey[400] : Colors.grey[600],
-                ),
+              padding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 24,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
               ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: controller,
-                keyboardType: TextInputType.number,
-                autofocus: true,
-                decoration: InputDecoration(
-                  labelText: '현재 페이지',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF5B7FFF),
-                      width: 2,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Row(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: const Text('취소'),
+                  Text(
+                    '현재 페이지 업데이트',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: isDark ? Colors.white : Colors.black,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    flex: 2,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        final page = int.tryParse(controller.text);
-                        if (page != null &&
-                            page >= 0 &&
-                            page <= _currentBook.totalPages) {
-                          Navigator.pop(context);
-                          _updateCurrentPage(page);
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('올바른 페이지 번호를 입력해주세요.'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF5B7FFF),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Text(
+                        '현재 ${_currentBook.currentPage}p',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF5B7FFF),
                         ),
                       ),
-                      child: const Text(
-                        '업데이트',
+                      Text(
+                        ' / 총 ${_currentBook.totalPages}p',
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: controller,
+                    keyboardType: TextInputType.number,
+                    autofocus: true,
+                    onChanged: (value) {
+                      setModalState(() {
+                        errorText = validatePage(value);
+                        isValid = errorText == null && value.isNotEmpty;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: '새 페이지 번호',
+                      hintText: '${_currentBook.currentPage + 1} ~ ${_currentBook.totalPages}',
+                      errorText: errorText,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: errorText != null ? Colors.red : const Color(0xFF5B7FFF),
+                          width: 2,
+                        ),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Colors.red,
+                          width: 2,
+                        ),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Colors.red,
+                          width: 2,
                         ),
                       ),
                     ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          child: const Text('취소'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: isValid
+                              ? () {
+                                  final page = int.parse(controller.text);
+                                  Navigator.pop(context);
+                                  _updateCurrentPage(page);
+                                }
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF5B7FFF),
+                            disabledBackgroundColor: isDark
+                                ? Colors.grey[700]
+                                : Colors.grey[300],
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            '업데이트',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: isValid
+                                  ? Colors.white
+                                  : (isDark ? Colors.grey[500] : Colors.grey[500]),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
   }
 
   Future<void> _updateCurrentPage(int newPage) async {
+    final oldPage = _currentBook.currentPage;
+    final oldProgress = oldPage / _currentBook.totalPages;
+    final newProgress = newPage / _currentBook.totalPages;
+
     try {
       final updatedBook =
           await _bookService.updateCurrentPage(_currentBook.id!, newPage);
       if (updatedBook != null) {
+        // 애니메이션 실행
+        _animateProgress(oldPage, newPage, oldProgress, newProgress);
+
         setState(() {
           _currentBook = updatedBook;
+          // 진행률 히스토리 새로고침
+          _progressHistoryFuture = fetchProgressHistory(_currentBook.id!);
         });
+
+        // 최상단으로 스크롤
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOutCubic,
+        );
+
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('페이지가 업데이트되었습니다.'),
-              backgroundColor: const Color(0xFF10B981),
-              behavior: SnackBarBehavior.floating,
-              margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
+          final pagesRead = newPage - oldPage;
+          CustomSnackbar.show(
+            context,
+            message: '+$pagesRead 페이지! ${newPage}p 도달',
+            type: SnackbarType.success,
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('오류가 발생했습니다: $e'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
+        CustomSnackbar.show(
+          context,
+          message: '오류가 발생했습니다',
+          type: SnackbarType.error,
         );
       }
     }
   }
 
-  void _showUpdateTargetDateDialog() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _currentBook.targetDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2100),
-    );
+  void _animateProgress(int fromPage, int toPage, double fromProgress, double toProgress) {
+    _progressAnimController.reset();
 
-    if (picked != null) {
-      final updatedBook = _currentBook.copyWith(targetDate: picked);
-      final result =
-          await _bookService.updateBook(_currentBook.id!, updatedBook);
+    final pageAnimation = IntTween(begin: fromPage, end: toPage).animate(_progressAnimation);
+    final progressTween = Tween<double>(begin: fromProgress, end: toProgress).animate(_progressAnimation);
 
-      if (result != null) {
-        setState(() {
-          _currentBook = result;
-        });
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('목표 완료일이 변경되었습니다.'),
-              backgroundColor: const Color(0xFF10B981),
-              behavior: SnackBarBehavior.floating,
-              margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          );
-        }
-      }
+    void listener() {
+      setState(() {
+        _animatedCurrentPage = pageAnimation.value;
+        _animatedProgress = progressTween.value;
+      });
     }
+
+    _progressAnimation.addListener(listener);
+    _progressAnimController.forward().then((_) {
+      _progressAnimation.removeListener(listener);
+      setState(() {
+        _animatedCurrentPage = toPage;
+        _animatedProgress = toProgress;
+      });
+    });
   }
 
   void _showTodayGoalSheet() {
@@ -1659,6 +1906,136 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       // 백그라운드에서 서버 데이터 동기화
       _bookImagesFuture = fetchBookImages(_currentBook.id!);
     });
+  }
+
+  Future<void> _deleteSelectedImages() async {
+    if (_selectedImageIds.isEmpty) return;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final count = _selectedImageIds.length;
+
+    // 삭제 확인 다이얼로그
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFEE2E2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  CupertinoIcons.trash_fill,
+                  size: 32,
+                  color: Color(0xFFFF3B30),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '$count개 항목을 삭제하시겠습니까?',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '삭제한 항목은 복구할 수 없습니다.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(sheetContext),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                          ),
+                        ),
+                      ),
+                      child: Text(
+                        '취소',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? Colors.grey[300] : Colors.grey[700],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () async {
+                        Navigator.pop(sheetContext);
+
+                        // 선택된 항목들 삭제
+                        final idsToDelete = _selectedImageIds.toList();
+                        for (final imageId in idsToDelete) {
+                          final image = _cachedImages?.firstWhere(
+                            (img) => img['id'] == imageId,
+                            orElse: () => {},
+                          );
+                          final imageUrl = image?['image_url'] as String?;
+                          await _deleteBookImage(imageId, imageUrl);
+                        }
+
+                        setState(() {
+                          _selectedImageIds.clear();
+                          _isSelectionMode = false;
+                        });
+
+                        if (mounted) {
+                          CustomSnackbar.show(
+                            context,
+                            message: '$count개 항목이 삭제되었습니다',
+                            type: SnackbarType.success,
+                          );
+                        }
+                      },
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        backgroundColor: const Color(0xFFFF3B30),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        '삭제',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _confirmDeleteImage(String imageId, String? imageUrl, {bool dismissParentOnDelete = false}) {
@@ -1918,16 +2295,18 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     });
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('인상적인 페이지가 저장되었습니다.'),
-          backgroundColor: const Color(0xFF10B981),
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
+      // 인상적인 페이지 탭으로 이동 후 스크롤 상단으로
+      _tabController.animateTo(0);
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+
+      CustomSnackbar.show(
+        context,
+        message: '인상적인 페이지가 저장되었습니다',
+        type: SnackbarType.success,
       );
     }
   }
@@ -2009,7 +2388,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                               ),
                             ),
                             TextButton(
-                              onPressed: isUploading || textController.text.isEmpty || pageValidationError != null
+                              onPressed: isUploading || textController.text.isEmpty || pageController.text.isEmpty || pageValidationError != null
                                   ? null
                                   : () async {
                                       setModalState(() => isUploading = true);
@@ -2030,7 +2409,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: (isUploading || textController.text.isEmpty || pageValidationError != null)
+                                  color: (isUploading || textController.text.isEmpty || pageController.text.isEmpty || pageValidationError != null)
                                       ? Colors.grey
                                       : const Color(0xFF5B7FFF),
                                 ),
@@ -2509,10 +2888,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         }
                       : () {
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('시뮬레이터에서는 카메라를 사용할 수 없습니다.'),
-                            ),
+                          CustomSnackbar.show(
+                            this.context,
+                            message: '시뮬레이터에서는 카메라를 사용할 수 없습니다',
+                            type: SnackbarType.warning,
                           );
                         },
                 ),
@@ -2795,6 +3174,397 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
+  /// 진행률 히스토리 스켈레톤 빌더
+  Widget _buildProgressHistorySkeleton(bool isDark) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 100),
+      child: Shimmer.fromColors(
+        baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+        highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 차트 카드 스켈레톤
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 헤더 스켈레톤
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        width: 120,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      Container(
+                        width: 60,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  // 범례 스켈레톤
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 80,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(width: 24),
+                      Container(
+                        width: 80,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  // 차트 영역 스켈레톤
+                  Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            // 독서 상태 분석 스켈레톤
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 100,
+                          height: 14,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          width: double.infinity,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            // 일별 기록 헤더 스켈레톤
+            Container(
+              width: 100,
+              height: 18,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(height: 12),
+            // 일별 기록 카드 스켈레톤 (3개)
+            ...List.generate(3, (index) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 100,
+                            height: 13,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Container(
+                            width: 60,
+                            height: 11,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 50,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 독서 상태 분석 및 격려 메시지 빌더
+  Widget _buildReadingStateAnalysis(bool isDark, List<Map<String, dynamic>> progressData) {
+    final analysisResult = _analyzeReadingState(progressData);
+    final emoji = analysisResult['emoji'] as String;
+    final title = analysisResult['title'] as String;
+    final message = analysisResult['message'] as String;
+    final color = analysisResult['color'] as Color;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            emoji,
+            style: const TextStyle(fontSize: 24),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
+                    ),
+                    if (_attemptCount > 1) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF6B35).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '$_attemptCount번째 도전',
+                          style: const TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFFFF6B35),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  message,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark ? Colors.grey[300] : Colors.grey[700],
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 독서 상태 분석 로직
+  Map<String, dynamic> _analyzeReadingState(List<Map<String, dynamic>> progressData) {
+    final progressPercent = _progressPercentage;
+    final daysLeft = _daysLeft;
+    final totalDays = _currentBook.targetDate.difference(_currentBook.startDate).inDays + 1;
+    final elapsedDays = DateTime.now().difference(_currentBook.startDate).inDays;
+    final readingDays = progressData.length;
+
+    // 예상 완료율 vs 실제 완료율
+    final expectedProgress = elapsedDays > 0
+        ? (elapsedDays / totalDays * 100).clamp(0, 100)
+        : 0.0;
+    final progressDiff = progressPercent - expectedProgress;
+
+    // 완독 상태
+    if (progressPercent >= 100) {
+      if (_attemptCount > 1) {
+        return {
+          'emoji': '🏆',
+          'title': '드디어 완독!',
+          'message': '$_attemptCount번의 도전 끝에 완독에 성공했어요. 포기하지 않은 당신이 멋져요!',
+          'color': const Color(0xFF10B981),
+        };
+      }
+      return {
+        'emoji': '🎉',
+        'title': '완독 축하해요!',
+        'message': '목표를 달성했어요. 다음 책도 함께 읽어볼까요?',
+        'color': const Color(0xFF10B981),
+      };
+    }
+
+    // 마감 초과
+    if (daysLeft < 0) {
+      if (_attemptCount > 1) {
+        return {
+          'emoji': '💪',
+          'title': '이번엔 완주해봐요',
+          'message': '$_attemptCount번째 도전이에요. 목표일을 재설정하고 끝까지 읽어볼까요?',
+          'color': const Color(0xFFFF6B6B),
+        };
+      }
+      return {
+        'emoji': '⏰',
+        'title': '목표일이 지났어요',
+        'message': '괜찮아요, 새 목표일을 설정하고 다시 시작해봐요!',
+        'color': const Color(0xFFFF6B6B),
+      };
+    }
+
+    // 아주 잘하고 있음 (예상보다 20% 이상 앞서감)
+    if (progressDiff > 20) {
+      return {
+        'emoji': '🚀',
+        'title': '놀라운 속도예요!',
+        'message': '예상보다 훨씬 빠르게 읽고 있어요. 이 페이스면 일찍 완독할 수 있겠어요!',
+        'color': const Color(0xFF5B7FFF),
+      };
+    }
+
+    // 잘하고 있음 (예상보다 5-20% 앞서감)
+    if (progressDiff > 5) {
+      return {
+        'emoji': '✨',
+        'title': '순조롭게 진행 중!',
+        'message': '계획보다 앞서가고 있어요. 이대로만 하면 목표 달성 확실해요!',
+        'color': const Color(0xFF10B981),
+      };
+    }
+
+    // 적정 페이스 (예상과 비슷)
+    if (progressDiff > -5) {
+      return {
+        'emoji': '📖',
+        'title': '계획대로 진행 중',
+        'message': '꾸준히 읽고 있어요. 오늘도 조금씩 읽어볼까요?',
+        'color': const Color(0xFF5B7FFF),
+      };
+    }
+
+    // 약간 뒤처짐 (5-15% 뒤처짐)
+    if (progressDiff > -15) {
+      if (_attemptCount > 1) {
+        return {
+          'emoji': '🔥',
+          'title': '조금 더 속도를 내볼까요?',
+          'message': '이번에는 꼭 완독해봐요. 매일 조금씩 더 읽으면 따라잡을 수 있어요!',
+          'color': const Color(0xFFF59E0B),
+        };
+      }
+      return {
+        'emoji': '📚',
+        'title': '조금 더 읽어볼까요?',
+        'message': '계획보다 살짝 뒤처졌어요. 오늘 조금 더 읽으면 따라잡을 수 있어요!',
+        'color': const Color(0xFFF59E0B),
+      };
+    }
+
+    // 많이 뒤처짐 (15% 이상 뒤처짐)
+    if (_attemptCount > 1) {
+      return {
+        'emoji': '💫',
+        'title': '포기하지 마세요!',
+        'message': '$_attemptCount번째 도전 중이에요. 목표일을 조정하거나 더 집중해서 읽어봐요!',
+        'color': const Color(0xFFFF6B6B),
+      };
+    }
+    return {
+      'emoji': '📅',
+      'title': '목표 재설정이 필요할 수도',
+      'message': '현재 페이스로는 목표 달성이 어려워요. 목표일을 조정해볼까요?',
+      'color': const Color(0xFFFF6B6B),
+    };
+  }
+
   /// 🎨 목업 진행률 데이터 생성 (더 현실적인 패턴)
   List<Map<String, dynamic>> _generateMockProgressData() {
     final now = DateTime.now();
@@ -2856,134 +3626,133 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     return mockData;
   }
 
-  /// 새로운 위젯: 오늘의 목표 카드 with 스탬프
-  Widget _buildTodayGoalCardWithStamps(bool isDark) {
-    final totalDays =
-        _currentBook.targetDate.difference(_currentBook.startDate).inDays + 1;
+  /// 컴팩트 책 헤더 (Dashboard 스타일)
+  Widget _buildCompactBookHeader(bool isDark) {
+    final isCompleted = _currentBook.currentPage >= _currentBook.totalPages &&
+        _currentBook.totalPages > 0;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFFFF3E0),
-            Color(0xFFFFE0B2),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.orange.withOpacity(0.15),
-            blurRadius: 10,
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.04),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
+          // 작은 표지 (탭하면 전체보기)
+          GestureDetector(
+            onTap: () {
+              if (_currentBook.imageUrl != null &&
+                  _currentBook.imageUrl!.isNotEmpty) {
+                _showFullScreenImage(
+                  'book_cover_compact_${_currentBook.id}',
+                  _currentBook.imageUrl!,
+                );
+              }
+            },
+            child: Hero(
+              tag: 'book_cover_compact_${_currentBook.id}',
+              child: Container(
+                width: 60,
+                height: 85,
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  CupertinoIcons.flame_fill,
-                  size: 20,
-                  color: Color(0xFFFF6B35),
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                '목표 달성 현황',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFFE65100),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // 스탬프 UI
-          SizedBox(
-            height: 120,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: totalDays,
-              itemBuilder: (context, index) {
-                final date = _currentBook.startDate.add(Duration(days: index));
-                final dateKey =
-                    '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-                final now = DateTime.now();
-                final isFuture =
-                    date.isAfter(DateTime(now.year, now.month, now.day));
-                final isAchieved = _dailyAchievements[dateKey];
-
-                return Container(
-                  width: 80,
-                  margin: const EdgeInsets.only(right: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.7),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isAchieved == true
-                          ? const Color(0xFF10B981)
-                          : isAchieved == false
-                              ? const Color(0xFFEF4444)
-                              : Colors.grey[300]!,
-                      width: 2,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.12),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: BookImageWidget(
+                    imageUrl: _currentBook.imageUrl,
+                    iconSize: 30,
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // 아이콘
-                      if (isFuture)
-                        Icon(
-                          CupertinoIcons.circle,
-                          size: 32,
-                          color: Colors.grey[400],
-                        )
-                      else if (isAchieved == true)
-                        const Icon(
-                          CupertinoIcons.checkmark_circle_fill,
-                          size: 32,
-                          color: Color(0xFF10B981),
-                        )
-                      else
-                        const Icon(
-                          CupertinoIcons.xmark_circle_fill,
-                          size: 32,
-                          color: Color(0xFFEF4444),
-                        ),
-                      const SizedBox(height: 8),
-                      // 날짜
-                      Text(
-                        '${date.month}/${date.day}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[800],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 14),
+
+          // 제목 + 저자 + 상태
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: _currentBook.title.length > 20
+                      ? () => _showFullTitleDialog(_currentBook.title)
+                      : null,
+                  child: Text(
+                    _currentBook.title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      height: 1.3,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    if (_currentBook.author != null) ...[
+                      Flexible(
+                        child: Text(
+                          _currentBook.author!,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Text(
-                        'Day ${index + 1}',
+                        ' · ',
                         style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.grey[600],
+                          fontSize: 13,
+                          color: isDark ? Colors.grey[500] : Colors.grey[400],
                         ),
                       ),
                     ],
-                  ),
-                );
-              },
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: isCompleted
+                            ? const Color(0xFF10B981).withOpacity(0.12)
+                            : const Color(0xFF5B7FFF).withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        isCompleted ? '✓ 완독' : '● 독서 중',
+                        style: TextStyle(
+                          color: isCompleted
+                              ? const Color(0xFF10B981)
+                              : const Color(0xFF5B7FFF),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
@@ -2991,8 +3760,735 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
-  /// 탭 바만 반환 (스티키 헤더용)
+  /// 대시보드 스타일 진행률 (2-Column)
+  Widget _buildDashboardProgress(bool isDark) {
+    final progressPercent = (_animatedProgress * 100).toStringAsFixed(0);
+    final isOverdue = _daysLeft < 0;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // 왼쪽: 원형 진행률
+          Expanded(
+            child: Column(
+              children: [
+                SizedBox(
+                  width: 100,
+                  height: 100,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        width: 100,
+                        height: 100,
+                        child: CustomPaint(
+                          painter: _CircularProgressPainter(
+                            progress: _animatedProgress.clamp(0.0, 1.0),
+                            strokeWidth: 10,
+                            backgroundColor: isDark
+                                ? Colors.white.withValues(alpha: 0.1)
+                                : const Color(0xFFEEF2FF),
+                            progressColor: const Color(0xFF5B7FFF),
+                          ),
+                        ),
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '$progressPercent%',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w800,
+                              color: isDark ? Colors.white : Colors.black,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '${_currentBook.currentPage} / ${_currentBook.totalPages}p',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.grey[300] : Colors.grey[700],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 구분선
+          Container(
+            width: 1,
+            height: 100,
+            color: isDark ? Colors.grey[700] : Colors.grey[200],
+          ),
+
+          // 오른쪽: D-day + 남은 페이지 + 오늘 목표
+          Expanded(
+            child: Column(
+              children: [
+                // D-day (3일 이하일 때 레드)
+                Text(
+                  isOverdue ? 'D+${_daysLeft.abs()}' : 'D-$_daysLeft',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w800,
+                    color: isOverdue || _daysLeft <= 3
+                        ? const Color(0xFFEF4444)
+                        : const Color(0xFF5B7FFF),
+                    letterSpacing: -1,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // 남은 페이지 ("OO페이지 남았어요" 형식, 페이지 수 볼드)
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '$_pagesLeft페이지',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.grey[300] : Colors.grey[700],
+                        ),
+                      ),
+                      TextSpan(
+                        text: ' 남았어요',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                // 오늘 목표 (남은 페이지 / 남은 일수) + 변경 버튼
+                Builder(
+                  builder: (context) {
+                    final dailyTarget = _daysLeft > 0
+                        ? (_pagesLeft / _daysLeft).ceil()
+                        : _pagesLeft;
+                    if (dailyTarget > 0) {
+                      return GestureDetector(
+                        onTap: _showDailyTargetChangeDialog,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '오늘 목표: ${dailyTarget}p',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF10B981),
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(
+                                CupertinoIcons.pencil,
+                                size: 11,
+                                color: Color(0xFF10B981),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 키보드 완료 버튼 (리퀴드 글래스 스타일)
+  Widget _buildKeyboardDoneButton(bool isDark) {
+    return Positioned(
+      left: 20,
+      right: 20,
+      bottom: MediaQuery.of(context).viewInsets.bottom + 12,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                FocusScope.of(context).unfocus();
+              },
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                height: 48,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white.withValues(alpha: isDark ? 0.18 : 0.9),
+                      Colors.white.withValues(alpha: isDark ? 0.12 : 0.7),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.25)
+                        : Colors.black.withValues(alpha: 0.1),
+                    width: 0.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      CupertinoIcons.keyboard_chevron_compact_down,
+                      size: 20,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.9)
+                          : const Color(0xFF5B7FFF),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '완료',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.9)
+                            : const Color(0xFF5B7FFF),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Linear 스타일 리퀴드 글래스 플로팅 바 (분리형)
+  Widget _buildLiquidGlassFloatingBar(bool isDark) {
+    return Positioned(
+      left: 20,
+      right: 20,
+      bottom: 20,
+      child: SafeArea(
+        child: Row(
+          children: [
+            // 페이지 업데이트 버튼 (메인 바 - 분리됨)
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(18),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: _showUpdatePageDialog,
+                      borderRadius: BorderRadius.circular(18),
+                      child: Container(
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.12)
+                              : Colors.black.withValues(alpha: 0.06),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.2)
+                                : Colors.black.withValues(alpha: 0.08),
+                            width: 0.5,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              CupertinoIcons.book_fill,
+                              size: 17,
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.85)
+                                  : Colors.black.withValues(alpha: 0.65),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '페이지 업데이트',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.85)
+                                    : Colors.black.withValues(alpha: 0.65),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(width: 10),
+
+            // + 버튼 (완전 분리된 원형)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(26),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: _showAddMemorablePageModal,
+                    borderRadius: BorderRadius.circular(26),
+                    child: Container(
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.12)
+                            : Colors.black.withValues(alpha: 0.06),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.2)
+                              : Colors.black.withValues(alpha: 0.08),
+                          width: 0.5,
+                        ),
+                      ),
+                      child: Icon(
+                        CupertinoIcons.plus,
+                        size: 22,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.85)
+                            : Colors.black.withValues(alpha: 0.65),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 상세 탭 (독서 일정 + 풀 Contribution Graph)
+  Widget _buildDetailTab(bool isDark) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 100),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 독서 일정 섹션
+          _buildReadingScheduleCard(isDark),
+          const SizedBox(height: 16),
+
+          // 목표 달성 현황 (풀 Contribution Graph)
+          _buildTodayGoalCardWithStamps(isDark),
+        ],
+      ),
+    );
+  }
+
+  /// 컴팩트 스트릭 Row (최근 7일 도트 + N일 연속 + 요일 라벨)
+  Widget _buildCompactStreakRow(bool isDark) {
+    // 요일 이름 (한글)
+    const dayLabels = ['일', '월', '화', '수', '목', '금', '토'];
+
+    // 최근 7일 달성 현황 계산
+    final now = DateTime.now();
+    final recentDays = <Map<String, dynamic>>[];
+
+    for (int i = 6; i >= 0; i--) {
+      final date = now.subtract(Duration(days: i));
+      final dateKey =
+          '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      final isAchieved = _dailyAchievements[dateKey] == true;
+      final isToday = i == 0;
+      recentDays.add({
+        'achieved': isAchieved,
+        'dayLabel': dayLabels[date.weekday % 7],
+        'isToday': isToday,
+      });
+    }
+
+    // 연속 달성일 계산
+    int streak = 0;
+    for (int i = recentDays.length - 1; i >= 0; i--) {
+      if (recentDays[i]['achieved'] == true) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // 1행: 최근 7일 도트 + 요일 라벨 (크게)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(7, (index) {
+              final dayInfo = recentDays[index];
+              final isAchieved = dayInfo['achieved'] as bool;
+              final dayLabel = dayInfo['dayLabel'] as String;
+              final isToday = dayInfo['isToday'] as bool;
+              return Container(
+                width: 38,
+                margin: EdgeInsets.only(left: index > 0 ? 6 : 0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 요일 라벨
+                    Text(
+                      dayLabel,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
+                        color: isToday
+                            ? const Color(0xFF5B7FFF)
+                            : (isDark ? Colors.grey[400] : Colors.grey[500]),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    // 도트
+                    Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: isAchieved
+                            ? const Color(0xFF10B981)
+                            : (isDark
+                                ? Colors.white.withValues(alpha: 0.12)
+                                : Colors.grey[200]),
+                        shape: BoxShape.circle,
+                        border: isToday
+                            ? Border.all(
+                                color: const Color(0xFF5B7FFF),
+                                width: 2,
+                              )
+                            : null,
+                      ),
+                      child: isAchieved
+                          ? const Icon(
+                              CupertinoIcons.checkmark,
+                              size: 12,
+                              color: Colors.white,
+                            )
+                          : null,
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: 10),
+          // 2행: 불꽃 아이콘 + 스트릭 텍스트
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                CupertinoIcons.flame_fill,
+                size: 16,
+                color: streak > 0
+                    ? const Color(0xFFF97316)
+                    : (isDark ? Colors.grey[500] : Colors.grey[400]),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                streak > 0 ? '$streak일 연속 달성!' : '오늘 첫 기록을 남겨보세요',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: streak > 0
+                      ? (isDark ? Colors.white : Colors.grey[800])
+                      : (isDark ? Colors.grey[400] : Colors.grey[500]),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 목표 달성 현황 카드 (Contribution Graph 스타일)
+  Widget _buildTodayGoalCardWithStamps(bool isDark) {
+    final totalDays =
+        _currentBook.targetDate.difference(_currentBook.startDate).inDays + 1;
+    final now = DateTime.now();
+    final todayIndex = now.difference(_currentBook.startDate).inDays;
+
+    // 달성률 계산
+    int achievedCount = 0;
+    int passedDays = 0;
+    for (int i = 0; i < totalDays && i <= todayIndex; i++) {
+      final date = _currentBook.startDate.add(Duration(days: i));
+      final dateKey =
+          '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      if (_dailyAchievements[dateKey] == true) achievedCount++;
+      passedDays++;
+    }
+    final achievementRate =
+        passedDays > 0 ? (achievedCount / passedDays * 100).round() : 0;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 헤더 with 달성률
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF10B981), Color(0xFF059669)],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  CupertinoIcons.flame_fill,
+                  size: 20,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '목표 달성 현황',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '$passedDays일 중 $achievedCount일 달성',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.6)
+                            : const Color(0xFF888888),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // 달성률 badge
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: achievementRate >= 80
+                      ? const Color(0xFFD1FAE5)
+                      : achievementRate >= 50
+                          ? const Color(0xFFFEF3C7)
+                          : const Color(0xFFFEE2E2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      achievementRate >= 80
+                          ? CupertinoIcons.star_fill
+                          : achievementRate >= 50
+                              ? CupertinoIcons.hand_thumbsup_fill
+                              : CupertinoIcons.flame_fill,
+                      size: 14,
+                      color: achievementRate >= 80
+                          ? const Color(0xFF059669)
+                          : achievementRate >= 50
+                              ? const Color(0xFFD97706)
+                              : const Color(0xFFDC2626),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$achievementRate%',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: achievementRate >= 80
+                            ? const Color(0xFF059669)
+                            : achievementRate >= 50
+                                ? const Color(0xFFD97706)
+                                : const Color(0xFFDC2626),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // Contribution Graph 스타일 그리드
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final cellSize = 28.0;
+              final spacing = 4.0;
+              final columns =
+                  ((constraints.maxWidth + spacing) / (cellSize + spacing))
+                      .floor();
+
+              return Wrap(
+                spacing: spacing,
+                runSpacing: spacing,
+                children: List.generate(totalDays, (index) {
+                  final date =
+                      _currentBook.startDate.add(Duration(days: index));
+                  final dateKey =
+                      '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+                  final isFuture =
+                      date.isAfter(DateTime(now.year, now.month, now.day));
+                  final isToday = date.year == now.year &&
+                      date.month == now.month &&
+                      date.day == now.day;
+                  final isAchieved = _dailyAchievements[dateKey];
+
+                  Color cellColor;
+                  if (isFuture) {
+                    cellColor = isDark
+                        ? Colors.white.withValues(alpha: 0.05)
+                        : const Color(0xFFF3F4F6);
+                  } else if (isAchieved == true) {
+                    cellColor = const Color(0xFF10B981);
+                  } else if (isAchieved == false) {
+                    cellColor = const Color(0xFFFCA5A5);
+                  } else {
+                    cellColor = isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : const Color(0xFFE5E7EB);
+                  }
+
+                  return Tooltip(
+                    message:
+                        '${date.month}/${date.day} (Day ${index + 1})${isAchieved == true ? ' ✓' : isAchieved == false ? ' ✗' : ''}',
+                    child: Container(
+                      width: cellSize,
+                      height: cellSize,
+                      decoration: BoxDecoration(
+                        color: cellColor,
+                        borderRadius: BorderRadius.circular(6),
+                        border: isToday
+                            ? Border.all(
+                                color: const Color(0xFF5B7FFF),
+                                width: 2,
+                              )
+                            : null,
+                      ),
+                      child: Center(
+                        child: isToday
+                            ? Container(
+                                width: 6,
+                                height: 6,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFF5B7FFF),
+                                  shape: BoxShape.circle,
+                                ),
+                              )
+                            : null,
+                      ),
+                    ),
+                  );
+                }),
+              );
+            },
+          ),
+
+          const SizedBox(height: 16),
+
+          // Legend
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildLegendItem('달성', const Color(0xFF10B981), isDark),
+              const SizedBox(width: 16),
+              _buildLegendItem('미달성', const Color(0xFFFCA5A5), isDark),
+              const SizedBox(width: 16),
+              _buildLegendItem('예정', isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFF3F4F6), isDark),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 탭 바만 반환 (스티키 헤더용) - 3탭
   Widget _buildTabBarOnly(bool isDark) {
+    final tabLabels = ['인상적인 페이지', '히스토리', '상세'];
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
@@ -3008,74 +4504,64 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       child: Stack(
         children: [
           Row(
-            children: [
-              Expanded(
+            children: List.generate(3, (index) {
+              return Expanded(
                 child: GestureDetector(
                   onTap: () {
-                    _tabController.animateTo(0);
+                    _tabController.animateTo(index);
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     child: Text(
-                      '인상적인 페이지',
+                      tabLabels[index],
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: _tabController.index == 0
+                        fontSize: 14,
+                        fontWeight: _tabController.index == index
                             ? FontWeight.w600
                             : FontWeight.w400,
-                        color: _tabController.index == 0
+                        color: _tabController.index == index
                             ? (isDark ? Colors.white : Colors.black)
                             : (isDark ? Colors.grey[400] : Colors.grey[600]),
                       ),
                     ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    _tabController.animateTo(1);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Text(
-                      '진행률 히스토리',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: _tabController.index == 1
-                            ? FontWeight.w600
-                            : FontWeight.w400,
-                        color: _tabController.index == 1
-                            ? (isDark ? Colors.white : Colors.black)
-                            : (isDark ? Colors.grey[400] : Colors.grey[600]),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+              );
+            }),
           ),
-          // 슬라이딩 인디케이터
+          // 슬라이딩 인디케이터 (스와이프 제스처와 동기화)
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
+            height: 2,
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final tabWidth = constraints.maxWidth / 2;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  curve: Curves.easeInOut,
-                  transform: Matrix4.translationValues(
-                    tabWidth * _tabController.index,
-                    0,
-                    0,
-                  ),
-                  width: tabWidth,
-                  height: 2,
-                  color: isDark ? Colors.white : Colors.black,
+                final tabWidth = constraints.maxWidth / 3;
+                final indicatorWidth = tabWidth * 0.5; // 탭 너비의 50%
+                return AnimatedBuilder(
+                  animation: _tabController.animation!,
+                  builder: (context, child) {
+                    final animValue = _tabController.animation!.value;
+                    // 각 탭의 중앙 위치 계산
+                    final centerPosition = tabWidth * animValue + (tabWidth - indicatorWidth) / 2;
+                    return Stack(
+                      children: [
+                        Positioned(
+                          left: centerPosition,
+                          child: Container(
+                            width: indicatorWidth,
+                            height: 2,
+                            decoration: BoxDecoration(
+                              color: isDark ? Colors.white : Colors.black,
+                              borderRadius: BorderRadius.circular(1),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 );
               },
             ),
@@ -3359,6 +4845,97 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
+  void _showReplaceImageOptionsOverModal({
+    required String imageId,
+    required String currentText,
+    required VoidCallback onReplaced,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[400],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                '이미지 교체',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.camera,
+                    color: Color(0xFF5B7FFF),
+                  ),
+                ),
+                title: const Text('카메라로 촬영'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _pickImageAndExtractText(
+                    ImageSource.camera,
+                    (imageBytes, ocrText, pageNumber) async {
+                      await _replaceImage(imageId, imageBytes, ocrText.isEmpty ? currentText : ocrText, pageNumber);
+                      onReplaced();
+                    },
+                  );
+                },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.photo,
+                    color: Color(0xFF10B981),
+                  ),
+                ),
+                title: const Text('갤러리에서 선택'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _pickImageAndExtractText(
+                    ImageSource.gallery,
+                    (imageBytes, ocrText, pageNumber) async {
+                      await _replaceImage(imageId, imageBytes, ocrText.isEmpty ? currentText : ocrText, pageNumber);
+                      onReplaced();
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _replaceImage(String imageId, Uint8List imageBytes, String extractedText, int? pageNumber) async {
     try {
       final fileName = '${DateTime.now().millisecondsSinceEpoch}_${_currentBook.id}.jpg';
@@ -3382,24 +4959,18 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       setState(() {});
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('이미지가 교체되었습니다.'),
-            backgroundColor: const Color(0xFF10B981),
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
-          ),
+        CustomSnackbar.show(
+          context,
+          message: '이미지가 교체되었습니다',
+          type: SnackbarType.success,
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('이미지 교체 실패: $e'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
-          ),
+        CustomSnackbar.show(
+          context,
+          message: '이미지 교체 실패',
+          type: SnackbarType.error,
         );
       }
     }
@@ -3497,13 +5068,29 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                 ),
                               ),
                             ),
-                            Text(
-                              '인상적인 페이지',
-                              style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w600,
-                                color: isDark ? Colors.white : Colors.black,
-                              ),
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '인상적인 페이지',
+                                  style: TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark ? Colors.white : Colors.black,
+                                  ),
+                                ),
+                                if (pageNumber != null) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'p.$pageNumber',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: isDark ? Colors.grey[400] : Colors.grey[500],
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                             if (isEditing)
                               TextButton(
@@ -3520,19 +5107,19 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                               .eq('id', imageId);
                                           // 저장 성공 시 메모리 캐시 제거 (DB 값이 우선)
                                           _editedTexts.remove(imageId);
+                                          // 캐시 무효화 및 새로운 데이터 로드
+                                          _cachedImages = null;
                                           _bookImagesFuture = fetchBookImages(_currentBook.id!);
                                           if (context.mounted) {
                                             Navigator.pop(context);
-                                            ScaffoldMessenger.of(this.context).showSnackBar(
-                                              SnackBar(
-                                                content: const Text('텍스트가 저장되었습니다.'),
-                                                backgroundColor: const Color(0xFF10B981),
-                                                behavior: SnackBarBehavior.floating,
-                                                margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                ),
-                                              ),
+                                            // setState로 리스트 갱신 트리거
+                                            if (mounted) {
+                                              setState(() {});
+                                            }
+                                            CustomSnackbar.show(
+                                              this.context,
+                                              message: '텍스트가 저장되었습니다',
+                                              type: SnackbarType.success,
                                             );
                                           }
                                         } catch (e) {
@@ -3591,18 +5178,24 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                         children: [
                                           Hero(
                                             tag: 'book_image_$imageId',
-                                            child: Image.network(
-                                              imageUrl!,
+                                            child: CachedNetworkImage(
+                                              imageUrl: imageUrl!,
+                                              cacheManager: BookImageCacheManager.instance,
                                               fit: BoxFit.cover,
-                                              loadingBuilder: (context, child, loadingProgress) {
-                                                if (loadingProgress == null) return child;
-                                                return Container(
+                                              placeholder: (context, url) => Shimmer.fromColors(
+                                                baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                                                highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
+                                                child: Container(
                                                   color: isDark ? Colors.grey[800] : Colors.grey[200],
-                                                  child: const Center(
-                                                    child: CircularProgressIndicator(strokeWidth: 2),
-                                                  ),
-                                                );
-                                              },
+                                                ),
+                                              ),
+                                              errorWidget: (context, url, error) => Container(
+                                                color: isDark ? Colors.grey[800] : Colors.grey[200],
+                                                child: Icon(
+                                                  CupertinoIcons.photo,
+                                                  color: isDark ? Colors.grey[600] : Colors.grey[400],
+                                                ),
+                                              ),
                                             ),
                                           ),
                                           Positioned(
@@ -3642,8 +5235,15 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                             left: 8,
                                             child: GestureDetector(
                                               onTap: () {
-                                                Navigator.pop(context);
-                                                _showReplaceImageOptions(imageId, textController.text);
+                                                // 모달은 유지하고 그 위에 바텀시트 표시
+                                                _showReplaceImageOptionsOverModal(
+                                                  imageId: imageId,
+                                                  currentText: textController.text,
+                                                  onReplaced: () {
+                                                    // 교체 완료 후 모달 닫기
+                                                    Navigator.pop(context);
+                                                  },
+                                                );
                                               },
                                               behavior: HitTestBehavior.opaque,
                                               child: Container(
@@ -3711,7 +5311,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                           onTap: () {
                                             if (textController.text.isNotEmpty) {
                                               Clipboard.setData(ClipboardData(text: textController.text));
-                                              _showTopLevelToast(context, '텍스트가 복사되었습니다.');
+                                              CustomSnackbar.show(context, message: '텍스트가 복사되었습니다.', rootOverlay: true);
                                             }
                                           },
                                           child: Row(
@@ -3840,7 +5440,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                                 onTap: () {
                                                   if (textController.text.isNotEmpty) {
                                                     Clipboard.setData(ClipboardData(text: textController.text));
-                                                    _showTopLevelToast(context, '텍스트가 복사되었습니다.');
+                                                    CustomSnackbar.show(context, message: '텍스트가 복사되었습니다.', rootOverlay: true);
                                                   }
                                                 },
                                                 child: Row(
@@ -3900,11 +5500,15 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                       child: Container(
                                         width: double.infinity,
                                         decoration: BoxDecoration(
-                                          color: isDark ? Colors.grey[900] : Colors.grey[100],
+                                          color: isEditing
+                                              ? (isDark ? Colors.grey[900] : Colors.grey[100])
+                                              : Colors.transparent,
                                           borderRadius: BorderRadius.circular(12),
-                                          border: Border.all(
-                                            color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                                          ),
+                                          border: isEditing
+                                              ? Border.all(
+                                                  color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                                                )
+                                              : null,
                                         ),
                                         child: isEditing
                                             ? TextField(
@@ -3943,8 +5547,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                                     : SelectableText(
                                                         textController.text,
                                                         style: TextStyle(
-                                                          fontSize: 15,
-                                                          height: 1.6,
+                                                          fontSize: 17,
+                                                          height: 1.8,
                                                           color: isDark ? Colors.white : Colors.black,
                                                         ),
                                                       ),
@@ -3990,93 +5594,104 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         final images = _cachedImages ?? snapshot.data ?? [];
 
         if (images.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
-              ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  CupertinoIcons.photo_on_rectangle,
-                  size: 64,
-                  color: isDark ? Colors.grey[600] : Colors.grey[400],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  '아직 추가된 사진이 없습니다',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: isDark ? Colors.grey[400] : Colors.grey[600],
-                    fontWeight: FontWeight.w500,
+          return SizedBox(
+            height: 200,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    CupertinoIcons.photo_on_rectangle,
+                    size: 48,
+                    color: isDark ? Colors.grey[600] : Colors.grey[400],
                   ),
-                ),
-                const SizedBox(height: 12),
-                ElevatedButton.icon(
-                  onPressed: _showAddMemorablePageModal,
-                  icon: const Icon(CupertinoIcons.add, size: 18),
-                  label: const Text('추가'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5B7FFF),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  const SizedBox(height: 12),
+                  Text(
+                    '아직 추가된 사진이 없습니다',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  Text(
+                    '하단 + 버튼으로 추가해보세요',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? Colors.grey[500] : Colors.grey[500],
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         }
 
         return Column(
           children: [
-            // 고정된 추가 버튼
-            GestureDetector(
-              onTap: _showAddMemorablePageModal,
-              child: Container(
-                height: 56,
-                margin: const EdgeInsets.fromLTRB(4, 4, 4, 12),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                    width: 2,
-                    style: BorderStyle.solid,
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      CupertinoIcons.add_circled,
-                      size: 24,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
-                    ),
-                    const SizedBox(width: 8),
+            // 선택 모드 헤더
+            Padding(
+              padding: const EdgeInsets.only(left: 4, right: 4, bottom: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (_isSelectionMode)
                     Text(
-                      '추가',
+                      '${_selectedImageIds.length}개 선택됨',
                       style: TextStyle(
                         fontSize: 14,
-                        color: isDark ? Colors.grey[400] : Colors.grey[600],
                         fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
                       ),
-                    ),
-                  ],
-                ),
+                    )
+                  else
+                    const SizedBox(),
+                  Row(
+                    children: [
+                      if (_isSelectionMode && _selectedImageIds.isNotEmpty)
+                        TextButton.icon(
+                          onPressed: () => _deleteSelectedImages(),
+                          icon: const Icon(
+                            CupertinoIcons.trash,
+                            size: 18,
+                            color: Color(0xFFFF3B30),
+                          ),
+                          label: const Text(
+                            '삭제',
+                            style: TextStyle(
+                              color: Color(0xFFFF3B30),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            if (_isSelectionMode) {
+                              _selectedImageIds.clear();
+                            }
+                            _isSelectionMode = !_isSelectionMode;
+                          });
+                        },
+                        child: Text(
+                          _isSelectionMode ? '완료' : '선택',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF5B7FFF),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
             // 스크롤 가능한 리스트
             Expanded(
               child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
+                padding: const EdgeInsets.only(left: 4, right: 4, bottom: 100),
                 itemCount: images.length,
                 itemBuilder: (context, index) {
                   final image = images[index];
@@ -4087,39 +5702,27 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
             final hasImageUrl = imageUrl != null && imageUrl.isNotEmpty;
             final ocrService = GoogleVisionOcrService();
             final previewText = ocrService.getPreviewText(extractedText, maxLines: 2);
+            final isSelected = _selectedImageIds.contains(imageId);
 
-            return Dismissible(
-              key: Key(imageId),
-              direction: DismissDirection.endToStart,
-              confirmDismiss: (direction) async {
-                _confirmDeleteImage(imageId, imageUrl);
-                return false;
+            return GestureDetector(
+              onTap: () {
+                if (_isSelectionMode) {
+                  setState(() {
+                    if (isSelected) {
+                      _selectedImageIds.remove(imageId);
+                    } else {
+                      _selectedImageIds.add(imageId);
+                    }
+                  });
+                } else {
+                  _showExistingImageModal(
+                    imageId,
+                    imageUrl,
+                    extractedText,
+                    pageNumber: pageNumber,
+                  );
+                }
               },
-              background: Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.only(right: 16),
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFF3B30),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    CupertinoIcons.trash_fill,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-              ),
-              child: GestureDetector(
-                onTap: () => _showExistingImageModal(
-                  imageId,
-                  imageUrl,
-                  extractedText,
-                  pageNumber: pageNumber,
-                ),
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 12),
                 decoration: BoxDecoration(
@@ -4150,18 +5753,24 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                             ),
                             child: SizedBox(
                               width: 80,
-                              child: Image.network(
-                                imageUrl!,
+                              child: CachedNetworkImage(
+                                imageUrl: imageUrl!,
+                                cacheManager: BookImageCacheManager.instance,
                                 fit: BoxFit.cover,
-                                loadingBuilder: (context, child, loadingProgress) {
-                                  if (loadingProgress == null) return child;
-                                  return Container(
+                                placeholder: (context, url) => Shimmer.fromColors(
+                                  baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                                  highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
+                                  child: Container(
                                     color: isDark ? Colors.grey[800] : Colors.grey[200],
-                                    child: const Center(
-                                      child: CircularProgressIndicator(strokeWidth: 2),
-                                    ),
-                                  );
-                                },
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) => Container(
+                                  color: isDark ? Colors.grey[800] : Colors.grey[200],
+                                  child: Icon(
+                                    CupertinoIcons.photo,
+                                    color: isDark ? Colors.grey[600] : Colors.grey[400],
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -4205,20 +5814,48 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         ),
                       ),
                     ),
-                      Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Icon(
-                          CupertinoIcons.chevron_right,
-                          size: 16,
-                          color: isDark ? Colors.grey[600] : Colors.grey[400],
+                      // 선택 모드: 체크박스 / 일반 모드: 화살표
+                      if (_isSelectionMode)
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isSelected
+                                  ? const Color(0xFF5B7FFF)
+                                  : Colors.transparent,
+                              border: Border.all(
+                                color: isSelected
+                                    ? const Color(0xFF5B7FFF)
+                                    : (isDark ? Colors.grey[600]! : Colors.grey[400]!),
+                                width: 2,
+                              ),
+                            ),
+                            child: isSelected
+                                ? const Icon(
+                                    Icons.check,
+                                    size: 16,
+                                    color: Colors.white,
+                                  )
+                                : null,
+                          ),
+                        )
+                      else
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Icon(
+                            CupertinoIcons.chevron_right,
+                            size: 16,
+                            color: isDark ? Colors.grey[600] : Colors.grey[400],
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),
               ),
-            ),
-          );
+            );
                 },
               ),
             ),
@@ -4233,39 +5870,34 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       future: _progressHistoryFuture, // 캐시된 Future 사용
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return _buildProgressHistorySkeleton(isDark);
         }
 
         final data = snapshot.data ?? [];
 
         if (data.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
-              ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  CupertinoIcons.chart_bar,
-                  size: 64,
-                  color: isDark ? Colors.grey[600] : Colors.grey[400],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  '진행률 기록이 없습니다',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: isDark ? Colors.grey[400] : Colors.grey[600],
-                    fontWeight: FontWeight.w500,
+          return SizedBox(
+            height: 200,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    CupertinoIcons.chart_bar,
+                    size: 48,
+                    color: isDark ? Colors.grey[600] : Colors.grey[400],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  Text(
+                    '진행률 기록이 없습니다',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         }
@@ -4297,6 +5929,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
             : 50.0;
 
         return SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 100),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -4316,13 +5949,35 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          '📈 누적 페이지',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: isDark ? Colors.white : Colors.black,
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              '📈 누적 페이지',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                            ),
+                            if (_attemptCount > 1) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFF6B35).withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  '$_attemptCount번째 도전',
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFFFF6B35),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -4357,38 +6012,35 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                     const SizedBox(height: 20),
                     SizedBox(
                       height: 250,
-                      child: Stack(
-                        children: [
-                          // 일일 페이지 막대 (배경)
-                          LineChart(
-                            LineChartData(
-                              lineBarsData: dailyPagesSpots.map((spot) {
-                                return LineChartBarData(
-                                  spots: [
-                                    FlSpot(spot.x, 0),
-                                    spot,
-                                  ],
-                                  isCurved: false,
-                                  gradient: const LinearGradient(
-                                    colors: [Color(0xFF10B981), Color(0xFF059669)],
-                                  ),
-                                  barWidth: 8,
-                                  dotData: const FlDotData(show: false),
-                                );
-                              }).toList(),
-                              titlesData: const FlTitlesData(
-                                show: false,
-                              ),
-                              gridData: const FlGridData(show: false),
-                              borderData: FlBorderData(show: false),
-                              minY: 0,
-                              maxY: maxDailyPage * 1.2,
-                            ),
-                          ),
-                          // 누적 페이지 라인 (전경)
-                          LineChart(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final chartWidth = constraints.maxWidth - 40; // left reserved
+                          final barWidth = data.length > 1
+                              ? (chartWidth / data.length * 0.4).clamp(4.0, 16.0)
+                              : 16.0;
+
+                          // 일일 페이지 스케일을 누적 페이지 스케일에 맞춤
+                          final scaledMaxY = (maxPage * 1.1).ceilToDouble();
+                          final barScaleFactor = scaledMaxY / (maxDailyPage > 0 ? maxDailyPage * 1.5 : 1);
+
+                          return LineChart(
                             LineChartData(
                               lineBarsData: [
+                                // 일일 페이지 막대 (스케일 조정된 값)
+                                ...dailyPagesSpots.map((spot) {
+                                  final scaledY = spot.y * barScaleFactor * 0.3; // 막대 높이를 차트 하단 30%로 제한
+                                  return LineChartBarData(
+                                    spots: [
+                                      FlSpot(spot.x, 0),
+                                      FlSpot(spot.x, scaledY.clamp(0, scaledMaxY * 0.35)),
+                                    ],
+                                    isCurved: false,
+                                    color: const Color(0xFF10B981),
+                                    barWidth: barWidth,
+                                    dotData: const FlDotData(show: false),
+                                  );
+                                }),
+                                // 누적 페이지 라인
                                 LineChartBarData(
                                   spots: spots,
                                   isCurved: true,
@@ -4413,8 +6065,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                     show: true,
                                     gradient: LinearGradient(
                                       colors: [
-                                        const Color(0xFF5B7FFF).withOpacity(0.15),
-                                        const Color(0xFF5B7FFF).withOpacity(0.0),
+                                        const Color(0xFF5B7FFF).withValues(alpha: 0.15),
+                                        const Color(0xFF5B7FFF).withValues(alpha: 0.0),
                                       ],
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
@@ -4422,97 +6074,102 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                   ),
                                 ),
                               ],
-                          titlesData: FlTitlesData(
-                            leftTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 40,
-                                getTitlesWidget: (value, meta) {
-                                  return Text(
-                                    value.toInt().toString(),
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: isDark
-                                          ? Colors.grey[400]
-                                          : Colors.grey[600],
-                                    ),
+                              titlesData: FlTitlesData(
+                                leftTitles: AxisTitles(
+                                  sideTitles: SideTitles(
+                                    showTitles: true,
+                                    reservedSize: 40,
+                                    getTitlesWidget: (value, meta) {
+                                      return Text(
+                                        value.toInt().toString(),
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: isDark
+                                              ? Colors.grey[400]
+                                              : Colors.grey[600],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                rightTitles: const AxisTitles(
+                                  sideTitles: SideTitles(showTitles: false),
+                                ),
+                                topTitles: const AxisTitles(
+                                  sideTitles: SideTitles(showTitles: false),
+                                ),
+                                bottomTitles: AxisTitles(
+                                  sideTitles: SideTitles(
+                                    showTitles: true,
+                                    reservedSize: 30,
+                                    getTitlesWidget: (value, meta) {
+                                      final idx = value.toInt();
+                                      if (idx < 0 || idx >= data.length) {
+                                        return const SizedBox();
+                                      }
+                                      final date =
+                                          data[idx]['created_at'] as DateTime;
+                                      return Padding(
+                                        padding: const EdgeInsets.only(top: 8),
+                                        child: Text(
+                                          '${date.month}/${date.day}',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: isDark
+                                                ? Colors.grey[400]
+                                                : Colors.grey[600],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    interval: data.length > 5
+                                        ? (data.length / 4).ceilToDouble()
+                                        : 1,
+                                  ),
+                                ),
+                              ),
+                              gridData: FlGridData(
+                                show: true,
+                                drawVerticalLine: false,
+                                getDrawingHorizontalLine: (value) {
+                                  return FlLine(
+                                    color: isDark
+                                        ? Colors.grey[800]!
+                                        : Colors.grey[300]!,
+                                    strokeWidth: 1,
                                   );
                                 },
                               ),
-                            ),
-                            rightTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            topTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 30,
-                                getTitlesWidget: (value, meta) {
-                                  final idx = value.toInt();
-                                  if (idx < 0 || idx >= data.length) {
-                                    return const SizedBox();
-                                  }
-                                  final date =
-                                      data[idx]['created_at'] as DateTime;
-                                  return Padding(
-                                    padding: const EdgeInsets.only(top: 8),
-                                    child: Text(
-                                      '${date.month}/${date.day}',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: isDark
-                                            ? Colors.grey[400]
-                                            : Colors.grey[600],
-                                      ),
-                                    ),
-                                  );
-                                },
-                                interval: data.length > 5
-                                    ? (data.length / 4).ceilToDouble()
-                                    : 1,
+                              borderData: FlBorderData(
+                                show: true,
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: isDark
+                                        ? Colors.grey[800]!
+                                        : Colors.grey[300]!,
+                                  ),
+                                  left: BorderSide(
+                                    color: isDark
+                                        ? Colors.grey[800]!
+                                        : Colors.grey[300]!,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          gridData: FlGridData(
-                            show: true,
-                            drawVerticalLine: false,
-                            getDrawingHorizontalLine: (value) {
-                              return FlLine(
-                                color: isDark
-                                    ? Colors.grey[800]!
-                                    : Colors.grey[300]!,
-                                strokeWidth: 1,
-                              );
-                            },
-                          ),
-                          borderData: FlBorderData(
-                            show: true,
-                            border: Border(
-                              bottom: BorderSide(
-                                color: isDark
-                                    ? Colors.grey[800]!
-                                    : Colors.grey[300]!,
-                              ),
-                              left: BorderSide(
-                                color: isDark
-                                    ? Colors.grey[800]!
-                                    : Colors.grey[300]!,
-                              ),
-                            ),
-                          ),
+                              minX: -0.5,
+                              maxX: data.length - 0.5,
                               minY: 0,
-                              maxY: (maxPage * 1.1).ceilToDouble(),
+                              maxY: scaledMaxY,
                             ),
-                          ),
-                        ],
+                          );
+                        },
                       ),
                     ),
                   ],
                 ),
               ),
+              const SizedBox(height: 16),
+              // 독서 상태 분석 메시지
+              _buildReadingStateAnalysis(isDark, data),
               const SizedBox(height: 16),
               // 일별 상세 기록
               Text(
@@ -4664,72 +6321,826 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
-  /// 목표일 변경 (컨펌 알럿 포함)
-  void _showUpdateTargetDateDialogWithConfirm() async {
-    final nextAttempt = _attemptCount + 1;
-
-    final confirmed = await showDialog<bool>(
+  /// 전체 제목 표시 다이얼로그
+  void _showFullTitleDialog(String title) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('목표일 변경'),
-        content: Text(
-          '목표일을 변경하시겠어요?\n$nextAttempt번째 도전으로 상태가 변경됩니다.',
-          style: const TextStyle(height: 1.5),
-        ),
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
+        title: Text(
+          '도서 제목',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: isDark ? Colors.grey[400] : Colors.grey[600],
+          ),
+        ),
+        content: Text(
+          title,
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+            height: 1.4,
+            color: isDark ? Colors.white : Colors.black,
+          ),
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('취소'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF5B7FFF),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
+            onPressed: () => Navigator.pop(context),
             child: const Text('확인'),
           ),
         ],
       ),
     );
+  }
 
-    if (confirmed == true && mounted) {
-      final picked = await showDatePicker(
-        context: context,
-        initialDate: _currentBook.targetDate,
-        firstDate: DateTime.now(),
-        lastDate: DateTime(2100),
-      );
+  /// 일일 목표 페이지 변경 (수평 다이얼 + 스케줄 테이블)
+  void _showDailyTargetChangeDialog() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-      if (picked != null && mounted) {
-        final updatedBook = _currentBook.copyWith(targetDate: picked);
-        final result =
-            await _bookService.updateBook(_currentBook.id!, updatedBook);
+    // 현재 일일 목표 계산
+    final currentDailyTarget = _daysLeft > 0
+        ? (_pagesLeft / _daysLeft).ceil()
+        : _pagesLeft;
 
-        if (result != null) {
-          setState(() {
-            _currentBook = result;
-            _attemptCount = nextAttempt;
-          });
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('$nextAttempt번째 도전이 시작되었습니다!'),
-                backgroundColor: const Color(0xFF10B981),
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+    int newDailyTarget = currentDailyTarget;
+    bool showSchedule = false;
+
+    // 스케줄 계산 함수
+    List<Map<String, dynamic>> calculateSchedule(int dailyTarget) {
+      final schedule = <Map<String, dynamic>>[];
+      int remainingPages = _pagesLeft;
+      DateTime currentDate = DateTime.now();
+      final targetDate = _currentBook.targetDate;
+
+      while (remainingPages > 0 && !currentDate.isAfter(targetDate)) {
+        final pagesToRead = remainingPages > dailyTarget ? dailyTarget : remainingPages;
+        final weekday = ['월', '화', '수', '목', '금', '토', '일'][currentDate.weekday - 1];
+
+        schedule.add({
+          'date': currentDate,
+          'weekday': weekday,
+          'pages': pagesToRead,
+          'isToday': currentDate.day == DateTime.now().day &&
+              currentDate.month == DateTime.now().month &&
+              currentDate.year == DateTime.now().year,
+        });
+
+        remainingPages -= pagesToRead;
+        currentDate = currentDate.add(const Duration(days: 1));
+      }
+
+      return schedule;
+    }
+
+    // 캐시된 스케줄 (dailyTarget 변경 시에만 재계산)
+    var cachedSchedule = calculateSchedule(currentDailyTarget);
+    int lastCalculatedTarget = currentDailyTarget;
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            // dailyTarget이 변경된 경우에만 재계산
+            if (newDailyTarget != lastCalculatedTarget) {
+              cachedSchedule = calculateSchedule(newDailyTarget);
+              lastCalculatedTarget = newDailyTarget;
+            }
+            final schedule = cachedSchedule;
+            final daysToComplete = schedule.length;
+            final targetDate = _currentBook.targetDate;
+            final canFinishOnTime = daysToComplete <= _daysLeft;
+
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              height: showSchedule
+                  ? MediaQuery.of(context).size.height * 0.85
+                  : MediaQuery.of(context).size.height * 0.55,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 헤더
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                CupertinoIcons.book,
+                                color: Color(0xFF10B981),
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '일일 목표 페이지 변경',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                      color: isDark ? Colors.white : Colors.black,
+                                    ),
+                                  ),
+                                  RichText(
+                                    text: TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: '$_pagesLeft페이지',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: isDark ? Colors.grey[300] : Colors.grey[700],
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: ' 남았어요 · D-$_daysLeft',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 28),
+                        // 수평 다이얼 피커
+                        Container(
+                          height: 120,
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Stack(
+                            children: [
+                              // 중앙 선택 영역 강조
+                              Center(
+                                child: Container(
+                                  width: 70,
+                                  height: 80,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: const Color(0xFF10B981),
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // 수평 피커
+                              RotatedBox(
+                                quarterTurns: 3,
+                                child: ListWheelScrollView.useDelegate(
+                                  controller: FixedExtentScrollController(
+                                    initialItem: newDailyTarget - 1,
+                                  ),
+                                  itemExtent: 70,
+                                  perspective: 0.005,
+                                  diameterRatio: 1.5,
+                                  physics: const FixedExtentScrollPhysics(),
+                                  onSelectedItemChanged: (index) {
+                                    setModalState(() {
+                                      newDailyTarget = index + 1;
+                                    });
+                                  },
+                                  childDelegate: ListWheelChildBuilderDelegate(
+                                    childCount: _pagesLeft.clamp(1, 200),
+                                    builder: (context, index) {
+                                      final value = index + 1;
+                                      final isSelected = value == newDailyTarget;
+                                      return RotatedBox(
+                                        quarterTurns: 1,
+                                        child: Center(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                '$value',
+                                                style: TextStyle(
+                                                  fontSize: isSelected ? 32 : 20,
+                                                  fontWeight: isSelected
+                                                      ? FontWeight.bold
+                                                      : FontWeight.w400,
+                                                  color: isSelected
+                                                      ? const Color(0xFF10B981)
+                                                      : (isDark
+                                                          ? Colors.grey[500]
+                                                          : Colors.grey[400]),
+                                                ),
+                                              ),
+                                              if (isSelected)
+                                                Text(
+                                                  '페이지/일',
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                    color: isDark
+                                                        ? Colors.grey[400]
+                                                        : Colors.grey[600],
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        // 목표 달성 가능 여부 표시
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: canFinishOnTime
+                                ? const Color(0xFF10B981).withValues(alpha: 0.1)
+                                : const Color(0xFFFF6B6B).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                canFinishOnTime
+                                    ? CupertinoIcons.checkmark_circle
+                                    : CupertinoIcons.exclamationmark_circle,
+                                color: canFinishOnTime
+                                    ? const Color(0xFF10B981)
+                                    : const Color(0xFFFF6B6B),
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  canFinishOnTime
+                                      ? '${targetDate.month}/${targetDate.day}까지 완료 가능!'
+                                      : '목표일까지 $daysToComplete일 필요 (${daysToComplete - _daysLeft}일 초과)',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: canFinishOnTime
+                                        ? const Color(0xFF10B981)
+                                        : const Color(0xFFFF6B6B),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        // 예상 스케줄 보기 버튼
+                        GestureDetector(
+                          onTap: () {
+                            setModalState(() {
+                              showSchedule = !showSchedule;
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  showSchedule
+                                      ? CupertinoIcons.chevron_up
+                                      : CupertinoIcons.chevron_down,
+                                  size: 16,
+                                  color: const Color(0xFF5B7FFF),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  showSchedule ? '스케줄 닫기' : '예상 스케줄 보기',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF5B7FFF),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // 스케줄 테이블 영역 (항상 고정 높이 유지)
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 24),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[50],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: showSchedule
+                          ? ListView.builder(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              itemCount: schedule.length > 14 ? 14 : schedule.length,
+                              itemBuilder: (context, index) {
+                                final item = schedule[index];
+                                final date = item['date'] as DateTime;
+                                final isToday = item['isToday'] as bool;
+
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: isToday
+                                        ? const Color(0xFF5B7FFF).withValues(alpha: 0.1)
+                                        : null,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 100,
+                                        child: Text(
+                                          '${date.month}/${date.day} (${item['weekday']})',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: isToday ? FontWeight.bold : FontWeight.w400,
+                                            color: isToday
+                                                ? const Color(0xFF5B7FFF)
+                                                : (isDark ? Colors.grey[300] : Colors.grey[700]),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Container(
+                                          height: 6,
+                                          margin: const EdgeInsets.symmetric(horizontal: 12),
+                                          decoration: BoxDecoration(
+                                            color: isDark ? Colors.grey[700] : Colors.grey[200],
+                                            borderRadius: BorderRadius.circular(3),
+                                          ),
+                                          child: FractionallySizedBox(
+                                            alignment: Alignment.centerLeft,
+                                            widthFactor: (item['pages'] as int) / newDailyTarget,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFF10B981),
+                                                borderRadius: BorderRadius.circular(3),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        '${item['pages']}p',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: isDark ? Colors.white : Colors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            )
+                          : Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    CupertinoIcons.calendar,
+                                    size: 48,
+                                    color: isDark ? Colors.grey[600] : Colors.grey[400],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    '예상 스케줄을 펼쳐서 확인하세요',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: isDark ? Colors.grey[500] : Colors.grey[500],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                    ),
+                  ),
+                  // 버튼
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      24,
+                      16,
+                      24,
+                      24 + MediaQuery.of(context).viewInsets.bottom,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                            ),
+                            child: const Text('취소'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          flex: 2,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              // 일일 목표는 계획 도구로만 사용 (DB 저장 없음)
+                              // 스케줄 확인 후 닫기
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF10B981),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              '확인',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             );
-          }
-        }
-      }
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildKoreanDatePicker({
+    required bool isDark,
+    required DateTime selectedDate,
+    required DateTime minimumDate,
+    required Function(DateTime) onDateChanged,
+  }) {
+    final currentYear = DateTime.now().year;
+    final years = List.generate(10, (i) => currentYear + i);
+    final months = List.generate(12, (i) => i + 1);
+
+    int getDaysInMonth(int year, int month) {
+      return DateTime(year, month + 1, 0).day;
+    }
+
+    final yearController = FixedExtentScrollController(
+      initialItem: years.indexOf(selectedDate.year),
+    );
+    final monthController = FixedExtentScrollController(
+      initialItem: selectedDate.month - 1,
+    );
+    final dayController = FixedExtentScrollController(
+      initialItem: selectedDate.day - 1,
+    );
+
+    Widget buildWheel({
+      required List<int> items,
+      required FixedExtentScrollController controller,
+      required String suffix,
+      required Function(int) onSelected,
+      double width = 80,
+    }) {
+      return SizedBox(
+        width: width,
+        child: ListWheelScrollView.useDelegate(
+          controller: controller,
+          itemExtent: 40,
+          physics: const FixedExtentScrollPhysics(),
+          diameterRatio: 1.5,
+          perspective: 0.003,
+          onSelectedItemChanged: (index) => onSelected(items[index]),
+          childDelegate: ListWheelChildBuilderDelegate(
+            childCount: items.length,
+            builder: (context, index) {
+              final isSelected = controller.hasClients
+                  ? controller.selectedItem == index
+                  : items.indexOf(items[index]) == controller.initialItem;
+              return Center(
+                child: Text(
+                  '${items[index]}$suffix',
+                  style: TextStyle(
+                    fontSize: isSelected ? 20 : 16,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    color: isSelected
+                        ? (isDark ? Colors.white : Colors.black)
+                        : (isDark ? Colors.grey[600] : Colors.grey[400]),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
+
+    int currentYear_ = selectedDate.year;
+    int currentMonth = selectedDate.month;
+    int currentDay = selectedDate.day;
+
+    return StatefulBuilder(
+      builder: (context, setState) {
+        final daysInCurrentMonth = getDaysInMonth(currentYear_, currentMonth);
+        final validDay = currentDay > daysInCurrentMonth ? daysInCurrentMonth : currentDay;
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            buildWheel(
+              items: years,
+              controller: yearController,
+              suffix: '년',
+              width: 90,
+              onSelected: (year) {
+                setState(() {
+                  currentYear_ = year;
+                  final maxDay = getDaysInMonth(year, currentMonth);
+                  if (currentDay > maxDay) {
+                    currentDay = maxDay;
+                    dayController.jumpToItem(currentDay - 1);
+                  }
+                });
+                final newDate = DateTime(year, currentMonth, validDay);
+                if (!newDate.isBefore(minimumDate)) {
+                  onDateChanged(newDate);
+                }
+              },
+            ),
+            buildWheel(
+              items: months,
+              controller: monthController,
+              suffix: '월',
+              width: 70,
+              onSelected: (month) {
+                setState(() {
+                  currentMonth = month;
+                  final maxDay = getDaysInMonth(currentYear_, month);
+                  if (currentDay > maxDay) {
+                    currentDay = maxDay;
+                    dayController.jumpToItem(currentDay - 1);
+                  }
+                });
+                final newDate = DateTime(currentYear_, month, validDay);
+                if (!newDate.isBefore(minimumDate)) {
+                  onDateChanged(newDate);
+                }
+              },
+            ),
+            buildWheel(
+              items: List.generate(daysInCurrentMonth, (i) => i + 1),
+              controller: dayController,
+              suffix: '일',
+              width: 70,
+              onSelected: (day) {
+                setState(() {
+                  currentDay = day;
+                });
+                final newDate = DateTime(currentYear_, currentMonth, day);
+                if (!newDate.isBefore(minimumDate)) {
+                  onDateChanged(newDate);
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showUpdateTargetDateDialogWithConfirm() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final nextAttempt = _attemptCount + 1;
+    DateTime selectedDate = _currentBook.targetDate;
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final daysRemaining = selectedDate.difference(DateTime.now()).inDays;
+
+            return Container(
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF6B6B).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.calendar_month,
+                          color: Color(0xFFFF6B6B),
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '목표일 변경',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                            ),
+                            Text(
+                              '$nextAttempt번째 도전으로 변경됩니다',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: isDark ? Colors.grey[400] : Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  // 선택된 날짜 표시 + D-day
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${selectedDate.year}년 ${selectedDate.month}월 ${selectedDate.day}일',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: daysRemaining > 0
+                                ? const Color(0xFF10B981).withValues(alpha: 0.1)
+                                : const Color(0xFFFF6B6B).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            daysRemaining > 0 ? 'D-$daysRemaining' : 'D-Day',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: daysRemaining > 0
+                                  ? const Color(0xFF10B981)
+                                  : const Color(0xFFFF6B6B),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // 한국식 다이얼 피커 (년/월/일)
+                  Container(
+                    height: 180,
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: _buildKoreanDatePicker(
+                      isDark: isDark,
+                      selectedDate: selectedDate,
+                      minimumDate: DateTime.now(),
+                      onDateChanged: (DateTime newDate) {
+                        setModalState(() {
+                          selectedDate = newDate;
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          child: const Text('취소'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            await _updateTargetDate(selectedDate, nextAttempt);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF5B7FFF),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            '변경하기',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _updateTargetDate(DateTime newDate, int newAttempt) async {
+    final oldDaysLeft = _daysLeft;
+    final updatedBook = _currentBook.copyWith(
+      targetDate: newDate,
+      attemptCount: newAttempt,
+    );
+    final result = await _bookService.updateBook(_currentBook.id!, updatedBook);
+
+    if (result != null && mounted) {
+      setState(() {
+        _currentBook = result;
+        _attemptCount = newAttempt;
+      });
+
+      // 스크롤 최상단으로
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOutCubic,
+      );
+
+      CustomSnackbar.show(
+        context,
+        message: '$newAttempt번째 도전 시작! D-$_daysLeft',
+        type: SnackbarType.info,
+        icon: Icons.flag,
+      );
     }
   }
 }
@@ -4902,21 +7313,26 @@ class _DraggableDismissNetworkImageState
                     maxScale: 4.0,
                     child: Hero(
                       tag: 'book_image_${widget.imageId}',
-                      child: Image.network(
-                        widget.imageUrl,
+                      child: CachedNetworkImage(
+                        imageUrl: widget.imageUrl,
+                        cacheManager: BookImageCacheManager.instance,
                         fit: BoxFit.contain,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
-                                  : null,
-                              color: Colors.white,
-                            ),
-                          );
-                        },
+                        placeholder: (context, url) => Shimmer.fromColors(
+                          baseColor: Colors.grey[800]!,
+                          highlightColor: Colors.grey[700]!,
+                          child: Container(
+                            width: 200,
+                            height: 200,
+                            color: Colors.grey[800],
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => const Center(
+                          child: Icon(
+                            CupertinoIcons.photo,
+                            color: Colors.white,
+                            size: 48,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -4974,5 +7390,59 @@ class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(covariant _StickyTabBarDelegate oldDelegate) {
     return child != oldDelegate.child || backgroundColor != oldDelegate.backgroundColor;
+  }
+}
+
+/// Circular Progress Painter (Radial Progress Indicator)
+class _CircularProgressPainter extends CustomPainter {
+  final double progress;
+  final double strokeWidth;
+  final Color backgroundColor;
+  final Color progressColor;
+
+  _CircularProgressPainter({
+    required this.progress,
+    required this.strokeWidth,
+    required this.backgroundColor,
+    required this.progressColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = (size.width - strokeWidth) / 2;
+
+    // Background circle
+    final backgroundPaint = Paint()
+      ..color = backgroundColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawCircle(center, radius, backgroundPaint);
+
+    // Progress arc
+    final progressPaint = Paint()
+      ..color = progressColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    final sweepAngle = 2 * math.pi * progress;
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -math.pi / 2, // Start from top
+      sweepAngle,
+      false,
+      progressPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _CircularProgressPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.strokeWidth != strokeWidth ||
+        oldDelegate.backgroundColor != backgroundColor ||
+        oldDelegate.progressColor != progressColor;
   }
 }
