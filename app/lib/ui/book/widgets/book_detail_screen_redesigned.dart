@@ -2531,32 +2531,50 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                             Positioned(
                                               bottom: 8,
                                               right: 8,
-                                              child: Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                  horizontal: 10,
-                                                  vertical: 6,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.black54,
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                child: const Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    Icon(
-                                                      CupertinoIcons.fullscreen,
-                                                      size: 14,
-                                                      color: Colors.white,
-                                                    ),
-                                                    SizedBox(width: 4),
-                                                    Text(
-                                                      '전체보기',
-                                                      style: TextStyle(
-                                                        fontSize: 12,
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  _extractTextFromLocalImage(
+                                                    fullImageBytes!,
+                                                    (ocrText, extractedPageNum) {
+                                                      setModalState(() {
+                                                        extractedText = ocrText;
+                                                        textController.text = ocrText;
+                                                        if (extractedPageNum != null) {
+                                                          pageNumber = extractedPageNum;
+                                                          pageController.text = extractedPageNum.toString();
+                                                        }
+                                                      });
+                                                    },
+                                                  );
+                                                },
+                                                behavior: HitTestBehavior.opaque,
+                                                child: Container(
+                                                  padding: const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                    vertical: 6,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black54,
+                                                    borderRadius: BorderRadius.circular(8),
+                                                  ),
+                                                  child: const Row(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      Icon(
+                                                        CupertinoIcons.doc_text_viewfinder,
+                                                        size: 14,
                                                         color: Colors.white,
                                                       ),
-                                                    ),
-                                                  ],
+                                                      SizedBox(width: 4),
+                                                      Text(
+                                                        '텍스트 추출',
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
                                             ),
@@ -2567,16 +2585,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                                 onTap: () {
                                                   _showReplaceImageConfirmation(
                                                     onConfirm: () {
-                                                      _showImageSourceActionSheet(
-                                                        onImageSelected: (imageBytes, ocrText, extractedPageNum) {
+                                                      _showImageSourceActionSheetForImageOnly(
+                                                        onImageSelected: (imageBytes) {
                                                           setModalState(() {
                                                             fullImageBytes = imageBytes;
-                                                            extractedText = ocrText;
-                                                            textController.text = ocrText;
-                                                            if (extractedPageNum != null) {
-                                                              pageNumber = extractedPageNum;
-                                                              pageController.text = extractedPageNum.toString();
-                                                            }
                                                           });
                                                         },
                                                       );
@@ -2619,16 +2631,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                       )
                                     : GestureDetector(
                                         behavior: HitTestBehavior.opaque,
-                                        onTap: () => _showImageSourceActionSheet(
-                                          onImageSelected: (imageBytes, ocrText, extractedPageNum) {
+                                        onTap: () => _showImageSourceActionSheetForImageOnly(
+                                          onImageSelected: (imageBytes) {
                                             setModalState(() {
                                               fullImageBytes = imageBytes;
-                                              extractedText = ocrText;
-                                              textController.text = ocrText;
-                                              if (extractedPageNum != null) {
-                                                pageNumber = extractedPageNum;
-                                                pageController.text = extractedPageNum.toString();
-                                              }
                                             });
                                           },
                                         ),
@@ -3188,6 +3194,221 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         );
       },
     );
+  }
+
+  /// 이미지 선택 액션시트 (이미지만, OCR 없이)
+  void _showImageSourceActionSheetForImageOnly({
+    required Function(Uint8List imageBytes) onImageSelected,
+  }) {
+    final isCameraAvailable = !kIsWeb &&
+        (Platform.isAndroid || Platform.isIOS) &&
+        (Platform.isAndroid || (Platform.isIOS && !Platform.isMacOS));
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 12),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF5B7FFF).withAlpha(25),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      CupertinoIcons.camera_fill,
+                      color: Color(0xFF5B7FFF),
+                    ),
+                  ),
+                  title: Text(
+                    '카메라 촬영하기',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
+                  onTap: isCameraAvailable && Platform.isIOS
+                      ? () async {
+                          Navigator.pop(context);
+                          await _pickImageOnly(
+                            ImageSource.camera,
+                            onImageSelected,
+                          );
+                        }
+                      : () {
+                          Navigator.pop(context);
+                          CustomSnackbar.show(
+                            this.context,
+                            message: '시뮬레이터에서는 카메라를 사용할 수 없습니다',
+                            type: SnackbarType.warning,
+                          );
+                        },
+                ),
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF5B7FFF).withAlpha(25),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      CupertinoIcons.photo_fill,
+                      color: Color(0xFF5B7FFF),
+                    ),
+                  ),
+                  title: Text(
+                    '라이브러리에서 가져오기',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await _pickImageOnly(
+                      ImageSource.gallery,
+                      onImageSelected,
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// 이미지만 선택 (OCR 없이)
+  Future<void> _pickImageOnly(
+    ImageSource source,
+    Function(Uint8List imageBytes) onComplete,
+  ) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: source);
+    if (pickedFile == null) return;
+
+    final imageBytes = await pickedFile.readAsBytes();
+    if (!mounted) return;
+
+    onComplete(imageBytes);
+  }
+
+  /// 로컬 이미지 바이트에서 텍스트 추출 (크롭 → OCR)
+  Future<void> _extractTextFromLocalImage(
+    Uint8List imageBytes,
+    Function(String extractedText, int? pageNumber) onComplete,
+  ) async {
+    try {
+      final tempDir = Directory.systemTemp;
+      final tempFile = File('${tempDir.path}/temp_ocr_${DateTime.now().millisecondsSinceEpoch}.jpg');
+      await tempFile.writeAsBytes(imageBytes);
+
+      if (!mounted) return;
+
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: tempFile.path,
+        uiSettings: [
+          IOSUiSettings(
+            title: '텍스트 추출 영역 선택',
+            cancelButtonTitle: '취소',
+            doneButtonTitle: '완료',
+            aspectRatioLockEnabled: false,
+            resetAspectRatioEnabled: true,
+            rotateButtonsHidden: false,
+            rotateClockwiseButtonHidden: true,
+          ),
+          AndroidUiSettings(
+            toolbarTitle: '텍스트 추출 영역 선택',
+            toolbarColor: const Color(0xFF5B7FFF),
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false,
+            hideBottomControls: false,
+          ),
+        ],
+      );
+
+      await tempFile.delete();
+
+      if (croppedFile == null) return;
+
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => PopScope(
+          canPop: false,
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF2A2A2A)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(
+                    color: Color(0xFF5B7FFF),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    '텍스트 추출 중...',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final ocrService = GoogleVisionOcrService();
+      final croppedBytes = await croppedFile.readAsBytes();
+      final ocrText = await ocrService.extractTextFromBytes(croppedBytes) ?? '';
+      final pageNumber = _extractPageNumber(ocrText);
+
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop();
+
+      onComplete(ocrText, pageNumber);
+    } catch (e) {
+      if (!mounted) return;
+      if (Navigator.canPop(context)) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+      CustomSnackbar.show(context, message: '텍스트 추출에 실패했습니다.', rootOverlay: true);
+    }
   }
 
   /// 이미지 선택 → 크롭 → OCR 텍스트 추출
@@ -5104,10 +5325,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                 title: const Text('카메라로 촬영'),
                 onTap: () {
                   Navigator.pop(sheetContext);
-                  _pickImageAndExtractText(
+                  _pickImageOnly(
                     ImageSource.camera,
-                    (imageBytes, ocrText, pageNumber) async {
-                      await _replaceImage(imageId, imageBytes, ocrText.isEmpty ? currentText : ocrText, pageNumber);
+                    (imageBytes) async {
+                      await _replaceImage(imageId, imageBytes, currentText, null);
                       onReplaced();
                     },
                   );
@@ -5128,10 +5349,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                 title: const Text('갤러리에서 선택'),
                 onTap: () {
                   Navigator.pop(sheetContext);
-                  _pickImageAndExtractText(
+                  _pickImageOnly(
                     ImageSource.gallery,
-                    (imageBytes, ocrText, pageNumber) async {
-                      await _replaceImage(imageId, imageBytes, ocrText.isEmpty ? currentText : ocrText, pageNumber);
+                    (imageBytes) async {
+                      await _replaceImage(imageId, imageBytes, currentText, null);
                       onReplaced();
                     },
                   );
