@@ -1393,9 +1393,29 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
             future: fetchProgressHistory(_currentBook.id!),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const SizedBox(
-                  height: 200,
-                  child: Center(child: CircularProgressIndicator()),
+                final isDark = Theme.of(context).brightness == Brightness.dark;
+                return Shimmer.fromColors(
+                  baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                  highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
+                  child: SizedBox(
+                    height: 200,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: List.generate(7, (index) {
+                        final heights = [80.0, 120.0, 60.0, 140.0, 100.0, 160.0, 90.0];
+                        return Expanded(
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            height: heights[index % heights.length],
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
                 );
               }
 
