@@ -294,7 +294,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.08),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -318,7 +318,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                       progress: _animatedProgress.clamp(0.0, 1.0),
                       strokeWidth: 10,
                       backgroundColor: isDark
-                          ? Colors.white.withOpacity(0.1)
+                          ? Colors.white.withValues(alpha: 0.1)
                           : const Color(0xFFEEF2FF),
                       progressColor: const Color(0xFF5B7FFF),
                     ),
@@ -344,7 +344,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
                         color: isDark
-                            ? Colors.white.withOpacity(0.6)
+                            ? Colors.white.withValues(alpha: 0.6)
                             : const Color(0xFF888888),
                       ),
                     ),
@@ -388,7 +388,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                       Icons.menu_book_rounded,
                       size: 18,
                       color: isDark
-                          ? Colors.white.withOpacity(0.6)
+                          ? Colors.white.withValues(alpha: 0.6)
                           : const Color(0xFF888888),
                     ),
                     const SizedBox(width: 8),
@@ -407,7 +407,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         color: isDark
-                            ? Colors.white.withOpacity(0.6)
+                            ? Colors.white.withValues(alpha: 0.6)
                             : const Color(0xFF888888),
                       ),
                     ),
@@ -421,7 +421,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                       Icons.trending_up_rounded,
                       size: 18,
                       color: isDark
-                          ? Colors.white.withOpacity(0.6)
+                          ? Colors.white.withValues(alpha: 0.6)
                           : const Color(0xFF888888),
                     ),
                     const SizedBox(width: 8),
@@ -440,7 +440,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         color: isDark
-                            ? Colors.white.withOpacity(0.6)
+                            ? Colors.white.withValues(alpha: 0.6)
                             : const Color(0xFF888888),
                       ),
                     ),
@@ -620,7 +620,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
+                      color: Colors.black.withValues(alpha: 0.15),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -747,7 +747,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -824,7 +824,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: const Color(0xFFFF6B35).withOpacity(0.12),
+                color: const Color(0xFFFF6B35).withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -844,7 +844,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFF5B7FFF).withOpacity(0.1),
+                color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
@@ -2138,7 +2138,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
+                  color: Colors.red.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -3154,7 +3154,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                 BoxShadow(
                                   color: (textController.text.isEmpty || pageController.text.isEmpty || pageValidationError != null)
                                       ? Colors.transparent
-                                      : const Color(0xFF5B7FFF).withOpacity(0.3),
+                                      : const Color(0xFF5B7FFF).withValues(alpha: 0.3),
                                   blurRadius: 12,
                                   offset: const Offset(0, 4),
                                 ),
@@ -3204,7 +3204,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                       Positioned.fill(
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.5),
+                            color: Colors.black.withValues(alpha: 0.5),
                             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
                           ),
                           child: const Center(
@@ -3966,10 +3966,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -3999,7 +3999,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF6B35).withOpacity(0.15),
+                          color: const Color(0xFFFF6B35).withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -4247,7 +4247,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.12),
+                      color: Colors.black.withValues(alpha: 0.12),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -4379,7 +4379,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                             progress: _animatedProgress.clamp(0.0, 1.0),
                             strokeWidth: 10,
                             backgroundColor: isDark
-                                ? Colors.white.withOpacity(0.1)
+                                ? Colors.white.withValues(alpha: 0.1)
                                 : const Color(0xFFEEF2FF),
                             progressColor: const Color(0xFF5B7FFF),
                           ),
@@ -4476,7 +4476,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF10B981).withOpacity(0.1),
+                            color: const Color(0xFF10B981).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -4536,20 +4536,20 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Colors.white.withOpacity(isDark ? 0.18 : 0.9),
-                      Colors.white.withOpacity(isDark ? 0.12 : 0.7),
+                      Colors.white.withValues(alpha: isDark ? 0.18 : 0.9),
+                      Colors.white.withValues(alpha: isDark ? 0.12 : 0.7),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: isDark
-                        ? Colors.white.withOpacity(0.25)
-                        : Colors.black.withOpacity(0.1),
+                        ? Colors.white.withValues(alpha: 0.25)
+                        : Colors.black.withValues(alpha: 0.1),
                     width: 0.5,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -4562,7 +4562,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                       CupertinoIcons.keyboard_chevron_compact_down,
                       size: 20,
                       color: isDark
-                          ? Colors.white.withOpacity(0.9)
+                          ? Colors.white.withValues(alpha: 0.9)
                           : const Color(0xFF5B7FFF),
                     ),
                     const SizedBox(width: 8),
@@ -4572,7 +4572,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: isDark
-                            ? Colors.white.withOpacity(0.9)
+                            ? Colors.white.withValues(alpha: 0.9)
                             : const Color(0xFF5B7FFF),
                       ),
                     ),
@@ -4610,13 +4610,13 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         height: 52,
                         decoration: BoxDecoration(
                           color: isDark
-                              ? Colors.white.withOpacity(0.12)
-                              : Colors.black.withOpacity(0.06),
+                              ? Colors.white.withValues(alpha: 0.12)
+                              : Colors.black.withValues(alpha: 0.06),
                           borderRadius: BorderRadius.circular(18),
                           border: Border.all(
                             color: isDark
-                                ? Colors.white.withOpacity(0.2)
-                                : Colors.black.withOpacity(0.08),
+                                ? Colors.white.withValues(alpha: 0.2)
+                                : Colors.black.withValues(alpha: 0.08),
                             width: 0.5,
                           ),
                         ),
@@ -4627,8 +4627,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                               CupertinoIcons.book_fill,
                               size: 17,
                               color: isDark
-                                  ? Colors.white.withOpacity(0.85)
-                                  : Colors.black.withOpacity(0.65),
+                                  ? Colors.white.withValues(alpha: 0.85)
+                                  : Colors.black.withValues(alpha: 0.65),
                             ),
                             const SizedBox(width: 8),
                             Text(
@@ -4637,8 +4637,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
                                 color: isDark
-                                    ? Colors.white.withOpacity(0.85)
-                                    : Colors.black.withOpacity(0.65),
+                                    ? Colors.white.withValues(alpha: 0.85)
+                                    : Colors.black.withValues(alpha: 0.65),
                               ),
                             ),
                           ],
@@ -4667,13 +4667,13 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                       height: 52,
                       decoration: BoxDecoration(
                         color: isDark
-                            ? Colors.white.withOpacity(0.12)
-                            : Colors.black.withOpacity(0.06),
+                            ? Colors.white.withValues(alpha: 0.12)
+                            : Colors.black.withValues(alpha: 0.06),
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: isDark
-                              ? Colors.white.withOpacity(0.2)
-                              : Colors.black.withOpacity(0.08),
+                              ? Colors.white.withValues(alpha: 0.2)
+                              : Colors.black.withValues(alpha: 0.08),
                           width: 0.5,
                         ),
                       ),
@@ -4681,8 +4681,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         CupertinoIcons.plus,
                         size: 22,
                         color: isDark
-                            ? Colors.white.withOpacity(0.85)
-                            : Colors.black.withOpacity(0.65),
+                            ? Colors.white.withValues(alpha: 0.85)
+                            : Colors.black.withValues(alpha: 0.65),
                       ),
                     ),
                   ),
@@ -4752,7 +4752,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -4794,7 +4794,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         color: isAchieved
                             ? const Color(0xFF10B981)
                             : (isDark
-                                ? Colors.white.withOpacity(0.12)
+                                ? Colors.white.withValues(alpha: 0.12)
                                 : Colors.grey[200]),
                         shape: BoxShape.circle,
                         border: isToday
@@ -4874,7 +4874,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.06),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -4919,7 +4919,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark
-                            ? Colors.white.withOpacity(0.6)
+                            ? Colors.white.withValues(alpha: 0.6)
                             : const Color(0xFF888888),
                       ),
                     ),
@@ -5001,7 +5001,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                   Color cellColor;
                   if (isFuture) {
                     cellColor = isDark
-                        ? Colors.white.withOpacity(0.05)
+                        ? Colors.white.withValues(alpha: 0.05)
                         : const Color(0xFFF3F4F6);
                   } else if (isAchieved == true) {
                     cellColor = const Color(0xFF10B981);
@@ -5009,7 +5009,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                     cellColor = const Color(0xFFFCA5A5);
                   } else {
                     cellColor = isDark
-                        ? Colors.white.withOpacity(0.1)
+                        ? Colors.white.withValues(alpha: 0.1)
                         : const Color(0xFFE5E7EB);
                   }
 
@@ -5058,7 +5058,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
               const SizedBox(width: 16),
               _buildLegendItem('미달성', const Color(0xFFFCA5A5), isDark),
               const SizedBox(width: 16),
-              _buildLegendItem('예정', isDark ? Colors.white.withOpacity(0.1) : const Color(0xFFF3F4F6), isDark),
+              _buildLegendItem('예정', isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFF3F4F6), isDark),
             ],
           ),
         ],
@@ -5377,7 +5377,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF5B7FFF).withOpacity(0.1),
+                    color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
@@ -5400,7 +5400,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withOpacity(0.1),
+                    color: const Color(0xFF10B981).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
@@ -5466,7 +5466,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF5B7FFF).withOpacity(0.1),
+                    color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
@@ -5490,7 +5490,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withOpacity(0.1),
+                    color: const Color(0xFF10B981).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
@@ -6741,7 +6741,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+                      color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -6976,7 +6976,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFFF6B35).withOpacity(0.12),
+                                  color: const Color(0xFFFF6B35).withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
@@ -7077,8 +7077,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                     show: true,
                                     gradient: LinearGradient(
                                       colors: [
-                                        const Color(0xFF5B7FFF).withOpacity(0.15),
-                                        const Color(0xFF5B7FFF).withOpacity(0.0),
+                                        const Color(0xFF5B7FFF).withValues(alpha: 0.15),
+                                        const Color(0xFF5B7FFF).withValues(alpha: 0.0),
                                       ],
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
@@ -7762,7 +7762,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                         Container(
                                           padding: const EdgeInsets.all(10),
                                           decoration: BoxDecoration(
-                                            color: const Color(0xFF10B981).withOpacity(0.1),
+                                            color: const Color(0xFF10B981).withValues(alpha: 0.1),
                                             borderRadius: BorderRadius.circular(12),
                                           ),
                                           child: const Icon(
@@ -7825,7 +7825,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                               width: 70,
                                               height: 80,
                                               decoration: BoxDecoration(
-                                                color: const Color(0xFF10B981).withOpacity(0.15),
+                                                color: const Color(0xFF10B981).withValues(alpha: 0.15),
                                                 borderRadius: BorderRadius.circular(12),
                                                 border: Border.all(
                                                   color: const Color(0xFF10B981),
@@ -7908,8 +7908,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                       padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
                                         color: canFinishOnTime
-                                            ? const Color(0xFF10B981).withOpacity(0.1)
-                                            : const Color(0xFFFF6B6B).withOpacity(0.1),
+                                            ? const Color(0xFF10B981).withValues(alpha: 0.1)
+                                            : const Color(0xFFFF6B6B).withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Row(
@@ -7976,7 +7976,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                 ),
                                 decoration: BoxDecoration(
                                   color: isToday
-                                      ? const Color(0xFF5B7FFF).withOpacity(0.1)
+                                      ? const Color(0xFF5B7FFF).withValues(alpha: 0.1)
                                       : (isDark ? const Color(0xFF2A2A2A) : Colors.grey[50]),
                                   borderRadius: index == 0
                                       ? const BorderRadius.vertical(top: Radius.circular(12))
@@ -8342,8 +8342,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color: daysRemaining > 0
-                                ? const Color(0xFF10B981).withOpacity(0.1)
-                                : const Color(0xFFFF6B6B).withOpacity(0.1),
+                                ? const Color(0xFF10B981).withValues(alpha: 0.1)
+                                : const Color(0xFFFF6B6B).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -8483,7 +8483,7 @@ class _DraggableDismissImageState extends State<_DraggableDismissImage> {
     return FadeTransition(
       opacity: widget.animation,
       child: Scaffold(
-        backgroundColor: Colors.black.withOpacity(0.87 * opacity),
+        backgroundColor: Colors.black.withValues(alpha: 0.87 * opacity),
         body: GestureDetector(
           onVerticalDragStart: (_) {
             setState(() => _isDragging = true);
@@ -8583,7 +8583,7 @@ class _DraggableDismissNetworkImageState
     return FadeTransition(
       opacity: widget.animation,
       child: Scaffold(
-        backgroundColor: Colors.black.withOpacity(0.87 * opacity),
+        backgroundColor: Colors.black.withValues(alpha: 0.87 * opacity),
         body: GestureDetector(
           onVerticalDragStart: (_) {
             setState(() => _isDragging = true);

@@ -546,7 +546,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                               ),
                               belowBarData: BarAreaData(
                                 show: true,
-                                color: Colors.blue.withOpacity(0.1),
+                                color: Colors.blue.withValues(alpha: 0.1),
                               ),
                             ),
                           ],
@@ -667,7 +667,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                                 width: 48,
                                 height: 48,
                                 decoration: BoxDecoration(
-                                  color: Colors.blue.withOpacity(0.1),
+                                  color: Colors.blue.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Center(
@@ -762,7 +762,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
             ? null
             : [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.08),
+                  color: Colors.grey.withValues(alpha: 0.08),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -775,7 +775,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
           Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
+              color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
