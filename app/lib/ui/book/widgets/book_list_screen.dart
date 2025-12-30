@@ -446,8 +446,8 @@ class _BookListScreenState extends State<BookListScreen>
           boxShadow: [
             BoxShadow(
               color: isDark
-                  ? Colors.black.withValues(alpha: 0.3)
-                  : Colors.grey.withValues(alpha: 0.1),
+                  ? Colors.black.withOpacity(0.3)
+                  : Colors.grey.withOpacity(0.1),
               spreadRadius: 1,
               blurRadius: 3,
               offset: const Offset(0, 1),
@@ -496,10 +496,10 @@ class _BookListScreenState extends State<BookListScreen>
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: daysLeft < 0
-                              ? const Color(0xFFEF4444).withValues(alpha: 0.12)
+                              ? const Color(0xFFEF4444).withOpacity(0.12)
                               : (isCompleted
-                                  ? const Color(0xFF10B981).withValues(alpha: 0.12)
-                                  : const Color(0xFF5B7FFF).withValues(alpha: 0.12)),
+                                  ? const Color(0xFF10B981).withOpacity(0.12)
+                                  : const Color(0xFF5B7FFF).withOpacity(0.12)),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -597,8 +597,8 @@ class _BookListScreenState extends State<BookListScreen>
           boxShadow: [
             BoxShadow(
               color: isDark
-                  ? Colors.black.withValues(alpha: 0.3)
-                  : Colors.grey.withValues(alpha: 0.1),
+                  ? Colors.black.withOpacity(0.3)
+                  : Colors.grey.withOpacity(0.1),
               spreadRadius: 1,
               blurRadius: 3,
               offset: const Offset(0, 1),
