@@ -18,6 +18,7 @@ class _BookListScreenState extends State<BookListScreen>
   late TabController _tabController;
   int _selectedTabIndex = 0;
   bool _showAllCurrentBooks = false;
+  bool _isRefreshing = false;
 
   @override
   void initState() {
@@ -34,6 +35,22 @@ class _BookListScreenState extends State<BookListScreen>
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> _onRefresh() async {
+    if (_isRefreshing) return;
+
+    setState(() {
+      _isRefreshing = true;
+    });
+
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    if (mounted) {
+      setState(() {
+        _isRefreshing = false;
+      });
+    }
   }
 
   @override
@@ -259,58 +276,64 @@ class _BookListScreenState extends State<BookListScreen>
       return _buildEmptyState();
     }
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
-      children: [
-        if (readingBooks.isNotEmpty) ...[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '현재 읽고 있는 책',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : Colors.black,
-                ),
-              ),
-              if (readingBooks.length > 3)
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _showAllCurrentBooks = !_showAllCurrentBooks;
-                    });
-                  },
-                  child: Text(
-                    _showAllCurrentBooks ? '접기' : '더보기',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.blue,
-                      fontWeight: FontWeight.w500,
-                    ),
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      color: const Color(0xFF5B7FFF),
+      backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
+        children: [
+          if (readingBooks.isNotEmpty) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '현재 읽고 있는 책',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black,
                   ),
                 ),
-            ],
+                if (readingBooks.length > 3)
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _showAllCurrentBooks = !_showAllCurrentBooks;
+                      });
+                    },
+                    child: Text(
+                      _showAllCurrentBooks ? '접기' : '더보기',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.blue,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ...(_showAllCurrentBooks
+                ? readingBooks
+                : readingBooks.take(3)).map((book) => _buildBookCard(book)),
+            const SizedBox(height: 24),
+            Divider(color: isDark ? Colors.grey[700] : Colors.grey[300]),
+            const SizedBox(height: 24),
+          ],
+          Text(
+            '전체 독서 목록',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black,
+            ),
           ),
           const SizedBox(height: 12),
-          ...(_showAllCurrentBooks
-              ? readingBooks
-              : readingBooks.take(3)).map((book) => _buildBookCard(book)),
-          const SizedBox(height: 24),
-          Divider(color: isDark ? Colors.grey[700] : Colors.grey[300]),
-          const SizedBox(height: 24),
+          ...allBooks.map((book) => _buildBookCard(book)),
         ],
-        Text(
-          '전체 독서 목록',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: isDark ? Colors.white : Colors.black,
-          ),
-        ),
-        const SizedBox(height: 12),
-        ...allBooks.map((book) => _buildBookCard(book)),
-      ],
+      ),
     );
   }
 
@@ -340,9 +363,15 @@ class _BookListScreenState extends State<BookListScreen>
       );
     }
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
-      children: readingBooks.map((book) => _buildBookCard(book)).toList(),
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      color: const Color(0xFF5B7FFF),
+      backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
+        children: readingBooks.map((book) => _buildBookCard(book)).toList(),
+      ),
     );
   }
 
@@ -372,9 +401,15 @@ class _BookListScreenState extends State<BookListScreen>
       );
     }
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
-      children: completedBooks.map((book) => _buildBookCard(book)).toList(),
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      color: const Color(0xFF5B7FFF),
+      backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
+        children: completedBooks.map((book) => _buildBookCard(book)).toList(),
+      ),
     );
   }
 
