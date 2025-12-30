@@ -2417,6 +2417,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     bool isUploading = false;
     String? pageValidationError;
     bool isOcrExtracting = false;
+    bool hideKeyboardAccessory = false;
 
     final textController = TextEditingController();
     final pageController = TextEditingController();
@@ -3022,8 +3023,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                           ),
                         ),
                       ),
-                    // 키보드 액세서리 바 (키보드가 열려있을 때만)
-                    if (isKeyboardOpen)
+                    // 키보드 액세서리 바 (키보드가 열려있고 숨김 상태가 아닐 때만)
+                    if (isKeyboardOpen && !hideKeyboardAccessory)
                       Positioned(
                         left: 0,
                         right: 0,
@@ -3031,8 +3032,18 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         child: KeyboardAccessoryBar(
                           isDark: isDark,
                           onDone: () {
+                            setModalState(() {
+                              hideKeyboardAccessory = true;
+                            });
                             textFocusNode.unfocus();
                             pageFocusNode.unfocus();
+                            Future.delayed(const Duration(milliseconds: 300), () {
+                              if (context.mounted) {
+                                setModalState(() {
+                                  hideKeyboardAccessory = false;
+                                });
+                              }
+                            });
                           },
                         ),
                       ),
@@ -5203,6 +5214,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     final focusNode = FocusNode();
     bool isEditing = false;
     bool isSaving = false;
+    bool hideKeyboardAccessory = false;
     final hasImage = imageUrl != null && imageUrl.isNotEmpty;
 
     showModalBottomSheet(
@@ -5223,6 +5235,9 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
               });
             }
 
+            final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+            final isKeyboardOpen = keyboardHeight > 0;
+
             return GestureDetector(
               onTap: () {
                 if (isEditing) {
@@ -5231,16 +5246,18 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
               },
               child: Padding(
                 padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                  bottom: keyboardHeight,
                   top: MediaQuery.of(context).padding.top,
                 ),
-                child: Container(
-                  height: MediaQuery.of(context).size.height * 0.85,
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                  ),
-                  child: Column(
+                child: Stack(
+                  children: [
+                    Container(
+                      height: MediaQuery.of(context).size.height * 0.85,
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                      ),
+                      child: Column(
                     children: [
                       const SizedBox(height: 12),
                       Container(
@@ -5760,6 +5777,31 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                       ),
                     ],
                   ),
+                ),
+                    // 키보드 액세서리 바 (수정 모드에서 키보드가 열려있을 때만)
+                    if (isEditing && isKeyboardOpen && !hideKeyboardAccessory)
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: KeyboardAccessoryBar(
+                          isDark: isDark,
+                          onDone: () {
+                            setModalState(() {
+                              hideKeyboardAccessory = true;
+                            });
+                            focusNode.unfocus();
+                            Future.delayed(const Duration(milliseconds: 300), () {
+                              if (context.mounted) {
+                                setModalState(() {
+                                  hideKeyboardAccessory = false;
+                                });
+                              }
+                            });
+                          },
+                        ),
+                      ),
+                  ],
                 ),
               ),
             );
