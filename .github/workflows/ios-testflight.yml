@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: macos-latest
+    runs-on: macos-15
 
     steps:
       - name: Checkout repository
@@ -25,8 +25,11 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
-          bundler-cache: true
-          working-directory: app/ios
+
+      - name: Install Ruby dependencies
+        run: |
+          cd app/ios
+          bundle install
 
       - name: Flutter pub get
         run: |
@@ -36,7 +39,7 @@ jobs:
       - name: Install CocoaPods
         run: |
           cd app/ios
-          pod install --repo-update
+          bundle exec pod install --repo-update
 
       - name: Create .env file
         run: |
@@ -57,8 +60,8 @@ jobs:
           PROVISIONING_PROFILE_PATH=$RUNNER_TEMP/profile.mobileprovision
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
-          echo -n "$CERTIFICATE_P12_BASE64" | base64 --decode -o $CERTIFICATE_PATH
-          echo -n "$PROVISIONING_PROFILE_BASE64" | base64 --decode -o $PROVISIONING_PROFILE_PATH
+          echo -n "$CERTIFICATE_P12_BASE64" | base64 --decode > $CERTIFICATE_PATH
+          echo -n "$PROVISIONING_PROFILE_BASE64" | base64 --decode > $PROVISIONING_PROFILE_PATH
 
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
