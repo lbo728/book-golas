@@ -6792,6 +6792,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   /// 일일 목표 페이지 변경 (수평 다이얼 + 스케줄 테이블)
   void _showDailyTargetChangeDialog() async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final parentContext = context;
 
     // 현재 일일 목표 계산
     final currentDailyTarget = _daysLeft > 0
@@ -7220,7 +7221,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                         setState(() {});
                                         if (mounted) {
                                           CustomSnackbar.show(
-                                            context,
+                                            parentContext,
                                             message: '오늘 목표: ${newDailyTarget}p로 변경되었습니다',
                                             type: SnackbarType.success,
                                             bottomOffset: 100,
@@ -7229,7 +7230,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                       } catch (e) {
                                         if (mounted) {
                                           CustomSnackbar.show(
-                                            context,
+                                            parentContext,
                                             message: '목표 변경에 실패했습니다',
                                             type: SnackbarType.error,
                                             bottomOffset: 100,
