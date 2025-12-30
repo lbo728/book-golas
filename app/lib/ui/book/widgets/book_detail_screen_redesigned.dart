@@ -138,7 +138,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   int get _daysLeft {
     final now = DateTime.now();
     final target = _currentBook.targetDate;
-    return target.difference(now).inDays;
+    final days = target.difference(now).inDays;
+    return days >= 0 ? days + 1 : days;
   }
 
   double get _progressPercentage {
@@ -149,6 +150,19 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
   int get _pagesLeft => (_currentBook.totalPages - _currentBook.currentPage)
       .clamp(0, _currentBook.totalPages);
+
+  String get _attemptEncouragement {
+    switch (_attemptCount) {
+      case 1:
+        return '최고!';
+      case 2:
+        return '잘하고 있다';
+      case 3:
+        return '화이팅!';
+      default:
+        return '내가 더 도와줄게...';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -934,7 +948,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          '$_attemptCount번째 도전',
+                          '$_attemptCount번째 · $_attemptEncouragement',
                           style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
@@ -3585,7 +3599,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          '$_attemptCount번째 도전',
+                          '$_attemptCount번째 · $_attemptEncouragement',
                           style: const TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
@@ -6132,7 +6146,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
-                                  '$_attemptCount번째 도전',
+                                  '$_attemptCount번째 · $_attemptEncouragement',
                                   style: const TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w700,
