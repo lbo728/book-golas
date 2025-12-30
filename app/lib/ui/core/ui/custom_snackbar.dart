@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 enum SnackbarType { success, error, info, warning }
 
 class CustomSnackbar {
+  /// 스낵바 표시
+  /// [bottomOffset] - CTA 버튼이 있는 화면에서는 100 (기본값), 없는 화면에서는 32 사용
   static void show(
     BuildContext context, {
     required String message,
@@ -11,6 +13,7 @@ class CustomSnackbar {
     IconData? icon,
     Duration duration = const Duration(seconds: 2),
     bool rootOverlay = false,
+    double bottomOffset = 100,
   }) {
     final overlay = Overlay.of(context, rootOverlay: rootOverlay);
     final overlayEntry = OverlayEntry(
@@ -19,6 +22,7 @@ class CustomSnackbar {
         type: type,
         icon: icon,
         duration: duration,
+        bottomOffset: bottomOffset,
       ),
     );
 
@@ -35,12 +39,14 @@ class _AnimatedSnackbar extends StatefulWidget {
   final SnackbarType type;
   final IconData? icon;
   final Duration duration;
+  final double bottomOffset;
 
   const _AnimatedSnackbar({
     required this.message,
     required this.type,
     this.icon,
     required this.duration,
+    required this.bottomOffset,
   });
 
   @override
@@ -109,7 +115,7 @@ class _AnimatedSnackbarState extends State<_AnimatedSnackbar>
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      bottom: 100,
+      bottom: widget.bottomOffset,
       left: 20,
       right: 20,
       child: SlideTransition(

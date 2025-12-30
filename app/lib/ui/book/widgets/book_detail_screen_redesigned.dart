@@ -46,7 +46,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   int? _todayStartPage;
   int? _todayTargetPage;
   late TabController _tabController;
-  int _attemptCount = 1; // 도전 횟수
+  late int _attemptCount; // 도전 횟수 (DB에서 로드)
   Map<String, bool> _dailyAchievements = {}; // 일차별 목표 달성 현황 (날짜: 성공/실패)
   bool _useMockProgressData = false; // 🎨 진행률 히스토리 목업 데이터 사용 (실제 데이터 연결 완료)
 
@@ -77,6 +77,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   void initState() {
     super.initState();
     _currentBook = widget.book;
+    _attemptCount = widget.book.attemptCount;
     _todayStartPage = _currentBook.startDate.day;
     _todayTargetPage = _currentBook.targetDate.day;
     _tabController = TabController(length: 3, vsync: this);
@@ -149,6 +150,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
 
     return Scaffold(
       backgroundColor:
@@ -248,8 +250,11 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
               ),
             ),
           ),
-          // Linear 스타일 리퀴드 글래스 플로팅 바
-          _buildLiquidGlassFloatingBar(isDark),
+          // Linear 스타일 리퀴드 글래스 플로팅 바 (키보드가 열리면 완료 버튼으로 교체)
+          if (isKeyboardOpen)
+            _buildKeyboardDoneButton(isDark)
+          else
+            _buildLiquidGlassFloatingBar(isDark),
         ],
       ),
     );
@@ -3169,6 +3174,397 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
+  /// 진행률 히스토리 스켈레톤 빌더
+  Widget _buildProgressHistorySkeleton(bool isDark) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 100),
+      child: Shimmer.fromColors(
+        baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+        highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 차트 카드 스켈레톤
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 헤더 스켈레톤
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        width: 120,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      Container(
+                        width: 60,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  // 범례 스켈레톤
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 80,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(width: 24),
+                      Container(
+                        width: 80,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  // 차트 영역 스켈레톤
+                  Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            // 독서 상태 분석 스켈레톤
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 100,
+                          height: 14,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          width: double.infinity,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            // 일별 기록 헤더 스켈레톤
+            Container(
+              width: 100,
+              height: 18,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(height: 12),
+            // 일별 기록 카드 스켈레톤 (3개)
+            ...List.generate(3, (index) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 100,
+                            height: 13,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Container(
+                            width: 60,
+                            height: 11,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 50,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 독서 상태 분석 및 격려 메시지 빌더
+  Widget _buildReadingStateAnalysis(bool isDark, List<Map<String, dynamic>> progressData) {
+    final analysisResult = _analyzeReadingState(progressData);
+    final emoji = analysisResult['emoji'] as String;
+    final title = analysisResult['title'] as String;
+    final message = analysisResult['message'] as String;
+    final color = analysisResult['color'] as Color;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            emoji,
+            style: const TextStyle(fontSize: 24),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
+                    ),
+                    if (_attemptCount > 1) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF6B35).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '$_attemptCount번째 도전',
+                          style: const TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFFFF6B35),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  message,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark ? Colors.grey[300] : Colors.grey[700],
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 독서 상태 분석 로직
+  Map<String, dynamic> _analyzeReadingState(List<Map<String, dynamic>> progressData) {
+    final progressPercent = _progressPercentage;
+    final daysLeft = _daysLeft;
+    final totalDays = _currentBook.targetDate.difference(_currentBook.startDate).inDays + 1;
+    final elapsedDays = DateTime.now().difference(_currentBook.startDate).inDays;
+    final readingDays = progressData.length;
+
+    // 예상 완료율 vs 실제 완료율
+    final expectedProgress = elapsedDays > 0
+        ? (elapsedDays / totalDays * 100).clamp(0, 100)
+        : 0.0;
+    final progressDiff = progressPercent - expectedProgress;
+
+    // 완독 상태
+    if (progressPercent >= 100) {
+      if (_attemptCount > 1) {
+        return {
+          'emoji': '🏆',
+          'title': '드디어 완독!',
+          'message': '$_attemptCount번의 도전 끝에 완독에 성공했어요. 포기하지 않은 당신이 멋져요!',
+          'color': const Color(0xFF10B981),
+        };
+      }
+      return {
+        'emoji': '🎉',
+        'title': '완독 축하해요!',
+        'message': '목표를 달성했어요. 다음 책도 함께 읽어볼까요?',
+        'color': const Color(0xFF10B981),
+      };
+    }
+
+    // 마감 초과
+    if (daysLeft < 0) {
+      if (_attemptCount > 1) {
+        return {
+          'emoji': '💪',
+          'title': '이번엔 완주해봐요',
+          'message': '$_attemptCount번째 도전이에요. 목표일을 재설정하고 끝까지 읽어볼까요?',
+          'color': const Color(0xFFFF6B6B),
+        };
+      }
+      return {
+        'emoji': '⏰',
+        'title': '목표일이 지났어요',
+        'message': '괜찮아요, 새 목표일을 설정하고 다시 시작해봐요!',
+        'color': const Color(0xFFFF6B6B),
+      };
+    }
+
+    // 아주 잘하고 있음 (예상보다 20% 이상 앞서감)
+    if (progressDiff > 20) {
+      return {
+        'emoji': '🚀',
+        'title': '놀라운 속도예요!',
+        'message': '예상보다 훨씬 빠르게 읽고 있어요. 이 페이스면 일찍 완독할 수 있겠어요!',
+        'color': const Color(0xFF5B7FFF),
+      };
+    }
+
+    // 잘하고 있음 (예상보다 5-20% 앞서감)
+    if (progressDiff > 5) {
+      return {
+        'emoji': '✨',
+        'title': '순조롭게 진행 중!',
+        'message': '계획보다 앞서가고 있어요. 이대로만 하면 목표 달성 확실해요!',
+        'color': const Color(0xFF10B981),
+      };
+    }
+
+    // 적정 페이스 (예상과 비슷)
+    if (progressDiff > -5) {
+      return {
+        'emoji': '📖',
+        'title': '계획대로 진행 중',
+        'message': '꾸준히 읽고 있어요. 오늘도 조금씩 읽어볼까요?',
+        'color': const Color(0xFF5B7FFF),
+      };
+    }
+
+    // 약간 뒤처짐 (5-15% 뒤처짐)
+    if (progressDiff > -15) {
+      if (_attemptCount > 1) {
+        return {
+          'emoji': '🔥',
+          'title': '조금 더 속도를 내볼까요?',
+          'message': '이번에는 꼭 완독해봐요. 매일 조금씩 더 읽으면 따라잡을 수 있어요!',
+          'color': const Color(0xFFF59E0B),
+        };
+      }
+      return {
+        'emoji': '📚',
+        'title': '조금 더 읽어볼까요?',
+        'message': '계획보다 살짝 뒤처졌어요. 오늘 조금 더 읽으면 따라잡을 수 있어요!',
+        'color': const Color(0xFFF59E0B),
+      };
+    }
+
+    // 많이 뒤처짐 (15% 이상 뒤처짐)
+    if (_attemptCount > 1) {
+      return {
+        'emoji': '💫',
+        'title': '포기하지 마세요!',
+        'message': '$_attemptCount번째 도전 중이에요. 목표일을 조정하거나 더 집중해서 읽어봐요!',
+        'color': const Color(0xFFFF6B6B),
+      };
+    }
+    return {
+      'emoji': '📅',
+      'title': '목표 재설정이 필요할 수도',
+      'message': '현재 페이스로는 목표 달성이 어려워요. 목표일을 조정해볼까요?',
+      'color': const Color(0xFFFF6B6B),
+    };
+  }
+
   /// 🎨 목업 진행률 데이터 생성 (더 현실적인 패턴)
   List<Map<String, dynamic>> _generateMockProgressData() {
     final now = DateTime.now();
@@ -3531,6 +3927,80 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// 키보드 완료 버튼 (리퀴드 글래스 스타일)
+  Widget _buildKeyboardDoneButton(bool isDark) {
+    return Positioned(
+      left: 20,
+      right: 20,
+      bottom: MediaQuery.of(context).viewInsets.bottom + 12,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                FocusScope.of(context).unfocus();
+              },
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                height: 48,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white.withValues(alpha: isDark ? 0.18 : 0.9),
+                      Colors.white.withValues(alpha: isDark ? 0.12 : 0.7),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.25)
+                        : Colors.black.withValues(alpha: 0.1),
+                    width: 0.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      CupertinoIcons.keyboard_chevron_compact_down,
+                      size: 20,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.9)
+                          : const Color(0xFF5B7FFF),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '완료',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.9)
+                            : const Color(0xFF5B7FFF),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -5400,7 +5870,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       future: _progressHistoryFuture, // 캐시된 Future 사용
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return _buildProgressHistorySkeleton(isDark);
         }
 
         final data = snapshot.data ?? [];
@@ -5479,13 +5949,35 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          '📈 누적 페이지',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: isDark ? Colors.white : Colors.black,
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              '📈 누적 페이지',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                            ),
+                            if (_attemptCount > 1) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFF6B35).withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  '$_attemptCount번째 도전',
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFFFF6B35),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -5675,6 +6167,9 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                   ],
                 ),
               ),
+              const SizedBox(height: 16),
+              // 독서 상태 분석 메시지
+              _buildReadingStateAnalysis(isDark, data),
               const SizedBox(height: 16),
               // 일별 상세 기록
               Text(
@@ -5923,8 +6418,12 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
             final targetDate = _currentBook.targetDate;
             final canFinishOnTime = daysToComplete <= _daysLeft;
 
-            return Container(
-              height: MediaQuery.of(context).size.height * 0.75,
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              height: showSchedule
+                  ? MediaQuery.of(context).size.height * 0.85
+                  : MediaQuery.of(context).size.height * 0.55,
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -5934,6 +6433,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                   Padding(
                     padding: const EdgeInsets.all(24),
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // 헤더
@@ -6616,7 +7116,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
   Future<void> _updateTargetDate(DateTime newDate, int newAttempt) async {
     final oldDaysLeft = _daysLeft;
-    final updatedBook = _currentBook.copyWith(targetDate: newDate);
+    final updatedBook = _currentBook.copyWith(
+      targetDate: newDate,
+      attemptCount: newAttempt,
+    );
     final result = await _bookService.updateBook(_currentBook.id!, updatedBook);
 
     if (result != null && mounted) {
