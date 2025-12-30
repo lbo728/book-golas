@@ -411,8 +411,8 @@ class _BookListScreenState extends State<BookListScreen>
           boxShadow: [
             BoxShadow(
               color: isDark
-                  ? Colors.black.withOpacity(0.3)
-                  : Colors.grey.withOpacity(0.1),
+                  ? Colors.black.withValues(alpha: 0.3)
+                  : Colors.grey.withValues(alpha: 0.1),
               spreadRadius: 1,
               blurRadius: 3,
               offset: const Offset(0, 1),
@@ -541,12 +541,15 @@ class _BookListScreenState extends State<BookListScreen>
   Widget _buildSkeletonList(bool isDark) {
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
-      itemCount: 3, // 로딩 시 3개의 스켈레톤 카드 표시
-      itemBuilder: (context, index) => _buildSkeletonCard(isDark),
+      itemCount: 3,
+      itemBuilder: (context, index) => _buildSkeletonCard(isDark, index),
     );
   }
 
-  Widget _buildSkeletonCard(bool isDark) {
+  Widget _buildSkeletonCard(bool isDark, [int index = 0]) {
+    final titleWidths = [double.infinity, 180.0, 220.0];
+    final subtitleWidths = [140.0, 100.0, 160.0];
+
     return Shimmer.fromColors(
       baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
       highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
@@ -559,8 +562,8 @@ class _BookListScreenState extends State<BookListScreen>
           boxShadow: [
             BoxShadow(
               color: isDark
-                  ? Colors.black.withOpacity(0.3)
-                  : Colors.grey.withOpacity(0.1),
+                  ? Colors.black.withValues(alpha: 0.3)
+                  : Colors.grey.withValues(alpha: 0.1),
               spreadRadius: 1,
               blurRadius: 3,
               offset: const Offset(0, 1),
@@ -569,7 +572,6 @@ class _BookListScreenState extends State<BookListScreen>
         ),
         child: Row(
           children: [
-            // 책 이미지 영역
             Container(
               width: 60,
               height: 80,
@@ -582,37 +584,24 @@ class _BookListScreenState extends State<BookListScreen>
               ),
             ),
             const SizedBox(width: 16),
-            // 텍스트 영역
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 제목 1줄
                   Container(
                     height: 16,
-                    width: double.infinity,
+                    width: titleWidths[index % 3],
                     decoration: BoxDecoration(
                       color: isDark ? Colors.grey[700] : Colors.grey[300],
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  // 제목 2줄 (짧게)
-                  Container(
-                    height: 14,
-                    width: 120,
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.grey[700] : Colors.grey[300],
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  // D-day 뱃지 + 페이지 정보
+                  const SizedBox(height: 6),
                   Row(
                     children: [
                       Container(
                         height: 24,
-                        width: 48,
+                        width: 52,
                         decoration: BoxDecoration(
                           color: isDark ? Colors.grey[700] : Colors.grey[300],
                           borderRadius: BorderRadius.circular(6),
@@ -621,7 +610,7 @@ class _BookListScreenState extends State<BookListScreen>
                       const SizedBox(width: 8),
                       Container(
                         height: 14,
-                        width: 90,
+                        width: subtitleWidths[index % 3],
                         decoration: BoxDecoration(
                           color: isDark ? Colors.grey[700] : Colors.grey[300],
                           borderRadius: BorderRadius.circular(4),
@@ -630,7 +619,6 @@ class _BookListScreenState extends State<BookListScreen>
                     ],
                   ),
                   const SizedBox(height: 8),
-                  // 프로그레스 바 + 퍼센트
                   Row(
                     children: [
                       Expanded(
@@ -645,7 +633,7 @@ class _BookListScreenState extends State<BookListScreen>
                       const SizedBox(width: 8),
                       Container(
                         height: 12,
-                        width: 30,
+                        width: 32,
                         decoration: BoxDecoration(
                           color: isDark ? Colors.grey[700] : Colors.grey[300],
                           borderRadius: BorderRadius.circular(4),
@@ -656,14 +644,10 @@ class _BookListScreenState extends State<BookListScreen>
                 ],
               ),
             ),
-            // 화살표 아이콘 영역
-            Container(
-              width: 16,
-              height: 16,
-              decoration: BoxDecoration(
-                color: isDark ? Colors.grey[700] : Colors.grey[300],
-                borderRadius: BorderRadius.circular(4),
-              ),
+            Icon(
+              Icons.arrow_forward_ios,
+              color: isDark ? Colors.grey[700] : Colors.grey[300],
+              size: 16,
             ),
           ],
         ),
