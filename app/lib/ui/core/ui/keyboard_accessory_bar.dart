@@ -32,18 +32,18 @@ class KeyboardAccessoryBar extends StatelessWidget {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Colors.white.withOpacity(isDark ? 0.15 : 0.6),
-                        Colors.white.withOpacity(isDark ? 0.08 : 0.3),
+                        Colors.white.withValues(alpha: isDark ? 0.15 : 0.6),
+                        Colors.white.withValues(alpha: isDark ? 0.08 : 0.3),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: Colors.white.withOpacity(isDark ? 0.2 : 0.4),
+                      color: Colors.white.withValues(alpha: isDark ? 0.2 : 0.4),
                       width: 1,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
+                        color: Colors.black.withValues(alpha: 0.15),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -53,8 +53,8 @@ class KeyboardAccessoryBar extends StatelessWidget {
                     CupertinoIcons.keyboard_chevron_compact_down,
                     size: 20,
                     color: isDark
-                        ? Colors.white.withOpacity(0.9)
-                        : Colors.black.withOpacity(0.7),
+                        ? Colors.white.withValues(alpha: 0.9)
+                        : Colors.black.withValues(alpha: 0.7),
                   ),
                 ),
               ),
