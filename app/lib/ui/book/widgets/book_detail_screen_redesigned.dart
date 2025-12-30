@@ -2672,7 +2672,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                                             ),
                                                           ),
                                                           Text(
-                                                            '텍스트를 다시 추출하시겠어요?',
+                                                            '텍스트를 추출하시겠어요?',
                                                             textAlign: TextAlign.center,
                                                             style: TextStyle(
                                                               fontSize: 16,
@@ -2683,7 +2683,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                                           ),
                                                           const SizedBox(height: 8),
                                                           Text(
-                                                            '이미지에서 원하는 영역을 선택하여\n텍스트를 추출합니다.',
+                                                            '작성하신 텍스트를 덮어씁니다.\n크레딧을 소모합니다.',
                                                             textAlign: TextAlign.center,
                                                             style: TextStyle(
                                                               fontSize: 14,
@@ -2777,7 +2777,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                                     mainAxisSize: MainAxisSize.min,
                                                     children: [
                                                       Icon(
-                                                        CupertinoIcons.arrow_2_circlepath,
+                                                        Icons.document_scanner_outlined,
                                                         size: 14,
                                                         color: Colors.white,
                                                       ),
@@ -2956,7 +2956,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                             }
                                           },
                                           decoration: InputDecoration(
-                                            hintText: '페이지 수',
+                                            hintText: '',
                                             hintStyle: TextStyle(
                                               fontSize: 13,
                                               color: isDark ? Colors.grey[600] : Colors.grey[400],
@@ -3100,7 +3100,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                     color: isDark ? Colors.white : Colors.black,
                                   ),
                                   decoration: InputDecoration(
-                                    hintText: '기억하고 싶은 문구를 입력하세요...',
+                                    hintText: '인상적인 대목을 기록해보세요.',
                                     hintStyle: TextStyle(
                                       color: isDark ? Colors.grey[600] : Colors.grey[400],
                                     ),
@@ -5620,7 +5620,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
               ),
             ),
             Text(
-              '텍스트를 다시 추출하시겠어요?',
+              '텍스트를 추출하시겠어요?',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -5631,7 +5631,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
             ),
             const SizedBox(height: 8),
             Text(
-              '이미지에서 원하는 영역을 선택하여\n텍스트를 추출합니다.',
+              '작성하신 텍스트를 덮어씁니다.\n크레딧을 소모합니다.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
