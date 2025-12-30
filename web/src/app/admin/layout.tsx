@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
@@ -42,24 +43,31 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white border-b">
+    <div className="min-h-screen bg-background">
+      <nav className="bg-card border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                <span className="text-xl font-bold">📚 Bookgolas Admin</span>
-              </div>
+              <Link href="/admin" className="flex-shrink-0 flex items-center gap-2">
+                <Image
+                  src="/logo.png"
+                  alt="Bookgolas Logo"
+                  width={32}
+                  height={32}
+                  className="rounded-md"
+                />
+                <span className="text-xl font-bold text-foreground">Bookgolas Admin</span>
+              </Link>
               <div className="hidden sm:ml-8 sm:flex sm:space-x-4">
                 {navItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "inline-flex items-center px-3 py-2 text-sm font-medium rounded-md",
+                      "inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
                       pathname === item.href
-                        ? "bg-gray-100 text-gray-900"
-                        : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                        ? "bg-accent text-accent-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                     )}
                   >
                     <span className="mr-2">{item.icon}</span>
@@ -70,7 +78,7 @@ export default function AdminLayout({
             </div>
             <div className="flex items-center gap-4">
               {userEmail && (
-                <span className="text-sm text-gray-500">{userEmail}</span>
+                <span className="text-sm text-muted-foreground">{userEmail}</span>
               )}
               <Button variant="outline" size="sm" onClick={handleLogout}>
                 로그아웃

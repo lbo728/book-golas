@@ -93,7 +93,7 @@ export default function PushTemplatesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-500">로딩 중...</div>
+        <div className="text-muted-foreground">로딩 중...</div>
       </div>
     );
   }
@@ -101,7 +101,7 @@ export default function PushTemplatesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">푸시 템플릿 관리</h1>
+        <h1 className="text-2xl font-bold text-foreground">푸시 템플릿 관리</h1>
       </div>
 
       <Card>
@@ -127,7 +127,7 @@ export default function PushTemplatesPage() {
                     <Badge variant="outline">{template.type}</Badge>
                   </TableCell>
                   <TableCell className="font-medium">{template.title}</TableCell>
-                  <TableCell className="text-gray-600 max-w-xs truncate">
+                  <TableCell className="text-muted-foreground max-w-xs truncate">
                     {template.body_template}
                   </TableCell>
                   <TableCell className="text-center">
@@ -168,7 +168,7 @@ export default function PushTemplatesPage() {
             <Badge>{"{bookTitle}"}</Badge>
             <Badge>{"{percent}"}</Badge>
           </div>
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="text-sm text-muted-foreground mt-2">
             Body Template에서 위 변수를 사용하면 실제 값으로 치환됩니다.
           </p>
         </CardContent>
@@ -200,7 +200,7 @@ export default function PushTemplatesPage() {
                 <Label htmlFor="body">Body Template</Label>
                 <textarea
                   id="body"
-                  className="w-full min-h-24 px-3 py-2 border rounded-md text-sm"
+                  className="w-full min-h-24 px-3 py-2 border border-border rounded-md text-sm bg-background text-foreground"
                   value={editingTemplate.body_template}
                   onChange={(e) =>
                     setEditingTemplate({
