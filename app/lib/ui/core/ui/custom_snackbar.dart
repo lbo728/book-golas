@@ -135,20 +135,20 @@ class _AnimatedSnackbarState extends State<_AnimatedSnackbar>
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Colors.white.withValues(alpha: 0.15),
-                        Colors.white.withValues(alpha: 0.08),
+                        Colors.white.withOpacity(0.15),
+                        Colors.white.withOpacity(0.08),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: widget.type == SnackbarType.error
-                          ? Colors.red.withValues(alpha: 0.7)
-                          : Colors.white.withValues(alpha: 0.2),
+                          ? Colors.red.withOpacity(0.7)
+                          : Colors.white.withOpacity(0.2),
                       width: widget.type == SnackbarType.error ? 1.5 : 1,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
+                        color: Colors.black.withOpacity(0.2),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -161,13 +161,13 @@ class _AnimatedSnackbarState extends State<_AnimatedSnackbar>
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.5),
+                            color: Colors.white.withOpacity(0.5),
                             width: 1.5,
                           ),
                         ),
                         child: Icon(
                           _getIcon(),
-                          color: Colors.white.withValues(alpha: 0.9),
+                          color: Colors.white.withOpacity(0.9),
                           size: 20,
                         ),
                       ),
@@ -176,7 +176,7 @@ class _AnimatedSnackbarState extends State<_AnimatedSnackbar>
                         child: Text(
                           widget.message,
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.95),
+                            color: Colors.white.withOpacity(0.95),
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
                             letterSpacing: -0.2,
