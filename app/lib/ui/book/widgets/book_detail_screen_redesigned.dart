@@ -2799,65 +2799,103 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                 ),
                               ),
                               const SizedBox(height: 12),
-                              if (fullImageBytes != null && textController.text.isNotEmpty)
-                                GestureDetector(
-                                  onTap: isOcrExtracting
-                                      ? null
-                                      : () async {
-                                          setModalState(() => isOcrExtracting = true);
-                                          try {
-                                            final ocrService = GoogleVisionOcrService();
-                                            final result = await ocrService.extractTextFromImage(fullImageBytes!);
-                                            setModalState(() {
-                                              textController.text = result.text;
-                                              if (result.pageNumber != null) {
-                                                pageController.text = result.pageNumber.toString();
-                                                pageNumber = result.pageNumber;
-                                              }
-                                            });
-                                          } finally {
-                                            setModalState(() => isOcrExtracting = false);
-                                          }
-                                        },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                    decoration: BoxDecoration(
-                                      color: isDark
-                                          ? Colors.grey[800]!.withValues(alpha: 0.5)
-                                          : Colors.grey[200]!.withValues(alpha: 0.7),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        if (isOcrExtracting)
-                                          SizedBox(
-                                            width: 14,
-                                            height: 14,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: isDark ? Colors.grey[400] : Colors.grey[600],
-                                            ),
-                                          )
-                                        else
-                                          Icon(
-                                            CupertinoIcons.arrow_2_circlepath,
-                                            size: 14,
-                                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                              if (textController.text.isNotEmpty)
+                                Row(
+                                  children: [
+                                    if (fullImageBytes != null)
+                                      GestureDetector(
+                                        onTap: isOcrExtracting
+                                            ? null
+                                            : () async {
+                                                setModalState(() => isOcrExtracting = true);
+                                                try {
+                                                  final ocrService = GoogleVisionOcrService();
+                                                  final extractedOcrText = await ocrService.extractTextFromBytes(fullImageBytes!);
+                                                  if (extractedOcrText != null && extractedOcrText.isNotEmpty) {
+                                                    setModalState(() {
+                                                      textController.text = extractedOcrText;
+                                                    });
+                                                  }
+                                                } finally {
+                                                  setModalState(() => isOcrExtracting = false);
+                                                }
+                                              },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color: isDark
+                                                ? Colors.grey[800]!.withValues(alpha: 0.5)
+                                                : Colors.grey[200]!.withValues(alpha: 0.7),
+                                            borderRadius: BorderRadius.circular(8),
                                           ),
-                                        const SizedBox(width: 6),
-                                        Text(
-                                          isOcrExtracting ? '추출 중...' : '다시 추출하기',
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              if (isOcrExtracting)
+                                                SizedBox(
+                                                  width: 14,
+                                                  height: 14,
+                                                  child: CircularProgressIndicator(
+                                                    strokeWidth: 2,
+                                                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                                  ),
+                                                )
+                                              else
+                                                Icon(
+                                                  CupertinoIcons.arrow_2_circlepath,
+                                                  size: 14,
+                                                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                                ),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                isOcrExtracting ? '추출 중...' : '다시 추출하기',
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                      ],
+                                      ),
+                                    if (fullImageBytes != null) const SizedBox(width: 8),
+                                    GestureDetector(
+                                      onTap: () {
+                                        setModalState(() {
+                                          textController.clear();
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                        decoration: BoxDecoration(
+                                          color: isDark
+                                              ? Colors.grey[800]!.withValues(alpha: 0.5)
+                                              : Colors.grey[200]!.withValues(alpha: 0.7),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              CupertinoIcons.trash,
+                                              size: 14,
+                                              color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              '모두 지우기',
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 )
-                              else
+                              else if (fullImageBytes == null)
                                 Text(
                                   '이미지를 추가하면 자동으로 텍스트를 추출합니다.',
                                   style: TextStyle(
@@ -4873,7 +4911,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          '추출된 텍스트',
+                          '인상적인 문구',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -5449,7 +5487,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                         ),
                                         const SizedBox(width: 8),
                                         Text(
-                                          '추출된 텍스트',
+                                          '인상적인 문구',
                                           style: TextStyle(
                                             fontSize: 15,
                                             fontWeight: FontWeight.w600,
@@ -5558,7 +5596,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                         padding: const EdgeInsets.all(16),
                                         child: textController.text.isEmpty
                                             ? Text(
-                                                '추출된 텍스트가 없습니다.',
+                                                '인상적인 문구가 없습니다.',
                                                 style: TextStyle(
                                                   fontSize: 15,
                                                   height: 1.6,
@@ -5691,7 +5729,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                                 padding: const EdgeInsets.all(16),
                                                 child: textController.text.isEmpty
                                                     ? Text(
-                                                        '추출된 텍스트가 없습니다.',
+                                                        '인상적인 문구가 없습니다.',
                                                         style: TextStyle(
                                                           fontSize: 15,
                                                           height: 1.6,
@@ -7207,11 +7245,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                             .from('books')
                                             .update({'daily_target_pages': newDailyTarget})
                                             .eq('id', _currentBook.id!);
-                                        setState(() {
-                                          _currentBook = _currentBook.copyWith(
-                                            dailyTargetPages: newDailyTarget,
-                                          );
-                                        });
+                                        setState(() {});
                                         if (mounted) {
                                           CustomSnackbar.show(
                                             context,
