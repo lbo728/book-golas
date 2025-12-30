@@ -7832,9 +7832,14 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     var cachedSchedule = calculateSchedule(currentDailyTarget);
     int lastCalculatedTarget = currentDailyTarget;
 
+    // 직접 입력용 컨트롤러
+    final inputController = TextEditingController(text: currentDailyTarget.toString());
+
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      isDismissible: false,
+      enableDrag: false,
       backgroundColor: Colors.transparent,
       builder: (context) {
         return StatefulBuilder(
@@ -7959,15 +7964,11 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                         children: [
                                           Center(
                                             child: Container(
-                                              width: 70,
-                                              height: 80,
+                                              width: 80,
+                                              height: 90,
                                               decoration: BoxDecoration(
-                                                color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                                                borderRadius: BorderRadius.circular(12),
-                                                border: Border.all(
-                                                  color: const Color(0xFF10B981),
-                                                  width: 2,
-                                                ),
+                                                color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                                                borderRadius: BorderRadius.circular(16),
                                               ),
                                             ),
                                           ),
@@ -7982,6 +7983,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                               onSelectedItemChanged: (index) {
                                                 setModalState(() {
                                                   newDailyTarget = index + 1;
+                                                  inputController.text = (index + 1).toString();
                                                 });
                                               },
                                               childDelegate: ListWheelChildBuilderDelegate(
@@ -8006,9 +8008,9 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                                             Text(
                                                               '$value',
                                                               style: TextStyle(
-                                                                fontSize: isSelected ? 32 : 20,
+                                                                fontSize: isSelected ? 42 : 18,
                                                                 fontWeight: isSelected
-                                                                    ? FontWeight.bold
+                                                                    ? FontWeight.w700
                                                                     : FontWeight.w400,
                                                                 color: isSelected
                                                                     ? const Color(0xFF10B981)
@@ -8034,6 +8036,63 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                                   );
                                                 },
                                               ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    // 직접 입력 필드
+                                    Center(
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            '직접 입력:',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          SizedBox(
+                                            width: 80,
+                                            height: 36,
+                                            child: TextField(
+                                              controller: inputController,
+                                              keyboardType: TextInputType.number,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                                color: isDark ? Colors.white : Colors.black,
+                                              ),
+                                              decoration: InputDecoration(
+                                                isDense: true,
+                                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderSide: BorderSide(color: Colors.grey[400]!),
+                                                ),
+                                                focusedBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderSide: const BorderSide(color: Color(0xFF10B981)),
+                                                ),
+                                                suffixText: 'p',
+                                                suffixStyle: TextStyle(
+                                                  fontSize: 14,
+                                                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                                ),
+                                              ),
+                                              onChanged: (value) {
+                                                final parsed = int.tryParse(value);
+                                                if (parsed != null && parsed >= 1 && parsed <= _pagesLeft.clamp(1, 200)) {
+                                                  setModalState(() {
+                                                    newDailyTarget = parsed;
+                                                  });
+                                                  wheelController.jumpToItem(parsed - 1);
+                                                }
+                                              },
                                             ),
                                           ),
                                         ],
