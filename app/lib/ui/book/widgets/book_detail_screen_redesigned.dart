@@ -11,6 +11,8 @@ import 'package:flutter/foundation.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../domain/models/book.dart';
 import '../../../data/services/image_cache_manager.dart';
@@ -18,6 +20,7 @@ import '../../../data/services/book_service.dart';
 import '../../../data/services/google_vision_ocr_service.dart';
 import '../../core/ui/book_image_widget.dart';
 import '../../core/ui/custom_snackbar.dart';
+import '../../core/ui/keyboard_accessory_bar.dart';
 
 /// 시니어 프로덕트 디자이너가 재설계한 독서 상세 화면
 ///
@@ -72,6 +75,11 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   // 인상적인 페이지 선택 모드
   bool _isSelectionMode = false;
   final Set<String> _selectedImageIds = {};
+
+  // 추가 모달 임시 상태 저장 (모달 해제 후 재진입 시 유지)
+  Uint8List? _pendingImageBytes;
+  String _pendingExtractedText = '';
+  int? _pendingPageNumber;
 
   @override
   void initState() {
@@ -135,7 +143,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   int get _daysLeft {
     final now = DateTime.now();
     final target = _currentBook.targetDate;
-    return target.difference(now).inDays;
+    final days = target.difference(now).inDays;
+    return days >= 0 ? days + 1 : days;
   }
 
   double get _progressPercentage {
@@ -146,6 +155,19 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
   int get _pagesLeft => (_currentBook.totalPages - _currentBook.currentPage)
       .clamp(0, _currentBook.totalPages);
+
+  String get _attemptEncouragement {
+    switch (_attemptCount) {
+      case 1:
+        return '최고!';
+      case 2:
+        return '잘하고 있다';
+      case 3:
+        return '화이팅!';
+      default:
+        return '내가 더 도와줄게...';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -646,9 +668,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
                 // Title (탭하면 전체 제목 표시)
                 GestureDetector(
-                  onTap: _currentBook.title.length > 30
-                      ? () => _showFullTitleDialog(_currentBook.title)
-                      : null,
+                  onTap: () => _showFullTitleDialog(_currentBook.title),
                   child: Text(
                     _currentBook.title,
                     style: TextStyle(
@@ -674,6 +694,30 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                     ),
                   ),
                 ],
+                // 서점에서 보기 버튼
+                const SizedBox(height: 10),
+                GestureDetector(
+                  onTap: () => _showBookstoreSelectSheet(_currentBook.title),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        CupertinoIcons.arrow_up_right_square,
+                        size: 14,
+                        color: const Color(0xFF5B7FFF),
+                      ),
+                      const SizedBox(width: 4),
+                      const Text(
+                        '서점에서 보기',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF5B7FFF),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -711,39 +755,60 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       ),
       child: Row(
         children: [
-          // 캘린더 아이콘
-          Icon(
-            CupertinoIcons.calendar,
-            size: 16,
-            color: const Color(0xFF5B7FFF),
+          // 시작일 (라벨 포함)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '시작일',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? Colors.grey[500] : Colors.grey[500],
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                startDateStr,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? Colors.grey[300] : Colors.grey[700],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 10),
-          // 시작일
-          Text(
-            startDateStr,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: isDark ? Colors.grey[300] : Colors.grey[700],
-            ),
-          ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 12),
           Icon(
             CupertinoIcons.arrow_right,
             size: 12,
             color: isDark ? Colors.grey[500] : Colors.grey[400],
           ),
-          const SizedBox(width: 6),
-          // 목표일
-          Text(
-            targetDateStr,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white : Colors.black87,
-            ),
+          const SizedBox(width: 12),
+          // 목표일 (라벨 포함)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '목표일',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? Colors.grey[500] : Colors.grey[500],
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                targetDateStr,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 8),
           // 총 일수 표시
           Text(
             '($totalDays일)',
@@ -773,22 +838,19 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
             ),
           ],
           const Spacer(),
-          // 변경 버튼
+          // 변경 버튼 (연필 아이콘)
           GestureDetector(
             onTap: _showUpdateTargetDateDialogWithConfirm,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text(
-                '변경',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF5B7FFF),
-                ),
+              child: const Icon(
+                CupertinoIcons.pencil,
+                size: 16,
+                color: Color(0xFF5B7FFF),
               ),
             ),
           ),
@@ -891,7 +953,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          '$_attemptCount번째 도전',
+                          '$_attemptCount번째 · $_attemptEncouragement',
                           style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
@@ -1336,9 +1398,29 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
             future: fetchProgressHistory(_currentBook.id!),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const SizedBox(
-                  height: 200,
-                  child: Center(child: CircularProgressIndicator()),
+                final isDark = Theme.of(context).brightness == Brightness.dark;
+                return Shimmer.fromColors(
+                  baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                  highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
+                  child: SizedBox(
+                    height: 200,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: List.generate(7, (index) {
+                        final heights = [80.0, 120.0, 60.0, 140.0, 100.0, 160.0, 90.0];
+                        return Expanded(
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            height: heights[index % heights.length],
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
                 );
               }
 
@@ -2260,68 +2342,102 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
-  Future<void> _uploadAndSaveMemorablePage({
+  Future<bool> _uploadAndSaveMemorablePage({
     Uint8List? imageBytes,
     required String extractedText,
     int? pageNumber,
   }) async {
-    String? publicUrl;
+    try {
+      String? publicUrl;
 
-    // 이미지가 있으면 스토리지에 업로드
-    if (imageBytes != null) {
-      final fileName = 'book_images/${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final storage = Supabase.instance.client.storage;
-      await storage.from('book-images').uploadBinary(fileName, imageBytes,
-          fileOptions: const FileOptions(upsert: true));
-      publicUrl = storage.from('book-images').getPublicUrl(fileName);
-    }
-
-    // insert 후 새 레코드 반환받기
-    final result = await Supabase.instance.client.from('book_images').insert({
-      'book_id': _currentBook.id,
-      'image_url': publicUrl,
-      'caption': '',
-      'extracted_text': extractedText.isEmpty ? null : extractedText,
-      'page_number': pageNumber,
-    }).select().single();
-
-    // 로컬 캐시에 직접 추가 (리로딩 없이 즉시 반영)
-    setState(() {
-      if (_cachedImages != null) {
-        _cachedImages = [result, ..._cachedImages!];
+      // 이미지가 있으면 스토리지에 업로드
+      if (imageBytes != null) {
+        final fileName = 'book_images/${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final storage = Supabase.instance.client.storage;
+        await storage.from('book-images').uploadBinary(fileName, imageBytes,
+            fileOptions: const FileOptions(upsert: true));
+        publicUrl = storage.from('book-images').getPublicUrl(fileName);
       }
-      // 백그라운드에서 서버 데이터 동기화
-      _bookImagesFuture = fetchBookImages(_currentBook.id!);
-    });
 
-    if (mounted) {
-      // 인상적인 페이지 탭으로 이동 후 스크롤 상단으로
-      _tabController.animateTo(0);
-      _scrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+      // insert 후 새 레코드 반환받기
+      final result = await Supabase.instance.client.from('book_images').insert({
+        'book_id': _currentBook.id,
+        'image_url': publicUrl,
+        'caption': '',
+        'extracted_text': extractedText.isEmpty ? null : extractedText,
+        'page_number': pageNumber,
+      }).select().single();
 
-      CustomSnackbar.show(
-        context,
-        message: '인상적인 페이지가 저장되었습니다',
-        type: SnackbarType.success,
-      );
+      // 로컬 캐시에 직접 추가 (리로딩 없이 즉시 반영)
+      setState(() {
+        if (_cachedImages != null) {
+          _cachedImages = [result, ..._cachedImages!];
+        }
+        // 백그라운드에서 서버 데이터 동기화
+        _bookImagesFuture = fetchBookImages(_currentBook.id!);
+      });
+
+      if (mounted) {
+        // 인상적인 페이지 탭으로 이동 후 스크롤 상단으로
+        _tabController.animateTo(0);
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+
+        CustomSnackbar.show(
+          context,
+          message: '인상적인 페이지가 저장되었습니다',
+          type: SnackbarType.success,
+        );
+      }
+      return true;
+    } catch (e) {
+      if (mounted) {
+        final errorMessage = e.toString();
+        final isNetworkError = errorMessage.contains('SocketException') ||
+            errorMessage.contains('Connection') ||
+            errorMessage.contains('timeout');
+
+        showCupertinoDialog(
+          context: context,
+          builder: (dialogContext) => CupertinoAlertDialog(
+            title: const Text('업로드 실패'),
+            content: Text(
+              isNetworkError
+                  ? '네트워크 연결을 확인해주세요.\n연결 상태가 양호하면 다시 시도해주세요.'
+                  : '인상적인 페이지를 저장하는 중 오류가 발생했습니다.\n업로드 버튼을 눌러 다시 시도해주세요.',
+            ),
+            actions: [
+              CupertinoDialogAction(
+                child: const Text('확인'),
+                onPressed: () => Navigator.pop(dialogContext),
+              ),
+            ],
+          ),
+        );
+      }
+      return false;
     }
   }
 
   /// 인상적인 페이지 추가 모달 (새 UX 플로우)
   void _showAddMemorablePageModal() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    Uint8List? fullImageBytes; // 원본 이미지 (스토리지에 저장됨)
-    String extractedText = '';
-    int? pageNumber;
+    Uint8List? fullImageBytes = _pendingImageBytes;
+    String extractedText = _pendingExtractedText;
+    int? pageNumber = _pendingPageNumber;
     bool isUploading = false;
-    String? pageValidationError; // 페이지 유효성 검사 에러
+    String? pageValidationError;
+    bool isOcrExtracting = false;
+    bool hideKeyboardAccessory = false;
+    bool uploadSuccess = false;
 
-    final textController = TextEditingController();
-    final pageController = TextEditingController();
+    final textController = TextEditingController(text: _pendingExtractedText);
+    final pageController = TextEditingController(
+      text: _pendingPageNumber != null ? _pendingPageNumber.toString() : '',
+    );
     final textFocusNode = FocusNode();
     final pageFocusNode = FocusNode();
     final scrollController = ScrollController();
@@ -2335,6 +2451,9 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       builder: (modalContext) {
         return StatefulBuilder(
           builder: (context, setModalState) {
+            final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+            final isKeyboardOpen = keyboardHeight > 0;
+
             return GestureDetector(
               onTap: () {
                 textFocusNode.unfocus();
@@ -2342,7 +2461,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
               },
               child: Padding(
                 padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                  bottom: keyboardHeight,
+                  top: MediaQuery.of(context).padding.top,
                 ),
                 child: Stack(
                   children: [
@@ -2363,18 +2483,118 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
-                      // 헤더
                       Padding(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text(
-                                '취소',
-                                style: TextStyle(
-                                  fontSize: 16,
+                            GestureDetector(
+                              onTap: () {
+                                final hasChanges = fullImageBytes != null ||
+                                    textController.text.isNotEmpty ||
+                                    pageController.text.isNotEmpty;
+                                if (hasChanges) {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    backgroundColor: Colors.transparent,
+                                    builder: (bottomSheetContext) => Container(
+                                      padding: const EdgeInsets.all(20),
+                                      decoration: BoxDecoration(
+                                        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                                        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(
+                                            width: 40,
+                                            height: 4,
+                                            margin: const EdgeInsets.only(bottom: 20),
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[400],
+                                              borderRadius: BorderRadius.circular(2),
+                                            ),
+                                          ),
+                                          Text(
+                                            '변경 중인 사항이 취소됩니다.\n닫으시겠어요?',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: isDark ? Colors.white : Colors.black,
+                                              height: 1.5,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 24),
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: GestureDetector(
+                                                  onTap: () => Navigator.pop(bottomSheetContext),
+                                                  child: Container(
+                                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                                    decoration: BoxDecoration(
+                                                      color: isDark ? Colors.grey[800] : Colors.grey[200],
+                                                      borderRadius: BorderRadius.circular(12),
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        '취소',
+                                                        style: TextStyle(
+                                                          fontSize: 15,
+                                                          fontWeight: FontWeight.w600,
+                                                          color: isDark ? Colors.grey[300] : Colors.grey[700],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Expanded(
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    Navigator.pop(bottomSheetContext);
+                                                    Navigator.pop(context);
+                                                    _pendingImageBytes = null;
+                                                    _pendingExtractedText = '';
+                                                    _pendingPageNumber = null;
+                                                  },
+                                                  child: Container(
+                                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.red[400],
+                                                      borderRadius: BorderRadius.circular(12),
+                                                    ),
+                                                    child: const Center(
+                                                      child: Text(
+                                                        '닫기',
+                                                        style: TextStyle(
+                                                          fontSize: 15,
+                                                          fontWeight: FontWeight.w600,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(height: MediaQuery.of(bottomSheetContext).padding.bottom + 8),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  Navigator.pop(context);
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                child: Icon(
+                                  CupertinoIcons.xmark,
+                                  size: 22,
                                   color: isDark ? Colors.grey[400] : Colors.grey[600],
                                 ),
                               ),
@@ -2387,34 +2607,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                 color: isDark ? Colors.white : Colors.black,
                               ),
                             ),
-                            TextButton(
-                              onPressed: isUploading || textController.text.isEmpty || pageController.text.isEmpty || pageValidationError != null
-                                  ? null
-                                  : () async {
-                                      setModalState(() => isUploading = true);
-                                      try {
-                                        await _uploadAndSaveMemorablePage(
-                                          imageBytes: fullImageBytes,
-                                          extractedText: textController.text,
-                                          pageNumber: int.tryParse(pageController.text),
-                                        );
-                                      } finally {
-                                        if (mounted) {
-                                          Navigator.pop(context);
-                                        }
-                                      }
-                                    },
-                              child: Text(
-                                '업로드',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: (isUploading || textController.text.isEmpty || pageController.text.isEmpty || pageValidationError != null)
-                                      ? Colors.grey
-                                      : const Color(0xFF5B7FFF),
-                                ),
-                              ),
-                            ),
+                            const SizedBox(width: 38),
                           ],
                         ),
                       ),
@@ -2455,32 +2648,149 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                             Positioned(
                                               bottom: 8,
                                               right: 8,
-                                              child: Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                  horizontal: 10,
-                                                  vertical: 6,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.black54,
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                child: const Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    Icon(
-                                                      CupertinoIcons.fullscreen,
-                                                      size: 14,
-                                                      color: Colors.white,
-                                                    ),
-                                                    SizedBox(width: 4),
-                                                    Text(
-                                                      '전체보기',
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: Colors.white,
+                                              child: GestureDetector(
+                                                onTap: () async {
+                                                  final shouldProceed = await showModalBottomSheet<bool>(
+                                                    context: context,
+                                                    backgroundColor: Colors.transparent,
+                                                    builder: (bottomSheetContext) => Container(
+                                                      padding: const EdgeInsets.all(20),
+                                                      decoration: BoxDecoration(
+                                                        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                                                        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                                                      ),
+                                                      child: Column(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        children: [
+                                                          Container(
+                                                            width: 40,
+                                                            height: 4,
+                                                            margin: const EdgeInsets.only(bottom: 20),
+                                                            decoration: BoxDecoration(
+                                                              color: Colors.grey[400],
+                                                              borderRadius: BorderRadius.circular(2),
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            '텍스트를 다시 추출하시겠어요?',
+                                                            textAlign: TextAlign.center,
+                                                            style: TextStyle(
+                                                              fontSize: 16,
+                                                              fontWeight: FontWeight.w500,
+                                                              color: isDark ? Colors.white : Colors.black,
+                                                              height: 1.5,
+                                                            ),
+                                                          ),
+                                                          const SizedBox(height: 8),
+                                                          Text(
+                                                            '이미지에서 원하는 영역을 선택하여\n텍스트를 추출합니다.',
+                                                            textAlign: TextAlign.center,
+                                                            style: TextStyle(
+                                                              fontSize: 14,
+                                                              color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                                              height: 1.4,
+                                                            ),
+                                                          ),
+                                                          const SizedBox(height: 24),
+                                                          Row(
+                                                            children: [
+                                                              Expanded(
+                                                                child: GestureDetector(
+                                                                  onTap: () => Navigator.pop(bottomSheetContext, false),
+                                                                  child: Container(
+                                                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                                                    decoration: BoxDecoration(
+                                                                      color: isDark ? Colors.grey[800] : Colors.grey[200],
+                                                                      borderRadius: BorderRadius.circular(12),
+                                                                    ),
+                                                                    child: Center(
+                                                                      child: Text(
+                                                                        '취소',
+                                                                        style: TextStyle(
+                                                                          fontSize: 15,
+                                                                          fontWeight: FontWeight.w600,
+                                                                          color: isDark ? Colors.grey[300] : Colors.grey[700],
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(width: 12),
+                                                              Expanded(
+                                                                child: GestureDetector(
+                                                                  onTap: () => Navigator.pop(bottomSheetContext, true),
+                                                                  child: Container(
+                                                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                                                    decoration: BoxDecoration(
+                                                                      color: const Color(0xFF5B7FFF),
+                                                                      borderRadius: BorderRadius.circular(12),
+                                                                    ),
+                                                                    child: const Center(
+                                                                      child: Text(
+                                                                        '추출하기',
+                                                                        style: TextStyle(
+                                                                          fontSize: 15,
+                                                                          fontWeight: FontWeight.w600,
+                                                                          color: Colors.white,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          SizedBox(height: MediaQuery.of(bottomSheetContext).padding.bottom + 8),
+                                                        ],
                                                       ),
                                                     ),
-                                                  ],
+                                                  );
+
+                                                  if (shouldProceed != true) return;
+
+                                                  _extractTextFromLocalImage(
+                                                    fullImageBytes!,
+                                                    (ocrText, extractedPageNum) {
+                                                      setModalState(() {
+                                                        extractedText = ocrText;
+                                                        textController.text = ocrText;
+                                                        if (extractedPageNum != null) {
+                                                          pageNumber = extractedPageNum;
+                                                          pageController.text = extractedPageNum.toString();
+                                                        }
+                                                      });
+                                                    },
+                                                  );
+                                                },
+                                                behavior: HitTestBehavior.opaque,
+                                                child: Container(
+                                                  padding: const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                    vertical: 6,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black54,
+                                                    borderRadius: BorderRadius.circular(8),
+                                                  ),
+                                                  child: const Row(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      Icon(
+                                                        CupertinoIcons.arrow_2_circlepath,
+                                                        size: 14,
+                                                        color: Colors.white,
+                                                      ),
+                                                      SizedBox(width: 4),
+                                                      Text(
+                                                        '텍스트 추출',
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
                                             ),
@@ -2491,16 +2801,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                                 onTap: () {
                                                   _showReplaceImageConfirmation(
                                                     onConfirm: () {
-                                                      _showImageSourceActionSheet(
-                                                        onImageSelected: (imageBytes, ocrText, extractedPageNum) {
+                                                      _showImageSourceActionSheetForImageOnly(
+                                                        onImageSelected: (imageBytes) {
                                                           setModalState(() {
                                                             fullImageBytes = imageBytes;
-                                                            extractedText = ocrText;
-                                                            textController.text = ocrText;
-                                                            if (extractedPageNum != null) {
-                                                              pageNumber = extractedPageNum;
-                                                              pageController.text = extractedPageNum.toString();
-                                                            }
                                                           });
                                                         },
                                                       );
@@ -2543,16 +2847,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                       )
                                     : GestureDetector(
                                         behavior: HitTestBehavior.opaque,
-                                        onTap: () => _showImageSourceActionSheet(
-                                          onImageSelected: (imageBytes, ocrText, extractedPageNum) {
+                                        onTap: () => _showImageSourceActionSheetForImageOnly(
+                                          onImageSelected: (imageBytes) {
                                             setModalState(() {
                                               fullImageBytes = imageBytes;
-                                              extractedText = ocrText;
-                                              textController.text = ocrText;
-                                              if (extractedPageNum != null) {
-                                                pageNumber = extractedPageNum;
-                                                pageController.text = extractedPageNum.toString();
-                                              }
                                             });
                                           },
                                         ),
@@ -2610,6 +2908,14 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                           color: pageValidationError != null
                                               ? Colors.red[400]
                                               : (isDark ? Colors.white : Colors.black),
+                                        ),
+                                      ),
+                                      Text(
+                                        ' *',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.red[400],
                                         ),
                                       ),
                                       const SizedBox(width: 12),
@@ -2701,29 +3007,60 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
                               // 텍스트 영역 레이블
                               Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Icon(
-                                    CupertinoIcons.doc_text,
-                                    size: 16,
-                                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        CupertinoIcons.doc_text,
+                                        size: 16,
+                                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '인상적인 문구',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: isDark ? Colors.white : Colors.black,
+                                        ),
+                                      ),
+                                      Text(
+                                        ' *',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.red[400],
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '인상적인 문구',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: isDark ? Colors.white : Colors.black,
+                                  if (textController.text.isNotEmpty)
+                                    GestureDetector(
+                                      onTap: () {
+                                        setModalState(() {
+                                          textController.clear();
+                                        });
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            CupertinoIcons.trash,
+                                            size: 14,
+                                            color: Colors.red[400],
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            '모두 지우기',
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.red[400],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    ' *',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.red[400],
-                                    ),
-                                  ),
                                 ],
                               ),
                               const SizedBox(height: 12),
@@ -2772,15 +3109,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 12),
-                              Text(
-                                '이미지를 추가하면 자동으로 텍스트를 추출합니다.',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: isDark ? Colors.grey[500] : Colors.grey[600],
-                                ),
-                              ),
-                              const SizedBox(height: 40),
+                              const SizedBox(height: 100),
                             ],
                           ),
                         ),
@@ -2788,6 +3117,88 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                     ],
                   ),
                 ),
+                    // 플로팅 업로드 버튼 (키보드가 열려있지 않을 때만)
+                    if (!isKeyboardOpen && !isUploading)
+                      Positioned(
+                        left: 20,
+                        right: 20,
+                        bottom: 32,
+                        child: GestureDetector(
+                          onTap: textController.text.isEmpty || pageController.text.isEmpty || pageValidationError != null
+                              ? null
+                              : () async {
+                                  setModalState(() => isUploading = true);
+                                  final success = await _uploadAndSaveMemorablePage(
+                                    imageBytes: fullImageBytes,
+                                    extractedText: textController.text,
+                                    pageNumber: int.tryParse(pageController.text),
+                                  );
+                                  if (success && mounted) {
+                                    uploadSuccess = true;
+                                    _pendingImageBytes = null;
+                                    _pendingExtractedText = '';
+                                    _pendingPageNumber = null;
+                                    Navigator.pop(context);
+                                  } else {
+                                    setModalState(() => isUploading = false);
+                                  }
+                                },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            decoration: BoxDecoration(
+                              color: textController.text.isEmpty || pageController.text.isEmpty || pageValidationError != null
+                                  ? (isDark ? Colors.grey[700] : Colors.grey[300])
+                                  : const Color(0xFF5B7FFF),
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: (textController.text.isEmpty || pageController.text.isEmpty || pageValidationError != null)
+                                      ? Colors.transparent
+                                      : const Color(0xFF5B7FFF).withValues(alpha: 0.3),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Text(
+                                '업로드',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: textController.text.isEmpty || pageController.text.isEmpty || pageValidationError != null
+                                      ? (isDark ? Colors.grey[500] : Colors.grey[500])
+                                      : Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    // 키보드 액세서리 바 (키보드가 열려있고 숨김 상태가 아닐 때만)
+                    if (isKeyboardOpen && !hideKeyboardAccessory)
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: KeyboardAccessoryBar(
+                          isDark: isDark,
+                          onDone: () {
+                            setModalState(() {
+                              hideKeyboardAccessory = true;
+                            });
+                            textFocusNode.unfocus();
+                            pageFocusNode.unfocus();
+                            Future.delayed(const Duration(milliseconds: 300), () {
+                              if (context.mounted) {
+                                setModalState(() {
+                                  hideKeyboardAccessory = false;
+                                });
+                              }
+                            });
+                          },
+                        ),
+                      ),
                     // 업로드 중 스피너 오버레이
                     if (isUploading)
                       Positioned.fill(
@@ -2824,7 +3235,13 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
           },
         );
       },
-    );
+    ).then((_) {
+      if (!uploadSuccess) {
+        _pendingImageBytes = fullImageBytes;
+        _pendingExtractedText = textController.text;
+        _pendingPageNumber = int.tryParse(pageController.text);
+      }
+    });
   }
 
   /// 이미지 소스 선택 액션시트
@@ -2931,6 +3348,221 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
+  /// 이미지 선택 액션시트 (이미지만, OCR 없이)
+  void _showImageSourceActionSheetForImageOnly({
+    required Function(Uint8List imageBytes) onImageSelected,
+  }) {
+    final isCameraAvailable = !kIsWeb &&
+        (Platform.isAndroid || Platform.isIOS) &&
+        (Platform.isAndroid || (Platform.isIOS && !Platform.isMacOS));
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 12),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF5B7FFF).withAlpha(25),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      CupertinoIcons.camera_fill,
+                      color: Color(0xFF5B7FFF),
+                    ),
+                  ),
+                  title: Text(
+                    '카메라 촬영하기',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
+                  onTap: isCameraAvailable && Platform.isIOS
+                      ? () async {
+                          Navigator.pop(context);
+                          await _pickImageOnly(
+                            ImageSource.camera,
+                            onImageSelected,
+                          );
+                        }
+                      : () {
+                          Navigator.pop(context);
+                          CustomSnackbar.show(
+                            this.context,
+                            message: '시뮬레이터에서는 카메라를 사용할 수 없습니다',
+                            type: SnackbarType.warning,
+                          );
+                        },
+                ),
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF5B7FFF).withAlpha(25),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      CupertinoIcons.photo_fill,
+                      color: Color(0xFF5B7FFF),
+                    ),
+                  ),
+                  title: Text(
+                    '라이브러리에서 가져오기',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await _pickImageOnly(
+                      ImageSource.gallery,
+                      onImageSelected,
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// 이미지만 선택 (OCR 없이)
+  Future<void> _pickImageOnly(
+    ImageSource source,
+    Function(Uint8List imageBytes) onComplete,
+  ) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: source);
+    if (pickedFile == null) return;
+
+    final imageBytes = await pickedFile.readAsBytes();
+    if (!mounted) return;
+
+    onComplete(imageBytes);
+  }
+
+  /// 로컬 이미지 바이트에서 텍스트 추출 (크롭 → OCR)
+  Future<void> _extractTextFromLocalImage(
+    Uint8List imageBytes,
+    Function(String extractedText, int? pageNumber) onComplete,
+  ) async {
+    try {
+      final tempDir = Directory.systemTemp;
+      final tempFile = File('${tempDir.path}/temp_ocr_${DateTime.now().millisecondsSinceEpoch}.jpg');
+      await tempFile.writeAsBytes(imageBytes);
+
+      if (!mounted) return;
+
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: tempFile.path,
+        uiSettings: [
+          IOSUiSettings(
+            title: '텍스트 추출 영역 선택',
+            cancelButtonTitle: '취소',
+            doneButtonTitle: '완료',
+            aspectRatioLockEnabled: false,
+            resetAspectRatioEnabled: true,
+            rotateButtonsHidden: false,
+            rotateClockwiseButtonHidden: true,
+          ),
+          AndroidUiSettings(
+            toolbarTitle: '텍스트 추출 영역 선택',
+            toolbarColor: const Color(0xFF5B7FFF),
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false,
+            hideBottomControls: false,
+          ),
+        ],
+      );
+
+      await tempFile.delete();
+
+      if (croppedFile == null) return;
+
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => PopScope(
+          canPop: false,
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF2A2A2A)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(
+                    color: Color(0xFF5B7FFF),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    '텍스트 추출 중...',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final ocrService = GoogleVisionOcrService();
+      final croppedBytes = await croppedFile.readAsBytes();
+      final ocrText = await ocrService.extractTextFromBytes(croppedBytes) ?? '';
+      final pageNumber = _extractPageNumber(ocrText);
+
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop();
+
+      onComplete(ocrText, pageNumber);
+    } catch (e) {
+      if (!mounted) return;
+      if (Navigator.canPop(context)) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+      CustomSnackbar.show(context, message: '텍스트 추출에 실패했습니다.', rootOverlay: true);
+    }
+  }
+
   /// 이미지 선택 → 크롭 → OCR 텍스트 추출
   Future<void> _pickImageAndExtractText(
     ImageSource source,
@@ -2940,60 +3572,12 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     final pickedFile = await picker.pickImage(source: source);
     if (pickedFile == null) return;
 
-    // 원본 이미지 바이트
+    // 원본 이미지 바이트 (저장용)
     final fullImageBytes = await pickedFile.readAsBytes();
 
     if (!mounted) return;
 
-    // 로딩 다이얼로그 표시
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => PopScope(
-        canPop: false,
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xFF2A2A2A)
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CircularProgressIndicator(
-                  color: Color(0xFF5B7FFF),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  '페이지 번호 추출 중...',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-
-    // 1단계: 전체 이미지에서 페이지 번호 먼저 추출 시도
-    final ocrService = GoogleVisionOcrService();
-    final fullImageOcrText = await ocrService.extractTextFromBytes(fullImageBytes) ?? '';
-    int? pageNumber = _extractPageNumber(fullImageOcrText);
-
-    if (!mounted) return;
-
-    // 로딩 다이얼로그 닫기
-    Navigator.of(context, rootNavigator: true).pop();
-
-    // 2단계: 크롭 화면 표시 (본문 텍스트 추출용)
+    // 1단계: 바로 크롭 화면 표시 (텍스트 추출 영역 선택)
     final croppedFile = await ImageCropper().cropImage(
       sourcePath: pickedFile.path,
       uiSettings: [
@@ -3021,7 +3605,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
     if (!mounted) return;
 
-    // 텍스트 추출 로딩 다이얼로그 표시
+    // 2단계: 텍스트 추출 로딩 다이얼로그 표시
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -3059,14 +3643,11 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       ),
     );
 
-    // 3단계: 크롭된 영역에서 본문 텍스트 OCR 추출
+    // 3단계: 크롭된 영역에서 OCR 추출 (텍스트 + 페이지 번호)
+    final ocrService = GoogleVisionOcrService();
     final croppedBytes = await croppedFile.readAsBytes();
     final ocrText = await ocrService.extractTextFromBytes(croppedBytes) ?? '';
-
-    // 크롭 영역에서도 페이지 번호를 찾지 못했으면 다시 시도
-    if (pageNumber == null) {
-      pageNumber = _extractPageNumber(ocrText);
-    }
+    final pageNumber = _extractPageNumber(ocrText);
 
     if (!mounted) return;
 
@@ -3422,7 +4003,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          '$_attemptCount번째 도전',
+                          '$_attemptCount번째 · $_attemptEncouragement',
                           style: const TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
@@ -4719,7 +5300,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          '추출된 텍스트',
+                          '인상적인 문구',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -4848,7 +5429,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   void _showReplaceImageOptionsOverModal({
     required String imageId,
     required String currentText,
-    required VoidCallback onReplaced,
+    required Function(String? newImageUrl) onReplaced,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
@@ -4896,11 +5477,11 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                 title: const Text('카메라로 촬영'),
                 onTap: () {
                   Navigator.pop(sheetContext);
-                  _pickImageAndExtractText(
+                  _pickImageOnly(
                     ImageSource.camera,
-                    (imageBytes, ocrText, pageNumber) async {
-                      await _replaceImage(imageId, imageBytes, ocrText.isEmpty ? currentText : ocrText, pageNumber);
-                      onReplaced();
+                    (imageBytes) async {
+                      final newUrl = await _replaceImage(imageId, imageBytes, currentText, null);
+                      onReplaced(newUrl);
                     },
                   );
                 },
@@ -4920,11 +5501,11 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                 title: const Text('갤러리에서 선택'),
                 onTap: () {
                   Navigator.pop(sheetContext);
-                  _pickImageAndExtractText(
+                  _pickImageOnly(
                     ImageSource.gallery,
-                    (imageBytes, ocrText, pageNumber) async {
-                      await _replaceImage(imageId, imageBytes, ocrText.isEmpty ? currentText : ocrText, pageNumber);
-                      onReplaced();
+                    (imageBytes) async {
+                      final newUrl = await _replaceImage(imageId, imageBytes, currentText, null);
+                      onReplaced(newUrl);
                     },
                   );
                 },
@@ -4936,7 +5517,243 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
-  Future<void> _replaceImage(String imageId, Uint8List imageBytes, String extractedText, int? pageNumber) async {
+  Future<void> _showReExtractConfirmation({
+    required String imageUrl,
+    required Function(String extractedText) onConfirm,
+  }) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final shouldProceed = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (bottomSheetContext) => Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: Colors.grey[400],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Text(
+              '텍스트를 다시 추출하시겠어요?',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: isDark ? Colors.white : Colors.black,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '이미지에서 원하는 영역을 선택하여\n텍스트를 추출합니다.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(bottomSheetContext, false),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.grey[800] : Colors.grey[200],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '취소',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.grey[300] : Colors.grey[700],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(bottomSheetContext, true),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF5B7FFF),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          '추출하기',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: MediaQuery.of(bottomSheetContext).padding.bottom + 8),
+          ],
+        ),
+      ),
+    );
+
+    if (shouldProceed != true) return;
+
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => PopScope(
+          canPop: false,
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF2A2A2A)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(
+                    color: Color(0xFF5B7FFF),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    '이미지 불러오는 중...',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final httpClient = HttpClient();
+      final request = await httpClient.getUrl(Uri.parse(imageUrl));
+      final response = await request.close();
+      final bytes = await consolidateHttpClientResponseBytes(response);
+
+      final tempDir = Directory.systemTemp;
+      final tempFile = File('${tempDir.path}/temp_image_${DateTime.now().millisecondsSinceEpoch}.jpg');
+      await tempFile.writeAsBytes(bytes);
+
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop();
+
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: tempFile.path,
+        uiSettings: [
+          IOSUiSettings(
+            title: '텍스트 추출 영역 선택',
+            cancelButtonTitle: '취소',
+            doneButtonTitle: '완료',
+            aspectRatioLockEnabled: false,
+            resetAspectRatioEnabled: true,
+            rotateButtonsHidden: false,
+            rotateClockwiseButtonHidden: true,
+          ),
+          AndroidUiSettings(
+            toolbarTitle: '텍스트 추출 영역 선택',
+            toolbarColor: const Color(0xFF5B7FFF),
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false,
+            hideBottomControls: false,
+          ),
+        ],
+      );
+
+      await tempFile.delete();
+
+      if (croppedFile == null) return;
+
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => PopScope(
+          canPop: false,
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF2A2A2A)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(
+                    color: Color(0xFF5B7FFF),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    '텍스트 추출 중...',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final ocrService = GoogleVisionOcrService();
+      final croppedBytes = await croppedFile.readAsBytes();
+      final ocrText = await ocrService.extractTextFromBytes(croppedBytes) ?? '';
+
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop();
+
+      onConfirm(ocrText);
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop();
+      CustomSnackbar.show(context, message: '텍스트 다시 추출에 실패했습니다.', rootOverlay: true);
+    }
+  }
+
+  Future<String?> _replaceImage(String imageId, Uint8List imageBytes, String extractedText, int? pageNumber) async {
     try {
       final fileName = '${DateTime.now().millisecondsSinceEpoch}_${_currentBook.id}.jpg';
       final storagePath = 'book_images/$fileName';
@@ -4965,6 +5782,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
           type: SnackbarType.success,
         );
       }
+      return imageUrl;
     } catch (e) {
       if (mounted) {
         CustomSnackbar.show(
@@ -4973,6 +5791,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
           type: SnackbarType.error,
         );
       }
+      return null;
     }
   }
 
@@ -4995,18 +5814,20 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
   void _showExistingImageModal(
     String imageId,
-    String? imageUrl,
+    String? initialImageUrl,
     String? extractedText, {
     int? pageNumber,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     // 메모리에 저장된 텍스트가 있으면 사용, 없으면 DB에서 가져온 값 사용
     final cachedText = _editedTexts[imageId] ?? extractedText ?? '';
+    final originalText = cachedText; // 수정 전 원본 텍스트 저장
     final textController = TextEditingController(text: cachedText);
     final focusNode = FocusNode();
     bool isEditing = false;
     bool isSaving = false;
-    final hasImage = imageUrl != null && imageUrl.isNotEmpty;
+    bool hideKeyboardAccessory = false;
+    String? imageUrl = initialImageUrl;
 
     showModalBottomSheet(
       context: context,
@@ -5026,6 +5847,18 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
               });
             }
 
+            final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+            final isKeyboardOpen = keyboardHeight > 0;
+            final hasImage = imageUrl != null && imageUrl!.isNotEmpty;
+
+            final statusBarHeight = MediaQuery.of(context).padding.top;
+            final screenHeight = MediaQuery.of(context).size.height;
+            final defaultModalHeight = screenHeight * 0.85;
+            final availableHeight = screenHeight - statusBarHeight - keyboardHeight;
+            final modalHeight = isKeyboardOpen
+                ? availableHeight.clamp(0.0, defaultModalHeight)
+                : defaultModalHeight;
+
             return GestureDetector(
               onTap: () {
                 if (isEditing) {
@@ -5034,15 +5867,18 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
               },
               child: Padding(
                 padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                  bottom: keyboardHeight,
+                  top: statusBarHeight,
                 ),
-                child: Container(
-                  height: MediaQuery.of(context).size.height * 0.85,
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                  ),
-                  child: Column(
+                child: Stack(
+                  children: [
+                    Container(
+                      height: modalHeight,
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                      ),
+                      child: Column(
                     children: [
                       const SizedBox(height: 12),
                       Container(
@@ -5059,9 +5895,111 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             TextButton(
-                              onPressed: () => Navigator.pop(context),
+                              onPressed: isEditing
+                                  ? () {
+                                      final hasChanges = textController.text != originalText;
+                                      if (hasChanges) {
+                                        showModalBottomSheet(
+                                          context: context,
+                                          backgroundColor: Colors.transparent,
+                                          builder: (bottomSheetContext) => Container(
+                                            padding: const EdgeInsets.all(20),
+                                            decoration: BoxDecoration(
+                                              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                                              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                                            ),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Container(
+                                                  width: 40,
+                                                  height: 4,
+                                                  margin: const EdgeInsets.only(bottom: 20),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.grey[400],
+                                                    borderRadius: BorderRadius.circular(2),
+                                                  ),
+                                                ),
+                                                Text(
+                                                  '변경 중인 사항이 취소됩니다.\n취소하시겠어요?',
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: isDark ? Colors.white : Colors.black,
+                                                    height: 1.5,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 24),
+                                                Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: GestureDetector(
+                                                        onTap: () => Navigator.pop(bottomSheetContext),
+                                                        child: Container(
+                                                          padding: const EdgeInsets.symmetric(vertical: 14),
+                                                          decoration: BoxDecoration(
+                                                            color: isDark ? Colors.grey[800] : Colors.grey[200],
+                                                            borderRadius: BorderRadius.circular(12),
+                                                          ),
+                                                          child: Center(
+                                                            child: Text(
+                                                              '계속 수정',
+                                                              style: TextStyle(
+                                                                fontSize: 15,
+                                                                fontWeight: FontWeight.w600,
+                                                                color: isDark ? Colors.grey[300] : Colors.grey[700],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 12),
+                                                    Expanded(
+                                                      child: GestureDetector(
+                                                        onTap: () {
+                                                          Navigator.pop(bottomSheetContext);
+                                                          setModalState(() {
+                                                            textController.text = originalText;
+                                                            isEditing = false;
+                                                          });
+                                                        },
+                                                        child: Container(
+                                                          padding: const EdgeInsets.symmetric(vertical: 14),
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.red[400],
+                                                            borderRadius: BorderRadius.circular(12),
+                                                          ),
+                                                          child: const Center(
+                                                            child: Text(
+                                                              '취소하기',
+                                                              style: TextStyle(
+                                                                fontSize: 15,
+                                                                fontWeight: FontWeight.w600,
+                                                                color: Colors.white,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(height: MediaQuery.of(bottomSheetContext).padding.bottom + 8),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      } else {
+                                        setModalState(() {
+                                          isEditing = false;
+                                        });
+                                      }
+                                    }
+                                  : () => Navigator.pop(context),
                               child: Text(
-                                '닫기',
+                                isEditing ? '취소' : '닫기',
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -5201,32 +6139,45 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                           Positioned(
                                             bottom: 8,
                                             right: 8,
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 10,
-                                                vertical: 6,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: Colors.black54,
-                                                borderRadius: BorderRadius.circular(8),
-                                              ),
-                                              child: const Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(
-                                                    CupertinoIcons.fullscreen,
-                                                    size: 14,
-                                                    color: Colors.white,
-                                                  ),
-                                                  SizedBox(width: 4),
-                                                  Text(
-                                                    '전체보기',
-                                                    style: TextStyle(
-                                                      fontSize: 12,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                _showReExtractConfirmation(
+                                                  imageUrl: imageUrl!,
+                                                  onConfirm: (extractedOcrText) {
+                                                    setModalState(() {
+                                                      textController.text = extractedOcrText;
+                                                    });
+                                                  },
+                                                );
+                                              },
+                                              behavior: HitTestBehavior.opaque,
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                  vertical: 6,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black54,
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                                child: const Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    Icon(
+                                                      CupertinoIcons.arrow_2_circlepath,
+                                                      size: 14,
                                                       color: Colors.white,
                                                     ),
-                                                  ),
-                                                ],
+                                                    SizedBox(width: 4),
+                                                    Text(
+                                                      '텍스트 추출',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -5239,9 +6190,12 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                                 _showReplaceImageOptionsOverModal(
                                                   imageId: imageId,
                                                   currentText: textController.text,
-                                                  onReplaced: () {
-                                                    // 교체 완료 후 모달 닫기
-                                                    Navigator.pop(context);
+                                                  onReplaced: (newImageUrl) {
+                                                    if (newImageUrl != null) {
+                                                      setModalState(() {
+                                                        imageUrl = newImageUrl;
+                                                      });
+                                                    }
                                                   },
                                                 );
                                               },
@@ -5283,27 +6237,26 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                 ),
                               if (hasImage) const SizedBox(height: 20),
                               Row(
-                                mainAxisAlignment: hasImage ? MainAxisAlignment.spaceBetween : MainAxisAlignment.end,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  if (hasImage)
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          CupertinoIcons.doc_text,
-                                          size: 18,
-                                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        CupertinoIcons.doc_text,
+                                        size: 18,
+                                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '인상적인 문구',
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                          color: isDark ? Colors.white : Colors.black,
                                         ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          '추출된 텍스트',
-                                          style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w600,
-                                            color: isDark ? Colors.white : Colors.black,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
+                                  ),
                                   if (!isEditing)
                                     Row(
                                       children: [
@@ -5311,7 +6264,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                           onTap: () {
                                             if (textController.text.isNotEmpty) {
                                               Clipboard.setData(ClipboardData(text: textController.text));
-                                              CustomSnackbar.show(context, message: '텍스트가 복사되었습니다.', rootOverlay: true);
+                                              CustomSnackbar.show(context, message: '텍스트가 복사되었습니다.', rootOverlay: true, bottomOffset: 40);
                                             }
                                           },
                                           child: Row(
@@ -5363,6 +6316,32 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                           ),
                                         ),
                                       ],
+                                    )
+                                  else
+                                    GestureDetector(
+                                      onTap: () {
+                                        setModalState(() {
+                                          textController.clear();
+                                        });
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            CupertinoIcons.trash,
+                                            size: 14,
+                                            color: Colors.red[400],
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            '모두 지우기',
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.red[400],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                 ],
                               ),
@@ -5372,11 +6351,15 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                   minHeight: 150,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: isDark ? Colors.grey[900] : Colors.grey[100],
+                                  color: (isEditing || textController.text.isNotEmpty)
+                                      ? (isDark ? Colors.grey[900] : Colors.grey[100])
+                                      : Colors.transparent,
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                                  ),
+                                  border: (isEditing || textController.text.isNotEmpty)
+                                      ? Border.all(
+                                          color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                                        )
+                                      : null,
                                 ),
                                 child: isEditing
                                     ? TextField(
@@ -5404,7 +6387,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                         padding: const EdgeInsets.all(16),
                                         child: textController.text.isEmpty
                                             ? Text(
-                                                '추출된 텍스트가 없습니다.',
+                                                '인상적인 문구가 없습니다.',
                                                 style: TextStyle(
                                                   fontSize: 15,
                                                   height: 1.6,
@@ -5440,7 +6423,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                                 onTap: () {
                                                   if (textController.text.isNotEmpty) {
                                                     Clipboard.setData(ClipboardData(text: textController.text));
-                                                    CustomSnackbar.show(context, message: '텍스트가 복사되었습니다.', rootOverlay: true);
+                                                    CustomSnackbar.show(context, message: '텍스트가 복사되었습니다.', rootOverlay: true, bottomOffset: 40);
                                                   }
                                                 },
                                                 child: Row(
@@ -5537,7 +6520,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                                 padding: const EdgeInsets.all(16),
                                                 child: textController.text.isEmpty
                                                     ? Text(
-                                                        '추출된 텍스트가 없습니다.',
+                                                        '인상적인 문구가 없습니다.',
                                                         style: TextStyle(
                                                           fontSize: 15,
                                                           height: 1.6,
@@ -5562,6 +6545,31 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                       ),
                     ],
                   ),
+                ),
+                    // 키보드 액세서리 바 (수정 모드에서 키보드가 열려있을 때만)
+                    if (isEditing && isKeyboardOpen && !hideKeyboardAccessory)
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: KeyboardAccessoryBar(
+                          isDark: isDark,
+                          onDone: () {
+                            setModalState(() {
+                              hideKeyboardAccessory = true;
+                            });
+                            focusNode.unfocus();
+                            Future.delayed(const Duration(milliseconds: 300), () {
+                              if (context.mounted) {
+                                setModalState(() {
+                                  hideKeyboardAccessory = false;
+                                });
+                              }
+                            });
+                          },
+                        ),
+                      ),
+                  ],
                 ),
               ),
             );
@@ -5739,81 +6747,84 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                     ),
                   ],
                 ),
-                child: IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (hasImageUrl)
-                        Hero(
-                          tag: 'book_image_$imageId',
-                          child: ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(12),
-                              bottomLeft: Radius.circular(12),
-                            ),
-                            child: SizedBox(
-                              width: 80,
-                              child: CachedNetworkImage(
-                                imageUrl: imageUrl!,
-                                cacheManager: BookImageCacheManager.instance,
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) => Shimmer.fromColors(
-                                  baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
-                                  highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
-                                  child: Container(
-                                    color: isDark ? Colors.grey[800] : Colors.grey[200],
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 80),
+                  child: IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (hasImageUrl)
+                          Hero(
+                            tag: 'book_image_$imageId',
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(12),
+                                bottomLeft: Radius.circular(12),
+                              ),
+                              child: SizedBox(
+                                width: 80,
+                                height: 80,
+                                child: CachedNetworkImage(
+                                  imageUrl: imageUrl!,
+                                  cacheManager: BookImageCacheManager.instance,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => Shimmer.fromColors(
+                                    baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                                    highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
+                                    child: Container(
+                                      color: isDark ? Colors.grey[800] : Colors.grey[200],
+                                    ),
                                   ),
-                                ),
-                                errorWidget: (context, url, error) => Container(
-                                  color: isDark ? Colors.grey[800] : Colors.grey[200],
-                                  child: Icon(
-                                    CupertinoIcons.photo,
-                                    color: isDark ? Colors.grey[600] : Colors.grey[400],
+                                  errorWidget: (context, url, error) => Container(
+                                    color: isDark ? Colors.grey[800] : Colors.grey[200],
+                                    child: Icon(
+                                      CupertinoIcons.photo,
+                                      color: isDark ? Colors.grey[600] : Colors.grey[400],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          left: hasImageUrl ? 12 : 16,
-                          right: 8,
-                          top: 12,
-                          bottom: 12,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              previewText.isNotEmpty ? previewText : '탭하여 상세 보기',
-                              style: TextStyle(
-                                fontSize: 13,
-                                height: 1.5,
-                                color: previewText.isNotEmpty
-                                    ? (isDark ? Colors.grey[300] : Colors.grey[800])
-                                    : (isDark ? Colors.grey[500] : Colors.grey[500]),
-                              ),
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              left: hasImageUrl ? 12 : 16,
+                              right: 8,
+                              top: 12,
+                              bottom: 12,
                             ),
-                            if (pageNumber != null) ...[
-                              const SizedBox(height: 8),
-                              Text(
-                                'p.$pageNumber',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: isDark ? Colors.grey[500] : Colors.grey[600],
-                                  fontWeight: FontWeight.w500,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  previewText.isNotEmpty ? previewText : '탭하여 상세 보기',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    height: 1.5,
+                                    color: previewText.isNotEmpty
+                                        ? (isDark ? Colors.grey[300] : Colors.grey[800])
+                                        : (isDark ? Colors.grey[500] : Colors.grey[500]),
+                                  ),
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                              ),
-                            ],
-                          ],
+                                if (pageNumber != null) ...[
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'p.$pageNumber',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: isDark ? Colors.grey[500] : Colors.grey[600],
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
                       // 선택 모드: 체크박스 / 일반 모드: 화살표
                       if (_isSelectionMode)
                         Padding(
@@ -5851,7 +6862,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                             color: isDark ? Colors.grey[600] : Colors.grey[400],
                           ),
                         ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -5968,7 +6980,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
-                                  '$_attemptCount번째 도전',
+                                  '$_attemptCount번째 · $_attemptEncouragement',
                                   style: const TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w700,
@@ -6321,39 +7333,306 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     );
   }
 
-  /// 전체 제목 표시 다이얼로그
+  /// 전체 제목 표시 바텀시트 (복사/서점에서 보기 기능 포함)
   void _showFullTitleDialog(String title) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        title: Text(
-          '도서 제목',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: isDark ? Colors.grey[400] : Colors.grey[600],
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[400],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '도서 제목',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        height: 1.4,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: GestureDetector(
+                        onTap: () {
+                          Clipboard.setData(ClipboardData(text: title));
+                          Navigator.pop(context);
+                          CustomSnackbar.show(
+                            context,
+                            message: '제목이 복사되었습니다',
+                            type: SnackbarType.success,
+                            bottomOffset: 40,
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                CupertinoIcons.doc_on_clipboard,
+                                size: 18,
+                                color: isDark ? Colors.grey[300] : Colors.grey[700],
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '복사하기',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark ? Colors.grey[300] : Colors.grey[700],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 7,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                          _showBookstoreSelectSheet(title);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF5B7FFF),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                CupertinoIcons.arrow_up_right_square,
+                                size: 18,
+                                color: Colors.white,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                '서점에서 보기',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
-        content: Text(
-          title,
-          style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w600,
-            height: 1.4,
-            color: isDark ? Colors.white : Colors.black,
+      ),
+    );
+  }
+
+  /// 서점에서 검색할 제목 추출 (하이픈 앞까지)
+  String _getSearchTitle(String title) {
+    final hyphenIndex = title.indexOf(' - ');
+    if (hyphenIndex > 0) {
+      return title.substring(0, hyphenIndex).trim();
+    }
+    final dashIndex = title.indexOf('-');
+    if (dashIndex > 0) {
+      return title.substring(0, dashIndex).trim();
+    }
+    return title.trim();
+  }
+
+  /// 서점 선택 바텀시트
+  void _showBookstoreSelectSheet(String title) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final searchTitle = _getSearchTitle(title);
+    final encodedTitle = Uri.encodeComponent(searchTitle);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[400],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '서점 선택',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '"$searchTitle" 검색',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 20),
+                    _buildBookstoreButton(
+                      isDark: isDark,
+                      logoPath: 'assets/images/logo-aladin.png',
+                      name: '알라딘',
+                      onTap: () async {
+                        Navigator.pop(context);
+                        final url = 'https://www.aladin.co.kr/search/wsearchresult.aspx?SearchWord=$encodedTitle';
+                        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    _buildBookstoreButton(
+                      isDark: isDark,
+                      logoPath: 'assets/images/logo-yes24.png',
+                      name: 'Yes24',
+                      onTap: () async {
+                        Navigator.pop(context);
+                        final url = 'https://www.yes24.com/Product/Search?domain=ALL&query=$encodedTitle';
+                        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    _buildBookstoreButton(
+                      isDark: isDark,
+                      logoPath: 'assets/images/logo-kyobo.svg',
+                      name: '교보문고',
+                      isSvg: true,
+                      onTap: () async {
+                        Navigator.pop(context);
+                        final url = 'https://search.kyobobook.co.kr/search?keyword=$encodedTitle';
+                        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('확인'),
+      ),
+    );
+  }
+
+  /// 서점 버튼 위젯
+  Widget _buildBookstoreButton({
+    required bool isDark,
+    required String logoPath,
+    required String name,
+    required VoidCallback onTap,
+    bool isSvg = false,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[50],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isDark ? Colors.grey[700]! : Colors.grey[200]!,
           ),
-        ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                color: Colors.white,
+              ),
+              padding: const EdgeInsets.all(4),
+              child: isSvg
+                  ? SvgPicture.asset(logoPath, fit: BoxFit.contain)
+                  : Image.asset(logoPath, fit: BoxFit.contain),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                name,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+            ),
+            Icon(
+              CupertinoIcons.chevron_right,
+              size: 18,
+              color: isDark ? Colors.grey[500] : Colors.grey[400],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -6361,6 +7640,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   /// 일일 목표 페이지 변경 (수평 다이얼 + 스케줄 테이블)
   void _showDailyTargetChangeDialog() async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final parentContext = context;
 
     // 현재 일일 목표 계산
     final currentDailyTarget = _daysLeft > 0
@@ -6368,17 +7648,31 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
         : _pagesLeft;
 
     int newDailyTarget = currentDailyTarget;
-    bool showSchedule = false;
+    double sheetExtent = 0.6;
+    final scrollController = ScrollController();
+    final wheelController = FixedExtentScrollController(initialItem: newDailyTarget - 1);
 
-    // 스케줄 계산 함수
+    // 스케줄 계산 함수 (점차 줄어드는 방식)
     List<Map<String, dynamic>> calculateSchedule(int dailyTarget) {
       final schedule = <Map<String, dynamic>>[];
       int remainingPages = _pagesLeft;
       DateTime currentDate = DateTime.now();
       final targetDate = _currentBook.targetDate;
 
-      while (remainingPages > 0 && !currentDate.isAfter(targetDate)) {
-        final pagesToRead = remainingPages > dailyTarget ? dailyTarget : remainingPages;
+      while (remainingPages > 0 && !currentDate.isAfter(targetDate.add(const Duration(days: 30)))) {
+        int pagesToRead;
+        if (schedule.isEmpty) {
+          pagesToRead = dailyTarget;
+        } else {
+          final daysRemaining = targetDate.difference(currentDate).inDays + 1;
+          if (daysRemaining > 0) {
+            pagesToRead = (remainingPages / daysRemaining).ceil();
+          } else {
+            pagesToRead = remainingPages;
+          }
+        }
+        pagesToRead = pagesToRead.clamp(1, remainingPages);
+
         final weekday = ['월', '화', '수', '목', '금', '토', '일'][currentDate.weekday - 1];
 
         schedule.add({
@@ -6417,232 +7711,395 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
             final daysToComplete = schedule.length;
             final targetDate = _currentBook.targetDate;
             final canFinishOnTime = daysToComplete <= _daysLeft;
+            final maxPages = schedule.isNotEmpty
+                ? schedule.map((s) => s['pages'] as int).reduce((a, b) => a > b ? a : b)
+                : newDailyTarget;
 
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              height: showSchedule
-                  ? MediaQuery.of(context).size.height * 0.85
-                  : MediaQuery.of(context).size.height * 0.55,
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-              ),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 헤더
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF10B981).withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(
-                                CupertinoIcons.book,
-                                color: Color(0xFF10B981),
-                                size: 24,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '일일 목표 페이지 변경',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
-                                      color: isDark ? Colors.white : Colors.black,
-                                    ),
+            return NotificationListener<DraggableScrollableNotification>(
+              onNotification: (notification) {
+                setModalState(() {
+                  sheetExtent = notification.extent;
+                });
+                return true;
+              },
+              child: DraggableScrollableSheet(
+                initialChildSize: 0.6,
+                minChildSize: 0.6,
+                maxChildSize: 0.95,
+                builder: (context, scrollController) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                    ),
+                    child: CustomScrollView(
+                      controller: scrollController,
+                      slivers: [
+                        SliverToBoxAdapter(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 12),
+                              Center(
+                                child: Container(
+                                  width: 40,
+                                  height: 4,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[400],
+                                    borderRadius: BorderRadius.circular(2),
                                   ),
-                                  RichText(
-                                    text: TextSpan(
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(24),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // 헤더
+                                    Row(
                                       children: [
-                                        TextSpan(
-                                          text: '$_pagesLeft페이지',
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600,
-                                            color: isDark ? Colors.grey[300] : Colors.grey[700],
+                                        Container(
+                                          padding: const EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: const Icon(
+                                            CupertinoIcons.book,
+                                            color: Color(0xFF10B981),
+                                            size: 24,
                                           ),
                                         ),
-                                        TextSpan(
-                                          text: ' 남았어요 · D-$_daysLeft',
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                '일일 목표 페이지 변경',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 20,
+                                                  color: isDark ? Colors.white : Colors.black,
+                                                ),
+                                              ),
+                                              RichText(
+                                                text: TextSpan(
+                                                  children: [
+                                                    TextSpan(
+                                                      text: '$_pagesLeft페이지',
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        fontWeight: FontWeight.w600,
+                                                        color: isDark ? Colors.grey[300] : Colors.grey[700],
+                                                      ),
+                                                    ),
+                                                    TextSpan(
+                                                      text: ' 남았어요 · D-$_daysLeft',
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 28),
-                        // 수평 다이얼 피커
-                        Container(
-                          height: 120,
-                          decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Stack(
-                            children: [
-                              // 중앙 선택 영역 강조
-                              Center(
-                                child: Container(
-                                  width: 70,
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: const Color(0xFF10B981),
-                                      width: 2,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              // 수평 피커
-                              RotatedBox(
-                                quarterTurns: 3,
-                                child: ListWheelScrollView.useDelegate(
-                                  controller: FixedExtentScrollController(
-                                    initialItem: newDailyTarget - 1,
-                                  ),
-                                  itemExtent: 70,
-                                  perspective: 0.005,
-                                  diameterRatio: 1.5,
-                                  physics: const FixedExtentScrollPhysics(),
-                                  onSelectedItemChanged: (index) {
-                                    setModalState(() {
-                                      newDailyTarget = index + 1;
-                                    });
-                                  },
-                                  childDelegate: ListWheelChildBuilderDelegate(
-                                    childCount: _pagesLeft.clamp(1, 200),
-                                    builder: (context, index) {
-                                      final value = index + 1;
-                                      final isSelected = value == newDailyTarget;
-                                      return RotatedBox(
-                                        quarterTurns: 1,
-                                        child: Center(
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Text(
-                                                '$value',
-                                                style: TextStyle(
-                                                  fontSize: isSelected ? 32 : 20,
-                                                  fontWeight: isSelected
-                                                      ? FontWeight.bold
-                                                      : FontWeight.w400,
-                                                  color: isSelected
-                                                      ? const Color(0xFF10B981)
-                                                      : (isDark
-                                                          ? Colors.grey[500]
-                                                          : Colors.grey[400]),
+                                    const SizedBox(height: 28),
+                                    // 수평 다이얼 피커
+                                    Container(
+                                      height: 120,
+                                      decoration: BoxDecoration(
+                                        color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: Stack(
+                                        children: [
+                                          Center(
+                                            child: Container(
+                                              width: 70,
+                                              height: 80,
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                                                borderRadius: BorderRadius.circular(12),
+                                                border: Border.all(
+                                                  color: const Color(0xFF10B981),
+                                                  width: 2,
                                                 ),
                                               ),
-                                              if (isSelected)
-                                                Text(
-                                                  '페이지/일',
-                                                  style: TextStyle(
-                                                    fontSize: 11,
-                                                    color: isDark
-                                                        ? Colors.grey[400]
-                                                        : Colors.grey[600],
-                                                  ),
-                                                ),
-                                            ],
+                                            ),
+                                          ),
+                                          RotatedBox(
+                                            quarterTurns: 3,
+                                            child: ListWheelScrollView.useDelegate(
+                                              controller: wheelController,
+                                              itemExtent: 70,
+                                              perspective: 0.005,
+                                              diameterRatio: 1.5,
+                                              physics: const FixedExtentScrollPhysics(),
+                                              onSelectedItemChanged: (index) {
+                                                setModalState(() {
+                                                  newDailyTarget = index + 1;
+                                                });
+                                              },
+                                              childDelegate: ListWheelChildBuilderDelegate(
+                                                childCount: _pagesLeft.clamp(1, 200),
+                                                builder: (context, index) {
+                                                  final value = index + 1;
+                                                  final isSelected = value == newDailyTarget;
+                                                  return GestureDetector(
+                                                    onTap: () {
+                                                      wheelController.animateToItem(
+                                                        index,
+                                                        duration: const Duration(milliseconds: 300),
+                                                        curve: Curves.easeInOut,
+                                                      );
+                                                    },
+                                                    child: RotatedBox(
+                                                      quarterTurns: 1,
+                                                      child: Center(
+                                                        child: Column(
+                                                          mainAxisSize: MainAxisSize.min,
+                                                          children: [
+                                                            Text(
+                                                              '$value',
+                                                              style: TextStyle(
+                                                                fontSize: isSelected ? 32 : 20,
+                                                                fontWeight: isSelected
+                                                                    ? FontWeight.bold
+                                                                    : FontWeight.w400,
+                                                                color: isSelected
+                                                                    ? const Color(0xFF10B981)
+                                                                    : (isDark
+                                                                        ? Colors.grey[500]
+                                                                        : Colors.grey[400]),
+                                                              ),
+                                                            ),
+                                                            if (isSelected)
+                                                              Text(
+                                                                '페이지/일',
+                                                                style: TextStyle(
+                                                                  fontSize: 11,
+                                                                  color: isDark
+                                                                      ? Colors.grey[400]
+                                                                      : Colors.grey[600],
+                                                                ),
+                                                              ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    // 목표 달성 가능 여부 표시
+                                    Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: canFinishOnTime
+                                            ? const Color(0xFF10B981).withValues(alpha: 0.1)
+                                            : const Color(0xFFFF6B6B).withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            canFinishOnTime
+                                                ? CupertinoIcons.checkmark_circle
+                                                : CupertinoIcons.exclamationmark_circle,
+                                            color: canFinishOnTime
+                                                ? const Color(0xFF10B981)
+                                                : const Color(0xFFFF6B6B),
+                                            size: 20,
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Text(
+                                              canFinishOnTime
+                                                  ? '${targetDate.month}/${targetDate.day}까지 완료 가능!'
+                                                  : '목표일까지 $daysToComplete일 필요 (${daysToComplete - _daysLeft}일 초과)',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: canFinishOnTime
+                                                    ? const Color(0xFF10B981)
+                                                    : const Color(0xFFFF6B6B),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    // 예상 스케줄 헤더
+                                    Text(
+                                      '예상 스케줄',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: isDark ? Colors.white : Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // 스케줄 리스트 (항상 펼쳐져 있음)
+                        SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              if (index >= schedule.length) return null;
+                              final item = schedule[index];
+                              final date = item['date'] as DateTime;
+                              final isToday = item['isToday'] as bool;
+                              final pages = item['pages'] as int;
+
+                              return Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 24),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isToday
+                                      ? const Color(0xFF5B7FFF).withValues(alpha: 0.1)
+                                      : (isDark ? const Color(0xFF2A2A2A) : Colors.grey[50]),
+                                  borderRadius: index == 0
+                                      ? const BorderRadius.vertical(top: Radius.circular(12))
+                                      : (index == schedule.length - 1
+                                          ? const BorderRadius.vertical(bottom: Radius.circular(12))
+                                          : null),
+                                ),
+                                child: Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 100,
+                                      child: Text(
+                                        '${date.month}/${date.day} (${item['weekday']})',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: isToday ? FontWeight.bold : FontWeight.w400,
+                                          color: isToday
+                                              ? const Color(0xFF5B7FFF)
+                                              : (isDark ? Colors.grey[300] : Colors.grey[700]),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Container(
+                                        height: 6,
+                                        margin: const EdgeInsets.symmetric(horizontal: 12),
+                                        decoration: BoxDecoration(
+                                          color: isDark ? Colors.grey[700] : Colors.grey[200],
+                                          borderRadius: BorderRadius.circular(3),
+                                        ),
+                                        child: FractionallySizedBox(
+                                          alignment: Alignment.centerLeft,
+                                          widthFactor: pages / maxPages,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFF10B981),
+                                              borderRadius: BorderRadius.circular(3),
+                                            ),
                                           ),
                                         ),
-                                      );
-                                    },
-                                  ),
+                                      ),
+                                    ),
+                                    Text(
+                                      '${pages}p',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: isDark ? Colors.white : Colors.black,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
+                              );
+                            },
+                            childCount: schedule.length,
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        // 목표 달성 가능 여부 표시
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: canFinishOnTime
-                                ? const Color(0xFF10B981).withValues(alpha: 0.1)
-                                : const Color(0xFFFF6B6B).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                canFinishOnTime
-                                    ? CupertinoIcons.checkmark_circle
-                                    : CupertinoIcons.exclamationmark_circle,
-                                color: canFinishOnTime
-                                    ? const Color(0xFF10B981)
-                                    : const Color(0xFFFF6B6B),
-                                size: 20,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  canFinishOnTime
-                                      ? '${targetDate.month}/${targetDate.day}까지 완료 가능!'
-                                      : '목표일까지 $daysToComplete일 필요 (${daysToComplete - _daysLeft}일 초과)',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: canFinishOnTime
-                                        ? const Color(0xFF10B981)
-                                        : const Color(0xFFFF6B6B),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        // 예상 스케줄 보기 버튼
-                        GestureDetector(
-                          onTap: () {
-                            setModalState(() {
-                              showSchedule = !showSchedule;
-                            });
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                        // 버튼 영역
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(
+                              24,
+                              24,
+                              24,
+                              24 + MediaQuery.of(context).viewInsets.bottom,
+                            ),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
-                                  showSchedule
-                                      ? CupertinoIcons.chevron_up
-                                      : CupertinoIcons.chevron_down,
-                                  size: 16,
-                                  color: const Color(0xFF5B7FFF),
+                                Expanded(
+                                  child: TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                    ),
+                                    child: const Text('취소'),
+                                  ),
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  showSchedule ? '스케줄 닫기' : '예상 스케줄 보기',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF5B7FFF),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  flex: 2,
+                                  child: ElevatedButton(
+                                    onPressed: () async {
+                                      Navigator.pop(context);
+                                      // DB에 일일 목표 페이지 업데이트
+                                      try {
+                                        await Supabase.instance.client
+                                            .from('books')
+                                            .update({'daily_target_pages': newDailyTarget})
+                                            .eq('id', _currentBook.id!);
+                                        setState(() {});
+                                        if (mounted) {
+                                          CustomSnackbar.show(
+                                            parentContext,
+                                            message: '오늘 목표: ${newDailyTarget}p로 변경되었습니다',
+                                            type: SnackbarType.success,
+                                            bottomOffset: 100,
+                                          );
+                                        }
+                                      } catch (e) {
+                                        if (mounted) {
+                                          CustomSnackbar.show(
+                                            parentContext,
+                                            message: '목표 변경에 실패했습니다',
+                                            type: SnackbarType.error,
+                                            bottomOffset: 100,
+                                          );
+                                        }
+                                      }
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF10B981),
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      '변경',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -6651,152 +8108,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         ),
                       ],
                     ),
-                  ),
-                  // 스케줄 테이블 영역 (항상 고정 높이 유지)
-                  Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 24),
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[50],
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: showSchedule
-                          ? ListView.builder(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              itemCount: schedule.length > 14 ? 14 : schedule.length,
-                              itemBuilder: (context, index) {
-                                final item = schedule[index];
-                                final date = item['date'] as DateTime;
-                                final isToday = item['isToday'] as bool;
-
-                                return Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 10,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: isToday
-                                        ? const Color(0xFF5B7FFF).withValues(alpha: 0.1)
-                                        : null,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      SizedBox(
-                                        width: 100,
-                                        child: Text(
-                                          '${date.month}/${date.day} (${item['weekday']})',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: isToday ? FontWeight.bold : FontWeight.w400,
-                                            color: isToday
-                                                ? const Color(0xFF5B7FFF)
-                                                : (isDark ? Colors.grey[300] : Colors.grey[700]),
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Container(
-                                          height: 6,
-                                          margin: const EdgeInsets.symmetric(horizontal: 12),
-                                          decoration: BoxDecoration(
-                                            color: isDark ? Colors.grey[700] : Colors.grey[200],
-                                            borderRadius: BorderRadius.circular(3),
-                                          ),
-                                          child: FractionallySizedBox(
-                                            alignment: Alignment.centerLeft,
-                                            widthFactor: (item['pages'] as int) / newDailyTarget,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xFF10B981),
-                                                borderRadius: BorderRadius.circular(3),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Text(
-                                        '${item['pages']}p',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: isDark ? Colors.white : Colors.black,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            )
-                          : Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    CupertinoIcons.calendar,
-                                    size: 48,
-                                    color: isDark ? Colors.grey[600] : Colors.grey[400],
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    '예상 스케줄을 펼쳐서 확인하세요',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: isDark ? Colors.grey[500] : Colors.grey[500],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                    ),
-                  ),
-                  // 버튼
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      24,
-                      16,
-                      24,
-                      24 + MediaQuery.of(context).viewInsets.bottom,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                            ),
-                            child: const Text('취소'),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          flex: 2,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              // 일일 목표는 계획 도구로만 사용 (DB 저장 없음)
-                              // 스케줄 확인 후 닫기
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF10B981),
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: const Text(
-                              '확인',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                  );
+                },
               ),
             );
           },
