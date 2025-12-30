@@ -2395,15 +2395,24 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       return true;
     } catch (e) {
       if (mounted) {
+        final errorMessage = e.toString();
+        final isNetworkError = errorMessage.contains('SocketException') ||
+            errorMessage.contains('Connection') ||
+            errorMessage.contains('timeout');
+
         showCupertinoDialog(
           context: context,
-          builder: (context) => CupertinoAlertDialog(
+          builder: (dialogContext) => CupertinoAlertDialog(
             title: const Text('업로드 실패'),
-            content: const Text('인상적인 페이지를 저장하는 중 오류가 발생했습니다. 다시 시도해주세요.'),
+            content: Text(
+              isNetworkError
+                  ? '네트워크 연결을 확인해주세요.\n연결 상태가 양호하면 다시 시도해주세요.'
+                  : '인상적인 페이지를 저장하는 중 오류가 발생했습니다.\n업로드 버튼을 눌러 다시 시도해주세요.',
+            ),
             actions: [
               CupertinoDialogAction(
                 child: const Text('확인'),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => Navigator.pop(dialogContext),
               ),
             ],
           ),
