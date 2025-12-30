@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../domain/models/book.dart';
@@ -123,25 +124,22 @@ class _BookListScreenState extends State<BookListScreen>
                     ),
                   ],
                 ),
-                // 슬라이딩 인디케이터
+                // 슬라이딩 인디케이터 (스와이프와 실시간 동기화)
                 Positioned(
                   bottom: 0,
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      // 부모 Row의 너비를 가져오기 위해 MediaQuery 사용
+                  child: AnimatedBuilder(
+                    animation: _tabController.animation!,
+                    builder: (context, child) {
                       final screenWidth = MediaQuery.of(context).size.width;
                       final tabWidth = screenWidth / 3;
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.easeInOut,
-                        transform: Matrix4.translationValues(
-                          tabWidth * _selectedTabIndex,
-                          0,
-                          0,
+                      final animationValue = _tabController.animation!.value;
+                      return Transform.translate(
+                        offset: Offset(tabWidth * animationValue, 0),
+                        child: Container(
+                          width: tabWidth,
+                          height: 2,
+                          color: isDark ? Colors.white : Colors.black,
                         ),
-                        width: tabWidth,
-                        height: 2,
-                        color: isDark ? Colors.white : Colors.black,
                       );
                     },
                   ),
@@ -160,10 +158,10 @@ class _BookListScreenState extends State<BookListScreen>
                   .eq('user_id', userId)
                   .order('created_at', ascending: false),
               builder: (context, snapshot) {
-                // 초기 로딩 중이고 데이터가 없을 때만 로딩 표시
+                // 초기 로딩 중이고 데이터가 없을 때만 스켈레톤 표시
                 if (snapshot.connectionState == ConnectionState.waiting &&
                     !snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
+                  return _buildSkeletonList(isDark);
                 }
 
                 // 에러 발생 시 재시도 가능한 UI 표시
@@ -262,7 +260,7 @@ class _BookListScreenState extends State<BookListScreen>
     }
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
       children: [
         if (readingBooks.isNotEmpty) ...[
           Row(
@@ -343,7 +341,7 @@ class _BookListScreenState extends State<BookListScreen>
     }
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
       children: readingBooks.map((book) => _buildBookCard(book)).toList(),
     );
   }
@@ -375,7 +373,7 @@ class _BookListScreenState extends State<BookListScreen>
     }
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
       children: completedBooks.map((book) => _buildBookCard(book)).toList(),
     );
   }
@@ -455,15 +453,43 @@ class _BookListScreenState extends State<BookListScreen>
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${daysLeft >= 0 ? 'D-$daysLeft' : 'D+${daysLeft.abs()}'} · ${book.currentPage}/${book.totalPages}페이지',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: daysLeft < 0
-                          ? const Color(0xFFEF4444)
-                          : (isDark ? Colors.grey[400] : Colors.grey[600]),
-                    ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      // D-day 뱃지
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: daysLeft < 0
+                              ? const Color(0xFFEF4444).withValues(alpha: 0.12)
+                              : (isCompleted
+                                  ? const Color(0xFF10B981).withValues(alpha: 0.12)
+                                  : const Color(0xFF5B7FFF).withValues(alpha: 0.12)),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          daysLeft >= 0 ? 'D-$daysLeft' : 'D+${daysLeft.abs()}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: daysLeft < 0
+                                ? const Color(0xFFEF4444)
+                                : (isCompleted
+                                    ? const Color(0xFF10B981)
+                                    : const Color(0xFF5B7FFF)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // 페이지 정보
+                      Text(
+                        '${book.currentPage}/${book.totalPages}페이지',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -505,6 +531,139 @@ class _BookListScreenState extends State<BookListScreen>
               Icons.arrow_forward_ios,
               color: isDark ? Colors.grey[400] : Colors.grey,
               size: 16,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSkeletonList(bool isDark) {
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
+      itemCount: 3, // 로딩 시 3개의 스켈레톤 카드 표시
+      itemBuilder: (context, index) => _buildSkeletonCard(isDark),
+    );
+  }
+
+  Widget _buildSkeletonCard(bool isDark) {
+    return Shimmer.fromColors(
+      baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+      highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: isDark
+                  ? Colors.black.withOpacity(0.3)
+                  : Colors.grey.withOpacity(0.1),
+              spreadRadius: 1,
+              blurRadius: 3,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // 책 이미지 영역
+            Container(
+              width: 60,
+              height: 80,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.grey[700] : Colors.grey[300],
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(
+                  color: isDark ? Colors.grey[600]! : Colors.grey[400]!,
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            // 텍스트 영역
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 제목 1줄
+                  Container(
+                    height: 16,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.grey[700] : Colors.grey[300],
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  // 제목 2줄 (짧게)
+                  Container(
+                    height: 14,
+                    width: 120,
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.grey[700] : Colors.grey[300],
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  // D-day 뱃지 + 페이지 정보
+                  Row(
+                    children: [
+                      Container(
+                        height: 24,
+                        width: 48,
+                        decoration: BoxDecoration(
+                          color: isDark ? Colors.grey[700] : Colors.grey[300],
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        height: 14,
+                        width: 90,
+                        decoration: BoxDecoration(
+                          color: isDark ? Colors.grey[700] : Colors.grey[300],
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  // 프로그레스 바 + 퍼센트
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: isDark ? Colors.grey[700] : Colors.grey[300],
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        height: 12,
+                        width: 30,
+                        decoration: BoxDecoration(
+                          color: isDark ? Colors.grey[700] : Colors.grey[300],
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // 화살표 아이콘 영역
+            Container(
+              width: 16,
+              height: 16,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.grey[700] : Colors.grey[300],
+                borderRadius: BorderRadius.circular(4),
+              ),
             ),
           ],
         ),

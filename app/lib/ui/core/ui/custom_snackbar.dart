@@ -141,8 +141,10 @@ class _AnimatedSnackbarState extends State<_AnimatedSnackbar>
                     ),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      width: 1,
+                      color: widget.type == SnackbarType.error
+                          ? Colors.red.withValues(alpha: 0.7)
+                          : Colors.white.withValues(alpha: 0.2),
+                      width: widget.type == SnackbarType.error ? 1.5 : 1,
                     ),
                     boxShadow: [
                       BoxShadow(

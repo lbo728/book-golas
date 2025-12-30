@@ -18,6 +18,41 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
   bool _useMockData = false; // 🎨 Mock 데이터 사용 여부
   final ReadingProgressService _progressService = ReadingProgressService();
 
+  // 캐싱된 데이터
+  List<Map<String, dynamic>>? _cachedRawData;
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final data = await fetchUserProgressHistory();
+      if (mounted) {
+        setState(() {
+          _cachedRawData = data;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   /// 🎨 Mock 데이터 생성 (데모용)
   List<Map<String, dynamic>> _generateMockData() {
     final now = DateTime.now();
@@ -249,6 +284,8 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                 setState(() {
                   _useMockData = !_useMockData;
                 });
+                // 목업 데이터 토글 시 데이터 다시 로드
+                _loadData();
               },
             ),
           ),
@@ -258,90 +295,104 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: FutureBuilder<List<Map<String, dynamic>>>(
-              future: fetchUserProgressHistory(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(32.0),
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                }
+            child: _buildContent(isDark),
+          ),
+        ),
+      ),
+    );
+  }
 
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(32.0),
-                      child: Column(
-                        children: [
-                          const Icon(
-                            Icons.error_outline,
-                            size: 48,
-                            color: Colors.red,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            '데이터를 불러올 수 없습니다',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
+  Widget _buildContent(bool isDark) {
+    // 로딩 중
+    if (_isLoading) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32.0),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
 
-                final rawData = snapshot.data ?? [];
-                if (rawData.isEmpty) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(32.0),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.menu_book_outlined,
-                            size: 64,
-                            color: Colors.grey[300],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            '아직 독서 기록이 없습니다',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '책을 읽고 페이지를 업데이트해보세요!',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[500],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
+    // 에러 발생
+    if (_errorMessage != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            children: [
+              const Icon(
+                Icons.error_outline,
+                size: 48,
+                color: Colors.red,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '데이터를 불러올 수 없습니다',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[700],
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _loadData,
+                child: const Text('다시 시도'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
-                final aggregated = aggregateByDate(rawData, _selectedFilter);
-                final stats = calculateStatistics(aggregated);
-                final streak = _calculateStreak(aggregated);
+    // 데이터 없음
+    final rawData = _cachedRawData ?? [];
+    if (rawData.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            children: [
+              Icon(
+                Icons.menu_book_outlined,
+                size: 64,
+                color: Colors.grey[300],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '아직 독서 기록이 없습니다',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '책을 읽고 페이지를 업데이트해보세요!',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[500],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
-                final spots = aggregated.asMap().entries.map((entry) {
-                  final idx = entry.key;
-                  final cumulativePage = entry.value['cumulative_page'] as int;
-                  return FlSpot(idx.toDouble(), cumulativePage.toDouble());
-                }).toList();
+    // 캐시된 데이터로 필터링 및 통계 계산 (필터 변경 시 즉시 반영)
+    final aggregated = aggregateByDate(rawData, _selectedFilter);
+    final stats = calculateStatistics(aggregated);
+    final streak = _calculateStreak(aggregated);
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+    final spots = aggregated.asMap().entries.map((entry) {
+      final idx = entry.key;
+      final cumulativePage = entry.value['cumulative_page'] as int;
+      return FlSpot(idx.toDouble(), cumulativePage.toDouble());
+    }).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
                     // 통계 카드 (2x3 그리드)
                     GridView.count(
                       shrinkWrap: true,
@@ -349,7 +400,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                       crossAxisCount: 2,
                       mainAxisSpacing: 12,
                       crossAxisSpacing: 12,
-                      childAspectRatio: 1.6,
+                      childAspectRatio: 1.5,
                       children: [
                         _buildStatCard(
                           '총 읽은 페이지',
@@ -466,7 +517,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                     const SizedBox(height: 16),
                     Container(
                       height: 300,
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
                       decoration: BoxDecoration(
                         color: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
                         borderRadius: BorderRadius.circular(12),
@@ -690,13 +741,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
                     ),
                   ],
                 );
-              },
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+              }
 
   Widget _buildStatCard(
     String label,
@@ -706,7 +751,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
     bool isDark,
   ) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -728,37 +773,45 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               icon,
               color: color,
-              size: 20,
+              size: 18,
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : Colors.black,
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

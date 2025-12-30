@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../../config/app_config.dart';
@@ -15,28 +16,35 @@ class GoogleVisionOcrService {
 
   Future<String?> extractTextFromImageUrl(String imageUrl) async {
     if (!AppConfig.hasGoogleCloudVisionApiKey) {
+      debugPrint('🔴 OCR: API 키가 설정되지 않았습니다.');
       return null;
     }
 
     try {
       final response = await http.get(Uri.parse(imageUrl));
       if (response.statusCode != 200) {
+        debugPrint('🔴 OCR: 이미지 다운로드 실패 - ${response.statusCode}');
         return null;
       }
 
       return await extractTextFromBytes(response.bodyBytes);
     } catch (e) {
+      debugPrint('🔴 OCR: 이미지 다운로드 에러 - $e');
       return null;
     }
   }
 
   Future<String?> extractTextFromBytes(Uint8List imageBytes) async {
     if (!AppConfig.hasGoogleCloudVisionApiKey) {
+      debugPrint('🔴 OCR: API 키가 설정되지 않았습니다.');
       return null;
     }
 
+    debugPrint('🟡 OCR: 텍스트 추출 시작 (이미지 크기: ${imageBytes.length} bytes)');
+
     try {
       final base64Image = base64Encode(imageBytes);
+      debugPrint('🟡 OCR: Base64 인코딩 완료 (길이: ${base64Image.length})');
 
       final requestBody = {
         'requests': [
@@ -57,6 +65,7 @@ class GoogleVisionOcrService {
         ],
       };
 
+      debugPrint('🟡 OCR: API 호출 중...');
       final response = await http.post(
         Uri.parse('$_baseUrl?key=${AppConfig.googleCloudVisionApiKey}'),
         headers: {
@@ -65,7 +74,10 @@ class GoogleVisionOcrService {
         body: jsonEncode(requestBody),
       );
 
+      debugPrint('🟡 OCR: API 응답 코드 - ${response.statusCode}');
+
       if (response.statusCode != 200) {
+        debugPrint('🔴 OCR: API 에러 - ${response.body}');
         return null;
       }
 
@@ -73,14 +85,23 @@ class GoogleVisionOcrService {
       final responses = jsonResponse['responses'] as List<dynamic>?;
 
       if (responses == null || responses.isEmpty) {
+        debugPrint('🔴 OCR: 응답이 비어있습니다.');
         return null;
       }
 
       final firstResponse = responses[0] as Map<String, dynamic>;
+
+      // 에러 체크
+      if (firstResponse.containsKey('error')) {
+        debugPrint('🔴 OCR: API 에러 - ${firstResponse['error']}');
+        return null;
+      }
+
       final textAnnotations =
           firstResponse['textAnnotations'] as List<dynamic>?;
 
       if (textAnnotations == null || textAnnotations.isEmpty) {
+        debugPrint('🟠 OCR: 텍스트가 감지되지 않았습니다.');
         return null;
       }
 
@@ -88,11 +109,14 @@ class GoogleVisionOcrService {
           textAnnotations[0]['description'] as String?;
 
       if (fullText == null || fullText.isEmpty) {
+        debugPrint('🟠 OCR: 추출된 텍스트가 비어있습니다.');
         return null;
       }
 
+      debugPrint('🟢 OCR: 텍스트 추출 성공 (길이: ${fullText.length})');
       return _cleanupExtractedText(fullText);
     } catch (e) {
+      debugPrint('🔴 OCR: 예외 발생 - $e');
       return null;
     }
   }

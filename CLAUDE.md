@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Git Commit Rules
 
-- 반드시 **lbo728** 계정으로 커밋, 푸시, PR을 진행해야해.
+- 반드시 **lbo728** 계정으로 커밋, 푸시, PR을 진행해야해. (만약 기존 gh auth status가 'bwlee-dix'라면 gh auth switch -u lbo728로 스위칭해서 진행해)
 - 커밋 메세지는 영문 컨벤셔널 커밋으로 해야해.(단, description은 한글 불릿 포인트로 작성해.)
 - 요청한 작업이 '덩어리' 단위라면 맥락에 맞추어 브랜치를 생성해서 작업해야해.
   - 맥락 별로 커밋을 만들며 진행해야해.

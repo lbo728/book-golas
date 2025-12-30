@@ -134,32 +134,45 @@ class ReadingProgressService {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) return 0.0;
 
-      // 활성 책들의 일별 목표 페이지 가져오기
+      final today = DateTime.now();
+      final startOfToday = DateTime(today.year, today.month, today.day);
+
+      // 활성 책들 가져오기 (완독하지 않은 책)
       final booksResponse = await _supabase
           .from('books')
-          .select('id, daily_target_pages')
-          .eq('user_id', userId)
-          .not('daily_target_pages', 'is', null);
+          .select('id, total_pages, current_page, target_date')
+          .eq('user_id', userId);
 
       if ((booksResponse as List).isEmpty) return 0.0;
 
-      // 일별 목표 합계
+      // 일별 목표 합계 계산 (남은 페이지 / 남은 일수)
       int totalDailyTarget = 0;
       for (final book in booksResponse) {
-        totalDailyTarget += (book['daily_target_pages'] as int?) ?? 0;
+        final totalPages = book['total_pages'] as int? ?? 0;
+        final currentPage = book['current_page'] as int? ?? 0;
+        final targetDateStr = book['target_date'] as String?;
+
+        if (targetDateStr == null || currentPage >= totalPages) continue;
+
+        final targetDate = DateTime.parse(targetDateStr);
+        final targetDay = DateTime(targetDate.year, targetDate.month, targetDate.day);
+        final daysLeft = targetDay.difference(startOfToday).inDays;
+
+        if (daysLeft <= 0) continue;
+
+        final pagesLeft = totalPages - currentPage;
+        final dailyTarget = (pagesLeft / daysLeft).ceil();
+        totalDailyTarget += dailyTarget;
       }
 
       if (totalDailyTarget == 0) return 0.0;
 
       // 오늘 읽은 페이지 합계
-      final today = DateTime.now();
-      final startOfDay = DateTime(today.year, today.month, today.day);
-
       final progressResponse = await _supabase
           .from(_tableName)
           .select('page, previous_page')
           .eq('user_id', userId)
-          .gte('created_at', startOfDay.toIso8601String());
+          .gte('created_at', startOfToday.toIso8601String());
 
       int todayPagesRead = 0;
       for (final record in progressResponse as List) {
