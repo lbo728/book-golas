@@ -5489,7 +5489,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                           onTap: () {
                                             if (textController.text.isNotEmpty) {
                                               Clipboard.setData(ClipboardData(text: textController.text));
-                                              CustomSnackbar.show(context, message: '텍스트가 복사되었습니다.', rootOverlay: true);
+                                              CustomSnackbar.show(context, message: '텍스트가 복사되었습니다.', rootOverlay: true, bottomOffset: 40);
                                             }
                                           },
                                           child: Row(
@@ -5618,7 +5618,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                                 onTap: () {
                                                   if (textController.text.isNotEmpty) {
                                                     Clipboard.setData(ClipboardData(text: textController.text));
-                                                    CustomSnackbar.show(context, message: '텍스트가 복사되었습니다.', rootOverlay: true);
+                                                    CustomSnackbar.show(context, message: '텍스트가 복사되었습니다.', rootOverlay: true, bottomOffset: 40);
                                                   }
                                                 },
                                                 child: Row(
