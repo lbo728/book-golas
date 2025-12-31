@@ -1,14 +1,11 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:provider/provider.dart';
 
-import 'package:book_golas/data/services/aladin_api_service.dart';
 import 'package:book_golas/data/services/book_service.dart';
-import 'package:book_golas/domain/models/book.dart';
-import 'package:book_golas/ui/core/ui/book_image_widget.dart';
+import 'package:book_golas/core/widgets/book_image_widget.dart';
+import 'package:book_golas/features/reading_start/view_model/reading_start_view_model.dart';
 
-class ReadingStartScreen extends StatefulWidget {
+class ReadingStartScreen extends StatelessWidget {
   final String? title;
   final int? totalPages;
   final String? imageUrl;
@@ -21,27 +18,42 @@ class ReadingStartScreen extends StatefulWidget {
   });
 
   @override
-  State<ReadingStartScreen> createState() => _ReadingStartScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => ReadingStartViewModel(context.read<BookService>()),
+      child: _ReadingStartContent(
+        title: title,
+        totalPages: totalPages,
+        imageUrl: imageUrl,
+      ),
+    );
+  }
 }
 
-class _ReadingStartScreenState extends State<ReadingStartScreen> {
+class _ReadingStartContent extends StatefulWidget {
+  final String? title;
+  final int? totalPages;
+  final String? imageUrl;
+
+  const _ReadingStartContent({
+    this.title,
+    this.totalPages,
+    this.imageUrl,
+  });
+
+  @override
+  State<_ReadingStartContent> createState() => _ReadingStartContentState();
+}
+
+class _ReadingStartContentState extends State<_ReadingStartContent> {
   final TextEditingController _titleController = TextEditingController();
   final PageController _pageController = PageController();
-  int _currentPage = 0;
-  Timer? _debounce;
-
-  DateTime selectedDate = DateTime.now();
-  DateTime targetDate = DateTime.now().add(const Duration(
-    days: 14,
-  ));
-
-  List<BookSearchResult> _searchResults = [];
-  bool _isSearching = false;
-  BookSearchResult? _selectedBook;
 
   @override
   void initState() {
     super.initState();
+    final vm = context.read<ReadingStartViewModel>();
+
     if (widget.title != null) {
       _titleController.text = widget.title!;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -50,29 +62,12 @@ class _ReadingStartScreenState extends State<ReadingStartScreen> {
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
-        setState(() {
-          _currentPage = 1;
-        });
+        vm.goToSchedulePage();
       });
     }
 
     _titleController.addListener(() {
-      final text = _titleController.text;
-      if (_selectedBook != null) {
-        setState(() => _selectedBook = null);
-      }
-      _debounce?.cancel();
-      _debounce = Timer(const Duration(milliseconds: 400), () {
-        final query = text.trim();
-        if (query.isEmpty) {
-          setState(() {
-            _searchResults = [];
-            _isSearching = false;
-          });
-          return;
-        }
-        _searchBooks(query);
-      });
+      vm.onSearchQueryChanged(_titleController.text);
     });
   }
 
@@ -80,64 +75,26 @@ class _ReadingStartScreenState extends State<ReadingStartScreen> {
   void dispose() {
     _titleController.dispose();
     _pageController.dispose();
-    _debounce?.cancel();
     super.dispose();
   }
 
-  Future<void> _searchBooks(String query) async {
-    if (query.trim().isEmpty) {
-      setState(() {
-        _searchResults = [];
-        _isSearching = false;
-      });
-      return;
-    }
-
-    setState(() {
-      _isSearching = true;
-    });
-
-    try {
-      final results = await AladinApiService.searchBooks(query);
-      setState(() {
-        _searchResults = results;
-        _isSearching = false;
-      });
-    } catch (e) {
-      setState(() {
-        _searchResults = [];
-        _isSearching = false;
-      });
-    }
-  }
-
-  void _selectBook(BookSearchResult book) {
-    setState(() {
-      _selectedBook = book;
-    });
-  }
-
-  void _nextPage() {
-    if (_currentPage < 1) {
+  void _nextPage(ReadingStartViewModel vm) {
+    if (vm.currentPageIndex < 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
-      setState(() {
-        _currentPage++;
-      });
+      vm.goToSchedulePage();
     }
   }
 
-  void _previousPage() {
-    if (_currentPage > 0) {
+  void _previousPage(ReadingStartViewModel vm) {
+    if (vm.currentPageIndex > 0) {
       _pageController.previousPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
-      setState(() {
-        _currentPage--;
-      });
+      vm.goToSearchPage();
     }
   }
 
@@ -145,41 +102,45 @@ class _ReadingStartScreenState extends State<ReadingStartScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
-      appBar: AppBar(
-        backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: isDark ? Colors.white : Colors.black,
+    return Consumer<ReadingStartViewModel>(
+      builder: (context, vm, _) {
+        return Scaffold(
+          backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+          appBar: AppBar(
+            backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+            elevation: 0,
+            leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+              onPressed: () {
+                if (vm.currentPageIndex > 0) {
+                  _previousPage(vm);
+                } else {
+                  Navigator.pop(context);
+                }
+              },
+            ),
+            title: Text(
+              '독서 시작하기',
+              style: TextStyle(color: isDark ? Colors.white : Colors.black),
+            ),
           ),
-          onPressed: () {
-            if (_currentPage > 0) {
-              _previousPage();
-            } else {
-              Navigator.pop(context);
-            }
-          },
-        ),
-        title: Text(
-          '독서 시작하기',
-          style: TextStyle(color: isDark ? Colors.white : Colors.black),
-        ),
-      ),
-      body: PageView(
-        controller: _pageController,
-        physics: const NeverScrollableScrollPhysics(),
-        children: [
-          _buildBookTitleInputPage(isDark),
-          _buildReadingSchedulePage(isDark),
-        ],
-      ),
+          body: PageView(
+            controller: _pageController,
+            physics: const NeverScrollableScrollPhysics(),
+            children: [
+              _buildBookTitleInputPage(vm, isDark),
+              _buildReadingSchedulePage(vm, isDark),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildBookTitleInputPage(bool isDark) {
+  Widget _buildBookTitleInputPage(ReadingStartViewModel vm, bool isDark) {
     return Stack(
       children: [
         Padding(
@@ -218,29 +179,25 @@ class _ReadingStartScreenState extends State<ReadingStartScreen> {
                   fontSize: 16,
                   color: isDark ? Colors.white : Colors.black,
                 ),
-                onSubmitted: (_) {},
-                onChanged: (_) {},
               ),
               const SizedBox(height: 16),
-              if (_isSearching)
-                const Center(
-                  child: CircularProgressIndicator(),
-                )
-              else if (_searchResults.isNotEmpty)
+              if (vm.isSearching)
+                const Center(child: CircularProgressIndicator())
+              else if (vm.searchResults.isNotEmpty)
                 Expanded(
                   child: ListView.builder(
-                    itemCount: _searchResults.length,
+                    itemCount: vm.searchResults.length,
                     itemBuilder: (context, index) {
-                      final book = _searchResults[index];
-                      final isSelected = _selectedBook != null &&
-                          _isSameBook(_selectedBook!, book);
+                      final book = vm.searchResults[index];
+                      final isSelected = vm.selectedBook != null &&
+                          vm.isSameBook(vm.selectedBook!, book);
                       return Card(
                         margin: const EdgeInsets.symmetric(vertical: 4),
                         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                         child: ListTile(
                           selected: isSelected,
                           tileColor:
-                              isSelected ? Colors.blue.withOpacity(0.12) : null,
+                              isSelected ? Colors.blue.withValues(alpha: 0.12) : null,
                           leading: book.imageUrl != null
                               ? ClipRRect(
                                   borderRadius: BorderRadius.circular(4),
@@ -304,7 +261,7 @@ class _ReadingStartScreenState extends State<ReadingStartScreen> {
                               ],
                             ],
                           ),
-                          onTap: () => _selectBook(book),
+                          onTap: () => vm.selectBook(book),
                         ),
                       );
                     },
@@ -336,13 +293,11 @@ class _ReadingStartScreenState extends State<ReadingStartScreen> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _selectedBook != null ? _nextPage : null,
+                onPressed: vm.canProceedToSchedule ? () => _nextPage(vm) : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 16,
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -363,7 +318,7 @@ class _ReadingStartScreenState extends State<ReadingStartScreen> {
     );
   }
 
-  Widget _buildReadingSchedulePage(bool isDark) {
+  Widget _buildReadingSchedulePage(ReadingStartViewModel vm, bool isDark) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -381,7 +336,7 @@ class _ReadingStartScreenState extends State<ReadingStartScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: BookImageWidget(
-                    imageUrl: _selectedBook?.imageUrl ?? widget.imageUrl,
+                    imageUrl: vm.selectedBook?.imageUrl ?? widget.imageUrl,
                     iconSize: 60,
                   ),
                 ),
@@ -390,7 +345,7 @@ class _ReadingStartScreenState extends State<ReadingStartScreen> {
             const SizedBox(height: 16),
             Center(
               child: Text(
-                _selectedBook?.title ?? _titleController.text,
+                vm.selectedBook?.title ?? _titleController.text,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -398,11 +353,11 @@ class _ReadingStartScreenState extends State<ReadingStartScreen> {
                 textAlign: TextAlign.center,
               ),
             ),
-            if (_selectedBook?.totalPages != null ||
+            if (vm.selectedBook?.totalPages != null ||
                 widget.totalPages != null) ...[
               Center(
                 child: Text(
-                  '${_selectedBook?.totalPages ?? widget.totalPages} 페이지',
+                  '${vm.selectedBook?.totalPages ?? widget.totalPages} 페이지',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey[600],
@@ -423,14 +378,12 @@ class _ReadingStartScreenState extends State<ReadingStartScreen> {
               onTap: () async {
                 final DateTime? picked = await showDatePicker(
                   context: context,
-                  initialDate: selectedDate,
+                  initialDate: vm.startDate,
                   firstDate: DateTime(2000),
                   lastDate: DateTime(2101),
                 );
-                if (picked != null && picked != selectedDate) {
-                  setState(() {
-                    selectedDate = picked;
-                  });
+                if (picked != null && picked != vm.startDate) {
+                  vm.setStartDate(picked);
                 }
               },
               child: Container(
@@ -446,7 +399,7 @@ class _ReadingStartScreenState extends State<ReadingStartScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${selectedDate.year}년 ${selectedDate.month}월 ${selectedDate.day}일',
+                      '${vm.startDate.year}년 ${vm.startDate.month}월 ${vm.startDate.day}일',
                       style: const TextStyle(fontSize: 16),
                     ),
                     const Icon(Icons.calendar_today, size: 20),
@@ -467,14 +420,12 @@ class _ReadingStartScreenState extends State<ReadingStartScreen> {
               onTap: () async {
                 final DateTime? picked = await showDatePicker(
                   context: context,
-                  initialDate: targetDate,
+                  initialDate: vm.targetDate,
                   firstDate: DateTime(2000),
                   lastDate: DateTime(2101),
                 );
-                if (picked != null && picked != targetDate) {
-                  setState(() {
-                    targetDate = picked;
-                  });
+                if (picked != null && picked != vm.targetDate) {
+                  vm.setTargetDate(picked);
                 }
               },
               child: Container(
@@ -490,13 +441,10 @@ class _ReadingStartScreenState extends State<ReadingStartScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${targetDate.year}년 ${targetDate.month}월 ${targetDate.day}일',
+                      '${vm.targetDate.year}년 ${vm.targetDate.month}월 ${vm.targetDate.day}일',
                       style: const TextStyle(fontSize: 16),
                     ),
-                    const Icon(
-                      Icons.calendar_today,
-                      size: 20,
-                    ),
+                    const Icon(Icons.calendar_today, size: 20),
                   ],
                 ),
               ),
@@ -505,86 +453,59 @@ class _ReadingStartScreenState extends State<ReadingStartScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () async {
-                  final userId = Supabase.instance.client.auth.currentUser?.id;
-                  final book = Book(
-                    title: _selectedBook?.title ?? _titleController.text,
-                    author: _selectedBook?.author,
-                    startDate: selectedDate,
-                    targetDate: targetDate,
-                    imageUrl: _selectedBook?.imageUrl ?? widget.imageUrl,
-                    totalPages:
-                        _selectedBook?.totalPages ?? widget.totalPages ?? 0,
-                  );
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) => const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-
-                  try {
-                    final bookData = book.toJson();
-                    bookData['user_id'] = userId;
-                    final result =
-                        await BookService().addBookWithUserId(bookData);
-                    if (mounted) {
-                      Navigator.pop(context);
-
-                      if (result != null) {
-                        Navigator.popUntil(context, (route) => route.isFirst);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('독서 정보 저장에 실패했습니다.'),
-                            backgroundColor: Colors.red,
-                          ),
+                onPressed: vm.isSaving
+                    ? null
+                    : () async {
+                        final success = await vm.startReading(
+                          fallbackTitle: _titleController.text,
+                          fallbackImageUrl: widget.imageUrl,
+                          fallbackTotalPages: widget.totalPages,
                         );
-                      }
-                    }
-                  } catch (e) {
-                    if (mounted) {
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('오류가 발생했습니다: $e'),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    }
-                  }
-                },
+
+                        if (mounted) {
+                          if (success) {
+                            Navigator.popUntil(context, (route) => route.isFirst);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  vm.errorMessage ?? '독서 정보 저장에 실패했습니다.',
+                                ),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        }
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 16,
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text(
-                  '독서 시작',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                child: vm.isSaving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        '독서 시작',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
               ),
             ),
           ],
         ),
       ),
     );
-  }
-
-  bool _isSameBook(BookSearchResult a, BookSearchResult b) {
-    final sameTitle = a.title == b.title;
-    final sameAuthor = a.author == b.author;
-    final samePages = (a.totalPages ?? -1) == (b.totalPages ?? -1);
-    final sameImage = (a.imageUrl ?? '') == (b.imageUrl ?? '');
-    return sameTitle && sameAuthor && samePages && sameImage;
   }
 }

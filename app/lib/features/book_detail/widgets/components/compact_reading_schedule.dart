@@ -1,0 +1,135 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+class CompactReadingSchedule extends StatelessWidget {
+  final DateTime startDate;
+  final DateTime targetDate;
+  final int attemptCount;
+  final VoidCallback onEditTap;
+
+  const CompactReadingSchedule({
+    super.key,
+    required this.startDate,
+    required this.targetDate,
+    required this.attemptCount,
+    required this.onEditTap,
+  });
+
+  String _formatDate(DateTime date) {
+    return date.toString().substring(0, 10).replaceAll('-', '.');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final startDateStr = _formatDate(startDate);
+    final targetDateStr = _formatDate(targetDate);
+    final totalDays = targetDate.difference(startDate).inDays + 1;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          _buildDateColumn('시작일', startDateStr, isDark, isBold: false),
+          const SizedBox(width: 12),
+          Icon(
+            CupertinoIcons.arrow_right,
+            size: 12,
+            color: isDark ? Colors.grey[500] : Colors.grey[400],
+          ),
+          const SizedBox(width: 12),
+          _buildDateColumn('목표일', targetDateStr, isDark, isBold: true),
+          const SizedBox(width: 8),
+          Text(
+            '($totalDays일)',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.grey[500] : Colors.grey[500],
+            ),
+          ),
+          if (attemptCount > 1) ...[
+            const SizedBox(width: 8),
+            _buildAttemptBadge(),
+          ],
+          const Spacer(),
+          _buildEditButton(isDark),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateColumn(String label, String value, bool isDark, {required bool isBold}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w500,
+            color: isDark ? Colors.grey[500] : Colors.grey[500],
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: isBold ? FontWeight.w600 : FontWeight.w500,
+            color: isBold
+                ? (isDark ? Colors.white : Colors.black87)
+                : (isDark ? Colors.grey[300] : Colors.grey[700]),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAttemptBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFF6B35).withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        '$attemptCount번째',
+        style: const TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFFFF6B35),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEditButton(bool isDark) {
+    return GestureDetector(
+      onTap: onEditTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Icon(
+          CupertinoIcons.pencil,
+          size: 16,
+          color: Color(0xFF5B7FFF),
+        ),
+      ),
+    );
+  }
+}
