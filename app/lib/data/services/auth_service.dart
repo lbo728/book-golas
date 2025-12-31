@@ -5,7 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/domain/models/user_model.dart';
 
-class AuthService extends ChangeNotifier {
+class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
   UserModel? _currentUser;
 
@@ -19,26 +19,6 @@ class AuthService extends ChangeNotifier {
     _currentUser = _supabase.auth.currentUser != null
         ? UserModel.fromUser(_supabase.auth.currentUser!)
         : null;
-
-    _supabase.auth.onAuthStateChange.listen((data) {
-      final AuthChangeEvent event = data.event;
-      final Session? session = data.session;
-
-      switch (event) {
-        case AuthChangeEvent.signedIn:
-          if (session?.user != null) {
-            _currentUser = UserModel.fromUser(session!.user);
-            notifyListeners();
-          }
-          break;
-        case AuthChangeEvent.signedOut:
-          _currentUser = null;
-          notifyListeners();
-          break;
-        default:
-          break;
-      }
-    });
   }
 
   Future<String?> signUpWithEmail({
@@ -121,6 +101,7 @@ class AuthService extends ChangeNotifier {
   Future<String?> signOut() async {
     try {
       await _supabase.auth.signOut();
+      _currentUser = null;
       return null;
     } on AuthException catch (error) {
       return error.message;
@@ -147,14 +128,12 @@ class AuthService extends ChangeNotifier {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return null;
 
-    // maybeSingle()을 사용해서 null 허용
     final data =
         await _supabase.from('users').select().eq('id', userId).maybeSingle();
 
-    // 사용자 레코드가 없으면 생성
     if (data == null) {
       final email = _supabase.auth.currentUser?.email ?? '';
-      final nickname = email.split('@').first; // 이메일의 @ 앞부분을 닉네임으로
+      final nickname = email.split('@').first;
 
       await _supabase.from('users').insert({
         'id': userId,
@@ -162,14 +141,13 @@ class AuthService extends ChangeNotifier {
         'nickname': nickname,
       });
 
-      // 다시 조회
-      final newData = await _supabase.from('users').select().eq('id', userId).single();
+      final newData =
+          await _supabase.from('users').select().eq('id', userId).single();
       _currentUser = UserModel.fromJson(newData);
     } else {
       _currentUser = UserModel.fromJson(data);
     }
 
-    notifyListeners();
     return _currentUser;
   }
 
@@ -180,7 +158,6 @@ class AuthService extends ChangeNotifier {
         .from('users')
         .update({'nickname': nickname}).eq('id', userId);
     await fetchCurrentUser();
-    notifyListeners();
   }
 
   Future<void> uploadAvatar(File file) async {
@@ -201,13 +178,11 @@ class AuthService extends ChangeNotifier {
         .update({'avatar_url': urlWithBust}).eq('id', userId);
 
     await fetchCurrentUser();
-    notifyListeners();
   }
 
   Future<UserModel?> getCurrentUser() async {
     final user = await _supabase.auth.getUser();
     _currentUser = UserModel.fromUser(user.user!);
-    notifyListeners();
     return _currentUser;
   }
 
@@ -216,7 +191,6 @@ class AuthService extends ChangeNotifier {
       final response = await _supabase.functions.invoke('delete-user');
       if (response.status == 200) {
         _currentUser = null;
-        notifyListeners();
         await _supabase.auth.signOut();
         return true;
       }
