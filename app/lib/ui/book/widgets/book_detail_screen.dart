@@ -54,7 +54,7 @@ class _BookDetailScreenState extends State<BookDetailScreen>
   late TabController _tabController;
   late int _attemptCount; // 도전 횟수 (DB에서 로드)
   Map<String, bool> _dailyAchievements = {}; // 일차별 목표 달성 현황 (날짜: 성공/실패)
-  bool _useMockProgressData = false; // 🎨 진행률 히스토리 목업 데이터 사용 (실제 데이터 연결 완료)
+  bool _useMockProgressData = false;
 
   // 페이지 카운터 & 프로그레스바 애니메이션
   late AnimationController _progressAnimController;
@@ -202,7 +202,7 @@ class _BookDetailScreenState extends State<BookDetailScreen>
           ),
         ),
         actions: [
-          // 🎨 목업 데이터 토글 버튼
+          // 목업 데이터 토글 버튼
           Tooltip(
             message: _useMockProgressData ? '목업 데이터 끄기' : '목업 데이터 보기',
             child: IconButton(
@@ -3701,7 +3701,7 @@ class _BookDetailScreenState extends State<BookDetailScreen>
   }
 
   Future<List<Map<String, dynamic>>> fetchProgressHistory(String bookId) async {
-    // 🎨 목업 데이터 모드
+    // 목업 데이터 모드
     if (_useMockProgressData) {
       await Future.delayed(const Duration(milliseconds: 300)); // 로딩 시뮬레이션
       return _generateMockProgressData();
@@ -4136,7 +4136,7 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     };
   }
 
-  /// 🎨 목업 진행률 데이터 생성 (더 현실적인 패턴)
+  /// 목업 진행률 데이터 생성 (더 현실적인 패턴)
   List<Map<String, dynamic>> _generateMockProgressData() {
     final now = DateTime.now();
     final startDate = _currentBook.startDate;
