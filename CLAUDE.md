@@ -6,15 +6,62 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **북골라스 / Bookgolas** is a reading goal tracking mobile application built with Flutter. Users can set reading goals, track their progress, and manage their reading history through a simple and intuitive interface.
 
-## Git Commit Rules
+## Git Workflow
 
-- 반드시 **lbo728** 계정으로 커밋, 푸시, PR을 진행해야해. (만약 기존 gh auth status가 'bwlee-dix'라면 gh auth switch -u lbo728로 스위칭해서 진행해)
-- 커밋 메세지는 영문 컨벤셔널 커밋으로 해야해.(단, description은 한글 불릿 포인트로 작성해.)
-- 요청한 작업이 '덩어리' 단위라면 맥락에 맞추어 브랜치를 생성해서 작업해야해.
-  - 맥락 별로 커밋을 만들며 진행해야해.
-  - 작업 덩어리가 완료된다면 main(dev가 있다면 dev)브랜치를 향하는 PR을 생성해서 코멘트를 작성해야해.(하단 템플릿에서 인용문을 지우고 해당 내용을 작성하면돼. PR 이름은 브랜치 이름)
+### Branch Strategy
 
 ```
+main (Production)
+ │
+ └── dev (TestFlight)
+      │
+      └── daily/YYYY-MM-DD (일별 작업 브랜치)
+           │
+           ├── feature/BYU-XXX-task-name (태스크 브랜치)
+           ├── feature/BYU-YYY-another-task
+           └── fix/BYU-ZZZ-bug-fix
+```
+
+**브랜치 역할:**
+
+| 브랜치 | 용도 | 배포 |
+|--------|------|------|
+| `main` | Production 릴리즈 | iOS App Store 자동 배포 |
+| `dev` | 개발 통합 브랜치 | TestFlight 자동 배포 |
+| `daily/YYYY-MM-DD` | 일별 작업 그룹화 | - |
+| `feature/BYU-XXX-*` | 개별 태스크 작업 | - |
+
+### Daily Workflow
+
+```
+1. 작업 시작
+   └── dev에서 daily/YYYY-MM-DD 브랜치 생성 (없으면)
+        └── daily 브랜치에서 feature/BYU-XXX 태스크 브랜치 생성
+
+2. 태스크 진행
+   └── 태스크 완료 시 daily 브랜치로 PR → 머지
+        └── 다음 태스크도 daily 브랜치에서 새 브랜치 생성
+
+3. 일일 작업 완료
+   └── daily 브랜치 → dev PR 생성
+        └── 승인 후 머지 → TestFlight 자동 배포
+
+4. 버전 릴리즈
+   └── dev → main PR 생성 (버전 태그 포함: v1.x.x)
+        └── 승인 후 머지 → iOS Production 자동 배포
+```
+
+### Commit Rules
+
+- 반드시 gh를 **lbo728** 계정으로 커밋, 푸시, PR을 진행해야해.
+- 커밋 메세지는 영문 컨벤셔널 커밋으로 해야해. (단, description은 한글 불릿 포인트로 작성.)
+- 맥락 별로 커밋을 만들며 진행해야해.
+
+### PR Template
+
+PR 생성 시 아래 템플릿을 사용해. (인용문은 지우고 해당 내용을 작성)
+
+```markdown
 > 이번 PR의 목적을 한 문장으로 요약해주세요.
 >
 > - 예: 사용자가 프로필 정보를 수정할 수 있는 기능을 추가했습니다.
