@@ -1,13 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:provider/provider.dart';
-import '../../../data/services/auth_service.dart';
-import '../../../data/services/fcm_service.dart';
-import '../../../data/services/notification_settings_service.dart';
-import '../../core/view_model/theme_view_model.dart';
-import 'login_screen.dart';
 import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+
+import 'package:book_golas/data/services/auth_service.dart';
+import 'package:book_golas/data/services/fcm_service.dart';
+import 'package:book_golas/data/services/notification_settings_service.dart';
+import 'package:book_golas/ui/core/view_model/theme_view_model.dart';
+import 'login_screen.dart';
 
 class MyPageScreen extends StatefulWidget {
   const MyPageScreen({super.key});

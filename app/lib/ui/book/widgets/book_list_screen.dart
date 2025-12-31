@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../domain/models/book.dart';
-import '../../core/ui/book_image_widget.dart';
+import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/ui/core/ui/book_image_widget.dart';
 import 'book_detail_screen.dart';
 
 class BookListScreen extends StatefulWidget {

@@ -1,7 +1,9 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
-import '../../domain/models/book.dart';
-import '../../config/app_config.dart';
+
+import 'package:book_golas/config/app_config.dart';
+import 'package:book_golas/domain/models/book.dart';
 
 class AladinApiService {
   static Future<List<BookSearchResult>> searchBooks(String query) async {

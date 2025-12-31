@@ -1,5 +1,5 @@
-import '../../domain/models/book.dart';
-import '../services/book_service.dart';
+import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/data/services/book_service.dart';
 
 abstract class BookRepository {
   Future<List<Book>> getBooks();
