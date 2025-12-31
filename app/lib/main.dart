@@ -10,10 +10,12 @@ import 'package:book_golas/features/reading_start/widgets/reading_start_screen.d
 import 'package:book_golas/config/app_config.dart';
 import 'package:book_golas/data/repositories/book_repository.dart';
 import 'package:book_golas/data/repositories/auth_repository.dart';
+import 'package:book_golas/data/repositories/notification_settings_repository.dart';
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/features/home/view_model/home_view_model.dart';
 import 'package:book_golas/core/view_model/theme_view_model.dart';
 import 'package:book_golas/core/view_model/auth_view_model.dart';
+import 'package:book_golas/core/view_model/notification_settings_view_model.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
@@ -181,6 +183,9 @@ class MyApp extends StatelessWidget {
         Provider<AuthService>(
           create: (_) => AuthService(),
         ),
+        Provider<NotificationSettingsService>(
+          create: (_) => NotificationSettingsService(),
+        ),
         Provider<ReadingProgressService>(
           create: (_) => ReadingProgressService(),
         ),
@@ -195,6 +200,11 @@ class MyApp extends StatelessWidget {
             context.read<AuthService>(),
           ),
         ),
+        Provider<NotificationSettingsRepository>(
+          create: (context) => NotificationSettingsRepositoryImpl(
+            context.read<NotificationSettingsService>(),
+          ),
+        ),
         // === ViewModels ===
         ChangeNotifierProvider<HomeViewModel>(
           create: (context) => HomeViewModel(
@@ -206,8 +216,12 @@ class MyApp extends StatelessWidget {
             context.read<AuthRepository>(),
           ),
         ),
+        ChangeNotifierProvider<NotificationSettingsViewModel>(
+          create: (context) => NotificationSettingsViewModel(
+            context.read<NotificationSettingsRepository>(),
+          ),
+        ),
         ChangeNotifierProvider(create: (_) => ThemeViewModel()),
-        ChangeNotifierProvider(create: (_) => NotificationSettingsService()),
       ],
       child: Consumer<ThemeViewModel>(
         builder: (context, themeViewModel, child) {

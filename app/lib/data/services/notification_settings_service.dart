@@ -35,7 +35,7 @@ class NotificationSettings {
   }
 }
 
-class NotificationSettingsService extends ChangeNotifier {
+class NotificationSettingsService {
   final SupabaseClient _supabase = Supabase.instance.client;
 
   NotificationSettings _settings = NotificationSettings(
@@ -43,23 +43,14 @@ class NotificationSettingsService extends ChangeNotifier {
     notificationEnabled: true,
   );
 
-  bool _isLoading = false;
-  String? _error;
-
   NotificationSettings get settings => _settings;
-  bool get isLoading => _isLoading;
-  String? get error => _error;
 
-  Future<void> loadSettings() async {
+  Future<NotificationSettings?> loadSettings() async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) {
       debugPrint('🔔 [NotificationSettings] User not logged in');
-      return;
+      return null;
     }
-
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
 
     try {
       final response = await _supabase
@@ -72,92 +63,61 @@ class NotificationSettingsService extends ChangeNotifier {
       if (response != null) {
         _settings = NotificationSettings.fromJson(response);
         debugPrint('🔔 [NotificationSettings] Loaded: $_settings');
+        return _settings;
       } else {
-        debugPrint('🔔 [NotificationSettings] No settings found, using defaults');
+        debugPrint(
+            '🔔 [NotificationSettings] No settings found, using defaults');
+        return _settings;
       }
     } catch (e) {
-      _error = e.toString();
       debugPrint('🔔 [NotificationSettings] Error loading: $e');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      rethrow;
     }
   }
 
   Future<bool> updatePreferredHour(int hour) async {
     if (hour < 0 || hour > 23) {
-      _error = 'Invalid hour: must be 0-23';
-      notifyListeners();
-      return false;
+      throw ArgumentError('Invalid hour: must be 0-23');
     }
 
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) {
-      _error = 'User not logged in';
-      notifyListeners();
-      return false;
+      throw StateError('User not logged in');
     }
-
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
 
     try {
       await _supabase
           .from('fcm_tokens')
-          .update({'preferred_hour': hour})
-          .eq('user_id', userId);
+          .update({'preferred_hour': hour}).eq('user_id', userId);
 
       _settings = _settings.copyWith(preferredHour: hour);
       debugPrint('🔔 [NotificationSettings] Updated preferred_hour to $hour');
       return true;
     } catch (e) {
-      _error = e.toString();
       debugPrint('🔔 [NotificationSettings] Error updating hour: $e');
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      rethrow;
     }
   }
 
   Future<bool> updateNotificationEnabled(bool enabled) async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) {
-      _error = 'User not logged in';
-      notifyListeners();
-      return false;
+      throw StateError('User not logged in');
     }
-
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
 
     try {
       await _supabase
           .from('fcm_tokens')
-          .update({'notification_enabled': enabled})
-          .eq('user_id', userId);
+          .update({'notification_enabled': enabled}).eq('user_id', userId);
 
       _settings = _settings.copyWith(notificationEnabled: enabled);
-      debugPrint('🔔 [NotificationSettings] Updated notification_enabled to $enabled');
+      debugPrint(
+          '🔔 [NotificationSettings] Updated notification_enabled to $enabled');
       return true;
     } catch (e) {
-      _error = e.toString();
       debugPrint('🔔 [NotificationSettings] Error updating enabled: $e');
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      rethrow;
     }
-  }
-
-  String getFormattedTime() {
-    final hour = _settings.preferredHour;
-    if (hour == 0) return '오전 12시';
-    if (hour < 12) return '오전 ${hour}시';
-    if (hour == 12) return '오후 12시';
-    return '오후 ${hour - 12}시';
   }
 
   static List<Map<String, dynamic>> getAvailableHours() {
