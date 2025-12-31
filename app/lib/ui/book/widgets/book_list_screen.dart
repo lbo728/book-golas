@@ -4,7 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../domain/models/book.dart';
 import '../../core/ui/book_image_widget.dart';
-import 'book_detail_screen_redesigned.dart';
+import 'book_detail_screen.dart';
 
 class BookListScreen extends StatefulWidget {
   const BookListScreen({super.key});
@@ -433,7 +433,7 @@ class _BookListScreenState extends State<BookListScreen>
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => BookDetailScreenRedesigned(book: book),
+            builder: (context) => BookDetailScreen(book: book),
           ),
         );
       },
