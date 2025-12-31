@@ -2480,7 +2480,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         ),
                         child: Column(
                     children: [
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12 + MediaQuery.of(context).padding.top),
                       Container(
                         width: 40,
                         height: 4,
@@ -2964,12 +2964,13 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                               if (parsed > _currentBook.totalPages) {
                                                 // 에러가 처음 발생할 때만 스낵바+햅틱
                                                 if (!hasShownPageError) {
-                                                  HapticFeedback.vibrate();
+                                                  HapticFeedback.heavyImpact();
                                                   CustomSnackbar.show(
                                                     parentContext,
                                                     message: '총 페이지 수(${_currentBook.totalPages})를 초과할 수 없습니다',
                                                     type: SnackbarType.error,
                                                     rootOverlay: true,
+                                                    aboveKeyboard: true,
                                                   );
                                                   hasShownPageError = true;
                                                 }
@@ -3023,14 +3024,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                     ],
                                   ),
                                   if (pageValidationError != null) ...[
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      pageValidationError!,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.red[400],
-                                      ),
-                                    ),
+                                    // 에러 텍스트 대신 스낵바로 표시 (aboveKeyboard: true)
                                   ],
                                 ],
                               ),
@@ -4700,12 +4694,11 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                   ),
                 ),
                 const SizedBox(height: 4),
-                // 오늘 목표 (남은 페이지 / 남은 일수) + 변경 버튼
+                // 오늘 목표 (저장된 값 우선, 없으면 남은 페이지 / 남은 일수) + 변경 버튼
                 Builder(
                   builder: (context) {
-                    final dailyTarget = _daysLeft > 0
-                        ? (_pagesLeft / _daysLeft).ceil()
-                        : _pagesLeft;
+                    final dailyTarget = _currentBook.dailyTargetPages ??
+                        (_daysLeft > 0 ? (_pagesLeft / _daysLeft).ceil() : _pagesLeft);
                     if (dailyTarget > 0) {
                       return GestureDetector(
                         onTap: _showDailyTargetChangeDialog,
@@ -6344,6 +6337,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                               message: '총 페이지 수($totalPages)를 초과할 수 없습니다',
                                               type: SnackbarType.error,
                                               rootOverlay: true,
+                                              aboveKeyboard: true,
                                             );
                                             hasShownPageError = true;
                                           }
@@ -6900,16 +6894,19 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         child: KeyboardAccessoryBar(
                           isDark: isDark,
                           showNavigation: true,
-                          onUp: pageNumberFocusNode.hasFocus
-                              ? null
-                              : () {
-                                  pageNumberFocusNode.requestFocus();
-                                },
-                          onDown: focusNode.hasFocus
-                              ? null
-                              : () {
-                                  focusNode.requestFocus();
-                                },
+                          icon: CupertinoIcons.checkmark,
+                          onUp: () {
+                            if (focusNode.hasFocus) {
+                              focusNode.unfocus();
+                              pageNumberFocusNode.requestFocus();
+                            }
+                          },
+                          onDown: () {
+                            if (pageNumberFocusNode.hasFocus) {
+                              pageNumberFocusNode.unfocus();
+                              focusNode.requestFocus();
+                            }
+                          },
                           onDone: () {
                             setModalState(() {
                               hideKeyboardAccessory = true;
@@ -8199,18 +8196,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     final inputController = TextEditingController(text: currentDailyTarget.toString());
     final inputFocusNode = FocusNode();
     final sheetController = DraggableScrollableController();
-
-    // 포커스 변화 리스너
-    inputFocusNode.addListener(() {
-      if (inputFocusNode.hasFocus) {
-        // 포커스 시 풀 모달로 확장
-        sheetController.animateTo(
-          0.95,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    });
+    bool isInputFocused = false;
+    bool listenerAdded = false;
 
     await showModalBottomSheet(
       context: context,
@@ -8221,6 +8208,23 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
+            // 포커스 리스너 설정 (한 번만)
+            if (!listenerAdded) {
+              listenerAdded = true;
+              inputFocusNode.addListener(() {
+                setModalState(() {
+                  isInputFocused = inputFocusNode.hasFocus;
+                });
+                if (inputFocusNode.hasFocus) {
+                  sheetController.animateTo(
+                    0.95,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOut,
+                  );
+                }
+              });
+            }
+
             // dailyTarget이 변경된 경우에만 재계산
             if (newDailyTarget != lastCalculatedTarget) {
               cachedSchedule = calculateSchedule(newDailyTarget);
@@ -8251,8 +8255,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                   },
                   child: DraggableScrollableSheet(
                     controller: sheetController,
-                    initialChildSize: 0.6,
-                    minChildSize: 0.6,
+                    initialChildSize: isInputFocused ? 0.95 : 0.6,
+                    minChildSize: isInputFocused ? 0.95 : 0.6,
                     maxChildSize: 0.95,
                     builder: (context, scrollController) {
                       return Container(
@@ -8353,7 +8357,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                         children: [
                                           Center(
                                             child: Container(
-                                              width: 80,
+                                              width: 100,
                                               height: 90,
                                               decoration: BoxDecoration(
                                                 color: const Color(0xFF10B981).withValues(alpha: 0.12),
@@ -8365,12 +8369,12 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                             quarterTurns: 3,
                                             child: ListWheelScrollView.useDelegate(
                                               controller: wheelController,
-                                              itemExtent: 70,
+                                              itemExtent: 90,
                                               perspective: 0.005,
                                               diameterRatio: 1.5,
                                               physics: const FixedExtentScrollPhysics(),
                                               onSelectedItemChanged: (index) {
-                                                HapticFeedback.selectionClick();
+                                                HapticFeedback.lightImpact();
                                                 setModalState(() {
                                                   newDailyTarget = index + 1;
                                                   inputController.text = (index + 1).toString();
@@ -8576,113 +8580,119 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                             ],
                           ),
                         ),
-                        // 키보드 액세서리 바 (키보드 표시 시에만)
-                        if (MediaQuery.of(context).viewInsets.bottom > 0)
-                          KeyboardAccessoryBar(
-                            onDone: () {
-                              inputFocusNode.unfocus();
-                            },
-                            isDark: isDark,
-                            icon: CupertinoIcons.checkmark,
-                          ),
-                        // 버튼 영역 (하단 고정)
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(
-                            24,
-                            16,
-                            24,
-                            24 + MediaQuery.of(context).viewInsets.bottom,
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  style: TextButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                        // 버튼 영역 (하단 고정, 인풋 활성화 시 숨김)
+                        if (!isInputFocused)
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(
+                              24,
+                              16,
+                              24,
+                              24 + MediaQuery.of(context).viewInsets.bottom,
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                    ),
+                                    child: const Text('취소'),
                                   ),
-                                  child: const Text('취소'),
                                 ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                flex: 2,
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    // book id 확인
-                                    final bookId = _currentBook.id;
-                                    if (bookId == null) {
-                                      Navigator.pop(context);
-                                      if (mounted) {
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  flex: 2,
+                                  child: ElevatedButton(
+                                    onPressed: () async {
+                                      // book id 확인
+                                      final bookId = _currentBook.id;
+                                      if (bookId == null) {
+                                        Navigator.pop(context);
+                                        if (mounted) {
+                                          CustomSnackbar.show(
+                                            parentContext,
+                                            message: '도서 정보를 찾을 수 없습니다',
+                                            type: SnackbarType.error,
+                                            bottomOffset: 100,
+                                          );
+                                        }
+                                        return;
+                                      }
+
+                                      // DB에 일일 목표 페이지 업데이트
+                                      try {
+                                        await Supabase.instance.client
+                                            .from('books')
+                                            .update({'daily_target_pages': newDailyTarget})
+                                            .eq('id', bookId);
+
+                                        if (!mounted) return;
+                                        Navigator.pop(context);
+
+                                        // 로컬 상태 갱신
+                                        setState(() {
+                                          _currentBook = _currentBook.copyWith(
+                                            dailyTargetPages: newDailyTarget,
+                                          );
+                                        });
+
                                         CustomSnackbar.show(
                                           parentContext,
-                                          message: '도서 정보를 찾을 수 없습니다',
+                                          message: '오늘 목표: ${newDailyTarget}p로 변경되었습니다',
+                                          type: SnackbarType.success,
+                                          bottomOffset: 100,
+                                        );
+                                      } catch (e) {
+                                        if (!mounted) return;
+                                        Navigator.pop(context);
+                                        CustomSnackbar.show(
+                                          parentContext,
+                                          message: '목표 변경에 실패했습니다: $e',
                                           type: SnackbarType.error,
                                           bottomOffset: 100,
                                         );
                                       }
-                                      return;
-                                    }
-
-                                    // DB에 일일 목표 페이지 업데이트
-                                    try {
-                                      await Supabase.instance.client
-                                          .from('books')
-                                          .update({'daily_target_pages': newDailyTarget})
-                                          .eq('id', bookId);
-
-                                      if (!mounted) return;
-                                      Navigator.pop(context);
-
-                                      // 로컬 상태 갱신
-                                      setState(() {
-                                        _currentBook = _currentBook.copyWith(
-                                          dailyTargetPages: newDailyTarget,
-                                        );
-                                      });
-
-                                      CustomSnackbar.show(
-                                        parentContext,
-                                        message: '오늘 목표: ${newDailyTarget}p로 변경되었습니다',
-                                        type: SnackbarType.success,
-                                        bottomOffset: 100,
-                                      );
-                                    } catch (e) {
-                                      if (!mounted) return;
-                                      Navigator.pop(context);
-                                      CustomSnackbar.show(
-                                        parentContext,
-                                        message: '목표 변경에 실패했습니다: $e',
-                                        type: SnackbarType.error,
-                                        bottomOffset: 100,
-                                      );
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF10B981),
-                                    padding: const EdgeInsets.symmetric(vertical: 16),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF10B981),
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
                                     ),
-                                  ),
-                                  child: const Text(
-                                    '변경',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                                    child: const Text(
+                                      '변경',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   );
                 },
               ),
             ),
+                // 키보드 액세서리 바 (인풋 포커스 시, 키보드 위 8px)
+                if (isInputFocused)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 8,
+                    child: KeyboardAccessoryBar(
+                      onDone: () {
+                        inputFocusNode.unfocus();
+                      },
+                      isDark: isDark,
+                      icon: CupertinoIcons.checkmark,
+                    ),
+                  ),
               ],
             );
           },
