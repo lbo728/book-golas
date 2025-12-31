@@ -13,6 +13,7 @@ import 'package:book_golas/data/repositories/auth_repository.dart';
 import 'package:book_golas/data/repositories/notification_settings_repository.dart';
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/features/home/view_model/home_view_model.dart';
+import 'package:book_golas/features/book_list/view_model/book_list_view_model.dart';
 import 'package:book_golas/core/view_model/theme_view_model.dart';
 import 'package:book_golas/core/view_model/auth_view_model.dart';
 import 'package:book_golas/core/view_model/notification_settings_view_model.dart';
@@ -220,6 +221,9 @@ class MyApp extends StatelessWidget {
           create: (context) => NotificationSettingsViewModel(
             context.read<NotificationSettingsRepository>(),
           ),
+        ),
+        ChangeNotifierProvider<BookListViewModel>(
+          create: (_) => BookListViewModel(),
         ),
         ChangeNotifierProvider(create: (_) => ThemeViewModel()),
       ],
