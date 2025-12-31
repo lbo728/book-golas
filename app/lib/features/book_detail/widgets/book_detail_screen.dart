@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -22,11 +23,14 @@ import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/core/widgets/book_image_widget.dart';
 import 'package:book_golas/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/core/widgets/keyboard_accessory_bar.dart';
+import 'package:book_golas/features/book_detail/view_model/book_detail_view_model.dart';
+import 'package:book_golas/features/book_detail/view_model/memorable_page_view_model.dart';
+import 'package:book_golas/features/book_detail/view_model/reading_progress_view_model.dart';
 import 'dialogs/daily_target_dialog.dart';
 import 'dialogs/today_goal_sheet.dart';
 import 'dialogs/update_page_dialog.dart';
 
-class BookDetailScreen extends StatefulWidget {
+class BookDetailScreen extends StatelessWidget {
   final Book book;
 
   const BookDetailScreen({
@@ -35,10 +39,37 @@ class BookDetailScreen extends StatefulWidget {
   });
 
   @override
-  State<BookDetailScreen> createState() => _BookDetailScreenState();
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => BookDetailViewModel(
+            bookService: BookService(),
+            initialBook: book,
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => MemorablePageViewModel(bookId: book.id!),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ReadingProgressViewModel(bookId: book.id!),
+        ),
+      ],
+      child: _BookDetailContent(book: book),
+    );
+  }
 }
 
-class _BookDetailScreenState extends State<BookDetailScreen>
+class _BookDetailContent extends StatefulWidget {
+  final Book book;
+
+  const _BookDetailContent({required this.book});
+
+  @override
+  State<_BookDetailContent> createState() => _BookDetailContentState();
+}
+
+class _BookDetailContentState extends State<_BookDetailContent>
     with TickerProviderStateMixin {
   final BookService _bookService = BookService();
   late Book _currentBook;
