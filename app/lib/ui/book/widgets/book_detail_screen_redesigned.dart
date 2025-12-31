@@ -2807,10 +2807,16 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                                 onTap: () {
                                                   _showReplaceImageConfirmation(
                                                     onConfirm: () {
-                                                      _showImageSourceActionSheetForImageOnly(
-                                                        onImageSelected: (imageBytes) {
+                                                      _showImageSourceActionSheet(
+                                                        onImageSelected: (imageBytes, ocrText, ocrPageNumber) {
                                                           setModalState(() {
                                                             fullImageBytes = imageBytes;
+                                                            if (ocrText.isNotEmpty) {
+                                                              textController.text = ocrText;
+                                                            }
+                                                            if (ocrPageNumber != null) {
+                                                              pageController.text = ocrPageNumber.toString();
+                                                            }
                                                           });
                                                         },
                                                       );
@@ -2853,10 +2859,16 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                       )
                                     : GestureDetector(
                                         behavior: HitTestBehavior.opaque,
-                                        onTap: () => _showImageSourceActionSheetForImageOnly(
-                                          onImageSelected: (imageBytes) {
+                                        onTap: () => _showImageSourceActionSheet(
+                                          onImageSelected: (imageBytes, ocrText, ocrPageNumber) {
                                             setModalState(() {
                                               fullImageBytes = imageBytes;
+                                              if (ocrText.isNotEmpty) {
+                                                textController.text = ocrText;
+                                              }
+                                              if (ocrPageNumber != null) {
+                                                pageController.text = ocrPageNumber.toString();
+                                              }
                                             });
                                           },
                                         ),
