@@ -2433,6 +2433,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     int? pageNumber = _pendingPageNumber;
     bool isUploading = false;
     String? pageValidationError;
+    bool hasShownPageError = false;
     bool isOcrExtracting = false;
     bool hideKeyboardAccessory = false;
     bool uploadSuccess = false;
@@ -2462,20 +2463,21 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                 textFocusNode.unfocus();
                 pageFocusNode.unfocus();
               },
-              child: Padding(
-                padding: EdgeInsets.only(
-                  bottom: keyboardHeight,
-                  top: MediaQuery.of(context).padding.top,
-                ),
-                child: Stack(
-                  children: [
-                    Container(
-                      height: MediaQuery.of(context).size.height * 0.85,
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                      ),
-                      child: Column(
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    bottom: keyboardHeight,
+                  ),
+                  child: Stack(
+                    children: [
+                      Container(
+                        height: MediaQuery.of(context).size.height * 0.85 - MediaQuery.of(context).padding.top,
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                        ),
+                        child: Column(
                     children: [
                       const SizedBox(height: 12),
                       Container(
@@ -2940,12 +2942,23 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                               setModalState(() {
                                                 pageNumber = null;
                                                 pageValidationError = null;
+                                                hasShownPageError = false;
                                               });
                                               return;
                                             }
                                             final parsed = int.tryParse(value);
                                             if (parsed != null) {
                                               if (parsed > _currentBook.totalPages) {
+                                                // 에러가 처음 발생할 때만 스낵바+햅틱
+                                                if (!hasShownPageError) {
+                                                  HapticFeedback.heavyImpact();
+                                                  CustomSnackbar.show(
+                                                    this.context,
+                                                    message: '총 페이지 수(${_currentBook.totalPages})를 초과할 수 없습니다',
+                                                    type: SnackbarType.error,
+                                                  );
+                                                  hasShownPageError = true;
+                                                }
                                                 setModalState(() {
                                                   pageNumber = parsed;
                                                   pageValidationError = '전체 페이지 수를 초과할 수 없습니다.';
@@ -2954,6 +2967,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                                 setModalState(() {
                                                   pageNumber = parsed;
                                                   pageValidationError = null;
+                                                  hasShownPageError = false;
                                                 });
                                               }
                                             }
@@ -3178,19 +3192,36 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                           ),
                         ),
                       ),
-                    // 키보드 액세서리 바 (텍스트 키보드가 열려있을 때만, 숫자 키보드는 제외)
-                    if (isKeyboardOpen && textFocusNode.hasFocus && !hideKeyboardAccessory)
+                    // 키보드 액세서리 바 (키보드가 열려있을 때)
+                    if (isKeyboardOpen && (textFocusNode.hasFocus || pageFocusNode.hasFocus) && !hideKeyboardAccessory)
                       Positioned(
                         left: 0,
                         right: 0,
                         bottom: 0,
                         child: KeyboardAccessoryBar(
                           isDark: isDark,
+                          showNavigation: true,
+                          icon: CupertinoIcons.checkmark,
+                          onUp: () {
+                            if (textFocusNode.hasFocus) {
+                              // 텍스트 -> 페이지 필드로 이동
+                              textFocusNode.unfocus();
+                              pageFocusNode.requestFocus();
+                            }
+                          },
+                          onDown: () {
+                            if (pageFocusNode.hasFocus) {
+                              // 페이지 -> 텍스트 필드로 이동
+                              pageFocusNode.unfocus();
+                              textFocusNode.requestFocus();
+                            }
+                          },
                           onDone: () {
                             setModalState(() {
                               hideKeyboardAccessory = true;
                             });
                             textFocusNode.unfocus();
+                            pageFocusNode.unfocus();
                             Future.delayed(const Duration(milliseconds: 300), () {
                               if (context.mounted) {
                                 setModalState(() {
@@ -3233,6 +3264,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                   ],
                 ),
               ),
+            ),
             );
           },
         );
@@ -3621,11 +3653,16 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
       if (!mounted) return;
 
+      // 이전 모달이 완전히 닫히도록 잠시 대기
+      await Future.delayed(const Duration(milliseconds: 100));
+      if (!mounted) return;
+
       // 0단계: 텍스트 추출 여부 확인
       final isDark = Theme.of(parentContext).brightness == Brightness.dark;
       final shouldExtract = await showModalBottomSheet<bool>(
         context: parentContext,
         backgroundColor: Colors.transparent,
+        useRootNavigator: true,
         builder: (context) {
           return Container(
             decoration: BoxDecoration(
@@ -4660,10 +4697,10 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                         onTap: _showDailyTargetChangeDialog,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
+                              horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color: const Color(0xFF10B981).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(10),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -4671,15 +4708,15 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                               Text(
                                 '오늘 목표: ${dailyTarget}p',
                                 style: const TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                   color: Color(0xFF10B981),
                                 ),
                               ),
-                              const SizedBox(width: 4),
+                              const SizedBox(width: 6),
                               const Icon(
                                 CupertinoIcons.pencil,
-                                size: 11,
+                                size: 13,
                                 color: Color(0xFF10B981),
                               ),
                             ],
@@ -8101,6 +8138,20 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
 
     // 직접 입력용 컨트롤러
     final inputController = TextEditingController(text: currentDailyTarget.toString());
+    final inputFocusNode = FocusNode();
+    final sheetController = DraggableScrollableController();
+
+    // 포커스 변화 리스너
+    inputFocusNode.addListener(() {
+      if (inputFocusNode.hasFocus) {
+        // 포커스 시 풀 모달로 확장
+        sheetController.animateTo(
+          0.95,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
 
     await showModalBottomSheet(
       context: context,
@@ -8117,31 +8168,40 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
               lastCalculatedTarget = newDailyTarget;
             }
             final schedule = cachedSchedule;
-            final daysToComplete = schedule.length;
-            final targetDate = _currentBook.targetDate;
-            final canFinishOnTime = daysToComplete <= _daysLeft;
             final maxPages = schedule.isNotEmpty
                 ? schedule.map((s) => s['pages'] as int).reduce((a, b) => a > b ? a : b)
                 : newDailyTarget;
 
-            return NotificationListener<DraggableScrollableNotification>(
-              onNotification: (notification) {
-                setModalState(() {
-                  sheetExtent = notification.extent;
-                });
-                return true;
-              },
-              child: DraggableScrollableSheet(
-                initialChildSize: 0.6,
-                minChildSize: 0.6,
-                maxChildSize: 0.95,
-                builder: (context, scrollController) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                    ),
-                    child: Column(
+            return Stack(
+              children: [
+                // 투명한 영역 터치 시 모달 닫기
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    color: Colors.transparent,
+                  ),
+                ),
+                // DraggableScrollableSheet
+                NotificationListener<DraggableScrollableNotification>(
+                  onNotification: (notification) {
+                    setModalState(() {
+                      sheetExtent = notification.extent;
+                    });
+                    return true;
+                  },
+                  child: DraggableScrollableSheet(
+                    controller: sheetController,
+                    initialChildSize: 0.6,
+                    minChildSize: 0.6,
+                    maxChildSize: 0.95,
+                    builder: (context, scrollController) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                        ),
+                        child: Column(
                       children: [
                         Expanded(
                           child: CustomScrollView(
@@ -8319,6 +8379,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                         height: 36,
                                         child: TextField(
                                           controller: inputController,
+                                          focusNode: inputFocusNode,
                                           keyboardType: TextInputType.number,
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
@@ -8353,45 +8414,6 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                             }
                                           },
                                         ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    // 목표 달성 가능 여부 표시
-                                    Container(
-                                      padding: const EdgeInsets.all(16),
-                                      decoration: BoxDecoration(
-                                        color: canFinishOnTime
-                                            ? const Color(0xFF10B981).withValues(alpha: 0.1)
-                                            : const Color(0xFFFF6B6B).withValues(alpha: 0.1),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            canFinishOnTime
-                                                ? CupertinoIcons.checkmark_circle
-                                                : CupertinoIcons.exclamationmark_circle,
-                                            color: canFinishOnTime
-                                                ? const Color(0xFF10B981)
-                                                : const Color(0xFFFF6B6B),
-                                            size: 20,
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Expanded(
-                                            child: Text(
-                                              canFinishOnTime
-                                                  ? '${targetDate.month}/${targetDate.day}까지 완료 가능!'
-                                                  : '목표일까지 $daysToComplete일 필요 (${daysToComplete - _daysLeft}일 초과)',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                color: canFinishOnTime
-                                                    ? const Color(0xFF10B981)
-                                                    : const Color(0xFFFF6B6B),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
                                       ),
                                     ),
                                     const SizedBox(height: 16),
@@ -8494,6 +8516,15 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                             ],
                           ),
                         ),
+                        // 키보드 액세서리 바 (키보드 표시 시에만)
+                        if (MediaQuery.of(context).viewInsets.bottom > 0)
+                          KeyboardAccessoryBar(
+                            onDone: () {
+                              inputFocusNode.unfocus();
+                            },
+                            isDark: isDark,
+                            icon: CupertinoIcons.checkmark,
+                          ),
                         // 버튼 영역 (하단 고정)
                         Padding(
                           padding: EdgeInsets.fromLTRB(
@@ -8518,31 +8549,49 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                 flex: 2,
                                 child: ElevatedButton(
                                   onPressed: () async {
-                                    Navigator.pop(context);
+                                    // book id 확인
+                                    final bookId = _currentBook.id;
+                                    if (bookId == null) {
+                                      Navigator.pop(context);
+                                      if (mounted) {
+                                        CustomSnackbar.show(
+                                          parentContext,
+                                          message: '도서 정보를 찾을 수 없습니다',
+                                          type: SnackbarType.error,
+                                          bottomOffset: 100,
+                                        );
+                                      }
+                                      return;
+                                    }
+
                                     // DB에 일일 목표 페이지 업데이트
                                     try {
                                       await Supabase.instance.client
                                           .from('books')
                                           .update({'daily_target_pages': newDailyTarget})
-                                          .eq('id', _currentBook.id!);
+                                          .eq('id', bookId);
+
+                                      if (!mounted) return;
+                                      Navigator.pop(context);
+
+                                      // 화면 상태 갱신
                                       setState(() {});
-                                      if (mounted) {
-                                        CustomSnackbar.show(
-                                          parentContext,
-                                          message: '오늘 목표: ${newDailyTarget}p로 변경되었습니다',
-                                          type: SnackbarType.success,
-                                          bottomOffset: 100,
-                                        );
-                                      }
+
+                                      CustomSnackbar.show(
+                                        parentContext,
+                                        message: '오늘 목표: ${newDailyTarget}p로 변경되었습니다',
+                                        type: SnackbarType.success,
+                                        bottomOffset: 100,
+                                      );
                                     } catch (e) {
-                                      if (mounted) {
-                                        CustomSnackbar.show(
-                                          parentContext,
-                                          message: '목표 변경에 실패했습니다',
-                                          type: SnackbarType.error,
-                                          bottomOffset: 100,
-                                        );
-                                      }
+                                      if (!mounted) return;
+                                      Navigator.pop(context);
+                                      CustomSnackbar.show(
+                                        parentContext,
+                                        message: '목표 변경에 실패했습니다',
+                                        type: SnackbarType.error,
+                                        bottomOffset: 100,
+                                      );
                                     }
                                   },
                                   style: ElevatedButton.styleFrom(
@@ -8569,6 +8618,8 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                   );
                 },
               ),
+            ),
+              ],
             );
           },
         );
