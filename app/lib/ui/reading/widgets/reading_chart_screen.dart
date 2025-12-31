@@ -15,7 +15,7 @@ class ReadingChartScreen extends StatefulWidget {
 
 class _ReadingChartScreenState extends State<ReadingChartScreen> {
   TimeFilter _selectedFilter = TimeFilter.daily;
-  bool _useMockData = false; // 🎨 Mock 데이터 사용 여부
+  bool _useMockData = false;
   final ReadingProgressService _progressService = ReadingProgressService();
 
   // 캐싱된 데이터
@@ -53,7 +53,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
     }
   }
 
-  /// 🎨 Mock 데이터 생성 (데모용)
+  /// Mock 데이터 생성 (데모용)
   List<Map<String, dynamic>> _generateMockData() {
     final now = DateTime.now();
     final List<Map<String, dynamic>> mockData = [];
@@ -80,7 +80,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
   }
 
   Future<List<Map<String, dynamic>>> fetchUserProgressHistory() async {
-    // 🎨 Mock 데이터 모드일 경우 Mock 데이터 반환
+    // Mock 데이터 모드일 경우 Mock 데이터 반환
     if (_useMockData) {
       await Future.delayed(const Duration(milliseconds: 500)); // 로딩 시뮬레이션
       return _generateMockData();
@@ -272,7 +272,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
           color: isDark ? Colors.white : Colors.black,
         ),
         actions: [
-          // 🎨 Mock 데이터 토글 버튼
+          // Mock 데이터 토글 버튼
           Tooltip(
             message: _useMockData ? 'Mock 데이터 끄기' : 'Mock 데이터 보기',
             child: IconButton(
