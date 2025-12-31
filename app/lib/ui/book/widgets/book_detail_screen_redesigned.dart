@@ -2428,6 +2428,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
   /// 인상적인 페이지 추가 모달 (새 UX 플로우)
   void _showAddMemorablePageModal() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final parentContext = context;
     Uint8List? fullImageBytes = _pendingImageBytes;
     String extractedText = _pendingExtractedText;
     int? pageNumber = _pendingPageNumber;
@@ -2951,11 +2952,12 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                               if (parsed > _currentBook.totalPages) {
                                                 // 에러가 처음 발생할 때만 스낵바+햅틱
                                                 if (!hasShownPageError) {
-                                                  HapticFeedback.heavyImpact();
+                                                  HapticFeedback.vibrate();
                                                   CustomSnackbar.show(
-                                                    this.context,
+                                                    parentContext,
                                                     message: '총 페이지 수(${_currentBook.totalPages})를 초과할 수 없습니다',
                                                     type: SnackbarType.error,
+                                                    rootOverlay: true,
                                                   );
                                                   hasShownPageError = true;
                                                 }
@@ -6042,11 +6044,13 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     int? pageNumber,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final parentContext = context;
     // 메모리에 저장된 텍스트가 있으면 사용, 없으면 DB에서 가져온 값 사용
     final cachedText = _editedTexts[imageId] ?? extractedText ?? '';
     final originalText = cachedText; // 수정 전 원본 텍스트 저장
     final textController = TextEditingController(text: cachedText);
     final focusNode = FocusNode();
+    final pageNumberFocusNode = FocusNode();
     bool isEditing = false;
     bool isSaving = false;
     bool hideKeyboardAccessory = false;
@@ -6055,12 +6059,13 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     final pageNumberController = TextEditingController(text: pageNumber?.toString() ?? '');
     bool pageNumberError = false;
     final totalPages = _currentBook.totalPages;
+    bool hasShownPageError = false;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      isDismissible: true,
-      enableDrag: true,
+      isDismissible: false,
+      enableDrag: false,
       backgroundColor: Colors.transparent,
       builder: (context) {
         bool listenerAdded = false;
@@ -6070,6 +6075,9 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
             if (!listenerAdded) {
               listenerAdded = true;
               focusNode.addListener(() {
+                setModalState(() {});
+              });
+              pageNumberFocusNode.addListener(() {
                 setModalState(() {});
               });
             }
@@ -6220,12 +6228,31 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                       child: Column(
                     children: [
                       const SizedBox(height: 12),
-                      Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[400],
-                          borderRadius: BorderRadius.circular(2),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onVerticalDragEnd: (details) {
+                          if (details.primaryVelocity != null && details.primaryVelocity! > 100) {
+                            final hasTextChanges = textController.text != originalText;
+                            final hasPageChanges = editingPageNumber != pageNumber;
+                            if (isEditing && (hasTextChanges || hasPageChanges)) {
+                              showCancelConfirmation();
+                            } else {
+                              Navigator.pop(context);
+                            }
+                          }
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          height: 24,
+                          alignment: Alignment.center,
+                          child: Container(
+                            width: 40,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[400],
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
                         ),
                       ),
                       Padding(
@@ -6263,6 +6290,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                     height: 32,
                                     child: TextField(
                                       controller: pageNumberController,
+                                      focusNode: pageNumberFocusNode,
                                       keyboardType: TextInputType.number,
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
@@ -6297,17 +6325,22 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                       onChanged: (value) {
                                         final parsed = int.tryParse(value);
                                         if (parsed != null && parsed > totalPages) {
-                                          HapticFeedback.heavyImpact();
+                                          if (!hasShownPageError) {
+                                            HapticFeedback.vibrate();
+                                            CustomSnackbar.show(
+                                              parentContext,
+                                              message: '총 페이지 수($totalPages)를 초과할 수 없습니다',
+                                              type: SnackbarType.error,
+                                              rootOverlay: true,
+                                            );
+                                            hasShownPageError = true;
+                                          }
                                           setModalState(() {
                                             pageNumberError = true;
                                             editingPageNumber = parsed;
                                           });
-                                          CustomSnackbar.show(
-                                            this.context,
-                                            message: '총 페이지 수($totalPages)를 초과할 수 없습니다',
-                                            type: SnackbarType.error,
-                                          );
                                         } else {
+                                          hasShownPageError = false;
                                           setModalState(() {
                                             pageNumberError = false;
                                             editingPageNumber = parsed;
@@ -6846,19 +6879,34 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                     ],
                   ),
                 ),
-                    // 키보드 액세서리 바 (텍스트 필드가 포커스되었을 때만, 숫자 키보드는 제외)
-                    if (isEditing && isKeyboardOpen && focusNode.hasFocus && !hideKeyboardAccessory)
+                    // 키보드 액세서리 바 (텍스트 필드 또는 페이지 번호 필드가 포커스되었을 때)
+                    if (isEditing && isKeyboardOpen && (focusNode.hasFocus || pageNumberFocusNode.hasFocus) && !hideKeyboardAccessory)
                       Positioned(
                         left: 0,
                         right: 0,
                         bottom: 0,
                         child: KeyboardAccessoryBar(
                           isDark: isDark,
+                          showNavigation: true,
+                          onUp: pageNumberFocusNode.hasFocus
+                              ? null
+                              : () {
+                                  pageNumberFocusNode.requestFocus();
+                                },
+                          onDown: focusNode.hasFocus
+                              ? null
+                              : () {
+                                  focusNode.requestFocus();
+                                },
                           onDone: () {
                             setModalState(() {
                               hideKeyboardAccessory = true;
                             });
-                            focusNode.unfocus();
+                            if (focusNode.hasFocus) {
+                              focusNode.unfocus();
+                            } else {
+                              pageNumberFocusNode.unfocus();
+                            }
                             Future.delayed(const Duration(milliseconds: 300), () {
                               if (context.mounted) {
                                 setModalState(() {
@@ -8083,10 +8131,9 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final parentContext = context;
 
-    // 현재 일일 목표 계산
-    final currentDailyTarget = _daysLeft > 0
-        ? (_pagesLeft / _daysLeft).ceil()
-        : _pagesLeft;
+    // 현재 일일 목표: 저장된 값 우선 사용, 없으면 동적 계산
+    final currentDailyTarget = _currentBook.dailyTargetPages ??
+        (_daysLeft > 0 ? (_pagesLeft / _daysLeft).ceil() : _pagesLeft);
 
     int newDailyTarget = currentDailyTarget;
     double sheetExtent = 0.6;
@@ -8311,6 +8358,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                               diameterRatio: 1.5,
                                               physics: const FixedExtentScrollPhysics(),
                                               onSelectedItemChanged: (index) {
+                                                HapticFeedback.selectionClick();
                                                 setModalState(() {
                                                   newDailyTarget = index + 1;
                                                   inputController.text = (index + 1).toString();
@@ -8574,8 +8622,12 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                       if (!mounted) return;
                                       Navigator.pop(context);
 
-                                      // 화면 상태 갱신
-                                      setState(() {});
+                                      // 로컬 상태 갱신
+                                      setState(() {
+                                        _currentBook = _currentBook.copyWith(
+                                          dailyTargetPages: newDailyTarget,
+                                        );
+                                      });
 
                                       CustomSnackbar.show(
                                         parentContext,
@@ -8588,7 +8640,7 @@ class _BookDetailScreenRedesignedState extends State<BookDetailScreenRedesigned>
                                       Navigator.pop(context);
                                       CustomSnackbar.show(
                                         parentContext,
-                                        message: '목표 변경에 실패했습니다',
+                                        message: '목표 변경에 실패했습니다: $e',
                                         type: SnackbarType.error,
                                         bottomOffset: 100,
                                       );
