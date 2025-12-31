@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-import 'package:book_golas/data/services/auth_service.dart';
+import 'package:book_golas/core/view_model/auth_view_model.dart';
 import 'package:book_golas/data/services/fcm_service.dart';
 import 'package:book_golas/data/services/notification_settings_service.dart';
 import 'package:book_golas/core/view_model/theme_view_model.dart';
@@ -27,7 +27,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final user = context.watch<AuthService>().currentUser;
+    final user = context.watch<AuthViewModel>().currentUser;
     _nicknameController = TextEditingController(text: user?.nickname ?? '');
   }
 
@@ -41,7 +41,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      context.read<AuthService>().fetchCurrentUser();
+      context.read<AuthViewModel>().fetchCurrentUser();
       context.read<NotificationSettingsService>().loadSettings();
     });
   }
@@ -79,8 +79,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
 
   Future<void> _deleteAccount() async {
     try {
-      final authService = context.read<AuthService>();
-      final success = await authService.deleteAccount();
+      final authViewModel = context.read<AuthViewModel>();
+      final success = await authViewModel.deleteAccount();
 
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -330,8 +330,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authService = context.watch<AuthService>();
-    final user = authService.currentUser;
+    final authViewModel = context.watch<AuthViewModel>();
+    final user = authViewModel.currentUser;
 
     return Scaffold(
       appBar: AppBar(
@@ -347,7 +347,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          await authService.fetchCurrentUser();
+          await authViewModel.fetchCurrentUser();
 
           setState(() {});
         },
@@ -461,9 +461,9 @@ class _MyPageScreenState extends State<MyPageScreen> {
                               ElevatedButton(
                                 onPressed: () async {
                                   if (_pendingAvatarFile != null) {
-                                    print(
+                                    debugPrint(
                                         '_pendingAvatarFile: $_pendingAvatarFile');
-                                    await authService
+                                    await authViewModel
                                         .uploadAvatar(_pendingAvatarFile!);
                                     setState(() {
                                       _pendingAvatarFile = null;
@@ -504,7 +504,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                             const SizedBox(width: 8),
                             ElevatedButton(
                               onPressed: () async {
-                                await authService
+                                await authViewModel
                                     .updateNickname(_nicknameController.text);
                                 setState(() {
                                   _isEditingNickname = false;
@@ -618,7 +618,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                     children: [
                       ElevatedButton(
                         onPressed: () async {
-                          await context.read<AuthService>().signOut();
+                          await context.read<AuthViewModel>().signOut();
                           if (context.mounted) {
                             Navigator.of(context).pushAndRemoveUntil(
                               MaterialPageRoute(
