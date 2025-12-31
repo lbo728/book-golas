@@ -262,4 +262,62 @@ class MemorablePageViewModel extends BaseViewModel {
       return false;
     }
   }
+
+  Future<bool> updateImageRecord({
+    required String imageId,
+    required String extractedText,
+    int? pageNumber,
+  }) async {
+    try {
+      await Supabase.instance.client.from('book_images').update({
+        'extracted_text': extractedText,
+        'page_number': pageNumber,
+      }).eq('id', imageId);
+
+      _editedTexts.remove(imageId);
+      _cachedImages = null;
+      await fetchBookImages();
+      return true;
+    } catch (e) {
+      setError('저장에 실패했습니다: $e');
+      return false;
+    }
+  }
+
+  Future<String?> replaceImage({
+    required String imageId,
+    required Uint8List imageBytes,
+    required String extractedText,
+    int? pageNumber,
+  }) async {
+    try {
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}_$_bookId.jpg';
+      final storagePath = 'book_images/$fileName';
+
+      await Supabase.instance.client.storage
+          .from('book-images')
+          .uploadBinary(storagePath, imageBytes);
+
+      final imageUrl = Supabase.instance.client.storage
+          .from('book-images')
+          .getPublicUrl(storagePath);
+
+      await Supabase.instance.client.from('book_images').update({
+        'image_url': imageUrl,
+        'extracted_text': extractedText,
+        'page_number': pageNumber,
+      }).eq('id', imageId);
+
+      await fetchBookImages();
+      return imageUrl;
+    } catch (e) {
+      setError('이미지 교체에 실패했습니다: $e');
+      return null;
+    }
+  }
+
+  void onImagesLoaded(List<Map<String, dynamic>> images) {
+    _cachedImages = images;
+    notifyListeners();
+  }
 }
