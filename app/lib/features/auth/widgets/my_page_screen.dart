@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:book_golas/data/services/auth_service.dart';
 import 'package:book_golas/data/services/fcm_service.dart';
 import 'package:book_golas/data/services/notification_settings_service.dart';
-import 'package:book_golas/ui/core/view_model/theme_view_model.dart';
+import 'package:book_golas/core/view_model/theme_view_model.dart';
 import 'login_screen.dart';
 
 class MyPageScreen extends StatefulWidget {
