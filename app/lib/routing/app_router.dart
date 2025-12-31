@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../ui/home/widgets/home_screen.dart';
 import '../ui/book/widgets/book_list_screen.dart';
-import '../ui/book/widgets/book_detail_screen_redesigned.dart';
+import '../ui/book/widgets/book_detail_screen.dart';
 import '../ui/reading/widgets/reading_start_screen.dart';
 import '../ui/reading/widgets/reading_chart_screen.dart';
 import '../ui/calendar/widgets/calendar_screen.dart';
@@ -24,7 +24,7 @@ class AppRouter {
       case bookDetail:
         final book = settings.arguments as Book;
         return MaterialPageRoute(
-          builder: (_) => BookDetailScreenRedesigned(book: book),
+          builder: (_) => BookDetailScreen(book: book),
         );
       case readingStart:
         return MaterialPageRoute(builder: (_) => const ReadingStartScreen());
