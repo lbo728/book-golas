@@ -52,6 +52,7 @@ class Book {
   final DateTime? updatedAt;
   final String? status;
   final int attemptCount;
+  final int? dailyTargetPages;
 
   Book({
     this.id,
@@ -66,6 +67,7 @@ class Book {
     this.updatedAt,
     this.status,
     this.attemptCount = 1,
+    this.dailyTargetPages,
   });
 
   Book copyWith({
@@ -81,6 +83,7 @@ class Book {
     DateTime? updatedAt,
     String? status,
     int? attemptCount,
+    int? dailyTargetPages,
   }) {
     return Book(
       id: id ?? this.id,
@@ -95,6 +98,7 @@ class Book {
       updatedAt: updatedAt ?? this.updatedAt,
       status: status ?? this.status,
       attemptCount: attemptCount ?? this.attemptCount,
+      dailyTargetPages: dailyTargetPages ?? this.dailyTargetPages,
     );
   }
 
@@ -112,6 +116,7 @@ class Book {
       if (updatedAt != null) 'updated_at': updatedAt!.toIso8601String(),
       if (status != null) 'status': status,
       'attempt_count': attemptCount,
+      if (dailyTargetPages != null) 'daily_target_pages': dailyTargetPages,
     };
   }
 
@@ -133,6 +138,7 @@ class Book {
           : null,
       status: json['status'] as String?,
       attemptCount: json['attempt_count'] as int? ?? 1,
+      dailyTargetPages: json['daily_target_pages'] as int?,
     );
   }
 }
