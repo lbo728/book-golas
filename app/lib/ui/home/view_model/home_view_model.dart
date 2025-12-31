@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
-import '../../../domain/models/book.dart';
-import '../../../data/repositories/book_repository.dart';
+
+import 'package:book_golas/data/repositories/book_repository.dart';
+import 'package:book_golas/domain/models/book.dart';
 
 class HomeViewModel extends ChangeNotifier {
   final BookRepository _bookRepository;

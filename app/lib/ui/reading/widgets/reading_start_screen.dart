@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../domain/models/book.dart';
-import '../../../data/services/book_service.dart';
-import '../../../data/services/aladin_api_service.dart';
-import '../../core/ui/book_image_widget.dart';
+
+import 'package:book_golas/data/services/aladin_api_service.dart';
+import 'package:book_golas/data/services/book_service.dart';
+import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/ui/core/ui/book_image_widget.dart';
 
 class ReadingStartScreen extends StatefulWidget {
   final String? title;

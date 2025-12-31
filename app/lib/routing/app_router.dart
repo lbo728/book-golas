@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import '../ui/home/widgets/home_screen.dart';
-import '../ui/book/widgets/book_list_screen.dart';
-import '../ui/book/widgets/book_detail_screen.dart';
-import '../ui/reading/widgets/reading_start_screen.dart';
-import '../ui/reading/widgets/reading_chart_screen.dart';
-import '../ui/calendar/widgets/calendar_screen.dart';
-import '../domain/models/book.dart';
+
+import 'package:book_golas/ui/home/widgets/home_screen.dart';
+import 'package:book_golas/ui/book/widgets/book_list_screen.dart';
+import 'package:book_golas/ui/book/widgets/book_detail_screen.dart';
+import 'package:book_golas/ui/reading/widgets/reading_start_screen.dart';
+import 'package:book_golas/ui/reading/widgets/reading_chart_screen.dart';
+import 'package:book_golas/ui/calendar/widgets/calendar_screen.dart';
+import 'package:book_golas/domain/models/book.dart';
 
 class AppRouter {
   static const String home = '/';

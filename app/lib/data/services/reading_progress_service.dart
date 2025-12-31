@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../domain/models/reading_progress_record.dart';
+
+import 'package:book_golas/domain/models/reading_progress_record.dart';
 
 class ReadingProgressService {
   static final ReadingProgressService _instance =
