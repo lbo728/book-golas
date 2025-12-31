@@ -10,20 +10,30 @@ import 'package:book_golas/core/view_model/notification_settings_view_model.dart
 import 'package:book_golas/data/services/fcm_service.dart';
 import 'package:book_golas/data/services/notification_settings_service.dart';
 import 'package:book_golas/core/view_model/theme_view_model.dart';
+import 'package:book_golas/features/auth/view_model/my_page_view_model.dart';
 import 'login_screen.dart';
 
-class MyPageScreen extends StatefulWidget {
+class MyPageScreen extends StatelessWidget {
   const MyPageScreen({super.key});
 
   @override
-  State<MyPageScreen> createState() => _MyPageScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => MyPageViewModel(),
+      child: const _MyPageContent(),
+    );
+  }
 }
 
-class _MyPageScreenState extends State<MyPageScreen> {
-  bool _isEditingNickname = false;
-  late TextEditingController _nicknameController;
+class _MyPageContent extends StatefulWidget {
+  const _MyPageContent();
 
-  File? _pendingAvatarFile;
+  @override
+  State<_MyPageContent> createState() => _MyPageContentState();
+}
+
+class _MyPageContentState extends State<_MyPageContent> {
+  late TextEditingController _nicknameController;
 
   @override
   void didChangeDependencies() {
@@ -142,7 +152,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: Colors.grey.withOpacity(0.3),
+                      color: Colors.grey.withValues(alpha: 0.3),
                       width: 0.5,
                     ),
                   ),
@@ -336,96 +346,110 @@ class _MyPageScreenState extends State<MyPageScreen> {
     final authViewModel = context.watch<AuthViewModel>();
     final user = authViewModel.currentUser;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('마이페이지'),
-        centerTitle: false,
-        titleTextStyle: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: Theme.of(context).brightness == Brightness.dark
-              ? Colors.white
-              : Colors.black,
-        ),
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await authViewModel.fetchCurrentUser();
-
-          setState(() {});
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (user != null) ...[
-                  Center(
-                    child: Column(
-                      children: [
-                        GestureDetector(
-                          onTap: _pendingAvatarFile != null
-                              ? null
-                              : () async {
-                                  final picker = ImagePicker();
-                                  final picked = await picker.pickImage(
-                                      source: ImageSource.gallery);
-                                  if (picked != null) {
-                                    setState(() {
-                                      _pendingAvatarFile = File(picked.path);
-                                    });
-                                  }
-                                },
-                          child: SizedBox(
-                            width: 80,
-                            height: 80,
-                            child: ClipOval(
-                              child: _pendingAvatarFile != null
-                                  ? Image.file(
-                                      _pendingAvatarFile!,
-                                      width: 80,
-                                      height: 80,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : (user.avatarUrl != null &&
-                                          user.avatarUrl!.isNotEmpty)
-                                      ? Image.network(
-                                          user.avatarUrl!,
+    return Consumer<MyPageViewModel>(
+      builder: (context, vm, _) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('마이페이지'),
+            centerTitle: false,
+            titleTextStyle: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : Colors.black,
+            ),
+          ),
+          body: RefreshIndicator(
+            onRefresh: () async {
+              await authViewModel.fetchCurrentUser();
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (user != null) ...[
+                      Center(
+                        child: Column(
+                          children: [
+                            GestureDetector(
+                              onTap: vm.pendingAvatarFile != null
+                                  ? null
+                                  : () async {
+                                      final picker = ImagePicker();
+                                      final picked = await picker.pickImage(
+                                          source: ImageSource.gallery);
+                                      if (picked != null) {
+                                        vm.setPendingAvatarFile(
+                                            File(picked.path));
+                                      }
+                                    },
+                              child: SizedBox(
+                                width: 80,
+                                height: 80,
+                                child: ClipOval(
+                                  child: vm.pendingAvatarFile != null
+                                      ? Image.file(
+                                          vm.pendingAvatarFile!,
                                           width: 80,
                                           height: 80,
                                           fit: BoxFit.cover,
-                                          loadingBuilder: (
-                                            context,
-                                            child,
-                                            loadingProgress,
-                                          ) {
-                                            if (loadingProgress == null) {
-                                              return child;
-                                            }
-                                            return Container(
+                                        )
+                                      : (user.avatarUrl != null &&
+                                              user.avatarUrl!.isNotEmpty)
+                                          ? Image.network(
+                                              user.avatarUrl!,
                                               width: 80,
                                               height: 80,
-                                              color: Colors.grey[200],
-                                              child: const Center(
-                                                child: SizedBox(
-                                                  width: 20,
-                                                  height: 20,
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    strokeWidth: 2,
+                                              fit: BoxFit.cover,
+                                              loadingBuilder: (
+                                                context,
+                                                child,
+                                                loadingProgress,
+                                              ) {
+                                                if (loadingProgress == null) {
+                                                  return child;
+                                                }
+                                                return Container(
+                                                  width: 80,
+                                                  height: 80,
+                                                  color: Colors.grey[200],
+                                                  child: const Center(
+                                                    child: SizedBox(
+                                                      width: 20,
+                                                      height: 20,
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                      ),
+                                                    ),
                                                   ),
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          errorBuilder: (
-                                            context,
-                                            error,
-                                            stackTrace,
-                                          ) {
-                                            return Container(
+                                                );
+                                              },
+                                              errorBuilder: (
+                                                context,
+                                                error,
+                                                stackTrace,
+                                              ) {
+                                                return Container(
+                                                  width: 80,
+                                                  height: 80,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.lightBlue[100],
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.person,
+                                                    size: 40,
+                                                    color: Colors.blue,
+                                                  ),
+                                                );
+                                              },
+                                            )
+                                          : Container(
                                               width: 80,
                                               height: 80,
                                               decoration: BoxDecoration(
@@ -437,221 +461,191 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                                 size: 40,
                                                 color: Colors.blue,
                                               ),
-                                            );
-                                          },
-                                        )
-                                      : Container(
-                                          width: 80,
-                                          height: 80,
-                                          decoration: BoxDecoration(
-                                            color: Colors.lightBlue[100],
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: const Icon(
-                                            Icons.person,
-                                            size: 40,
-                                            color: Colors.blue,
-                                          ),
-                                        ),
-                            ),
-                          ),
-                        ),
-                        if (_pendingAvatarFile != null) ...[
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () async {
-                                  if (_pendingAvatarFile != null) {
-                                    debugPrint(
-                                        '_pendingAvatarFile: $_pendingAvatarFile');
-                                    await authViewModel
-                                        .uploadAvatar(_pendingAvatarFile!);
-                                    setState(() {
-                                      _pendingAvatarFile = null;
-                                    });
-                                  }
-                                },
-                                child: const Text('변경'),
+                                            ),
+                                ),
                               ),
-                              const SizedBox(width: 8),
-                              OutlinedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _pendingAvatarFile = null;
-                                  });
-                                },
-                                child: const Text('취소'),
+                            ),
+                            if (vm.pendingAvatarFile != null) ...[
+                              const SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      if (vm.pendingAvatarFile != null) {
+                                        await authViewModel
+                                            .uploadAvatar(vm.pendingAvatarFile!);
+                                        vm.clearPendingAvatarFile();
+                                      }
+                                    },
+                                    child: const Text('변경'),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  OutlinedButton(
+                                    onPressed: () {
+                                      vm.clearPendingAvatarFile();
+                                    },
+                                    child: const Text('취소'),
+                                  ),
+                                ],
                               ),
                             ],
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  _isEditingNickname
-                      ? Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: _nicknameController,
-                                decoration: const InputDecoration(
-                                  labelText: '닉네임',
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            ElevatedButton(
-                              onPressed: () async {
-                                await authViewModel
-                                    .updateNickname(_nicknameController.text);
-                                setState(() {
-                                  _isEditingNickname = false;
-                                });
-                              },
-                              child: const Text('변경하기'),
-                            ),
-                            const SizedBox(width: 8),
-                            OutlinedButton(
-                              onPressed: () {
-                                setState(() {
-                                  _isEditingNickname = false;
-                                  _nicknameController.text =
-                                      user.nickname ?? '';
-                                });
-                              },
-                              child: const Text('취소'),
-                            ),
-                          ],
-                        )
-                      : Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                user.nickname ?? '닉네임 없음',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  _isEditingNickname = true;
-                                  _nicknameController.text =
-                                      user.nickname ?? '';
-                                });
-                              },
-                              child: const Text('닉네임 변경'),
-                            ),
                           ],
                         ),
-                  const SizedBox(height: 16),
-                  Text('이메일: ${user.email}'),
-                  const SizedBox(height: 32),
-                ],
-                const Divider(),
-                const SizedBox(height: 16),
-                const Text(
-                  '설정',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Consumer<ThemeViewModel>(
-                  builder: (context, themeViewModel, child) {
-                    return ListTile(
-                      leading: Icon(
-                        themeViewModel.isDarkMode
-                            ? Icons.dark_mode
-                            : Icons.light_mode,
                       ),
-                      title: const Text('다크 모드'),
-                      trailing: Switch(
-                        value: themeViewModel.isDarkMode,
-                        onChanged: (value) {
-                          themeViewModel.toggleTheme();
-                        },
-                      ),
-                    );
-                  },
-                ),
-                const Divider(),
-                const SizedBox(height: 16),
-                _buildNotificationSettings(),
-                const SizedBox(height: 16),
-                // 테스트용 알림 버튼
-                Center(
-                  child: ElevatedButton.icon(
-                    onPressed: () async {
-                      await FCMService().scheduleTestNotification(seconds: 30);
-
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('30초 후에 테스트 알림이 발송됩니다! 📱'),
-                            backgroundColor: Colors.green,
-                            duration: Duration(seconds: 3),
-                          ),
-                        );
-                      }
-                    },
-                    icon: const Icon(Icons.notifications_active),
-                    label: const Text('테스트 알림 (30초 후)'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
+                      const SizedBox(height: 16),
+                      vm.isEditingNickname
+                          ? Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: _nicknameController,
+                                    decoration: const InputDecoration(
+                                      labelText: '닉네임',
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    await authViewModel
+                                        .updateNickname(_nicknameController.text);
+                                    vm.finishEditingNickname();
+                                  },
+                                  child: const Text('변경하기'),
+                                ),
+                                const SizedBox(width: 8),
+                                OutlinedButton(
+                                  onPressed: () {
+                                    vm.cancelEditingNickname();
+                                    _nicknameController.text = user.nickname ?? '';
+                                  },
+                                  child: const Text('취소'),
+                                ),
+                              ],
+                            )
+                          : Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    user.nickname ?? '닉네임 없음',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    vm.startEditingNickname();
+                                    _nicknameController.text = user.nickname ?? '';
+                                  },
+                                  child: const Text('닉네임 변경'),
+                                ),
+                              ],
+                            ),
+                      const SizedBox(height: 16),
+                      Text('이메일: ${user.email}'),
+                      const SizedBox(height: 32),
+                    ],
+                    const Divider(),
+                    const SizedBox(height: 16),
+                    const Text(
+                      '설정',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Center(
-                  child: Column(
-                    children: [
-                      ElevatedButton(
+                    const SizedBox(height: 16),
+                    Consumer<ThemeViewModel>(
+                      builder: (context, themeViewModel, child) {
+                        return ListTile(
+                          leading: Icon(
+                            themeViewModel.isDarkMode
+                                ? Icons.dark_mode
+                                : Icons.light_mode,
+                          ),
+                          title: const Text('다크 모드'),
+                          trailing: Switch(
+                            value: themeViewModel.isDarkMode,
+                            onChanged: (value) {
+                              themeViewModel.toggleTheme();
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(),
+                    const SizedBox(height: 16),
+                    _buildNotificationSettings(),
+                    const SizedBox(height: 16),
+                    Center(
+                      child: ElevatedButton.icon(
                         onPressed: () async {
-                          await context.read<AuthViewModel>().signOut();
-                          if (context.mounted) {
-                            Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(
-                                  builder: (_) => const LoginScreen()),
-                              (route) => false,
+                          await FCMService().scheduleTestNotification(seconds: 30);
+
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('30초 후에 테스트 알림이 발송됩니다! 📱'),
+                                backgroundColor: Colors.green,
+                                duration: Duration(seconds: 3),
+                              ),
                             );
                           }
                         },
+                        icon: const Icon(Icons.notifications_active),
+                        label: const Text('테스트 알림 (30초 후)'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
+                          backgroundColor: Colors.orange,
                           foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
                         ),
-                        child: const Text('로그아웃'),
                       ),
-                      const SizedBox(height: 16),
-                      TextButton(
-                        onPressed: () => _showDeleteAccountDialog(context),
-                        style: TextButton.styleFrom(
-                          foregroundColor: Colors.red,
-                        ),
-                        child: const Text('계정 삭제'),
+                    ),
+                    const SizedBox(height: 32),
+                    Center(
+                      child: Column(
+                        children: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              await context.read<AuthViewModel>().signOut();
+                              if (context.mounted) {
+                                Navigator.of(context).pushAndRemoveUntil(
+                                  MaterialPageRoute(
+                                      builder: (_) => const LoginScreen()),
+                                  (route) => false,
+                                );
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text('로그아웃'),
+                          ),
+                          const SizedBox(height: 16),
+                          TextButton(
+                            onPressed: () => _showDeleteAccountDialog(context),
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.red,
+                            ),
+                            child: const Text('계정 삭제'),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
