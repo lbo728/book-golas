@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/core/widgets/book_image_widget.dart';
 import 'package:book_golas/features/book_detail/widgets/book_detail_screen.dart';
+import 'package:book_golas/features/book_list/view_model/book_list_view_model.dart';
 
 class BookListScreen extends StatefulWidget {
   const BookListScreen({super.key});
@@ -16,18 +17,17 @@ class BookListScreen extends StatefulWidget {
 class _BookListScreenState extends State<BookListScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  int _selectedTabIndex = 0;
-  bool _showAllCurrentBooks = false;
   bool _isRefreshing = false;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    final vm = context.read<BookListViewModel>();
+    _tabController = TabController(length: 3, vsync: this, initialIndex: vm.selectedTabIndex);
     _tabController.addListener(() {
-      setState(() {
-        _selectedTabIndex = _tabController.index;
-      });
+      if (!_tabController.indexIsChanging) {
+        vm.setSelectedTabIndex(_tabController.index);
+      }
     });
   }
 
@@ -37,14 +37,14 @@ class _BookListScreenState extends State<BookListScreen>
     super.dispose();
   }
 
-  Future<void> _onRefresh() async {
+  Future<void> _onRefresh(BookListViewModel vm) async {
     if (_isRefreshing) return;
 
     setState(() {
       _isRefreshing = true;
     });
 
-    await Future.delayed(const Duration(milliseconds: 800));
+    await vm.refresh();
 
     if (mounted) {
       setState(() {
@@ -55,194 +55,185 @@ class _BookListScreenState extends State<BookListScreen>
 
   @override
   Widget build(BuildContext context) {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('독서 목록'),
-        centerTitle: false,
-        titleTextStyle: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: isDark ? Colors.white : Colors.black,
-        ),
-        scrolledUnderElevation: 0,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(50),
-          child: Container(
-            color: isDark ? const Color(0xFF121212) : Colors.white,
-            child: Stack(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => _tabController.animateTo(0),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          child: Text(
-                            '전체',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: _selectedTabIndex == 0
-                                  ? FontWeight.w600
-                                  : FontWeight.w400,
-                              color: _selectedTabIndex == 0
-                                  ? (isDark ? Colors.white : Colors.black)
-                                  : (isDark ? Colors.grey[400] : Colors.grey[600]),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => _tabController.animateTo(1),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          child: Text(
-                            '독서 중',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: _selectedTabIndex == 1
-                                  ? FontWeight.w600
-                                  : FontWeight.w400,
-                              color: _selectedTabIndex == 1
-                                  ? (isDark ? Colors.white : Colors.black)
-                                  : (isDark ? Colors.grey[400] : Colors.grey[600]),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => _tabController.animateTo(2),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          child: Text(
-                            '완독',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: _selectedTabIndex == 2
-                                  ? FontWeight.w600
-                                  : FontWeight.w400,
-                              color: _selectedTabIndex == 2
-                                  ? (isDark ? Colors.white : Colors.black)
-                                  : (isDark ? Colors.grey[400] : Colors.grey[600]),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                // 슬라이딩 인디케이터 (스와이프와 실시간 동기화)
-                Positioned(
-                  bottom: 0,
-                  child: AnimatedBuilder(
-                    animation: _tabController.animation!,
-                    builder: (context, child) {
-                      final screenWidth = MediaQuery.of(context).size.width;
-                      final tabWidth = screenWidth / 3;
-                      final animationValue = _tabController.animation!.value;
-                      return Transform.translate(
-                        offset: Offset(tabWidth * animationValue, 0),
-                        child: Container(
-                          width: tabWidth,
-                          height: 2,
-                          color: isDark ? Colors.white : Colors.black,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-      body: userId == null
-          ? const SizedBox.shrink()
-          : StreamBuilder<List<Map<String, dynamic>>>(
-              stream: Supabase.instance.client
-                  .from('books')
-                  .stream(primaryKey: ['id'])
-                  .eq('user_id', userId)
-                  .order('created_at', ascending: false),
-              builder: (context, snapshot) {
-                // 초기 로딩 중이고 데이터가 없을 때만 스켈레톤 표시
-                if (snapshot.connectionState == ConnectionState.waiting &&
-                    !snapshot.hasData) {
-                  return _buildSkeletonList(isDark);
-                }
+    return Consumer<BookListViewModel>(
+      builder: (context, vm, _) {
+        final selectedTabIndex = vm.selectedTabIndex;
 
-                // 에러 발생 시 재시도 가능한 UI 표시
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('독서 목록'),
+            centerTitle: false,
+            titleTextStyle: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white : Colors.black,
+            ),
+            scrolledUnderElevation: 0,
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(50),
+              child: Container(
+                color: isDark ? const Color(0xFF121212) : Colors.white,
+                child: Stack(
+                  children: [
+                    Row(
                       children: [
-                        Icon(
-                          Icons.error_outline,
-                          size: 60,
-                          color: isDark ? Colors.grey[400] : Colors.grey[600],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          '데이터를 불러올 수 없습니다',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: isDark ? Colors.white : Colors.black,
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => _tabController.animateTo(0),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              child: Text(
+                                '전체',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: selectedTabIndex == 0
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
+                                  color: selectedTabIndex == 0
+                                      ? (isDark ? Colors.white : Colors.black)
+                                      : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '네트워크 연결을 확인해주세요',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => _tabController.animateTo(1),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              child: Text(
+                                '독서 중',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: selectedTabIndex == 1
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
+                                  color: selectedTabIndex == 1
+                                      ? (isDark ? Colors.white : Colors.black)
+                                      : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 24),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            setState(() {});
-                          },
-                          icon: const Icon(Icons.refresh),
-                          label: const Text('다시 시도'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => _tabController.animateTo(2),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              child: Text(
+                                '완독',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: selectedTabIndex == 2
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
+                                  color: selectedTabIndex == 2
+                                      ? (isDark ? Colors.white : Colors.black)
+                                      : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ],
                     ),
-                  );
-                }
-
-                final rows = snapshot.data ?? [];
-                final allBooks = rows.map((e) => Book.fromJson(e)).toList();
-
-                return TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildAllBooksTab(allBooks, isDark),
-                    _buildReadingBooksTab(allBooks, isDark),
-                    _buildCompletedBooksTab(allBooks, isDark),
+                    Positioned(
+                      bottom: 0,
+                      child: AnimatedBuilder(
+                        animation: _tabController.animation!,
+                        builder: (context, child) {
+                          final screenWidth = MediaQuery.of(context).size.width;
+                          final tabWidth = screenWidth / 3;
+                          final animationValue = _tabController.animation!.value;
+                          return Transform.translate(
+                            offset: Offset(tabWidth * animationValue, 0),
+                            child: Container(
+                              width: tabWidth,
+                              height: 2,
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ],
-                );
-              },
+                ),
+              ),
             ),
+          ),
+          body: _buildBody(vm, isDark),
+        );
+      },
+    );
+  }
+
+  Widget _buildBody(BookListViewModel vm, bool isDark) {
+    if (vm.isLoading && vm.books.isEmpty) {
+      return _buildSkeletonList(isDark);
+    }
+
+    if (vm.errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 60,
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '데이터를 불러올 수 없습니다',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '네트워크 연결을 확인해주세요',
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () {
+                setState(() {});
+              },
+              icon: const Icon(Icons.refresh),
+              label: const Text('다시 시도'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return TabBarView(
+      controller: _tabController,
+      children: [
+        _buildAllBooksTab(vm, isDark),
+        _buildReadingBooksTab(vm, isDark),
+        _buildCompletedBooksTab(vm, isDark),
+      ],
     );
   }
 
@@ -269,15 +260,16 @@ class _BookListScreenState extends State<BookListScreen>
     );
   }
 
-  Widget _buildAllBooksTab(List<Book> allBooks, bool isDark) {
-    final readingBooks = allBooks.where((book) => book.currentPage < book.totalPages).toList();
+  Widget _buildAllBooksTab(BookListViewModel vm, bool isDark) {
+    final allBooks = vm.books;
+    final readingBooks = vm.readingBooks;
 
     if (allBooks.isEmpty) {
       return _buildEmptyState();
     }
 
     return RefreshIndicator(
-      onRefresh: _onRefresh,
+      onRefresh: () => _onRefresh(vm),
       color: const Color(0xFF5B7FFF),
       backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
       child: ListView(
@@ -298,13 +290,9 @@ class _BookListScreenState extends State<BookListScreen>
                 ),
                 if (readingBooks.length > 3)
                   GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _showAllCurrentBooks = !_showAllCurrentBooks;
-                      });
-                    },
+                    onTap: () => vm.toggleShowAllCurrentBooks(),
                     child: Text(
-                      _showAllCurrentBooks ? '접기' : '더보기',
+                      vm.showAllCurrentBooks ? '접기' : '더보기',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.blue,
@@ -315,7 +303,7 @@ class _BookListScreenState extends State<BookListScreen>
               ],
             ),
             const SizedBox(height: 12),
-            ...(_showAllCurrentBooks
+            ...(vm.showAllCurrentBooks
                 ? readingBooks
                 : readingBooks.take(3)).map((book) => _buildBookCard(book)),
             const SizedBox(height: 24),
@@ -337,8 +325,8 @@ class _BookListScreenState extends State<BookListScreen>
     );
   }
 
-  Widget _buildReadingBooksTab(List<Book> allBooks, bool isDark) {
-    final readingBooks = allBooks.where((book) => book.currentPage < book.totalPages).toList();
+  Widget _buildReadingBooksTab(BookListViewModel vm, bool isDark) {
+    final readingBooks = vm.readingBooks;
 
     if (readingBooks.isEmpty) {
       return Center(
@@ -364,7 +352,7 @@ class _BookListScreenState extends State<BookListScreen>
     }
 
     return RefreshIndicator(
-      onRefresh: _onRefresh,
+      onRefresh: () => _onRefresh(vm),
       color: const Color(0xFF5B7FFF),
       backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
       child: ListView(
@@ -375,8 +363,8 @@ class _BookListScreenState extends State<BookListScreen>
     );
   }
 
-  Widget _buildCompletedBooksTab(List<Book> allBooks, bool isDark) {
-    final completedBooks = allBooks.where((book) => book.currentPage >= book.totalPages).toList();
+  Widget _buildCompletedBooksTab(BookListViewModel vm, bool isDark) {
+    final completedBooks = vm.completedBooks;
 
     if (completedBooks.isEmpty) {
       return Center(
@@ -402,7 +390,7 @@ class _BookListScreenState extends State<BookListScreen>
     }
 
     return RefreshIndicator(
-      onRefresh: _onRefresh,
+      onRefresh: () => _onRefresh(vm),
       color: const Color(0xFF5B7FFF),
       backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
       child: ListView(
