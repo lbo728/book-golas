@@ -1,36 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
-// import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
-
-  // Future<void> _signInWithGoogle(BuildContext context) async {
-  //   try {
-  //     await Supabase.instance.client.auth.signInWithOAuth(
-  //       OAuthProvider.google,
-  //       redirectTo: kIsWeb ? null : 'litgoal://login-callback',
-  //       authScreenLaunchMode: LaunchMode.externalApplication,
-  //     );
-  //   } on AuthException catch (e) {
-  //     if (!context.mounted) return;
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         content: Text('구글 로그인 실패: ${e.message}'),
-  //         backgroundColor: Colors.red,
-  //       ),
-  //     );
-  //   } catch (e) {
-  //     if (!context.mounted) return;
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         content: Text('구글 로그인 오류: $e'),
-  //         backgroundColor: Colors.red,
-  //       ),
-  //     );
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -69,41 +42,6 @@ class LoginScreen extends StatelessWidget {
                 ),
               ],
             ),
-            // const SizedBox(height: 24),
-            // const Divider(),
-            // const SizedBox(height: 12),
-            // const Text(
-            //   '소셜 로그인',
-            //   textAlign: TextAlign.center,
-            //   style: TextStyle(
-            //     fontSize: 14,
-            //     fontWeight: FontWeight.w500,
-            //     color: Colors.black,
-            //   ),
-            // ),
-            // const SizedBox(height: 8),
-            // ElevatedButton.icon(
-            //   onPressed: () => _signInWithGoogle(context),
-            //   icon: const Icon(Icons.login),
-            //   label: const Text('Google로 계속하기'),
-            //   style: ElevatedButton.styleFrom(
-            //     backgroundColor: Colors.white,
-            //     foregroundColor: Colors.black87,
-            //     shape: RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.circular(8),
-            //     ),
-            //     padding: const EdgeInsets.symmetric(vertical: 16),
-            //   ),
-            // ),
-            // SupaSocialsAuth(
-            //   socialProviders: const [
-            //     OAuthProvider.apple,
-            //   ],
-            //   colored: true,
-            //   redirectUrl: kIsWeb ? null : 'litgoal://login-callback',
-            //   onSuccess: (_) {},
-            //   onError: (error) {},
-            // ),
           ],
         ),
       ),
