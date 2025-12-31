@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../domain/models/book.dart';
+
+import 'package:book_golas/domain/models/book.dart';
 
 class BookService {
   static final BookService _instance = BookService._internal();

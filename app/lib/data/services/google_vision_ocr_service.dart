@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-import '../../config/app_config.dart';
+import 'package:book_golas/config/app_config.dart';
 
 class GoogleVisionOcrService {
   static final GoogleVisionOcrService _instance =
