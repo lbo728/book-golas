@@ -318,6 +318,5 @@ class MemorablePageViewModel extends BaseViewModel {
 
   void onImagesLoaded(List<Map<String, dynamic>> images) {
     _cachedImages = images;
-    notifyListeners();
   }
 }
