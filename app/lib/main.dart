@@ -9,9 +9,11 @@ import 'package:book_golas/features/book_list/widgets/book_list_screen.dart';
 import 'package:book_golas/features/reading_start/widgets/reading_start_screen.dart';
 import 'package:book_golas/config/app_config.dart';
 import 'package:book_golas/data/repositories/book_repository.dart';
+import 'package:book_golas/data/repositories/auth_repository.dart';
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/features/home/view_model/home_view_model.dart';
 import 'package:book_golas/core/view_model/theme_view_model.dart';
+import 'package:book_golas/core/view_model/auth_view_model.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
@@ -172,25 +174,40 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        // === Services (Pure) ===
         Provider<BookService>(
           create: (_) => BookService(),
         ),
+        Provider<AuthService>(
+          create: (_) => AuthService(),
+        ),
+        Provider<ReadingProgressService>(
+          create: (_) => ReadingProgressService(),
+        ),
+        // === Repositories ===
         Provider<BookRepository>(
           create: (context) => BookRepositoryImpl(
             context.read<BookService>(),
           ),
         ),
+        Provider<AuthRepository>(
+          create: (context) => AuthRepositoryImpl(
+            context.read<AuthService>(),
+          ),
+        ),
+        // === ViewModels ===
         ChangeNotifierProvider<HomeViewModel>(
           create: (context) => HomeViewModel(
             context.read<BookRepository>(),
           ),
         ),
-        ChangeNotifierProvider(create: (_) => AuthService()),
+        ChangeNotifierProvider<AuthViewModel>(
+          create: (context) => AuthViewModel(
+            context.read<AuthRepository>(),
+          ),
+        ),
         ChangeNotifierProvider(create: (_) => ThemeViewModel()),
         ChangeNotifierProvider(create: (_) => NotificationSettingsService()),
-        Provider<ReadingProgressService>(
-          create: (_) => ReadingProgressService(),
-        ),
       ],
       child: Consumer<ThemeViewModel>(
         builder: (context, themeViewModel, child) {
@@ -232,9 +249,9 @@ class AuthWrapper extends StatefulWidget {
 class _AuthWrapperState extends State<AuthWrapper> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthService>(
-      builder: (context, authService, _) {
-        if (authService.currentUser != null) {
+    return Consumer<AuthViewModel>(
+      builder: (context, authViewModel, _) {
+        if (authViewModel.isAuthenticated) {
           return const MainScreen();
         }
         return const LoginScreen();
