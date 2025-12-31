@@ -22,7 +22,7 @@ import 'data/services/reading_progress_service.dart';
 import 'ui/auth/widgets/login_screen.dart';
 import 'ui/auth/widgets/my_page_screen.dart';
 import 'domain/models/book.dart';
-import 'ui/book/widgets/book_detail_screen_redesigned.dart';
+import 'ui/book/widgets/book_detail_screen.dart';
 
 // 백그라운드 메시지 핸들러 (main 함수 밖에 정의)
 @pragma('vm:entry-point')
@@ -344,7 +344,7 @@ class _MainScreenState extends State<MainScreen>
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                    BookDetailScreenRedesigned(book: targetBook),
+                    BookDetailScreen(book: targetBook),
               ),
             );
           }
