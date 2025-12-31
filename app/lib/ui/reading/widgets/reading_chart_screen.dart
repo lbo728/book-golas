@@ -15,10 +15,8 @@ class ReadingChartScreen extends StatefulWidget {
 
 class _ReadingChartScreenState extends State<ReadingChartScreen> {
   TimeFilter _selectedFilter = TimeFilter.daily;
-  bool _useMockData = false;
   final ReadingProgressService _progressService = ReadingProgressService();
 
-  // 캐싱된 데이터
   List<Map<String, dynamic>>? _cachedRawData;
   bool _isLoading = true;
   String? _errorMessage;
@@ -53,39 +51,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
     }
   }
 
-  /// Mock 데이터 생성 (데모용)
-  List<Map<String, dynamic>> _generateMockData() {
-    final now = DateTime.now();
-    final List<Map<String, dynamic>> mockData = [];
-
-    // 지난 30일간의 랜덤 독서 기록 생성
-    for (int i = 30; i > 0; i--) {
-      final date = now.subtract(Duration(days: i));
-
-      // 하루에 1-3번 독서 기록
-      final sessionsCount = (i % 3) + 1;
-      for (int j = 0; j < sessionsCount; j++) {
-        final basePages = 20 + (i % 50); // 20-70 페이지
-        final randomPages = basePages + (j * 15);
-
-        mockData.add({
-          'page': randomPages,
-          'book_id': 'mock-book-${i % 3}', // 3권의 책을 번갈아가며
-          'created_at': date.add(Duration(hours: 8 + (j * 4))),
-        });
-      }
-    }
-
-    return mockData;
-  }
-
   Future<List<Map<String, dynamic>>> fetchUserProgressHistory() async {
-    // Mock 데이터 모드일 경우 Mock 데이터 반환
-    if (_useMockData) {
-      await Future.delayed(const Duration(milliseconds: 500)); // 로딩 시뮬레이션
-      return _generateMockData();
-    }
-
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) return [];
 
@@ -120,7 +86,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
           break;
         case TimeFilter.weekly:
           final weekday = createdAt.weekday;
-          final diff = weekday - 1; // Monday = 0
+          final diff = weekday - 1;
           key = DateTime(createdAt.year, createdAt.month, createdAt.day)
               .subtract(Duration(days: diff));
           break;
@@ -136,14 +102,12 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
         dateData[key] = {};
       }
 
-      // 같은 날짜에 같은 책의 최대 페이지만 저장
       if (bookId != null) {
         dateData[key]![bookId] =
             (dateData[key]![bookId] ?? 0) < page ? page : dateData[key]![bookId]!;
       }
     }
 
-    // 누적 페이지 계산
     int cumulativePages = 0;
     final result = <Map<String, dynamic>>[];
 
@@ -187,7 +151,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
     };
   }
 
-  /// 연속 독서일(스트릭) 계산
   int _calculateStreak(List<Map<String, dynamic>> aggregatedData) {
     if (aggregatedData.isEmpty) return 0;
 
@@ -195,7 +158,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
     final today = DateTime.now();
     final todayNormalized = DateTime(today.year, today.month, today.day);
 
-    // 날짜별로 정렬 (최신순)
     final sortedDates = aggregatedData
         .map((e) => e['date'] as DateTime)
         .toList()
@@ -203,7 +165,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
 
     DateTime expectedDate = todayNormalized;
 
-    // 오늘 기록이 없으면 어제부터 시작
     if (sortedDates.isEmpty ||
         !_isSameDay(sortedDates.first, todayNormalized)) {
       expectedDate = todayNormalized.subtract(const Duration(days: 1));
@@ -216,7 +177,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
         streak++;
         expectedDate = expectedDate.subtract(const Duration(days: 1));
       } else if (normalizedDate.isBefore(expectedDate)) {
-        // 날짜가 건너뛰어졌으면 스트릭 종료
         break;
       }
     }
@@ -228,7 +188,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
-  /// 목표 달성률 계산 (오늘 기준)
   Future<double> _calculateGoalRate() async {
     return await _progressService.calculateGoalAchievementRate();
   }
@@ -271,25 +230,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
           fontWeight: FontWeight.w600,
           color: isDark ? Colors.white : Colors.black,
         ),
-        actions: [
-          // Mock 데이터 토글 버튼
-          Tooltip(
-            message: _useMockData ? 'Mock 데이터 끄기' : 'Mock 데이터 보기',
-            child: IconButton(
-              icon: Icon(
-                _useMockData ? Icons.visibility_off : Icons.visibility,
-                color: _useMockData ? Colors.blue : Colors.grey,
-              ),
-              onPressed: () {
-                setState(() {
-                  _useMockData = !_useMockData;
-                });
-                // 목업 데이터 토글 시 데이터 다시 로드
-                _loadData();
-              },
-            ),
-          ),
-        ],
+        actions: const [],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -303,7 +244,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
   }
 
   Widget _buildContent(bool isDark) {
-    // 로딩 중
     if (_isLoading) {
       return const Center(
         child: Padding(
@@ -313,7 +253,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
       );
     }
 
-    // 에러 발생
     if (_errorMessage != null) {
       return Center(
         child: Padding(
@@ -344,7 +283,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
       );
     }
 
-    // 데이터 없음
     final rawData = _cachedRawData ?? [];
     if (rawData.isEmpty) {
       return Center(
@@ -379,7 +317,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
       );
     }
 
-    // 캐시된 데이터로 필터링 및 통계 계산 (필터 변경 시 즉시 반영)
     final aggregated = aggregateByDate(rawData, _selectedFilter);
     final stats = calculateStatistics(aggregated);
     final streak = _calculateStreak(aggregated);
@@ -393,7 +330,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-                    // 통계 카드 (2x3 그리드)
                     GridView.count(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -455,7 +391,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
 
                     const SizedBox(height: 24),
 
-                    // 필터 버튼
                     Row(
                       children: [
                         Text(
@@ -505,7 +440,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
 
                     const SizedBox(height: 24),
 
-                    // 차트
                     Text(
                       '누적 페이지 차트',
                       style: TextStyle(
@@ -630,7 +564,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
 
                     const SizedBox(height: 32),
 
-                    // 일별 증감 리스트
                     Text(
                       '일별 읽은 페이지',
                       style: TextStyle(

@@ -26,13 +26,6 @@ import 'dialogs/daily_target_dialog.dart';
 import 'dialogs/today_goal_sheet.dart';
 import 'dialogs/update_page_dialog.dart';
 
-/// 시니어 프로덕트 디자이너가 재설계한 독서 상세 화면
-///
-/// 디자인 원칙:
-/// 1. Visual Hierarchy: D-day와 진행률을 최상단에 강조
-/// 2. Card-based Layout: 정보를 논리적으로 그룹핑
-/// 3. Breathing Space: 충분한 여백으로 가독성 향상
-/// 4. Progressive Disclosure: 중요한 정보부터 노출
 class BookDetailScreen extends StatefulWidget {
   final Book book;
 
@@ -52,37 +45,28 @@ class _BookDetailScreenState extends State<BookDetailScreen>
   int? _todayStartPage;
   int? _todayTargetPage;
   late TabController _tabController;
-  late int _attemptCount; // 도전 횟수 (DB에서 로드)
-  Map<String, bool> _dailyAchievements = {}; // 일차별 목표 달성 현황 (날짜: 성공/실패)
-  bool _useMockProgressData = false;
+  late int _attemptCount;
+  Map<String, bool> _dailyAchievements = {};
 
-  // 페이지 카운터 & 프로그레스바 애니메이션
   late AnimationController _progressAnimController;
   late Animation<double> _progressAnimation;
   int _animatedCurrentPage = 0;
   double _animatedProgress = 0.0;
 
-  // 스크롤 컨트롤러
   final ScrollController _scrollController = ScrollController();
 
-  // 캐싱: Future를 한번만 생성하여 재사용
   late Future<List<Map<String, dynamic>>> _bookImagesFuture;
   late Future<List<Map<String, dynamic>>> _progressHistoryFuture;
 
-  // 로컬 캐시: 서버 데이터 로드 완료 후 로컬에서 관리
   List<Map<String, dynamic>>? _cachedImages;
 
-  // 메모리에 수정된 텍스트 저장 (저장 버튼 누르기 전까지 유지)
   final Map<String, String> _editedTexts = {};
 
-  // 인상적인 페이지 선택 모드
   bool _isSelectionMode = false;
   final Set<String> _selectedImageIds = {};
 
-  // 인상적인 페이지 정렬 모드: 'page_desc' (페이지 내림차순), 'page_asc', 'date_desc', 'date_asc'
   String _memorableSortMode = 'page_desc';
 
-  // 추가 모달 임시 상태 저장 (모달 해제 후 재진입 시 유지)
   Uint8List? _pendingImageBytes;
   String _pendingExtractedText = '';
   int? _pendingPageNumber;
@@ -96,11 +80,10 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     _todayTargetPage = _currentBook.targetDate.day;
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
-      setState(() {}); // 탭 변경 시 UI 업데이트
+      setState(() {});
     });
     _loadDailyAchievements();
 
-    // 페이지 애니메이션 초기화
     _animatedCurrentPage = _currentBook.currentPage;
     _animatedProgress = _currentBook.currentPage / _currentBook.totalPages;
     _progressAnimController = AnimationController(
@@ -112,7 +95,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       curve: Curves.elasticOut,
     );
 
-    // Future를 initState에서 한번만 생성 (캐싱)
     _bookImagesFuture = fetchBookImages(_currentBook.id!);
     _progressHistoryFuture = fetchProgressHistory(_currentBook.id!);
   }
@@ -125,10 +107,7 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     super.dispose();
   }
 
-
   Future<void> _loadDailyAchievements() async {
-    // TODO: Supabase에서 일차별 달성 현황 불러오기
-    // 임시로 더미 데이터 생성
     final achievements = <String, bool>{};
     final startDate = _currentBook.startDate;
     final now = DateTime.now();
@@ -137,8 +116,7 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       final date = startDate.add(Duration(days: i));
       final dateKey =
           '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-      // TODO: 실제 달성 여부 확인 로직 필요
-      achievements[dateKey] = i % 3 != 1; // 임시: 3일에 한번 실패
+      achievements[dateKey] = i % 3 != 1;
     }
 
     setState(() {
@@ -201,27 +179,7 @@ class _BookDetailScreenState extends State<BookDetailScreen>
             fontWeight: FontWeight.w600,
           ),
         ),
-        actions: [
-          // 목업 데이터 토글 버튼
-          Tooltip(
-            message: _useMockProgressData ? '목업 데이터 끄기' : '목업 데이터 보기',
-            child: IconButton(
-              icon: Icon(
-                _useMockProgressData
-                    ? CupertinoIcons.chart_bar_circle_fill
-                    : CupertinoIcons.chart_bar_circle,
-                color: _useMockProgressData
-                    ? const Color(0xFF5B7FFF)
-                    : (isDark ? Colors.grey[400] : Colors.grey[600]),
-              ),
-              onPressed: () {
-                setState(() {
-                  _useMockProgressData = !_useMockProgressData;
-                });
-              },
-            ),
-          ),
-        ],
+        actions: const [],
       ),
       body: Stack(
         children: [
@@ -236,26 +194,21 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Compact Book Header (Dashboard Style)
                           _buildCompactBookHeader(isDark),
                           const SizedBox(height: 10),
 
-                          // Compact Reading Schedule (시작일/목표일)
                           _buildCompactReadingSchedule(isDark),
                           const SizedBox(height: 12),
 
-                          // Dashboard Progress (2-Column)
                           _buildDashboardProgress(isDark),
                           const SizedBox(height: 12),
 
-                          // Compact Streak Row (7일 도트)
                           _buildCompactStreakRow(isDark),
                           const SizedBox(height: 20),
                         ],
                       ),
                     ),
                   ),
-                  // Sticky Tab Bar
                   SliverPersistentHeader(
                     pinned: true,
                     delegate: _StickyTabBarDelegate(
@@ -278,7 +231,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
               ),
             ),
           ),
-          // Linear 스타일 리퀴드 글래스 플로팅 바 (키보드가 열리면 완료 버튼으로 교체)
           if (isKeyboardOpen)
             _buildKeyboardDoneButton(isDark)
           else
@@ -288,7 +240,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// Compact Hero Section: Circular Progress + D-day (Radial Progress Indicator)
   Widget _buildCompactHeroSection(bool isDark) {
     final progressPercent = (_animatedProgress * 100).toStringAsFixed(0);
     final isOverdue = _daysLeft < 0;
@@ -308,14 +259,12 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       ),
       child: Row(
         children: [
-          // Circular Progress (Radial Progress Indicator)
           SizedBox(
             width: 120,
             height: 120,
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // Background ring
                 SizedBox(
                   width: 120,
                   height: 120,
@@ -330,7 +279,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                     ),
                   ),
                 ),
-                // Center text
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -360,12 +308,10 @@ class _BookDetailScreenState extends State<BookDetailScreen>
             ),
           ),
           const SizedBox(width: 24),
-          // Stats
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // D-day
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -387,7 +333,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Pages
                 Row(
                   children: [
                     Icon(
@@ -420,7 +365,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                   ],
                 ),
                 const SizedBox(height: 8),
-                // Pages remaining
                 Row(
                   children: [
                     Icon(
@@ -460,7 +404,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// Hero Section: 가장 중요한 정보를 강력하게 표시 (원본 - 사용 안 함)
   Widget _buildHeroSection() {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -484,7 +427,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       ),
       child: Column(
         children: [
-          // D-day Display
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -513,7 +455,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
           ),
           const SizedBox(height: 20),
 
-          // Progress Bar
           Column(
             children: [
               Row(
@@ -585,7 +526,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// Book Info Card: 책 정보
   Widget _buildBookInfoCard(bool isDark) {
     final isCompleted = _currentBook.currentPage >= _currentBook.totalPages &&
         _currentBook.totalPages > 0;
@@ -606,7 +546,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Book Cover (탭하면 전체보기)
           GestureDetector(
             onTap: () {
               if (_currentBook.imageUrl != null &&
@@ -644,12 +583,10 @@ class _BookDetailScreenState extends State<BookDetailScreen>
           ),
           const SizedBox(width: 16),
 
-          // Book Details
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Status Badge
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -672,7 +609,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                 ),
                 const SizedBox(height: 12),
 
-                // Title (탭하면 전체 제목 표시)
                 GestureDetector(
                   onTap: () => _showFullTitleDialog(_currentBook.title),
                   child: Text(
@@ -688,7 +624,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                   ),
                 ),
 
-                // Author
                 if (_currentBook.author != null) ...[
                   const SizedBox(height: 6),
                   Text(
@@ -700,7 +635,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                     ),
                   ),
                 ],
-                // 서점에서 보기 버튼
                 const SizedBox(height: 10),
                 GestureDetector(
                   onTap: () => _showBookstoreSelectSheet(_currentBook.title),
@@ -732,7 +666,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// 컴팩트 독서 일정 Row (시작일/목표일 + 변경 버튼)
   Widget _buildCompactReadingSchedule(bool isDark) {
     final startDateStr = _currentBook.startDate
         .toString()
@@ -742,7 +675,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
         .toString()
         .substring(0, 10)
         .replaceAll('-', '.');
-    // 총 일수 계산
     final totalDays =
         _currentBook.targetDate.difference(_currentBook.startDate).inDays + 1;
 
@@ -761,7 +693,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       ),
       child: Row(
         children: [
-          // 시작일 (라벨 포함)
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -791,7 +722,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
             color: isDark ? Colors.grey[500] : Colors.grey[400],
           ),
           const SizedBox(width: 12),
-          // 목표일 (라벨 포함)
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -815,7 +745,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
             ],
           ),
           const SizedBox(width: 8),
-          // 총 일수 표시
           Text(
             '($totalDays일)',
             style: TextStyle(
@@ -824,7 +753,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
               color: isDark ? Colors.grey[500] : Colors.grey[500],
             ),
           ),
-          // N번째 도전 뱃지
           if (_attemptCount > 1) ...[
             const SizedBox(width: 8),
             Container(
@@ -844,7 +772,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
             ),
           ],
           const Spacer(),
-          // 변경 버튼 (연필 아이콘)
           GestureDetector(
             onTap: _showUpdateTargetDateDialogWithConfirm,
             child: Container(
@@ -865,7 +792,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// Reading Schedule Card: 독서 일정
   Widget _buildReadingScheduleCard(bool isDark) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -1028,7 +954,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// Today's Goal Card: 오늘의 목표
   Widget _buildTodayGoalCard() {
     final todayPages = _todayTargetPage != null && _todayStartPage != null
         ? (_todayTargetPage! - _todayStartPage!)
@@ -1154,7 +1079,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// Memorable Pages Section: 인상적인 페이지
   Widget _buildMemorablePagesSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1357,7 +1281,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// Progress History Section: 진행률 히스토리
   Widget _buildProgressHistorySection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1571,7 +1494,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// Update Page Button: 현재 페이지 업데이트 버튼
   Widget _buildUpdatePageButton() {
     return SizedBox(
       width: double.infinity,
@@ -1598,8 +1520,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  // Dialog and Bottom Sheet Methods
-
   Future<void> _showUpdatePageDialog() async {
     await UpdatePageDialog.show(
       context: context,
@@ -1618,16 +1538,13 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       final updatedBook =
           await _bookService.updateCurrentPage(_currentBook.id!, newPage);
       if (updatedBook != null) {
-        // 애니메이션 실행
         _animateProgress(oldPage, newPage, oldProgress, newProgress);
 
         setState(() {
           _currentBook = updatedBook;
-          // 진행률 히스토리 새로고침
           _progressHistoryFuture = fetchProgressHistory(_currentBook.id!);
         });
 
-        // 최상단으로 스크롤
         _scrollController.animateTo(
           0,
           duration: const Duration(milliseconds: 500),
@@ -1707,30 +1624,26 @@ class _BookDetailScreenState extends State<BookDetailScreen>
             })
         .toList();
 
-    // 정렬: 1순위 page_number 내림차순, 2순위 created_at 내림차순
     images.sort((a, b) {
       final pageA = a['page_number'] as int?;
       final pageB = b['page_number'] as int?;
 
-      // page_number가 있는 항목이 우선
       if (pageA != null && pageB == null) return -1;
       if (pageA == null && pageB != null) return 1;
       if (pageA != null && pageB != null) {
-        final pageCompare = pageB.compareTo(pageA); // 내림차순
+        final pageCompare = pageB.compareTo(pageA);
         if (pageCompare != 0) return pageCompare;
       }
 
-      // page_number가 같거나 둘 다 null이면 created_at으로 정렬
       final dateA = a['created_at'] as String;
       final dateB = b['created_at'] as String;
-      return dateB.compareTo(dateA); // 내림차순
+      return dateB.compareTo(dateA);
     });
 
     return images;
   }
 
   Future<void> _deleteBookImage(String imageId, String? imageUrl) async {
-    // 이미지가 있는 경우에만 스토리지에서 삭제
     if (imageUrl != null && imageUrl.isNotEmpty) {
       final storage = Supabase.instance.client.storage;
       final bucketPath =
@@ -1742,12 +1655,10 @@ class _BookDetailScreenState extends State<BookDetailScreen>
         .delete()
         .eq('id', imageId);
 
-    // 로컬 캐시에서 직접 제거 (리로딩 없이 즉시 반영)
     setState(() {
       if (_cachedImages != null) {
         _cachedImages = _cachedImages!.where((img) => img['id'] != imageId).toList();
       }
-      // 백그라운드에서 서버 데이터 동기화
       _bookImagesFuture = fetchBookImages(_currentBook.id!);
     });
   }
@@ -1758,7 +1669,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final count = _selectedImageIds.length;
 
-    // 삭제 확인 다이얼로그
     showModalBottomSheet(
       context: context,
       backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
@@ -1832,7 +1742,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                       onPressed: () async {
                         Navigator.pop(sheetContext);
 
-                        // 선택된 항목들 삭제
                         final idsToDelete = _selectedImageIds.toList();
                         for (final imageId in idsToDelete) {
                           final image = _cachedImages?.firstWhere(
@@ -2112,7 +2021,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     try {
       String? publicUrl;
 
-      // 이미지가 있으면 스토리지에 업로드
       if (imageBytes != null) {
         final fileName = 'book_images/${DateTime.now().millisecondsSinceEpoch}.jpg';
         final storage = Supabase.instance.client.storage;
@@ -2121,7 +2029,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
         publicUrl = storage.from('book-images').getPublicUrl(fileName);
       }
 
-      // insert 후 새 레코드 반환받기
       final result = await Supabase.instance.client.from('book_images').insert({
         'book_id': _currentBook.id,
         'image_url': publicUrl,
@@ -2130,17 +2037,14 @@ class _BookDetailScreenState extends State<BookDetailScreen>
         'page_number': pageNumber,
       }).select().single();
 
-      // 로컬 캐시에 직접 추가 (리로딩 없이 즉시 반영)
       setState(() {
         if (_cachedImages != null) {
           _cachedImages = [result, ..._cachedImages!];
         }
-        // 백그라운드에서 서버 데이터 동기화
         _bookImagesFuture = fetchBookImages(_currentBook.id!);
       });
 
       if (mounted) {
-        // 인상적인 페이지 탭으로 이동 후 스크롤 상단으로
         _tabController.animateTo(0);
         _scrollController.animateTo(
           0,
@@ -2184,7 +2088,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     }
   }
 
-  /// 인상적인 페이지 추가 모달 (새 UX 플로우)
   void _showAddMemorablePageModal() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final parentContext = context;
@@ -2383,7 +2286,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // 섬네일 영역
                               Container(
                                 width: double.infinity,
                                 height: 180,
@@ -2663,7 +2565,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                               ),
                               const SizedBox(height: 20),
 
-                              // 페이지 수 필드
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -2721,7 +2622,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                                             final parsed = int.tryParse(value);
                                             if (parsed != null) {
                                               if (parsed > _currentBook.totalPages) {
-                                                // 에러가 처음 발생할 때만 스낵바+햅틱
                                                 if (!hasShownPageError) {
                                                   HapticFeedback.heavyImpact();
                                                   CustomSnackbar.show(
@@ -2783,13 +2683,11 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                                     ],
                                   ),
                                   if (pageValidationError != null) ...[
-                                    // 에러 텍스트 대신 스낵바로 표시 (aboveKeyboard: true)
                                   ],
                                 ],
                               ),
                               const SizedBox(height: 20),
 
-                              // 텍스트 영역 레이블
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
@@ -2901,7 +2799,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                     ],
                   ),
                 ),
-                    // 플로팅 업로드 버튼 (키보드가 열려있지 않을 때만)
                     if (!isKeyboardOpen && !isUploading)
                       Positioned(
                         left: 20,
@@ -2959,7 +2856,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                           ),
                         ),
                       ),
-                    // 키보드 액세서리 바 (키보드가 열려있을 때)
                     if (isKeyboardOpen && (textFocusNode.hasFocus || pageFocusNode.hasFocus) && !hideKeyboardAccessory)
                       Positioned(
                         left: 0,
@@ -2971,14 +2867,12 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                           icon: CupertinoIcons.checkmark,
                           onUp: () {
                             if (textFocusNode.hasFocus) {
-                              // 텍스트 -> 페이지 필드로 이동
                               textFocusNode.unfocus();
                               pageFocusNode.requestFocus();
                             }
                           },
                           onDown: () {
                             if (pageFocusNode.hasFocus) {
-                              // 페이지 -> 텍스트 필드로 이동
                               pageFocusNode.unfocus();
                               textFocusNode.requestFocus();
                             }
@@ -2999,7 +2893,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                           },
                         ),
                       ),
-                    // 업로드 중 스피너 오버레이
                     if (isUploading)
                       Positioned.fill(
                         child: Container(
@@ -3045,7 +2938,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     });
   }
 
-  /// 이미지 소스 선택 액션시트
   void _showImageSourceActionSheet({
     required Function(Uint8List imageBytes, String ocrText, int? pageNumber) onImageSelected,
   }) {
@@ -3149,7 +3041,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// 이미지 선택 액션시트 (이미지만, OCR 없이)
   void _showImageSourceActionSheetForImageOnly({
     required Function(Uint8List imageBytes) onImageSelected,
   }) {
@@ -3253,7 +3144,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// 이미지만 선택 (OCR 없이)
   Future<void> _pickImageOnly(
     ImageSource source,
     Function(Uint8List imageBytes) onComplete,
@@ -3268,12 +3158,10 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     onComplete(imageBytes);
   }
 
-  /// 로컬 이미지 바이트에서 텍스트 추출 (크롭 → OCR)
   Future<void> _extractTextFromLocalImage(
     Uint8List imageBytes,
     Function(String extractedText, int? pageNumber) onComplete,
   ) async {
-    // 로딩 다이얼로그가 표시되었는지 추적
     bool isLoadingDialogShown = false;
     final parentContext = context;
 
@@ -3308,11 +3196,9 @@ class _BookDetailScreenState extends State<BookDetailScreen>
         ],
       );
 
-      // 임시 파일 삭제 시도
       try {
         await tempFile.delete();
       } catch (_) {
-        // 삭제 실패해도 무시
       }
 
       if (croppedFile == null) {
@@ -3370,7 +3256,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
 
       if (!mounted) return;
 
-      // 로딩 다이얼로그 닫기
       if (isLoadingDialogShown) {
         Navigator.of(parentContext, rootNavigator: true).pop();
         isLoadingDialogShown = false;
@@ -3388,12 +3273,10 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       debugPrint('🔴 OCR: 예외 발생 - $e');
       if (!mounted) return;
 
-      // 로딩 다이얼로그가 표시되었으면 닫기
       if (isLoadingDialogShown) {
         try {
           Navigator.of(parentContext, rootNavigator: true).pop();
         } catch (_) {
-          // Navigator 에러 무시
         }
       }
 
@@ -3401,12 +3284,10 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     }
   }
 
-  /// 이미지 선택 → 크롭 → OCR 텍스트 추출
   Future<void> _pickImageAndExtractText(
     ImageSource source,
     Function(Uint8List imageBytes, String ocrText, int? pageNumber) onComplete,
   ) async {
-    // 로딩 다이얼로그가 표시되었는지 추적
     bool isLoadingDialogShown = false;
     final parentContext = context;
 
@@ -3415,16 +3296,13 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       final pickedFile = await picker.pickImage(source: source);
       if (pickedFile == null) return;
 
-      // 원본 이미지 바이트 (저장용)
       final fullImageBytes = await pickedFile.readAsBytes();
 
       if (!mounted) return;
 
-      // 이전 모달이 완전히 닫히도록 잠시 대기
       await Future.delayed(const Duration(milliseconds: 100));
       if (!mounted) return;
 
-      // 0단계: 텍스트 추출 여부 확인
       final isDark = Theme.of(parentContext).brightness == Brightness.dark;
       final shouldExtract = await showModalBottomSheet<bool>(
         context: parentContext,
@@ -3527,15 +3405,12 @@ class _BookDetailScreenState extends State<BookDetailScreen>
 
       if (!mounted) return;
 
-      // 사용자가 "괜찮아요"를 선택했거나 모달을 닫은 경우
       if (shouldExtract != true) {
-        // 이미지만 등록하고 OCR 없이 반환
         onComplete(fullImageBytes, '', null);
         return;
       }
 
       debugPrint('🟡 OCR: 크롭 화면 표시 중...');
-      // 1단계: 크롭 화면 표시 (텍스트 추출 영역 선택)
       final croppedFile = await ImageCropper().cropImage(
         sourcePath: pickedFile.path,
         uiSettings: [
@@ -3567,7 +3442,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       if (!mounted) return;
 
       debugPrint('🟡 OCR: 크롭 완료, 텍스트 추출 시작...');
-      // 2단계: 텍스트 추출 로딩 다이얼로그 표시
       isLoadingDialogShown = true;
       showDialog(
         context: parentContext,
@@ -3606,7 +3480,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
         ),
       );
 
-      // 3단계: 크롭된 영역에서 OCR 추출 (텍스트 + 페이지 번호)
       final ocrService = GoogleVisionOcrService();
       final croppedBytes = await croppedFile.readAsBytes();
       debugPrint('🟡 OCR: 크롭된 이미지 크기: ${croppedBytes.length} bytes');
@@ -3616,7 +3489,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
 
       if (!mounted) return;
 
-      // 로딩 다이얼로그 닫기
       if (isLoadingDialogShown) {
         Navigator.of(parentContext, rootNavigator: true).pop();
         isLoadingDialogShown = false;
@@ -3629,18 +3501,15 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       }
 
       debugPrint('🟢 OCR: 텍스트 추출 성공 (길이: ${ocrText.length})');
-      // 콜백 호출 (원본 이미지 + 크롭 영역 OCR 텍스트 + 페이지 번호)
       onComplete(fullImageBytes, ocrText, pageNumber);
     } catch (e) {
       debugPrint('🔴 OCR: 예외 발생 - $e');
       if (!mounted) return;
 
-      // 로딩 다이얼로그가 표시되었으면 닫기
       if (isLoadingDialogShown) {
         try {
           Navigator.of(parentContext, rootNavigator: true).pop();
         } catch (_) {
-          // Navigator 에러 무시
         }
       }
 
@@ -3648,31 +3517,24 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     }
   }
 
-  /// OCR 텍스트에서 페이지 번호 추출
   int? _extractPageNumber(String text) {
-    // 여러 패턴으로 페이지 번호 추출 시도
-    // 책의 페이지 번호는 보통 모서리에 위치하고 1-4자리 숫자
 
     final patterns = [
-      // 명시적 페이지 표시
-      RegExp(r'[-–]\s*(\d{1,4})\s*[-–]'), // - 123 -
-      RegExp(r'[pP]\.?\s*(\d{1,4})'), // p.123, P 123
-      RegExp(r'[pP]age\s*(\d{1,4})', caseSensitive: false), // page 123
-      RegExp(r'(\d{1,4})\s*페이지'), // 123페이지
-      RegExp(r'(\d{1,4})\s*쪽'), // 123쪽
+      RegExp(r'[-–]\s*(\d{1,4})\s*[-–]'),
+      RegExp(r'[pP]\.?\s*(\d{1,4})'),
+      RegExp(r'[pP]age\s*(\d{1,4})', caseSensitive: false),
+      RegExp(r'(\d{1,4})\s*페이지'),
+      RegExp(r'(\d{1,4})\s*쪽'),
 
-      // 줄의 시작이나 끝에 있는 단독 숫자 (페이지 번호 패턴)
-      RegExp(r'^\s*(\d{1,4})\s*$', multiLine: true), // 단독 줄의 숫자
-      RegExp(r'^(\d{1,4})\s+\S', multiLine: true), // 줄 시작의 숫자 + 공백 + 텍스트
-      RegExp(r'\S\s+(\d{1,4})$', multiLine: true), // 텍스트 + 공백 + 줄 끝의 숫자
+      RegExp(r'^\s*(\d{1,4})\s*$', multiLine: true),
+      RegExp(r'^(\d{1,4})\s+\S', multiLine: true),
+      RegExp(r'\S\s+(\d{1,4})$', multiLine: true),
 
-      // 괄호 안의 숫자
-      RegExp(r'\((\d{1,4})\)'), // (123)
-      RegExp(r'\[(\d{1,4})\]'), // [123]
+      RegExp(r'\((\d{1,4})\)'),
+      RegExp(r'\[(\d{1,4})\]'),
 
-      // 텍스트 처음이나 끝에 있는 숫자 (OCR 결과의 첫/마지막 숫자)
-      RegExp(r'^(\d{1,4})\b'), // 텍스트 시작의 숫자
-      RegExp(r'\b(\d{1,4})$'), // 텍스트 끝의 숫자
+      RegExp(r'^(\d{1,4})\b'),
+      RegExp(r'\b(\d{1,4})$'),
     ];
 
     for (final pattern in patterns) {
@@ -3681,9 +3543,7 @@ class _BookDetailScreenState extends State<BookDetailScreen>
         final pageStr = match.group(1);
         if (pageStr != null) {
           final page = int.tryParse(pageStr);
-          // 유효한 페이지 번호 범위: 1-9999, 챕터/섹션 번호 제외
           if (page != null && page > 0 && page < 10000) {
-            // 소수점이 있는 섹션 번호 제외 (예: 4.1.1)
             final matchStart = match.start;
             if (matchStart > 0 && text[matchStart - 1] == '.') {
               continue;
@@ -3701,12 +3561,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
   }
 
   Future<List<Map<String, dynamic>>> fetchProgressHistory(String bookId) async {
-    // 목업 데이터 모드
-    if (_useMockProgressData) {
-      await Future.delayed(const Duration(milliseconds: 300)); // 로딩 시뮬레이션
-      return _generateMockProgressData();
-    }
-
     final response = await Supabase.instance.client
         .from('reading_progress_history')
         .select('page, created_at')
@@ -3720,7 +3574,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
         .toList();
   }
 
-  /// 범례 아이템 빌더
   Widget _buildLegendItem(String label, Color color, bool isDark) {
     return Row(
       children: [
@@ -3745,7 +3598,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// 진행률 히스토리 스켈레톤 빌더
   Widget _buildProgressHistorySkeleton(bool isDark) {
     return SingleChildScrollView(
       padding: const EdgeInsets.only(bottom: 100),
@@ -3755,7 +3607,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 차트 카드 스켈레톤
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -3768,7 +3619,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 헤더 스켈레톤
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -3791,7 +3641,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                     ],
                   ),
                   const SizedBox(height: 20),
-                  // 범례 스켈레톤
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -3815,7 +3664,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                     ],
                   ),
                   const SizedBox(height: 24),
-                  // 차트 영역 스켈레톤
                   Container(
                     height: 200,
                     decoration: BoxDecoration(
@@ -3827,7 +3675,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
               ),
             ),
             const SizedBox(height: 16),
-            // 독서 상태 분석 스켈레톤
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -3873,7 +3720,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
               ),
             ),
             const SizedBox(height: 16),
-            // 일별 기록 헤더 스켈레톤
             Container(
               width: 100,
               height: 18,
@@ -3883,7 +3729,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
               ),
             ),
             const SizedBox(height: 12),
-            // 일별 기록 카드 스켈레톤 (3개)
             ...List.generate(3, (index) => Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Container(
@@ -3945,7 +3790,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// 독서 상태 분석 및 격려 메시지 빌더
   Widget _buildReadingStateAnalysis(bool isDark, List<Map<String, dynamic>> progressData) {
     final analysisResult = _analyzeReadingState(progressData);
     final emoji = analysisResult['emoji'] as String;
@@ -4021,7 +3865,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// 독서 상태 분석 로직
   Map<String, dynamic> _analyzeReadingState(List<Map<String, dynamic>> progressData) {
     final progressPercent = _progressPercentage;
     final daysLeft = _daysLeft;
@@ -4029,13 +3872,11 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     final elapsedDays = DateTime.now().difference(_currentBook.startDate).inDays;
     final readingDays = progressData.length;
 
-    // 예상 완료율 vs 실제 완료율
     final expectedProgress = elapsedDays > 0
         ? (elapsedDays / totalDays * 100).clamp(0, 100)
         : 0.0;
     final progressDiff = progressPercent - expectedProgress;
 
-    // 완독 상태
     if (progressPercent >= 100) {
       if (_attemptCount > 1) {
         return {
@@ -4053,7 +3894,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       };
     }
 
-    // 마감 초과
     if (daysLeft < 0) {
       if (_attemptCount > 1) {
         return {
@@ -4071,7 +3911,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       };
     }
 
-    // 아주 잘하고 있음 (예상보다 20% 이상 앞서감)
     if (progressDiff > 20) {
       return {
         'emoji': '🚀',
@@ -4081,7 +3920,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       };
     }
 
-    // 잘하고 있음 (예상보다 5-20% 앞서감)
     if (progressDiff > 5) {
       return {
         'emoji': '✨',
@@ -4091,7 +3929,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       };
     }
 
-    // 적정 페이스 (예상과 비슷)
     if (progressDiff > -5) {
       return {
         'emoji': '📖',
@@ -4101,7 +3938,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       };
     }
 
-    // 약간 뒤처짐 (5-15% 뒤처짐)
     if (progressDiff > -15) {
       if (_attemptCount > 1) {
         return {
@@ -4119,7 +3955,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       };
     }
 
-    // 많이 뒤처짐 (15% 이상 뒤처짐)
     if (_attemptCount > 1) {
       return {
         'emoji': '💫',
@@ -4136,68 +3971,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     };
   }
 
-  /// 목업 진행률 데이터 생성 (더 현실적인 패턴)
-  List<Map<String, dynamic>> _generateMockProgressData() {
-    final now = DateTime.now();
-    final startDate = _currentBook.startDate;
-    final daysPassed = now.difference(startDate).inDays.clamp(0, 20);
-
-    final List<Map<String, dynamic>> mockData = [];
-    int currentPage = 0;
-
-    // 시작일부터 오늘까지의 진행 데이터 생성
-    for (int i = 0; i <= daysPassed; i++) {
-      final date = startDate.add(Duration(days: i));
-      final dayOfWeek = date.weekday; // 1=월요일, 7=일요일
-
-      // 현실적인 독서 패턴:
-      // - 주말(토,일)에 더 많이 읽음
-      // - 가끔 안 읽는 날도 있음 (20% 확률)
-      // - 평일: 15-30페이지
-      // - 주말: 40-60페이지
-
-      final skipReading = (i % 5 == 2); // 5일에 한번 쉼
-
-      if (!skipReading) {
-        int pagesRead;
-
-        if (dayOfWeek == 6 || dayOfWeek == 7) {
-          // 주말 - 많이 읽음
-          pagesRead = 40 + (i % 20);
-        } else if (dayOfWeek == 5) {
-          // 금요일 - 중간
-          pagesRead = 25 + (i % 15);
-        } else {
-          // 평일 - 적게 읽음
-          pagesRead = 15 + (i % 15);
-        }
-
-        currentPage += pagesRead;
-
-        // 하루에 여러 번 읽는 경우도 있음 (30% 확률)
-        if (i % 3 == 0) {
-          // 첫 번째 독서 세션 (점심)
-          mockData.add({
-            'page': (currentPage * 0.4).toInt().clamp(0, _currentBook.totalPages),
-            'created_at': date.add(Duration(hours: 12 + (i % 2))),
-          });
-        }
-
-        // 주요 독서 세션 (저녁)
-        mockData.add({
-          'page': currentPage.clamp(0, _currentBook.totalPages),
-          'created_at': date.add(Duration(
-            hours: 20 + (i % 3),
-            minutes: (i * 13) % 60,
-          )),
-        });
-      }
-    }
-
-    return mockData;
-  }
-
-  /// 컴팩트 책 헤더 (Dashboard 스타일)
   Widget _buildCompactBookHeader(bool isDark) {
     final isCompleted = _currentBook.currentPage >= _currentBook.totalPages &&
         _currentBook.totalPages > 0;
@@ -4217,7 +3990,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       ),
       child: Row(
         children: [
-          // 작은 표지 (탭하면 전체보기)
           GestureDetector(
             onTap: () {
               if (_currentBook.imageUrl != null &&
@@ -4255,7 +4027,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
           ),
           const SizedBox(width: 14),
 
-          // 제목 + 저자 + 상태
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -4331,7 +4102,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// 대시보드 스타일 진행률 (2-Column)
   Widget _buildDashboardProgress(bool isDark) {
     final progressPercent = (_animatedProgress * 100).toStringAsFixed(0);
     final isOverdue = _daysLeft < 0;
@@ -4351,7 +4121,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       ),
       child: Row(
         children: [
-          // 왼쪽: 원형 진행률
           Expanded(
             child: Column(
               children: [
@@ -4405,18 +4174,15 @@ class _BookDetailScreenState extends State<BookDetailScreen>
             ),
           ),
 
-          // 구분선
           Container(
             width: 1,
             height: 100,
             color: isDark ? Colors.grey[700] : Colors.grey[200],
           ),
 
-          // 오른쪽: D-day + 남은 페이지 + 오늘 목표
           Expanded(
             child: Column(
               children: [
-                // D-day (3일 이하일 때 레드)
                 Text(
                   isOverdue ? 'D+${_daysLeft.abs()}' : 'D-$_daysLeft',
                   style: TextStyle(
@@ -4429,7 +4195,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                   ),
                 ),
                 const SizedBox(height: 8),
-                // 남은 페이지 ("OO페이지 남았어요" 형식, 페이지 수 볼드)
                 RichText(
                   text: TextSpan(
                     children: [
@@ -4453,7 +4218,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                   ),
                 ),
                 const SizedBox(height: 4),
-                // 오늘 목표 (저장된 값 우선, 없으면 남은 페이지 / 남은 일수) + 변경 버튼
                 Builder(
                   builder: (context) {
                     final dailyTarget = _currentBook.dailyTargetPages ??
@@ -4501,7 +4265,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// 키보드 완료 버튼 (리퀴드 글래스 스타일)
   Widget _buildKeyboardDoneButton(bool isDark) {
     return Positioned(
       left: 20,
@@ -4575,7 +4338,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// Linear 스타일 리퀴드 글래스 플로팅 바 (분리형)
   Widget _buildLiquidGlassFloatingBar(bool isDark) {
     return Positioned(
       left: 20,
@@ -4584,7 +4346,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       child: SafeArea(
         child: Row(
           children: [
-            // 페이지 업데이트 버튼 (메인 바 - 분리됨)
             Expanded(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(18),
@@ -4641,7 +4402,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
 
             const SizedBox(width: 10),
 
-            // + 버튼 (완전 분리된 원형)
             ClipRRect(
               borderRadius: BorderRadius.circular(26),
               child: BackdropFilter(
@@ -4684,30 +4444,24 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// 상세 탭 (독서 일정 + 풀 Contribution Graph)
   Widget _buildDetailTab(bool isDark) {
     return SingleChildScrollView(
       padding: const EdgeInsets.only(bottom: 100),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 독서 일정 섹션
           _buildReadingScheduleCard(isDark),
           const SizedBox(height: 16),
 
-          // 목표 달성 현황 (풀 Contribution Graph)
           _buildTodayGoalCardWithStamps(isDark),
         ],
       ),
     );
   }
 
-  /// 컴팩트 스트릭 Row (최근 7일 도트 + N일 연속 + 요일 라벨)
   Widget _buildCompactStreakRow(bool isDark) {
-    // 요일 이름 (한글)
     const dayLabels = ['일', '월', '화', '수', '목', '금', '토'];
 
-    // 최근 7일 달성 현황 계산
     final now = DateTime.now();
     final recentDays = <Map<String, dynamic>>[];
 
@@ -4724,7 +4478,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       });
     }
 
-    // 연속 달성일 계산
     int streak = 0;
     for (int i = recentDays.length - 1; i >= 0; i--) {
       if (recentDays[i]['achieved'] == true) {
@@ -4749,7 +4502,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       ),
       child: Column(
         children: [
-          // 1행: 최근 7일 도트 + 요일 라벨 (크게)
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(7, (index) {
@@ -4763,7 +4515,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // 요일 라벨
                     Text(
                       dayLabel,
                       style: TextStyle(
@@ -4775,7 +4526,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                       ),
                     ),
                     const SizedBox(height: 6),
-                    // 도트
                     Container(
                       width: 20,
                       height: 20,
@@ -4807,7 +4557,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
             }),
           ),
           const SizedBox(height: 10),
-          // 2행: 불꽃 아이콘 + 스트릭 텍스트
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -4836,14 +4585,12 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// 목표 달성 현황 카드 (Contribution Graph 스타일)
   Widget _buildTodayGoalCardWithStamps(bool isDark) {
     final totalDays =
         _currentBook.targetDate.difference(_currentBook.startDate).inDays + 1;
     final now = DateTime.now();
     final todayIndex = now.difference(_currentBook.startDate).inDays;
 
-    // 달성률 계산
     int achievedCount = 0;
     int passedDays = 0;
     for (int i = 0; i < totalDays && i <= todayIndex; i++) {
@@ -4872,7 +4619,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 헤더 with 달성률
           Row(
             children: [
               Container(
@@ -4915,7 +4661,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                   ],
                 ),
               ),
-              // 달성률 badge
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -4963,7 +4708,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
           ),
           const SizedBox(height: 20),
 
-          // Contribution Graph 스타일 그리드
           LayoutBuilder(
             builder: (context, constraints) {
               final cellSize = 28.0;
@@ -5039,7 +4783,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
 
           const SizedBox(height: 16),
 
-          // Legend
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -5055,7 +4798,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// 탭 바만 반환 (스티키 헤더용) - 3탭
   Widget _buildTabBarOnly(bool isDark) {
     final tabLabels = ['인상적인 페이지', '히스토리', '상세'];
 
@@ -5100,7 +4842,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
               );
             }),
           ),
-          // 슬라이딩 인디케이터 (스와이프 제스처와 동기화)
           Positioned(
             bottom: 0,
             left: 0,
@@ -5109,12 +4850,11 @@ class _BookDetailScreenState extends State<BookDetailScreen>
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final tabWidth = constraints.maxWidth / 3;
-                final indicatorWidth = tabWidth * 0.5; // 탭 너비의 50%
+                final indicatorWidth = tabWidth * 0.5;
                 return AnimatedBuilder(
                   animation: _tabController.animation!,
                   builder: (context, child) {
                     final animValue = _tabController.animation!.value;
-                    // 각 탭의 중앙 위치 계산
                     final centerPosition = tabWidth * animValue + (tabWidth - indicatorWidth) / 2;
                     return Stack(
                       children: [
@@ -5141,11 +4881,9 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// 탭 섹션: 인상적인 페이지 + 진행률 히스토리 (레거시)
   Widget _buildTabbedSection(bool isDark) {
     return Column(
       children: [
-        // 탭 헤더 - 슬라이딩 애니메이션 적용
         Container(
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
@@ -5209,12 +4947,11 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                   ),
                 ],
               ),
-              // 슬라이딩 인디케이터
               Positioned(
                 bottom: 0,
                 child: LayoutBuilder(
                   builder: (context, constraints) {
-                    final screenWidth = MediaQuery.of(context).size.width - 32; // 양쪽 패딩
+                    final screenWidth = MediaQuery.of(context).size.width - 32;
                     final tabWidth = screenWidth / 2;
                     return AnimatedContainer(
                       duration: const Duration(milliseconds: 250),
@@ -5809,9 +5546,8 @@ class _BookDetailScreenState extends State<BookDetailScreen>
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final parentContext = context;
-    // 메모리에 저장된 텍스트가 있으면 사용, 없으면 DB에서 가져온 값 사용
     final cachedText = _editedTexts[imageId] ?? extractedText ?? '';
-    final originalText = cachedText; // 수정 전 원본 텍스트 저장
+    final originalText = cachedText;
     final textController = TextEditingController(text: cachedText);
     final focusNode = FocusNode();
     final pageNumberFocusNode = FocusNode();
@@ -6141,14 +5877,11 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                                                 'page_number': editingPageNumber,
                                               })
                                               .eq('id', imageId);
-                                          // 저장 성공 시 메모리 캐시 제거 (DB 값이 우선)
                                           _editedTexts.remove(imageId);
-                                          // 캐시 무효화 및 새로운 데이터 로드
                                           _cachedImages = null;
                                           _bookImagesFuture = fetchBookImages(_currentBook.id!);
                                           if (context.mounted) {
                                             Navigator.pop(context);
-                                            // setState로 리스트 갱신 트리거
                                             if (mounted) {
                                               setState(() {});
                                             }
@@ -6284,7 +6017,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                                             left: 8,
                                             child: GestureDetector(
                                               onTap: () {
-                                                // 모달은 유지하고 그 위에 바텀시트 표시
                                                 _showReplaceImageOptionsOverModal(
                                                   imageId: imageId,
                                                   currentText: textController.text,
@@ -6644,7 +6376,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                     ],
                   ),
                 ),
-                    // 키보드 액세서리 바 (텍스트 필드 또는 페이지 번호 필드가 포커스되었을 때)
                     if (isEditing && isKeyboardOpen && (focusNode.hasFocus || pageNumberFocusNode.hasFocus) && !hideKeyboardAccessory)
                       Positioned(
                         left: 0,
@@ -6694,31 +6425,26 @@ class _BookDetailScreenState extends State<BookDetailScreen>
         );
       },
     ).then((_) {
-      // 모달이 닫힐 때 수정된 텍스트를 메모리에 저장
       _editedTexts[imageId] = textController.text;
     });
   }
 
   Widget _buildMemorablePagesTab(bool isDark) {
     return FutureBuilder<List<Map<String, dynamic>>>(
-      future: _bookImagesFuture, // 캐시된 Future 사용
+      future: _bookImagesFuture,
       builder: (context, snapshot) {
-        // 최초 로드 시에만 로딩 표시, 이후에는 캐시된 데이터 사용
         if (snapshot.connectionState == ConnectionState.waiting && _cachedImages == null) {
           return const Center(
             child: CircularProgressIndicator(),
           );
         }
 
-        // 데이터 로드 완료 시 캐시에 저장
         if (snapshot.hasData) {
           _cachedImages = snapshot.data;
         }
 
-        // 캐시된 데이터 우선 사용
         var images = List<Map<String, dynamic>>.from(_cachedImages ?? snapshot.data ?? []);
 
-        // 정렬 적용
         images.sort((a, b) {
           switch (_memorableSortMode) {
             case 'page_asc':
@@ -6778,7 +6504,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
 
         return Column(
           children: [
-            // 선택 모드 헤더
             Padding(
               padding: const EdgeInsets.only(left: 4, right: 4, bottom: 8),
               child: Row(
@@ -6794,7 +6519,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                       ),
                     )
                   else
-                    // 정렬 버튼
                     PopupMenuButton<String>(
                       onSelected: (value) {
                         setState(() {
@@ -6922,7 +6646,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                 ],
               ),
             ),
-            // 스크롤 가능한 리스트
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.only(left: 4, right: 4, bottom: 100),
@@ -6939,7 +6662,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
             final previewText = ocrService.getPreviewText(extractedText, maxLines: 2);
             final isSelected = _selectedImageIds.contains(imageId);
 
-            // 날짜 포맷팅
             String formattedDate = '';
             if (createdAt != null) {
               try {
@@ -7082,7 +6804,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                             ),
                           ),
                         ),
-                      // 선택 모드: 체크박스 / 일반 모드: 화살표
                       if (_isSelectionMode)
                         Padding(
                           padding: const EdgeInsets.all(12),
@@ -7136,7 +6857,7 @@ class _BookDetailScreenState extends State<BookDetailScreen>
 
   Widget _buildProgressHistoryTab(bool isDark) {
     return FutureBuilder<List<Map<String, dynamic>>>(
-      future: _progressHistoryFuture, // 캐시된 Future 사용
+      future: _progressHistoryFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return _buildProgressHistorySkeleton(isDark);
@@ -7182,7 +6903,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                 .toDouble()
             : 100.0;
 
-        // 일일 페이지 수 계산
         final dailyPagesSpots = data.asMap().entries.map((entry) {
           final idx = entry.key;
           final page = entry.value['page'] as int;
@@ -7202,7 +6922,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 차트 컨테이너
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -7269,7 +6988,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                       ],
                     ),
                     const SizedBox(height: 16),
-                    // 범례
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -7283,21 +7001,19 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                       height: 250,
                       child: LayoutBuilder(
                         builder: (context, constraints) {
-                          final chartWidth = constraints.maxWidth - 40; // left reserved
+                          final chartWidth = constraints.maxWidth - 40;
                           final barWidth = data.length > 1
                               ? (chartWidth / data.length * 0.4).clamp(4.0, 16.0)
                               : 16.0;
 
-                          // 일일 페이지 스케일을 누적 페이지 스케일에 맞춤
                           final scaledMaxY = (maxPage * 1.1).ceilToDouble();
                           final barScaleFactor = scaledMaxY / (maxDailyPage > 0 ? maxDailyPage * 1.5 : 1);
 
                           return LineChart(
                             LineChartData(
                               lineBarsData: [
-                                // 일일 페이지 막대 (스케일 조정된 값)
                                 ...dailyPagesSpots.map((spot) {
-                                  final scaledY = spot.y * barScaleFactor * 0.3; // 막대 높이를 차트 하단 30%로 제한
+                                  final scaledY = spot.y * barScaleFactor * 0.3;
                                   return LineChartBarData(
                                     spots: [
                                       FlSpot(spot.x, 0),
@@ -7309,7 +7025,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                                     dotData: const FlDotData(show: false),
                                   );
                                 }),
-                                // 누적 페이지 라인
                                 LineChartBarData(
                                   spots: spots,
                                   isCurved: true,
@@ -7437,10 +7152,8 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                 ),
               ),
               const SizedBox(height: 16),
-              // 독서 상태 분석 메시지
               _buildReadingStateAnalysis(isDark, data),
               const SizedBox(height: 16),
-              // 일별 상세 기록
               Text(
                 '📅 일별 기록',
                 style: TextStyle(
@@ -7546,7 +7259,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// 플로팅 업데이트 버튼
   Widget _buildFloatingUpdateButton(bool isDark) {
     return Positioned(
       left: 0,
@@ -7555,7 +7267,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          // color: Colors.white,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -7590,7 +7301,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// 전체 제목 표시 바텀시트 (복사/서점에서 보기 기능 포함)
   void _showFullTitleDialog(String title) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
@@ -7732,7 +7442,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// 서점에서 검색할 제목 추출 (하이픈 앞까지)
   String _getSearchTitle(String title) {
     final hyphenIndex = title.indexOf(' - ');
     if (hyphenIndex > 0) {
@@ -7745,7 +7454,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     return title.trim();
   }
 
-  /// 서점 선택 바텀시트
   void _showBookstoreSelectSheet(String title) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final searchTitle = _getSearchTitle(title);
@@ -7839,7 +7547,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// 서점 버튼 위젯
   Widget _buildBookstoreButton({
     required bool isDark,
     required String logoPath,
@@ -7894,7 +7601,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     );
   }
 
-  /// 일일 목표 페이지 변경 (수평 다이얼 + 스케줄 테이블)
   void _showDailyTargetChangeDialog() async {
     await DailyTargetDialog.show(
       context: context,
@@ -8112,7 +7818,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                     ],
                   ),
                   const SizedBox(height: 24),
-                  // 선택된 날짜 표시 + D-day
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -8154,7 +7859,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // 한국식 다이얼 피커 (년/월/일)
                   Container(
                     height: 180,
                     decoration: BoxDecoration(
@@ -8234,7 +7938,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
         _attemptCount = newAttempt;
       });
 
-      // 스크롤 최상단으로
       _scrollController.animateTo(
         0,
         duration: const Duration(milliseconds: 500),
@@ -8251,7 +7954,6 @@ class _BookDetailScreenState extends State<BookDetailScreen>
   }
 }
 
-/// 드래그로 해제 가능한 전체보기 이미지 위젯
 class _DraggableDismissImage extends StatefulWidget {
   final Animation<double> animation;
   final Uint8List imageBytes;
@@ -8347,7 +8049,6 @@ class _DraggableDismissImageState extends State<_DraggableDismissImage> {
   }
 }
 
-/// 드래그로 해제 가능한 네트워크 이미지 전체보기 위젯
 class _DraggableDismissNetworkImage extends StatefulWidget {
   final Animation<double> animation;
   final String imageUrl;
@@ -8467,7 +8168,6 @@ class _DraggableDismissNetworkImageState
   }
 }
 
-/// 스티키 탭 바 델리게이트
 class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
   final Color backgroundColor;
@@ -8478,7 +8178,7 @@ class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   });
 
   @override
-  double get minExtent => 56; // 탭 바 높이
+  double get minExtent => 56;
 
   @override
   double get maxExtent => 56;
@@ -8499,7 +8199,6 @@ class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   }
 }
 
-/// Circular Progress Painter (Radial Progress Indicator)
 class _CircularProgressPainter extends CustomPainter {
   final double progress;
   final double strokeWidth;
@@ -8518,7 +8217,6 @@ class _CircularProgressPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = (size.width - strokeWidth) / 2;
 
-    // Background circle
     final backgroundPaint = Paint()
       ..color = backgroundColor
       ..style = PaintingStyle.stroke
@@ -8527,7 +8225,6 @@ class _CircularProgressPainter extends CustomPainter {
 
     canvas.drawCircle(center, radius, backgroundPaint);
 
-    // Progress arc
     final progressPaint = Paint()
       ..color = progressColor
       ..style = PaintingStyle.stroke
@@ -8537,7 +8234,7 @@ class _CircularProgressPainter extends CustomPainter {
     final sweepAngle = 2 * math.pi * progress;
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
-      -math.pi / 2, // Start from top
+      -math.pi / 2,
       sweepAngle,
       false,
       progressPaint,
