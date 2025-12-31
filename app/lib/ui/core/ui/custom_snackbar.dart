@@ -6,6 +6,7 @@ enum SnackbarType { success, error, info, warning }
 class CustomSnackbar {
   /// 스낵바 표시
   /// [bottomOffset] - CTA 버튼이 있는 화면에서는 100 (기본값), 없는 화면에서는 32 사용
+  /// [aboveKeyboard] - true면 키보드 위 8px에 표시 (bottomOffset 무시)
   static void show(
     BuildContext context, {
     required String message,
@@ -14,7 +15,14 @@ class CustomSnackbar {
     Duration duration = const Duration(seconds: 2),
     bool rootOverlay = false,
     double bottomOffset = 100,
+    bool aboveKeyboard = false,
   }) {
+    // 키보드 모드일 경우 키보드 높이 + 8px
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final effectiveOffset = aboveKeyboard && keyboardHeight > 0
+        ? keyboardHeight + 8
+        : bottomOffset;
+
     final overlay = Overlay.of(context, rootOverlay: rootOverlay);
     final overlayEntry = OverlayEntry(
       builder: (context) => _AnimatedSnackbar(
@@ -22,7 +30,7 @@ class CustomSnackbar {
         type: type,
         icon: icon,
         duration: duration,
-        bottomOffset: bottomOffset,
+        bottomOffset: effectiveOffset,
       ),
     );
 
