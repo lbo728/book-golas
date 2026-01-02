@@ -220,6 +220,28 @@ Configuration is validated at app startup via `AppConfig.validateApiKeys()` in m
 **Dependency Injection:**
 Provider pattern with `MultiProvider` in main.dart:41-57. Services → Repositories → ViewModels are injected in order.
 
+### Widget Folder Structure Rule
+
+Feature 내 `widgets/` 폴더 구조 원칙:
+
+- **2개 이상** 같은 그룹에 속하는 경우에만 하위 폴더 생성
+- 그룹화가 필요 없는 위젯은 `widgets/` 루트에 위치
+- Screen은 feature 루트에 위치 (`feature_name_screen.dart`)
+
+예시:
+```
+feature/
+├── feature_screen.dart         # Screen은 루트에
+├── view_model/
+├── widgets/
+│   ├── dialogs/                # 2개 이상 → 폴더
+│   │   ├── confirm_dialog.dart
+│   │   └── input_dialog.dart
+│   ├── single_widget.dart      # 1개 → 루트에 위치
+│   └── another_widget.dart
+└── utils/
+```
+
 ## Core Features
 
 ### Authentication Flow
