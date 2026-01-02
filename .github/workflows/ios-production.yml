@@ -1,0 +1,114 @@
+name: iOS App Store Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+
+      - name: Install Ruby dependencies
+        run: |
+          cd app/ios
+          bundle install
+
+      - name: Flutter pub get
+        run: |
+          cd app
+          flutter pub get
+
+      - name: Install CocoaPods
+        run: |
+          cd app/ios
+          bundle exec pod install --repo-update
+
+      - name: Create .env file
+        run: |
+          cd app
+          echo "ALADIN_TTB_KEY=${{ secrets.ALADIN_TTB_KEY }}" >> .env
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+          echo "ENVIRONMENT=production" >> .env
+
+      - name: Install Certificate and Provisioning Profile
+        id: install-cert
+        env:
+          CERTIFICATE_P12_BASE64: ${{ secrets.CERTIFICATE_P12_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
+          PROVISIONING_PROFILE_BASE64: ${{ secrets.PROVISIONING_PROFILE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ github.run_id }}
+        run: |
+          CERTIFICATE_PATH=$RUNNER_TEMP/certificate.p12
+          PROVISIONING_PROFILE_PATH=$RUNNER_TEMP/profile.mobileprovision
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          echo -n "$CERTIFICATE_P12_BASE64" | base64 --decode > $CERTIFICATE_PATH
+          echo -n "$PROVISIONING_PROFILE_BASE64" | base64 --decode > $PROVISIONING_PROFILE_PATH
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          security import $CERTIFICATE_PATH -P "$CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH login.keychain-db
+
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+
+          PROFILE_PLIST=$(/usr/bin/security cms -D -i $PROVISIONING_PROFILE_PATH)
+          PROFILE_UUID=$(echo "$PROFILE_PLIST" | /usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin)
+          PROFILE_NAME=$(echo "$PROFILE_PLIST" | /usr/libexec/PlistBuddy -c "Print Name" /dev/stdin)
+
+          cp $PROVISIONING_PROFILE_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$PROFILE_UUID.mobileprovision
+
+          echo "PROVISIONING_PROFILE_UUID=$PROFILE_UUID" >> $GITHUB_OUTPUT
+          echo "PROVISIONING_PROFILE_NAME=$PROFILE_NAME" >> $GITHUB_OUTPUT
+
+          echo "Installed provisioning profile:"
+          echo "   UUID: $PROFILE_UUID"
+          echo "   Name: $PROFILE_NAME"
+          echo ""
+          echo "Installed profiles:"
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/
+          echo ""
+          echo "Keychain certificates:"
+          security find-identity -v -p codesigning $KEYCHAIN_PATH
+
+      - name: Build Flutter iOS
+        run: |
+          cd app
+          flutter build ios --release --no-codesign --build-number=${{ github.run_number }}
+
+      - name: Build and Upload to App Store
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          PROVISIONING_PROFILE_NAME: ${{ steps.install-cert.outputs.PROVISIONING_PROFILE_NAME }}
+        run: |
+          cd app/ios
+          bundle exec fastlane release
+
+      - name: Clean up keychain
+        if: always()
+        run: |
+          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db || true
