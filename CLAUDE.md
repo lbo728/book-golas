@@ -184,6 +184,9 @@ Configuration is validated at app startup via `AppConfig.validateApiKeys()` in m
 
 ## Architecture
 
+> **Reference**: [Flutter App Architecture Case Study](https://docs.flutter.dev/app-architecture/case-study)
+> 이 프로젝트는 Flutter 공식 앱 아키텍처 가이드를 표준으로 따릅니다.
+
 ### Layer Structure (3-Layer)
 
 **UI Layer** (`lib/ui/`)
