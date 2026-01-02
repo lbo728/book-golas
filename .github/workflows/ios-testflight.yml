@@ -45,9 +45,9 @@ jobs:
         run: |
           cd app
           echo "ALADIN_TTB_KEY=${{ secrets.ALADIN_TTB_KEY }}" >> .env
-          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
-          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
-          echo "ENVIRONMENT=production" >> .env
+          echo "SUPABASE_URL_DEV=${{ secrets.SUPABASE_URL_DEV }}" >> .env
+          echo "SUPABASE_ANON_KEY_DEV=${{ secrets.SUPABASE_ANON_KEY_DEV }}" >> .env
+          echo "ENVIRONMENT=development" >> .env
 
       - name: Install Certificate and Provisioning Profile
         id: install-cert
