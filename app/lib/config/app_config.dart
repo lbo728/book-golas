@@ -8,11 +8,28 @@ class AppConfig {
   static String get aladinBaseUrl =>
       'http://www.aladin.co.kr/ttb/api/ItemSearch.aspx';
 
-  // Supabase 설정
-  static String get supabaseUrl =>
-      dotenv.env['SUPABASE_URL'] ?? 'https://enyxrgxixrnoazzgqyyd.supabase.co';
-  static String get supabaseAnonKey =>
-      dotenv.env['SUPABASE_ANON_KEY'] ?? 'your_supabase_anon_key_here';
+  // Supabase 설정 (환경별 분기)
+  static String get supabaseUrl {
+    if (isProduction) {
+      return dotenv.env['SUPABASE_URL_PROD'] ??
+          dotenv.env['SUPABASE_URL'] ??
+          'https://enyxrgxixrnoazzgqyyd.supabase.co';
+    }
+    return dotenv.env['SUPABASE_URL_DEV'] ??
+        dotenv.env['SUPABASE_URL'] ??
+        'https://reoiqefoymdsqzpbouxi.supabase.co';
+  }
+
+  static String get supabaseAnonKey {
+    if (isProduction) {
+      return dotenv.env['SUPABASE_ANON_KEY_PROD'] ??
+          dotenv.env['SUPABASE_ANON_KEY'] ??
+          '';
+    }
+    return dotenv.env['SUPABASE_ANON_KEY_DEV'] ??
+        dotenv.env['SUPABASE_ANON_KEY'] ??
+        '';
+  }
 
   // Google Cloud Vision API 설정
   static String get googleCloudVisionApiKey =>
@@ -29,7 +46,7 @@ class AppConfig {
       throw Exception(
           'ALADIN_TTB_KEY is required but not found in environment variables');
     }
-    if (supabaseAnonKey == 'your_supabase_anon_key_here') {
+    if (supabaseAnonKey.isEmpty) {
       throw Exception(
           'SUPABASE_ANON_KEY is required but not properly configured');
     }
