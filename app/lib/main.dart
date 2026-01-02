@@ -24,10 +24,10 @@ import 'data/services/auth_service.dart';
 import 'data/services/fcm_service.dart';
 import 'data/services/notification_settings_service.dart';
 import 'data/services/reading_progress_service.dart';
-import 'features/auth/widgets/login_screen.dart';
-import 'features/auth/widgets/my_page_screen.dart';
+import 'ui/auth/widgets/login_screen.dart';
+import 'ui/auth/widgets/my_page_screen.dart';
 import 'domain/models/book.dart';
-import 'features/book_detail/book_detail_screen.dart';
+import 'ui/book_detail/book_detail_screen.dart';
 
 // 백그라운드 메시지 핸들러 (main 함수 밖에 정의)
 @pragma('vm:entry-point')

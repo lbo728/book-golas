@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../circular_progress_painter.dart';
+import 'circular_progress_painter.dart';
 
 class DashboardProgressWidget extends StatelessWidget {
   final double animatedProgress;
