@@ -2,21 +2,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import 'package:book_golas/features/reading_chart/widgets/reading_chart_screen.dart';
+import 'package:book_golas/ui/reading_chart/widgets/reading_chart_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:book_golas/features/book_list/widgets/book_list_screen.dart';
-import 'package:book_golas/features/reading_start/widgets/reading_start_screen.dart';
+import 'package:book_golas/ui/book_list/widgets/book_list_screen.dart';
+import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 import 'package:book_golas/config/app_config.dart';
 import 'package:book_golas/data/repositories/book_repository.dart';
 import 'package:book_golas/data/repositories/auth_repository.dart';
 import 'package:book_golas/data/repositories/notification_settings_repository.dart';
 import 'package:book_golas/data/services/book_service.dart';
-import 'package:book_golas/features/home/view_model/home_view_model.dart';
-import 'package:book_golas/features/book_list/view_model/book_list_view_model.dart';
-import 'package:book_golas/core/view_model/theme_view_model.dart';
-import 'package:book_golas/core/view_model/auth_view_model.dart';
-import 'package:book_golas/core/view_model/notification_settings_view_model.dart';
+import 'package:book_golas/ui/home/view_model/home_view_model.dart';
+import 'package:book_golas/ui/book_list/view_model/book_list_view_model.dart';
+import 'package:book_golas/ui/core/view_model/theme_view_model.dart';
+import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
+import 'package:book_golas/ui/core/view_model/notification_settings_view_model.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
@@ -27,7 +27,7 @@ import 'data/services/reading_progress_service.dart';
 import 'features/auth/widgets/login_screen.dart';
 import 'features/auth/widgets/my_page_screen.dart';
 import 'domain/models/book.dart';
-import 'features/book_detail/widgets/book_detail_screen.dart';
+import 'features/book_detail/book_detail_screen.dart';
 
 // 백그라운드 메시지 핸들러 (main 함수 밖에 정의)
 @pragma('vm:entry-point')

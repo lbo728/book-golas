@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:book_golas/core/view_model/base_view_model.dart';
+import 'package:book_golas/ui/core/view_model/base_view_model.dart';
 import 'package:book_golas/data/services/aladin_api_service.dart';
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/domain/models/book.dart';

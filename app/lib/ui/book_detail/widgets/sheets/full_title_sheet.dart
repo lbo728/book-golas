@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:book_golas/core/widgets/custom_snackbar.dart';
+import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 
 void showFullTitleSheet({
   required BuildContext context,

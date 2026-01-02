@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'package:book_golas/core/widgets/custom_snackbar.dart';
+import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 
 Future<ImageSource?> showImageSourceSheet({
   required BuildContext context,

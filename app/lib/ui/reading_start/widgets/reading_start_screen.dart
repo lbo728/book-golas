@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_golas/data/services/book_service.dart';
-import 'package:book_golas/core/widgets/book_image_widget.dart';
-import 'package:book_golas/features/reading_start/view_model/reading_start_view_model.dart';
+import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
+import 'package:book_golas/ui/reading_start/view_model/reading_start_view_model.dart';
 
 class ReadingStartScreen extends StatelessWidget {
   final String? title;

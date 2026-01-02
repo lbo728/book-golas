@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:book_golas/core/widgets/book_image_widget.dart';
+import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 
 class CompactBookHeader extends StatelessWidget {
   final String? imageUrl;

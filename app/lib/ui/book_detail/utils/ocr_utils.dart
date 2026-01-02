@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'package:book_golas/core/widgets/custom_snackbar.dart';
+import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/data/services/google_vision_ocr_service.dart';
 
 int? extractPageNumber(String text) {

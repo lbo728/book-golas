@@ -4,8 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/domain/models/book.dart';
-import 'package:book_golas/core/widgets/custom_snackbar.dart';
-import 'package:book_golas/core/widgets/keyboard_accessory_bar.dart';
+import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
+import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 
 /// 일일 목표 페이지 변경 다이얼로그
 ///

@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shimmer/shimmer.dart';
 
-import 'package:book_golas/core/widgets/custom_snackbar.dart';
-import 'package:book_golas/core/widgets/keyboard_accessory_bar.dart';
+import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
+import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 import 'package:book_golas/data/services/image_cache_manager.dart';
 
 class ExistingImageModal extends StatefulWidget {

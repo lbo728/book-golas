@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:book_golas/domain/models/book.dart';
-import 'package:book_golas/core/widgets/book_image_widget.dart';
-import 'package:book_golas/features/book_detail/widgets/book_detail_screen.dart';
-import 'package:book_golas/features/book_list/view_model/book_list_view_model.dart';
+import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
+import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
+import 'package:book_golas/ui/book_list/view_model/book_list_view_model.dart';
 
 class BookListScreen extends StatefulWidget {
   const BookListScreen({super.key});

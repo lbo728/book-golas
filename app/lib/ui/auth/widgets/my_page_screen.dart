@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-import 'package:book_golas/core/view_model/auth_view_model.dart';
-import 'package:book_golas/core/view_model/notification_settings_view_model.dart';
+import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
+import 'package:book_golas/ui/core/view_model/notification_settings_view_model.dart';
 import 'package:book_golas/data/services/fcm_service.dart';
 import 'package:book_golas/data/services/notification_settings_service.dart';
-import 'package:book_golas/core/view_model/theme_view_model.dart';
-import 'package:book_golas/features/auth/view_model/my_page_view_model.dart';
+import 'package:book_golas/ui/core/view_model/theme_view_model.dart';
+import 'package:book_golas/ui/auth/view_model/my_page_view_model.dart';
 import 'login_screen.dart';
 
 class MyPageScreen extends StatelessWidget {
