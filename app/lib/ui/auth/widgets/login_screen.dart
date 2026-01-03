@@ -763,36 +763,47 @@ class _GlassTextFieldContainer extends StatefulWidget {
 }
 
 class _GlassTextFieldContainerState extends State<_GlassTextFieldContainer> {
+  bool _isFocused = false;
+
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(14),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: widget.isDark
-                  ? [
-                      Colors.white.withValues(alpha: 0.08),
-                      Colors.white.withValues(alpha: 0.04),
-                    ]
-                  : [
-                      Colors.white.withValues(alpha: 0.9),
-                      Colors.white.withValues(alpha: 0.7),
-                    ],
-            ),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: widget.isDark
-                  ? Colors.white.withValues(alpha: 0.1)
-                  : Colors.grey.withValues(alpha: 0.15),
-              width: 1,
+    return Focus(
+      onFocusChange: (hasFocus) {
+        setState(() => _isFocused = hasFocus);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: widget.isDark
+                      ? [
+                          Colors.white.withValues(alpha: _isFocused ? 0.14 : 0.08),
+                          Colors.white.withValues(alpha: _isFocused ? 0.08 : 0.04),
+                        ]
+                      : [
+                          Colors.white.withValues(alpha: _isFocused ? 1.0 : 0.9),
+                          Colors.white.withValues(alpha: _isFocused ? 0.85 : 0.7),
+                        ],
+                ),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: widget.isDark
+                      ? Colors.white.withValues(alpha: _isFocused ? 0.18 : 0.1)
+                      : Colors.grey.withValues(alpha: _isFocused ? 0.25 : 0.15),
+                  width: 1,
+                ),
+              ),
+              child: widget.child,
             ),
           ),
-          child: widget.child,
         ),
       ),
     );
