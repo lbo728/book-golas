@@ -22,6 +22,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
   final _nicknameFocusNode = FocusNode();
+  final _emailFieldKey = GlobalKey();
+  final _passwordFieldKey = GlobalKey();
+  final _nicknameFieldKey = GlobalKey();
 
   AuthMode _authMode = AuthMode.signIn;
   bool _isLoading = false;
@@ -33,18 +36,35 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     _loadSavedEmail();
-    _emailFocusNode.addListener(_onFocusChange);
-    _passwordFocusNode.addListener(_onFocusChange);
-    _nicknameFocusNode.addListener(_onFocusChange);
+    _emailFocusNode.addListener(() => _onFocusChange(_emailFieldKey));
+    _passwordFocusNode.addListener(() => _onFocusChange(_passwordFieldKey));
+    _nicknameFocusNode.addListener(() => _onFocusChange(_nicknameFieldKey));
   }
 
-  void _onFocusChange() {
+  void _onFocusChange(GlobalKey fieldKey) {
     final hasFocus = _emailFocusNode.hasFocus ||
         _passwordFocusNode.hasFocus ||
         _nicknameFocusNode.hasFocus;
     if (_isKeyboardVisible != hasFocus) {
       setState(() => _isKeyboardVisible = hasFocus);
     }
+    if (hasFocus) {
+      _scrollToField(fieldKey);
+    }
+  }
+
+  void _scrollToField(GlobalKey fieldKey) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final context = fieldKey.currentContext;
+      if (context != null) {
+        Scrollable.ensureVisible(
+          context,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+          alignment: 0.3,
+        );
+      }
+    });
   }
 
   Future<void> _loadSavedEmail() async {
@@ -100,9 +120,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    _emailFocusNode.removeListener(_onFocusChange);
-    _passwordFocusNode.removeListener(_onFocusChange);
-    _nicknameFocusNode.removeListener(_onFocusChange);
     _emailController.dispose();
     _passwordController.dispose();
     _nicknameController.dispose();
@@ -369,6 +386,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   _buildGlassTextField(
                     controller: _emailController,
+                    fieldKey: _emailFieldKey,
                     focusNode: _emailFocusNode,
                     label: '이메일',
                     hint: 'example@email.com',
@@ -391,6 +409,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 16),
                     _buildGlassTextField(
                       controller: _passwordController,
+                      fieldKey: _passwordFieldKey,
                       focusNode: _passwordFocusNode,
                       label: '비밀번호',
                       hint: '6자 이상 입력해주세요',
@@ -428,6 +447,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 16),
                     _buildGlassTextField(
                       controller: _nicknameController,
+                      fieldKey: _nicknameFieldKey,
                       focusNode: _nicknameFocusNode,
                       label: '닉네임',
                       hint: '앱에서 사용할 이름',
@@ -514,6 +534,7 @@ class _LoginScreenState extends State<LoginScreen> {
     required String hint,
     required IconData prefixIcon,
     required bool isDark,
+    GlobalKey? fieldKey,
     FocusNode? focusNode,
     TextInputType keyboardType = TextInputType.text,
     TextInputAction? textInputAction,
@@ -523,6 +544,7 @@ class _LoginScreenState extends State<LoginScreen> {
     String? Function(String?)? validator,
   }) {
     return Column(
+      key: fieldKey,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
