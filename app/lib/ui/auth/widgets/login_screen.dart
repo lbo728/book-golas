@@ -395,6 +395,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     isDark: isDark,
                     textInputAction: TextInputAction.next,
                     onFieldSubmitted: (_) => _focusNextField(),
+                    autofillHints: const [AutofillHints.email],
+                    autocorrect: false,
+                    enableSuggestions: false,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return '이메일을 입력해주세요';
@@ -420,6 +423,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           ? TextInputAction.next
                           : TextInputAction.done,
                       onFieldSubmitted: (_) => _focusNextField(),
+                      autofillHints: _authMode == AuthMode.signIn
+                          ? const [AutofillHints.password]
+                          : const [AutofillHints.newPassword],
+                      autocorrect: false,
+                      enableSuggestions: false,
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
@@ -455,6 +463,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => _dismissKeyboard(),
                       isDark: isDark,
+                      autofillHints: const [AutofillHints.nickname],
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return '닉네임을 입력해주세요';
@@ -542,6 +551,9 @@ class _LoginScreenState extends State<LoginScreen> {
     bool obscureText = false,
     Widget? suffixIcon,
     String? Function(String?)? validator,
+    List<String>? autofillHints,
+    bool autocorrect = true,
+    bool enableSuggestions = true,
   }) {
     return Column(
       key: fieldKey,
@@ -565,6 +577,9 @@ class _LoginScreenState extends State<LoginScreen> {
             textInputAction: textInputAction,
             onFieldSubmitted: onFieldSubmitted,
             obscureText: obscureText,
+            autocorrect: autocorrect,
+            enableSuggestions: enableSuggestions,
+            autofillHints: autofillHints,
             style: TextStyle(
               fontSize: 15,
               color: isDark ? Colors.white : Colors.black87,
@@ -785,20 +800,22 @@ class _GlassTextFieldContainerState extends State<_GlassTextFieldContainer> {
                   end: Alignment.bottomRight,
                   colors: widget.isDark
                       ? [
-                          Colors.white.withValues(alpha: _isFocused ? 0.14 : 0.08),
-                          Colors.white.withValues(alpha: _isFocused ? 0.08 : 0.04),
+                          Colors.white.withValues(alpha: _isFocused ? 0.20 : 0.08),
+                          Colors.white.withValues(alpha: _isFocused ? 0.12 : 0.04),
                         ]
                       : [
-                          Colors.white.withValues(alpha: _isFocused ? 1.0 : 0.9),
-                          Colors.white.withValues(alpha: _isFocused ? 0.85 : 0.7),
+                          Colors.white.withValues(alpha: _isFocused ? 1.0 : 0.85),
+                          Colors.white.withValues(alpha: _isFocused ? 0.95 : 0.65),
                         ],
                 ),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                   color: widget.isDark
-                      ? Colors.white.withValues(alpha: _isFocused ? 0.18 : 0.1)
-                      : Colors.grey.withValues(alpha: _isFocused ? 0.25 : 0.15),
-                  width: 1,
+                      ? Colors.white.withValues(alpha: _isFocused ? 0.30 : 0.1)
+                      : (_isFocused
+                          ? const Color(0xFF5B7FFF).withValues(alpha: 0.5)
+                          : Colors.grey.withValues(alpha: 0.15)),
+                  width: _isFocused ? 1.5 : 1,
                 ),
               ),
               child: widget.child,
