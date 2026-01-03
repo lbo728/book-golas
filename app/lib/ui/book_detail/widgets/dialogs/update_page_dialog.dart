@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// 현재 페이지 업데이트 다이얼로그
-///
-/// 사용자가 현재 읽은 페이지를 업데이트할 수 있는 바텀시트
+import '../../../core/widgets/glass_text_field.dart';
+
 class UpdatePageDialog {
   /// 페이지 업데이트 다이얼로그 표시
   ///
@@ -18,7 +17,6 @@ class UpdatePageDialog {
   }) async {
     final TextEditingController controller = TextEditingController(text: '');
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    String? errorText;
     bool isValid = false;
 
     String? validatePage(String value) {
@@ -93,47 +91,20 @@ class UpdatePageDialog {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  TextField(
+                  GlassTextField(
                     controller: controller,
                     keyboardType: TextInputType.number,
-                    autofocus: true,
-                    onChanged: (value) {
+                    hint: '${currentPage + 1} ~ $totalPages',
+                    prefixIcon: Icons.menu_book_rounded,
+                    isDark: isDark,
+                    validateOnChange: true,
+                    validationDebounceMs: 100,
+                    validator: (value) => validatePage(value ?? ''),
+                    onValidityChanged: (valid) {
                       setModalState(() {
-                        errorText = validatePage(value);
-                        isValid = errorText == null && value.isNotEmpty;
+                        isValid = valid && controller.text.isNotEmpty;
                       });
                     },
-                    decoration: InputDecoration(
-                      labelText: '새 페이지 번호',
-                      hintText: '${currentPage + 1} ~ $totalPages',
-                      errorText: errorText,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: errorText != null
-                              ? Colors.red
-                              : const Color(0xFF5B7FFF),
-                          width: 2,
-                        ),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Colors.red,
-                          width: 2,
-                        ),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Colors.red,
-                          width: 2,
-                        ),
-                      ),
-                    ),
                   ),
                   const SizedBox(height: 24),
                   Row(
