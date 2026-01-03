@@ -443,66 +443,43 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(14),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: isDark
-                      ? [
-                          Colors.white.withValues(alpha: 0.08),
-                          Colors.white.withValues(alpha: 0.04),
-                        ]
-                      : [
-                          Colors.white.withValues(alpha: 0.9),
-                          Colors.white.withValues(alpha: 0.7),
-                        ],
-                ),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.1)
-                      : Colors.grey.withValues(alpha: 0.2),
-                  width: 1,
-                ),
+        _GlassTextFieldContainer(
+          isDark: isDark,
+          child: TextFormField(
+            controller: controller,
+            keyboardType: keyboardType,
+            obscureText: obscureText,
+            style: TextStyle(
+              fontSize: 15,
+              color: isDark ? Colors.white : Colors.black87,
+            ),
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: TextStyle(
+                color: isDark ? Colors.grey[500] : Colors.grey[400],
+                fontSize: 14,
               ),
-              child: TextFormField(
-                controller: controller,
-                keyboardType: keyboardType,
-                obscureText: obscureText,
-                style: TextStyle(
-                  fontSize: 15,
-                  color: isDark ? Colors.white : Colors.black87,
-                ),
-                decoration: InputDecoration(
-                  hintText: hint,
-                  hintStyle: TextStyle(
-                    color: isDark ? Colors.grey[500] : Colors.grey[400],
-                    fontSize: 14,
-                  ),
-                  prefixIcon: Icon(
-                    prefixIcon,
-                    color: isDark ? Colors.grey[400] : Colors.grey[600],
-                    size: 20,
-                  ),
-                  suffixIcon: suffixIcon,
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                  errorStyle: const TextStyle(
-                    fontSize: 12,
-                    height: 1,
-                  ),
-                ),
-                validator: validator,
+              prefixIcon: Icon(
+                prefixIcon,
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+                size: 20,
+              ),
+              suffixIcon: suffixIcon,
+              border: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              errorBorder: InputBorder.none,
+              focusedErrorBorder: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
+              errorStyle: const TextStyle(
+                fontSize: 12,
+                height: 1,
               ),
             ),
+            validator: validator,
           ),
         ),
       ],
@@ -652,5 +629,67 @@ class _LoginScreenState extends State<LoginScreen> {
       case AuthMode.forgotPassword:
         return '비밀번호 재설정 이메일 보내기';
     }
+  }
+}
+
+class _GlassTextFieldContainer extends StatefulWidget {
+  final bool isDark;
+  final Widget child;
+
+  const _GlassTextFieldContainer({
+    required this.isDark,
+    required this.child,
+  });
+
+  @override
+  State<_GlassTextFieldContainer> createState() =>
+      _GlassTextFieldContainerState();
+}
+
+class _GlassTextFieldContainerState extends State<_GlassTextFieldContainer> {
+  bool _isFocused = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Focus(
+      onFocusChange: (hasFocus) {
+        setState(() => _isFocused = hasFocus);
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: widget.isDark
+                    ? [
+                        Colors.white
+                            .withValues(alpha: _isFocused ? 0.18 : 0.08),
+                        Colors.white
+                            .withValues(alpha: _isFocused ? 0.10 : 0.04),
+                      ]
+                    : [
+                        Colors.white.withValues(alpha: _isFocused ? 1.0 : 0.9),
+                        Colors.white.withValues(alpha: _isFocused ? 0.9 : 0.7),
+                      ],
+              ),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: widget.isDark
+                    ? Colors.white.withValues(alpha: _isFocused ? 0.25 : 0.1)
+                    : Colors.white.withValues(alpha: _isFocused ? 1.0 : 0.8),
+                width: 1,
+              ),
+            ),
+            child: widget.child,
+          ),
+        ),
+      ),
+    );
   }
 }
