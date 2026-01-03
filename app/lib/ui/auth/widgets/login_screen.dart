@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
+import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 
 enum AuthMode { signIn, signUp, forgotPassword }
 
@@ -18,16 +19,32 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _nicknameController = TextEditingController();
+  final _emailFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+  final _nicknameFocusNode = FocusNode();
 
   AuthMode _authMode = AuthMode.signIn;
   bool _isLoading = false;
   bool _saveEmail = false;
   bool _obscurePassword = true;
+  bool _isKeyboardVisible = false;
 
   @override
   void initState() {
     super.initState();
     _loadSavedEmail();
+    _emailFocusNode.addListener(_onFocusChange);
+    _passwordFocusNode.addListener(_onFocusChange);
+    _nicknameFocusNode.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    final hasFocus = _emailFocusNode.hasFocus ||
+        _passwordFocusNode.hasFocus ||
+        _nicknameFocusNode.hasFocus;
+    if (_isKeyboardVisible != hasFocus) {
+      setState(() => _isKeyboardVisible = hasFocus);
+    }
   }
 
   Future<void> _loadSavedEmail() async {
@@ -53,11 +70,45 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _dismissKeyboard() {
+    _emailFocusNode.unfocus();
+    _passwordFocusNode.unfocus();
+    _nicknameFocusNode.unfocus();
+  }
+
+  void _focusNextField() {
+    if (_emailFocusNode.hasFocus) {
+      _passwordFocusNode.requestFocus();
+    } else if (_passwordFocusNode.hasFocus) {
+      if (_authMode == AuthMode.signUp) {
+        _nicknameFocusNode.requestFocus();
+      } else {
+        _dismissKeyboard();
+      }
+    } else if (_nicknameFocusNode.hasFocus) {
+      _dismissKeyboard();
+    }
+  }
+
+  void _focusPreviousField() {
+    if (_nicknameFocusNode.hasFocus) {
+      _passwordFocusNode.requestFocus();
+    } else if (_passwordFocusNode.hasFocus) {
+      _emailFocusNode.requestFocus();
+    }
+  }
+
   @override
   void dispose() {
+    _emailFocusNode.removeListener(_onFocusChange);
+    _passwordFocusNode.removeListener(_onFocusChange);
+    _nicknameFocusNode.removeListener(_onFocusChange);
     _emailController.dispose();
     _passwordController.dispose();
     _nicknameController.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _nicknameFocusNode.dispose();
     super.dispose();
   }
 
@@ -152,37 +203,57 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final maxWidth =
-                constraints.maxWidth > 500 ? 400.0 : double.infinity;
+        child: Stack(
+          children: [
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final maxWidth =
+                    constraints.maxWidth > 500 ? 400.0 : double.infinity;
 
-            return SingleChildScrollView(
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: EdgeInsets.only(
-                left: 24,
-                right: 24,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-              ),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: maxWidth),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 60),
-                      _buildLogoSection(isDark),
-                      const SizedBox(height: 48),
-                      _buildAuthCard(context, isDark),
-                      const SizedBox(height: 24),
-                    ],
+                return SingleChildScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: EdgeInsets.only(
+                    left: 24,
+                    right: 24,
+                    bottom: keyboardHeight + 80,
                   ),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: maxWidth),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 60),
+                          _buildLogoSection(isDark),
+                          const SizedBox(height: 48),
+                          _buildAuthCard(context, isDark),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+            if (_isKeyboardVisible && keyboardHeight > 0)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: keyboardHeight,
+                child: KeyboardAccessoryBar(
+                  isDark: isDark,
+                  showNavigation: true,
+                  onDone: _dismissKeyboard,
+                  onUp: _focusPreviousField,
+                  onDown: _focusNextField,
                 ),
               ),
-            );
-          },
+          ],
         ),
       ),
     );
@@ -292,11 +363,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   _buildGlassTextField(
                     controller: _emailController,
+                    focusNode: _emailFocusNode,
                     label: '이메일',
                     hint: 'example@email.com',
                     keyboardType: TextInputType.emailAddress,
                     prefixIcon: Icons.email_outlined,
                     isDark: isDark,
+                    textInputAction: TextInputAction.next,
+                    onFieldSubmitted: (_) => _focusNextField(),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return '이메일을 입력해주세요';
@@ -311,11 +385,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 16),
                     _buildGlassTextField(
                       controller: _passwordController,
+                      focusNode: _passwordFocusNode,
                       label: '비밀번호',
                       hint: '6자 이상 입력해주세요',
                       obscureText: _obscurePassword,
                       prefixIcon: Icons.lock_outline,
                       isDark: isDark,
+                      textInputAction: _authMode == AuthMode.signUp
+                          ? TextInputAction.next
+                          : TextInputAction.done,
+                      onFieldSubmitted: (_) => _focusNextField(),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
@@ -343,9 +422,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 16),
                     _buildGlassTextField(
                       controller: _nicknameController,
+                      focusNode: _nicknameFocusNode,
                       label: '닉네임',
                       hint: '앱에서 사용할 이름',
                       prefixIcon: Icons.person_outline,
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (_) => _dismissKeyboard(),
                       isDark: isDark,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -426,7 +508,10 @@ class _LoginScreenState extends State<LoginScreen> {
     required String hint,
     required IconData prefixIcon,
     required bool isDark,
+    FocusNode? focusNode,
     TextInputType keyboardType = TextInputType.text,
+    TextInputAction? textInputAction,
+    void Function(String)? onFieldSubmitted,
     bool obscureText = false,
     Widget? suffixIcon,
     String? Function(String?)? validator,
@@ -447,7 +532,10 @@ class _LoginScreenState extends State<LoginScreen> {
           isDark: isDark,
           child: TextFormField(
             controller: controller,
+            focusNode: focusNode,
             keyboardType: keyboardType,
+            textInputAction: textInputAction,
+            onFieldSubmitted: onFieldSubmitted,
             obscureText: obscureText,
             style: TextStyle(
               fontSize: 15,
@@ -655,38 +743,52 @@ class _GlassTextFieldContainerState extends State<_GlassTextFieldContainer> {
       onFocusChange: (hasFocus) {
         setState(() => _isFocused = hasFocus);
       },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(14),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOut,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: widget.isDark
-                    ? [
-                        Colors.white
-                            .withValues(alpha: _isFocused ? 0.18 : 0.08),
-                        Colors.white
-                            .withValues(alpha: _isFocused ? 0.10 : 0.04),
-                      ]
-                    : [
-                        Colors.white.withValues(alpha: _isFocused ? 1.0 : 0.9),
-                        Colors.white.withValues(alpha: _isFocused ? 0.9 : 0.7),
-                      ],
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: widget.isDark
+                ? [
+                    Colors.white.withValues(alpha: _isFocused ? 0.18 : 0.08),
+                    Colors.white.withValues(alpha: _isFocused ? 0.10 : 0.04),
+                  ]
+                : [
+                    Colors.white.withValues(alpha: _isFocused ? 1.0 : 0.9),
+                    Colors.white.withValues(alpha: _isFocused ? 0.9 : 0.7),
+                  ],
+          ),
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: _isFocused
+              ? [
+                  BoxShadow(
+                    color: widget.isDark
+                        ? Colors.white.withValues(alpha: 0.15)
+                        : const Color(0xFF5B7FFF).withValues(alpha: 0.2),
+                    blurRadius: 8,
+                    spreadRadius: 0,
+                  ),
+                ]
+              : null,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: widget.isDark
+                      ? Colors.white.withValues(alpha: _isFocused ? 0.2 : 0.1)
+                      : Colors.grey.withValues(alpha: _isFocused ? 0.3 : 0.15),
+                  width: 1,
+                ),
               ),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: widget.isDark
-                    ? Colors.white.withValues(alpha: _isFocused ? 0.25 : 0.1)
-                    : Colors.white.withValues(alpha: _isFocused ? 1.0 : 0.8),
-                width: 1,
-              ),
+              child: widget.child,
             ),
-            child: widget.child,
           ),
         ),
       ),
