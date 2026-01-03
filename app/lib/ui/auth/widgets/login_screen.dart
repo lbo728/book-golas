@@ -763,61 +763,36 @@ class _GlassTextFieldContainer extends StatefulWidget {
 }
 
 class _GlassTextFieldContainerState extends State<_GlassTextFieldContainer> {
-  bool _isFocused = false;
-
   @override
   Widget build(BuildContext context) {
-    return Focus(
-      onFocusChange: (hasFocus) {
-        setState(() => _isFocused = hasFocus);
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: widget.isDark
-                ? [
-                    Colors.white.withValues(alpha: _isFocused ? 0.18 : 0.08),
-                    Colors.white.withValues(alpha: _isFocused ? 0.10 : 0.04),
-                  ]
-                : [
-                    Colors.white.withValues(alpha: _isFocused ? 1.0 : 0.9),
-                    Colors.white.withValues(alpha: _isFocused ? 0.9 : 0.7),
-                  ],
-          ),
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: _isFocused
-              ? [
-                  BoxShadow(
-                    color: widget.isDark
-                        ? Colors.white.withValues(alpha: 0.15)
-                        : const Color(0xFF5B7FFF).withValues(alpha: 0.2),
-                    blurRadius: 8,
-                    spreadRadius: 0,
-                  ),
-                ]
-              : null,
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(14),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: widget.isDark
-                      ? Colors.white.withValues(alpha: _isFocused ? 0.2 : 0.1)
-                      : Colors.grey.withValues(alpha: _isFocused ? 0.3 : 0.15),
-                  width: 1,
-                ),
-              ),
-              child: widget.child,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: widget.isDark
+                  ? [
+                      Colors.white.withValues(alpha: 0.08),
+                      Colors.white.withValues(alpha: 0.04),
+                    ]
+                  : [
+                      Colors.white.withValues(alpha: 0.9),
+                      Colors.white.withValues(alpha: 0.7),
+                    ],
+            ),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: widget.isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : Colors.grey.withValues(alpha: 0.15),
+              width: 1,
             ),
           ),
+          child: widget.child,
         ),
       ),
     );
