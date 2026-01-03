@@ -251,6 +251,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   onDone: _dismissKeyboard,
                   onUp: _focusPreviousField,
                   onDown: _focusNextField,
+                  canGoUp: !_emailFocusNode.hasFocus,
+                  canGoDown: _authMode == AuthMode.signUp
+                      ? !_nicknameFocusNode.hasFocus
+                      : _authMode == AuthMode.forgotPassword
+                          ? false
+                          : !_passwordFocusNode.hasFocus,
                 ),
               ),
           ],

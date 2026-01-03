@@ -9,6 +9,8 @@ class KeyboardAccessoryBar extends StatelessWidget {
   final VoidCallback? onUp;
   final VoidCallback? onDown;
   final bool showNavigation;
+  final bool canGoUp;
+  final bool canGoDown;
 
   const KeyboardAccessoryBar({
     super.key,
@@ -18,14 +20,19 @@ class KeyboardAccessoryBar extends StatelessWidget {
     this.onUp,
     this.onDown,
     this.showNavigation = false,
+    this.canGoUp = true,
+    this.canGoDown = true,
   });
 
   Widget _buildGlassButton({
-    required VoidCallback onTap,
+    required VoidCallback? onTap,
     required IconData iconData,
+    bool enabled = true,
   }) {
+    final effectiveAlpha = enabled ? 1.0 : 0.3;
+
     return GestureDetector(
-      onTap: onTap,
+      onTap: enabled ? onTap : null,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: BackdropFilter(
@@ -37,29 +44,31 @@ class KeyboardAccessoryBar extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Colors.white.withValues(alpha: isDark ? 0.15 : 0.6),
-                  Colors.white.withValues(alpha: isDark ? 0.08 : 0.3),
+                  Colors.white.withValues(alpha: (isDark ? 0.15 : 0.6) * effectiveAlpha),
+                  Colors.white.withValues(alpha: (isDark ? 0.08 : 0.3) * effectiveAlpha),
                 ],
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Colors.white.withValues(alpha: isDark ? 0.2 : 0.4),
+                color: Colors.white.withValues(alpha: (isDark ? 0.2 : 0.4) * effectiveAlpha),
                 width: 1,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+              boxShadow: enabled
+                  ? [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : null,
             ),
             child: Icon(
               iconData,
               size: 20,
               color: isDark
-                  ? Colors.white.withValues(alpha: 0.9)
-                  : Colors.black.withValues(alpha: 0.7),
+                  ? Colors.white.withValues(alpha: 0.9 * effectiveAlpha)
+                  : Colors.black.withValues(alpha: 0.7 * effectiveAlpha),
             ),
           ),
         ),
@@ -77,17 +86,17 @@ class KeyboardAccessoryBar extends StatelessWidget {
           if (showNavigation) ...[
             Row(
               children: [
-                if (onUp != null)
-                  _buildGlassButton(
-                    onTap: onUp!,
-                    iconData: CupertinoIcons.chevron_up,
-                  ),
+                _buildGlassButton(
+                  onTap: onUp,
+                  iconData: CupertinoIcons.chevron_up,
+                  enabled: canGoUp && onUp != null,
+                ),
                 const SizedBox(width: 8),
-                if (onDown != null)
-                  _buildGlassButton(
-                    onTap: onDown!,
-                    iconData: CupertinoIcons.chevron_down,
-                  ),
+                _buildGlassButton(
+                  onTap: onDown,
+                  iconData: CupertinoIcons.chevron_down,
+                  enabled: canGoDown && onDown != null,
+                ),
               ],
             ),
           ],
