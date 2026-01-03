@@ -1,9 +1,153 @@
-import 'package:flutter/foundation.dart';
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:supabase_auth_ui/supabase_auth_ui.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 
-class LoginScreen extends StatelessWidget {
+enum AuthMode { signIn, signUp, forgotPassword }
+
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _nicknameController = TextEditingController();
+
+  AuthMode _authMode = AuthMode.signIn;
+  bool _isLoading = false;
+  bool _saveEmail = false;
+  bool _obscurePassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedEmail();
+  }
+
+  Future<void> _loadSavedEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedEmail = prefs.getString('saved_email');
+    final shouldSave = prefs.getBool('save_email') ?? false;
+    if (savedEmail != null && shouldSave) {
+      setState(() {
+        _emailController.text = savedEmail;
+        _saveEmail = true;
+      });
+    }
+  }
+
+  Future<void> _saveEmailPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_saveEmail) {
+      await prefs.setString('saved_email', _emailController.text.trim());
+      await prefs.setBool('save_email', true);
+    } else {
+      await prefs.remove('saved_email');
+      await prefs.setBool('save_email', false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _nicknameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSubmit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final supabase = Supabase.instance.client;
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
+
+      switch (_authMode) {
+        case AuthMode.signIn:
+          await _saveEmailPreference();
+          await supabase.auth.signInWithPassword(
+            email: email,
+            password: password,
+          );
+          break;
+
+        case AuthMode.signUp:
+          final nickname = _nicknameController.text.trim();
+          await supabase.auth.signUp(
+            email: email,
+            password: password,
+            data: {'nickname': nickname},
+          );
+          if (mounted) {
+            CustomSnackbar.show(
+              context,
+              message: '회원가입이 완료되었습니다. 이메일을 확인해주세요.',
+              type: SnackbarType.success,
+              bottomOffset: 32,
+            );
+            setState(() => _authMode = AuthMode.signIn);
+          }
+          break;
+
+        case AuthMode.forgotPassword:
+          await supabase.auth.resetPasswordForEmail(email);
+          if (mounted) {
+            CustomSnackbar.show(
+              context,
+              message: '비밀번호 재설정 이메일을 보냈습니다.',
+              type: SnackbarType.success,
+              bottomOffset: 32,
+            );
+            setState(() => _authMode = AuthMode.signIn);
+          }
+          break;
+      }
+    } on AuthException catch (e) {
+      if (mounted) {
+        CustomSnackbar.show(
+          context,
+          message: _getAuthErrorMessage(e.message),
+          type: SnackbarType.error,
+          bottomOffset: 32,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        CustomSnackbar.show(
+          context,
+          message: '예상치 못한 오류가 발생했습니다.',
+          type: SnackbarType.error,
+          bottomOffset: 32,
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  String _getAuthErrorMessage(String message) {
+    if (message.contains('Invalid login credentials')) {
+      return '이메일 또는 비밀번호가 올바르지 않습니다.';
+    } else if (message.contains('Email not confirmed')) {
+      return '이메일 인증이 완료되지 않았습니다.';
+    } else if (message.contains('User already registered')) {
+      return '이미 등록된 이메일입니다.';
+    } else if (message.contains('Password should be at least')) {
+      return '비밀번호는 6자 이상이어야 합니다.';
+    }
+    return message;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +224,7 @@ class LoginScreen extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          '오늘도 한 페이지,\n당신의 독서를 응원합니다',
+          _getDescriptionText(),
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 15,
@@ -93,62 +237,420 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
+  String _getDescriptionText() {
+    switch (_authMode) {
+      case AuthMode.signIn:
+        return '오늘도 한 페이지,\n당신의 독서를 응원합니다';
+      case AuthMode.signUp:
+        return '북골라스와 함께\n독서 습관을 시작해보세요';
+      case AuthMode.forgotPassword:
+        return '가입하신 이메일로\n재설정 링크를 보내드립니다';
+    }
+  }
+
   Widget _buildAuthCard(BuildContext context, bool isDark) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: SupaEmailAuth(
-          redirectTo: kIsWeb ? null : 'litgoal://login-callback',
-          onSignInComplete: (_) {},
-          onSignUpComplete: (_) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('회원가입이 완료되었습니다. 이메일을 확인해주세요.'),
-                backgroundColor: Color(0xFF10B981),
-                duration: Duration(seconds: 3),
-              ),
-            );
-          },
-          localization: const SupaEmailAuthLocalization(
-            enterEmail: '이메일을 입력해주세요',
-            validEmailError: '올바른 이메일 주소를 입력해주세요',
-            enterPassword: '비밀번호를 입력해주세요',
-            passwordLengthError: '비밀번호는 6자 이상이어야 합니다',
-            signIn: '로그인',
-            signUp: '회원가입',
-            forgotPassword: '비밀번호를 잊으셨나요?',
-            dontHaveAccount: '계정이 없으신가요? 회원가입',
-            haveAccount: '이미 계정이 있으신가요? 로그인',
-            sendPasswordReset: '비밀번호 재설정 이메일 보내기',
-            backToSignIn: '로그인으로 돌아가기',
-            unexpectedError: '예상치 못한 오류가 발생했습니다',
-          ),
-          metadataFields: [
-            MetaDataField(
-              prefixIcon: const Icon(Icons.person),
-              label: '이름',
-              key: 'name',
-              validator: (val) {
-                if (val == null || val.isEmpty) {
-                  return '이름을 입력해주세요.';
-                }
-                return null;
-              },
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: isDark
+                  ? [
+                      Colors.white.withValues(alpha: 0.12),
+                      Colors.white.withValues(alpha: 0.06),
+                    ]
+                  : [
+                      Colors.white.withValues(alpha: 0.8),
+                      Colors.white.withValues(alpha: 0.6),
+                    ],
             ),
-          ],
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.15)
+                  : Colors.white.withValues(alpha: 0.8),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildGlassTextField(
+                    controller: _emailController,
+                    label: '이메일',
+                    hint: 'example@email.com',
+                    keyboardType: TextInputType.emailAddress,
+                    prefixIcon: Icons.email_outlined,
+                    isDark: isDark,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '이메일을 입력해주세요';
+                      }
+                      if (!value.contains('@')) {
+                        return '올바른 이메일 주소를 입력해주세요';
+                      }
+                      return null;
+                    },
+                  ),
+                  if (_authMode != AuthMode.forgotPassword) ...[
+                    const SizedBox(height: 16),
+                    _buildGlassTextField(
+                      controller: _passwordController,
+                      label: '비밀번호',
+                      hint: '6자 이상 입력해주세요',
+                      obscureText: _obscurePassword,
+                      prefixIcon: Icons.lock_outline,
+                      isDark: isDark,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          setState(() => _obscurePassword = !_obscurePassword);
+                        },
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return '비밀번호를 입력해주세요';
+                        }
+                        if (value.length < 6) {
+                          return '비밀번호는 6자 이상이어야 합니다';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                  if (_authMode == AuthMode.signUp) ...[
+                    const SizedBox(height: 16),
+                    _buildGlassTextField(
+                      controller: _nicknameController,
+                      label: '닉네임',
+                      hint: '앱에서 사용할 이름',
+                      prefixIcon: Icons.person_outline,
+                      isDark: isDark,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return '닉네임을 입력해주세요';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                  if (_authMode == AuthMode.signIn) ...[
+                    const SizedBox(height: 12),
+                    _buildSaveEmailCheckbox(isDark),
+                  ],
+                  const SizedBox(height: 24),
+                  _buildGlassButton(
+                    onPressed: _isLoading ? null : _handleSubmit,
+                    isDark: isDark,
+                    child: _isLoading
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                isDark ? Colors.white : Colors.white,
+                              ),
+                            ),
+                          )
+                        : Text(
+                            _getButtonText(),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                  ),
+                  const SizedBox(height: 16),
+                  if (_authMode == AuthMode.signIn) ...[
+                    _buildTextButton(
+                      '비밀번호를 잊으셨나요?',
+                      () => setState(() => _authMode = AuthMode.forgotPassword),
+                      isDark,
+                    ),
+                    const SizedBox(height: 8),
+                    _buildDivider(isDark),
+                    const SizedBox(height: 8),
+                    _buildTextButton(
+                      '계정이 없으신가요? 회원가입',
+                      () => setState(() => _authMode = AuthMode.signUp),
+                      isDark,
+                    ),
+                  ] else if (_authMode == AuthMode.signUp) ...[
+                    _buildTextButton(
+                      '이미 계정이 있으신가요? 로그인',
+                      () => setState(() => _authMode = AuthMode.signIn),
+                      isDark,
+                    ),
+                  ] else ...[
+                    _buildTextButton(
+                      '로그인으로 돌아가기',
+                      () => setState(() => _authMode = AuthMode.signIn),
+                      isDark,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
+  }
+
+  Widget _buildGlassTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData prefixIcon,
+    required bool isDark,
+    TextInputType keyboardType = TextInputType.text,
+    bool obscureText = false,
+    Widget? suffixIcon,
+    String? Function(String?)? validator,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: isDark ? Colors.grey[300] : Colors.grey[700],
+          ),
+        ),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: isDark
+                      ? [
+                          Colors.white.withValues(alpha: 0.08),
+                          Colors.white.withValues(alpha: 0.04),
+                        ]
+                      : [
+                          Colors.white.withValues(alpha: 0.9),
+                          Colors.white.withValues(alpha: 0.7),
+                        ],
+                ),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.1)
+                      : Colors.grey.withValues(alpha: 0.2),
+                  width: 1,
+                ),
+              ),
+              child: TextFormField(
+                controller: controller,
+                keyboardType: keyboardType,
+                obscureText: obscureText,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+                decoration: InputDecoration(
+                  hintText: hint,
+                  hintStyle: TextStyle(
+                    color: isDark ? Colors.grey[500] : Colors.grey[400],
+                    fontSize: 14,
+                  ),
+                  prefixIcon: Icon(
+                    prefixIcon,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    size: 20,
+                  ),
+                  suffixIcon: suffixIcon,
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                  errorStyle: const TextStyle(
+                    fontSize: 12,
+                    height: 1,
+                  ),
+                ),
+                validator: validator,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSaveEmailCheckbox(bool isDark) {
+    return GestureDetector(
+      onTap: () => setState(() => _saveEmail = !_saveEmail),
+      child: Row(
+        children: [
+          Container(
+            width: 20,
+            height: 20,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(
+                color: _saveEmail
+                    ? const Color(0xFF5B7FFF)
+                    : (isDark ? Colors.grey[600]! : Colors.grey[400]!),
+                width: 1.5,
+              ),
+              color: _saveEmail
+                  ? const Color(0xFF5B7FFF)
+                  : Colors.transparent,
+            ),
+            child: _saveEmail
+                ? const Icon(
+                    Icons.check,
+                    size: 14,
+                    color: Colors.white,
+                  )
+                : null,
+          ),
+          const SizedBox(width: 10),
+          Text(
+            '이메일 저장',
+            style: TextStyle(
+              fontSize: 14,
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGlassButton({
+    required VoidCallback? onPressed,
+    required bool isDark,
+    required Widget child,
+  }) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          height: 52,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF6B8AFF),
+                Color(0xFF5B7FFF),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF5B7FFF).withValues(alpha: 0.4),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onPressed,
+              borderRadius: BorderRadius.circular(14),
+              child: Center(child: child),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextButton(String text, VoidCallback onPressed, bool isDark) {
+    return TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        foregroundColor: const Color(0xFF5B7FFF),
+        padding: const EdgeInsets.symmetric(vertical: 8),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: isDark ? Colors.grey[300] : const Color(0xFF5B7FFF),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDivider(bool isDark) {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            height: 1,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.grey.withValues(alpha: 0.2),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            '또는',
+            style: TextStyle(
+              fontSize: 13,
+              color: isDark ? Colors.grey[500] : Colors.grey[400],
+            ),
+          ),
+        ),
+        Expanded(
+          child: Container(
+            height: 1,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.grey.withValues(alpha: 0.2),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _getButtonText() {
+    switch (_authMode) {
+      case AuthMode.signIn:
+        return '로그인';
+      case AuthMode.signUp:
+        return '회원가입';
+      case AuthMode.forgotPassword:
+        return '비밀번호 재설정 이메일 보내기';
+    }
   }
 }
