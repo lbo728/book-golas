@@ -113,6 +113,18 @@ PR 생성 시 아래 템플릿을 사용해. (인용문은 지우고 해당 내�
 
 나에게 리뷰할 때만 주석을 포함해서 알려주고, 커밋 및 푸시 시점에는 주석은 삭제해야해.
 
+### Import Rules
+
+- **패키지 별칭 사용 필수**: 상대 경로(`../../../`) 대신 패키지 별칭(`package:book_golas/...`) 사용
+- 예시:
+  ```dart
+  // ✅ Good
+  import 'package:book_golas/ui/core/widgets/glass_text_field.dart';
+
+  // ❌ Bad
+  import '../../../core/widgets/glass_text_field.dart';
+  ```
+
 ## Tech Stack
 
 - **Frontend**: Flutter 3.5.3 with Dart

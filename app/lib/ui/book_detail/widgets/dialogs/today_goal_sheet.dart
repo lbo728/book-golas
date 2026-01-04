@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// 오늘의 분량 설정 시트
-///
-/// 시작 페이지와 목표 페이지를 입력받아 오늘의 분량을 설정합니다.
+import 'package:book_golas/ui/core/widgets/glass_text_field.dart';
+
 class TodayGoalSheet {
   /// 오늘의 분량 설정 시트 표시
   ///
@@ -20,6 +19,7 @@ class TodayGoalSheet {
         TextEditingController(text: initialStartPage?.toString() ?? '');
     final endController =
         TextEditingController(text: initialTargetPage?.toString() ?? '');
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     showModalBottomSheet(
       context: context,
@@ -27,9 +27,9 @@ class TodayGoalSheet {
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           padding: EdgeInsets.only(
             left: 24,
@@ -41,34 +41,31 @@ class TodayGoalSheet {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 '오늘의 분량 설정',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
+                  color: isDark ? Colors.white : Colors.black,
                 ),
               ),
               const SizedBox(height: 20),
-              TextField(
+              GlassTextField(
                 controller: startController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: '시작 페이지',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
+                label: '시작 페이지',
+                hint: '시작 페이지 입력',
+                prefixIcon: Icons.first_page_rounded,
+                isDark: isDark,
               ),
               const SizedBox(height: 12),
-              TextField(
+              GlassTextField(
                 controller: endController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: '목표 페이지',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
+                label: '목표 페이지',
+                hint: '목표 페이지 입력',
+                prefixIcon: Icons.last_page_rounded,
+                isDark: isDark,
               ),
               const SizedBox(height: 24),
               SizedBox(

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
+import 'package:book_golas/ui/core/widgets/glass_text_field.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 
 class AddMemorablePageModal extends StatefulWidget {
@@ -817,50 +818,18 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
           ],
         ),
         const SizedBox(height: 12),
-        Container(
-          constraints: const BoxConstraints(minHeight: 150),
-          decoration: BoxDecoration(
-            color: isDark ? Colors.grey[900] : Colors.grey[100],
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-            ),
-          ),
-          child: TextField(
-            controller: _textController,
-            focusNode: _textFocusNode,
-            maxLines: null,
-            minLines: 6,
-            keyboardType: TextInputType.multiline,
-            textInputAction: TextInputAction.newline,
-            onChanged: (value) {
-              setState(() {});
-            },
-            onTap: () {
-              Future.delayed(const Duration(milliseconds: 300), () {
-                if (_scrollController.hasClients) {
-                  _scrollController.animateTo(
-                    _scrollController.position.maxScrollExtent,
-                    duration: const Duration(milliseconds: 200),
-                    curve: Curves.easeOut,
-                  );
-                }
-              });
-            },
-            style: TextStyle(
-              fontSize: 15,
-              height: 1.6,
-              color: isDark ? Colors.white : Colors.black,
-            ),
-            decoration: InputDecoration(
-              hintText: '인상적인 대목을 기록해보세요.',
-              hintStyle: TextStyle(
-                color: isDark ? Colors.grey[600] : Colors.grey[400],
-              ),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.all(16),
-            ),
-          ),
+        GlassTextField(
+          controller: _textController,
+          focusNode: _textFocusNode,
+          maxLines: null,
+          minLines: 6,
+          keyboardType: TextInputType.multiline,
+          textInputAction: TextInputAction.newline,
+          hint: '인상적인 대목을 기록해보세요.',
+          isDark: isDark,
+          onChanged: (value) {
+            setState(() {});
+          },
         ),
       ],
     );

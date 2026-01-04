@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
+import 'package:book_golas/ui/core/widgets/glass_text_field.dart';
 import 'package:book_golas/ui/reading_start/view_model/reading_start_view_model.dart';
 
 class ReadingStartScreen extends StatelessWidget {
@@ -149,36 +150,11 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 40),
-              TextField(
+              GlassTextField(
                 controller: _titleController,
-                decoration: InputDecoration(
-                  hintText: '책 이름을 입력해주세요.',
-                  hintStyle: TextStyle(
-                    color: isDark ? Colors.grey[600] : Colors.grey,
-                    fontSize: 16,
-                  ),
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: isDark ? Colors.grey[700]! : Colors.grey,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: isDark ? Colors.grey[700]! : Colors.grey,
-                    ),
-                  ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                ),
-                style: TextStyle(
-                  fontSize: 16,
-                  color: isDark ? Colors.white : Colors.black,
-                ),
+                hint: '책 이름을 입력해주세요.',
+                prefixIcon: Icons.search_rounded,
+                isDark: isDark,
               ),
               const SizedBox(height: 16),
               if (vm.isSearching)

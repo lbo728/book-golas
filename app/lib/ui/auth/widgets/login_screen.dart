@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
+import 'package:book_golas/ui/core/widgets/glass_text_field.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 
 enum AuthMode { signIn, signUp, forgotPassword }
@@ -29,7 +30,6 @@ class _LoginScreenState extends State<LoginScreen> {
   AuthMode _authMode = AuthMode.signIn;
   bool _isLoading = false;
   bool _saveEmail = false;
-  bool _obscurePassword = true;
   bool _isKeyboardVisible = false;
 
   @override
@@ -384,9 +384,9 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _buildGlassTextField(
+                  GlassTextField(
+                    key: _emailFieldKey,
                     controller: _emailController,
-                    fieldKey: _emailFieldKey,
                     focusNode: _emailFocusNode,
                     label: '이메일',
                     hint: 'example@email.com',
@@ -410,13 +410,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   if (_authMode != AuthMode.forgotPassword) ...[
                     const SizedBox(height: 16),
-                    _buildGlassTextField(
+                    GlassTextField(
+                      key: _passwordFieldKey,
                       controller: _passwordController,
-                      fieldKey: _passwordFieldKey,
                       focusNode: _passwordFocusNode,
                       label: '비밀번호',
                       hint: '6자 이상 입력해주세요',
-                      obscureText: _obscurePassword,
+                      obscureText: true,
+                      showPasswordToggle: true,
                       prefixIcon: Icons.lock_outline,
                       isDark: isDark,
                       textInputAction: _authMode == AuthMode.signUp
@@ -428,18 +429,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           : const [AutofillHints.newPassword],
                       autocorrect: false,
                       enableSuggestions: false,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          color: isDark ? Colors.grey[400] : Colors.grey[600],
-                          size: 20,
-                        ),
-                        onPressed: () {
-                          setState(() => _obscurePassword = !_obscurePassword);
-                        },
-                      ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return '비밀번호를 입력해주세요';
@@ -453,9 +442,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                   if (_authMode == AuthMode.signUp) ...[
                     const SizedBox(height: 16),
-                    _buildGlassTextField(
+                    GlassTextField(
+                      key: _nicknameFieldKey,
                       controller: _nicknameController,
-                      fieldKey: _nicknameFieldKey,
                       focusNode: _nicknameFocusNode,
                       label: '닉네임',
                       hint: '앱에서 사용할 이름',
@@ -534,86 +523,6 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildGlassTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData prefixIcon,
-    required bool isDark,
-    GlobalKey? fieldKey,
-    FocusNode? focusNode,
-    TextInputType keyboardType = TextInputType.text,
-    TextInputAction? textInputAction,
-    void Function(String)? onFieldSubmitted,
-    bool obscureText = false,
-    Widget? suffixIcon,
-    String? Function(String?)? validator,
-    List<String>? autofillHints,
-    bool autocorrect = true,
-    bool enableSuggestions = true,
-  }) {
-    return Column(
-      key: fieldKey,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: isDark ? Colors.grey[300] : Colors.grey[700],
-          ),
-        ),
-        const SizedBox(height: 8),
-        _GlassTextFieldContainer(
-          isDark: isDark,
-          child: TextFormField(
-            controller: controller,
-            focusNode: focusNode,
-            keyboardType: keyboardType,
-            textInputAction: textInputAction,
-            onFieldSubmitted: onFieldSubmitted,
-            obscureText: obscureText,
-            autocorrect: autocorrect,
-            enableSuggestions: enableSuggestions,
-            autofillHints: autofillHints,
-            style: TextStyle(
-              fontSize: 15,
-              color: isDark ? Colors.white : Colors.black87,
-            ),
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: TextStyle(
-                color: isDark ? Colors.grey[500] : Colors.grey[400],
-                fontSize: 14,
-              ),
-              prefixIcon: Icon(
-                prefixIcon,
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-                size: 20,
-              ),
-              suffixIcon: suffixIcon,
-              border: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              errorBorder: InputBorder.none,
-              focusedErrorBorder: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 16,
-              ),
-              errorStyle: const TextStyle(
-                fontSize: 12,
-                height: 1,
-              ),
-            ),
-            validator: validator,
-          ),
-        ),
-      ],
     );
   }
 
@@ -760,69 +669,5 @@ class _LoginScreenState extends State<LoginScreen> {
       case AuthMode.forgotPassword:
         return '비밀번호 재설정 이메일 보내기';
     }
-  }
-}
-
-class _GlassTextFieldContainer extends StatefulWidget {
-  final bool isDark;
-  final Widget child;
-
-  const _GlassTextFieldContainer({
-    required this.isDark,
-    required this.child,
-  });
-
-  @override
-  State<_GlassTextFieldContainer> createState() =>
-      _GlassTextFieldContainerState();
-}
-
-class _GlassTextFieldContainerState extends State<_GlassTextFieldContainer> {
-  bool _isFocused = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Focus(
-      onFocusChange: (hasFocus) {
-        setState(() => _isFocused = hasFocus);
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(14),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: widget.isDark
-                      ? [
-                          Colors.white.withValues(alpha: _isFocused ? 0.20 : 0.08),
-                          Colors.white.withValues(alpha: _isFocused ? 0.12 : 0.04),
-                        ]
-                      : [
-                          Colors.white.withValues(alpha: _isFocused ? 1.0 : 0.85),
-                          Colors.white.withValues(alpha: _isFocused ? 0.95 : 0.65),
-                        ],
-                ),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: widget.isDark
-                      ? Colors.white.withValues(alpha: _isFocused ? 0.30 : 0.1)
-                      : (_isFocused
-                          ? const Color(0xFF5B7FFF).withValues(alpha: 0.5)
-                          : Colors.grey.withValues(alpha: 0.15)),
-                  width: _isFocused ? 1.5 : 1,
-                ),
-              ),
-              child: widget.child,
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }
