@@ -15,7 +15,8 @@ import 'package:flutter/services.dart';
 class LiquidGlassBottomBar extends StatefulWidget {
   final int selectedIndex;
   final ValueChanged<int> onTabSelected;
-  final VoidCallback onSearchTap;
+  /// 검색 버튼 탭 콜백: (버튼 위치, 버튼 크기) 전달
+  final void Function(Offset position, double size) onSearchTap;
 
   const LiquidGlassBottomBar({
     super.key,
@@ -37,6 +38,9 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
   bool _isDragging = false;
   double _dragPosition = 0.0;
   double _tabWidth = 0.0;
+
+  // 검색 버튼 위치 추적
+  final GlobalKey _searchButtonKey = GlobalKey();
 
   // 탭 설정 (4개 네비게이션 탭)
   static const List<_TabItemData> _tabs = [
@@ -419,10 +423,19 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
         ? Colors.white.withValues(alpha: 0.9)
         : Colors.black.withValues(alpha: 0.7);
 
+    const buttonSize = 56.0;
+
     return GestureDetector(
+      key: _searchButtonKey,
       onTap: () {
         HapticFeedback.selectionClick();
-        widget.onSearchTap();
+        // 검색 버튼의 화면 위치 계산
+        final RenderBox? renderBox =
+            _searchButtonKey.currentContext?.findRenderObject() as RenderBox?;
+        if (renderBox != null) {
+          final position = renderBox.localToGlobal(Offset.zero);
+          widget.onSearchTap(position, buttonSize);
+        }
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(100),

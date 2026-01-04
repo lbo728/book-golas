@@ -508,10 +508,12 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  void _onSearchTap() {
+  void _onSearchTap(Offset searchButtonPosition, double searchButtonSize) {
     // HIG: 검색 필드에 초점을 맞춘 상태로 시작 (키보드 즉시 표시)
     showLiquidGlassSearchOverlay(
       context,
+      searchButtonPosition: searchButtonPosition,
+      searchButtonSize: searchButtonSize,
       onSearch: (query) {
         // 검색 결과로 ReadingStartScreen 이동 (title 파라미터로 검색어 전달)
         Navigator.push(

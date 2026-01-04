@@ -4,21 +4,22 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-/// HIG 검색 필드 오버레이 (초점을 맞춘 상태)
+/// HIG 검색 필드 오버레이
 ///
-/// HIG_LIQUID_GLASS.md 참조:
-/// "검색 필드에 초점을 맞춘 상태로 시작하면 키보드가 즉시 나타나고
-/// 그 위에 검색 필드가 표시되어 바로 검색을 시작할 수 있습니다."
+/// 애니메이션: 검색 버튼이 좌측으로 미끄러지며 인풋바로 확장
+/// 닫기: X 버튼 누르면 우측으로 미끄러지며 검색 버튼으로 축소
 class LiquidGlassSearchOverlay extends StatefulWidget {
   final VoidCallback onDismiss;
   final ValueChanged<String> onSearch;
-  final String? initialQuery;
+  final Offset searchButtonPosition;
+  final double searchButtonSize;
 
   const LiquidGlassSearchOverlay({
     super.key,
     required this.onDismiss,
     required this.onSearch,
-    this.initialQuery,
+    required this.searchButtonPosition,
+    required this.searchButtonSize,
   });
 
   @override
@@ -31,41 +32,33 @@ class _LiquidGlassSearchOverlayState extends State<LiquidGlassSearchOverlay>
   late TextEditingController _controller;
   late FocusNode _focusNode;
   late AnimationController _animationController;
-  late Animation<double> _slideAnimation;
-  late Animation<double> _fadeAnimation;
+  late Animation<double> _expandAnimation;
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.initialQuery);
+    _controller = TextEditingController();
     _focusNode = FocusNode();
 
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 350),
       vsync: this,
     );
 
-    _slideAnimation = Tween<double>(
-      begin: 100,
-      end: 0,
-    ).animate(CurvedAnimation(
+    _expandAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeOutCubic,
-    ));
+      reverseCurve: Curves.easeInCubic,
+    );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOut,
-    ));
-
+    // 확장 애니메이션 시작
     _animationController.forward();
 
-    // HIG: 초점을 맞춘 상태로 시작 (키보드 즉시 표시)
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNode.requestFocus();
+    // 애니메이션 완료 후 포커스
+    _animationController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _focusNode.requestFocus();
+      }
     });
   }
 
@@ -78,6 +71,7 @@ class _LiquidGlassSearchOverlayState extends State<LiquidGlassSearchOverlay>
   }
 
   void _dismiss() {
+    _focusNode.unfocus();
     _animationController.reverse().then((_) {
       widget.onDismiss();
     });
@@ -94,29 +88,62 @@ class _LiquidGlassSearchOverlayState extends State<LiquidGlassSearchOverlay>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final screenWidth = MediaQuery.of(context).size.width;
     final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
 
+    // 검색바 확장 영역 (좌측 마진 16, 우측에 X버튼 + 간격)
+    const expandedLeft = 16.0;
+    final expandedWidth = screenWidth - 32 - widget.searchButtonSize - 12;
+
     return AnimatedBuilder(
-      animation: _animationController,
+      animation: _expandAnimation,
       builder: (context, child) {
+        // 검색 버튼 위치에서 확장된 위치로 보간
+        final currentLeft = lerpDouble(
+          widget.searchButtonPosition.dx,
+          expandedLeft,
+          _expandAnimation.value,
+        )!;
+
+        final currentWidth = lerpDouble(
+          widget.searchButtonSize,
+          expandedWidth,
+          _expandAnimation.value,
+        )!;
+
+        final currentHeight = lerpDouble(
+          widget.searchButtonSize,
+          56,
+          _expandAnimation.value,
+        )!;
+
+        // 배경 오버레이 투명도
+        final overlayOpacity = _expandAnimation.value * 0.3;
+
         return Stack(
           children: [
             // 반투명 배경 (탭하면 닫힘)
             GestureDetector(
               onTap: _dismiss,
               child: Container(
-                color: Colors.black.withValues(alpha: 0.3 * _fadeAnimation.value),
+                color: Colors.black.withValues(alpha: overlayOpacity),
               ),
             ),
-            // 검색 필드 (키보드 위에 표시)
+
+            // 검색 바 (애니메이션)
             Positioned(
-              left: 16,
+              left: currentLeft,
+              bottom: bottomPadding + 20,
+              width: currentWidth,
+              height: currentHeight,
+              child: _buildSearchBar(isDark),
+            ),
+
+            // X 닫기 버튼 (고정 위치)
+            Positioned(
               right: 16,
-              bottom: bottomPadding + 20 + _slideAnimation.value,
-              child: Opacity(
-                opacity: _fadeAnimation.value,
-                child: _buildSearchField(isDark),
-              ),
+              bottom: bottomPadding + 20,
+              child: _buildCloseButton(isDark),
             ),
           ],
         );
@@ -124,7 +151,7 @@ class _LiquidGlassSearchOverlayState extends State<LiquidGlassSearchOverlay>
     );
   }
 
-  Widget _buildSearchField(bool isDark) {
+  Widget _buildSearchBar(bool isDark) {
     final glassColor = isDark
         ? Colors.white.withValues(alpha: 0.15)
         : Colors.black.withValues(alpha: 0.08);
@@ -138,80 +165,114 @@ class _LiquidGlassSearchOverlayState extends State<LiquidGlassSearchOverlay>
         ? Colors.white.withValues(alpha: 0.5)
         : Colors.black.withValues(alpha: 0.5);
 
+    final iconColor = isDark
+        ? Colors.white.withValues(alpha: 0.7)
+        : Colors.black.withValues(alpha: 0.5);
+
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(100),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
         child: Material(
           color: Colors.transparent,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: glassColor,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(100),
               border: Border.all(
                 color: borderColor,
                 width: 0.5,
               ),
             ),
             child: Row(
-            children: [
-              Icon(
-                CupertinoIcons.search,
-                color: hintColor,
-                size: 20,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: 16,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: '책 제목, 저자 검색',
-                    hintStyle: TextStyle(
-                      color: hintColor,
-                      fontSize: 16,
-                    ),
-                    border: InputBorder.none,
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                  textInputAction: TextInputAction.search,
-                  onSubmitted: (_) => _onSubmit(),
-                ),
-              ),
-              if (_controller.text.isNotEmpty)
-                GestureDetector(
-                  onTap: () {
-                    _controller.clear();
-                    setState(() {});
-                  },
+              children: [
+                // 검색 아이콘
+                Padding(
+                  padding: const EdgeInsets.only(left: 16),
                   child: Icon(
-                    CupertinoIcons.clear_circled_solid,
-                    color: hintColor,
+                    CupertinoIcons.search,
+                    color: iconColor,
                     size: 20,
                   ),
                 ),
-              const SizedBox(width: 12),
-              GestureDetector(
-                onTap: _dismiss,
-                child: Text(
-                  '취소',
-                  style: TextStyle(
-                    color: isDark
-                        ? CupertinoColors.activeBlue
-                        : CupertinoColors.activeBlue,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
+                // 텍스트 입력 영역
+                Expanded(
+                  child: Opacity(
+                    opacity: _expandAnimation.value,
+                    child: TextField(
+                      controller: _controller,
+                      focusNode: _focusNode,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 16,
+                      ),
+                      cursorColor: textColor,
+                      decoration: InputDecoration(
+                        hintText: '책 제목을 입력해주세요.',
+                        hintStyle: TextStyle(
+                          color: hintColor,
+                          fontSize: 16,
+                        ),
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 0,
+                        ),
+                      ),
+                      textInputAction: TextInputAction.search,
+                      onSubmitted: (_) => _onSubmit(),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCloseButton(bool isDark) {
+    final glassColor = isDark
+        ? Colors.white.withValues(alpha: 0.15)
+        : Colors.black.withValues(alpha: 0.1);
+
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.2)
+        : Colors.black.withValues(alpha: 0.1);
+
+    final iconColor = isDark
+        ? Colors.white.withValues(alpha: 0.9)
+        : Colors.black.withValues(alpha: 0.7);
+
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        _dismiss();
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(100),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+          child: Container(
+            width: widget.searchButtonSize,
+            height: widget.searchButtonSize,
+            decoration: BoxDecoration(
+              color: glassColor,
+              borderRadius: BorderRadius.circular(100),
+              border: Border.all(
+                color: borderColor,
+                width: 0.5,
+              ),
+            ),
+            child: Icon(
+              CupertinoIcons.xmark,
+              color: iconColor,
+              size: 20,
+            ),
           ),
         ),
       ),
@@ -223,7 +284,8 @@ class _LiquidGlassSearchOverlayState extends State<LiquidGlassSearchOverlay>
 void showLiquidGlassSearchOverlay(
   BuildContext context, {
   required ValueChanged<String> onSearch,
-  String? initialQuery,
+  required Offset searchButtonPosition,
+  required double searchButtonSize,
 }) {
   HapticFeedback.selectionClick();
 
@@ -237,7 +299,8 @@ void showLiquidGlassSearchOverlay(
         entry.remove();
         onSearch(query);
       },
-      initialQuery: initialQuery,
+      searchButtonPosition: searchButtonPosition,
+      searchButtonSize: searchButtonSize,
     ),
   );
 
