@@ -113,7 +113,7 @@ class _LiquidGlassSearchOverlayState extends State<LiquidGlassSearchOverlay>
 
         final currentHeight = lerpDouble(
           widget.searchButtonSize,
-          56,
+          64,
           _expandAnimation.value,
         )!;
 

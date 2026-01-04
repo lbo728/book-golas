@@ -204,8 +204,8 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
           child: Container(
-            height: 64,
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            height: 72,
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
             decoration: BoxDecoration(
               color: glassColor,
               borderRadius: BorderRadius.circular(100),
@@ -271,7 +271,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
           child: Center(
             child: Container(
               width: tabWidth - 8,
-              height: 56,
+              height: 60,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(100),
                 // 물방울 렌즈 효과: 그라디언트로 굴절 시뮬레이션
@@ -383,7 +383,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
     bool isHighlighted,
   ) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -393,7 +393,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
             color: isHighlighted ? foregroundColor : inactiveForegroundColor,
             size: 22,
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 4),
           Text(
             tab.label,
             style: TextStyle(
@@ -423,7 +423,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
         ? Colors.white.withValues(alpha: 0.9)
         : Colors.black.withValues(alpha: 0.7);
 
-    const buttonSize = 56.0;
+    const buttonSize = 64.0;
 
     return GestureDetector(
       key: _searchButtonKey,
@@ -442,8 +442,8 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
           child: Container(
-            width: 56,
-            height: 56,
+            width: 64,
+            height: 64,
             decoration: BoxDecoration(
               color: glassColor,
               borderRadius: BorderRadius.circular(100),
