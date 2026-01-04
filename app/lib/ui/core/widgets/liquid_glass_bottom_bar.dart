@@ -204,8 +204,8 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
           child: Container(
-            height: 72,
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+            height: 62,
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
             decoration: BoxDecoration(
               color: glassColor,
               borderRadius: BorderRadius.circular(100),
@@ -271,7 +271,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
           child: Center(
             child: Container(
               width: tabWidth - 8,
-              height: 60,
+              height: 54,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(100),
                 // 물방울 렌즈 효과: 그라디언트로 굴절 시뮬레이션
@@ -382,8 +382,8 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
     Color inactiveForegroundColor,
     bool isHighlighted,
   ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+    return SizedBox(
+      height: 54,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -391,9 +391,9 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
           Icon(
             isHighlighted ? tab.activeIcon : tab.icon,
             color: isHighlighted ? foregroundColor : inactiveForegroundColor,
-            size: 22,
+            size: 24,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Text(
             tab.label,
             style: TextStyle(
@@ -411,19 +411,20 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
 
   /// 분리된 원형 검색 버튼 (Liquid Glass 효과)
   Widget _buildSearchButton(bool isDark) {
+    // 탭바와 동일한 색상
     final glassColor = isDark
-        ? Colors.white.withValues(alpha: 0.15)
-        : Colors.black.withValues(alpha: 0.1);
+        ? Colors.white.withValues(alpha: 0.12)
+        : Colors.black.withValues(alpha: 0.08);
 
     final borderColor = isDark
-        ? Colors.white.withValues(alpha: 0.2)
-        : Colors.black.withValues(alpha: 0.1);
+        ? Colors.white.withValues(alpha: 0.15)
+        : Colors.black.withValues(alpha: 0.08);
 
     final iconColor = isDark
         ? Colors.white.withValues(alpha: 0.9)
         : Colors.black.withValues(alpha: 0.7);
 
-    const buttonSize = 64.0;
+    const buttonSize = 62.0;
 
     return GestureDetector(
       key: _searchButtonKey,
@@ -442,23 +443,14 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
           child: Container(
-            width: 64,
-            height: 64,
+            width: 62,
+            height: 62,
             decoration: BoxDecoration(
               color: glassColor,
               borderRadius: BorderRadius.circular(100),
               border: Border.all(
                 color: borderColor,
                 width: 0.5,
-              ),
-              // 렌즈 효과
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withValues(alpha: isDark ? 0.15 : 0.3),
-                  glassColor,
-                ],
               ),
             ),
             child: Icon(

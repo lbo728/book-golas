@@ -113,7 +113,7 @@ class _LiquidGlassSearchOverlayState extends State<LiquidGlassSearchOverlay>
 
         final currentHeight = lerpDouble(
           widget.searchButtonSize,
-          64,
+          62,
           _expandAnimation.value,
         )!;
 
@@ -152,13 +152,14 @@ class _LiquidGlassSearchOverlayState extends State<LiquidGlassSearchOverlay>
   }
 
   Widget _buildSearchBar(bool isDark) {
+    // 탭바와 동일한 색상
     final glassColor = isDark
-        ? Colors.white.withValues(alpha: 0.15)
+        ? Colors.white.withValues(alpha: 0.12)
         : Colors.black.withValues(alpha: 0.08);
 
     final borderColor = isDark
-        ? Colors.white.withValues(alpha: 0.2)
-        : Colors.black.withValues(alpha: 0.1);
+        ? Colors.white.withValues(alpha: 0.15)
+        : Colors.black.withValues(alpha: 0.08);
 
     final textColor = isDark ? Colors.white : Colors.black;
     final hintColor = isDark
@@ -213,6 +214,8 @@ class _LiquidGlassSearchOverlayState extends State<LiquidGlassSearchOverlay>
                           color: hintColor,
                           fontSize: 16,
                         ),
+                        filled: false,
+                        fillColor: Colors.transparent,
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
@@ -236,13 +239,14 @@ class _LiquidGlassSearchOverlayState extends State<LiquidGlassSearchOverlay>
   }
 
   Widget _buildCloseButton(bool isDark) {
+    // 탭바와 동일한 색상
     final glassColor = isDark
-        ? Colors.white.withValues(alpha: 0.15)
-        : Colors.black.withValues(alpha: 0.1);
+        ? Colors.white.withValues(alpha: 0.12)
+        : Colors.black.withValues(alpha: 0.08);
 
     final borderColor = isDark
-        ? Colors.white.withValues(alpha: 0.2)
-        : Colors.black.withValues(alpha: 0.1);
+        ? Colors.white.withValues(alpha: 0.15)
+        : Colors.black.withValues(alpha: 0.08);
 
     final iconColor = isDark
         ? Colors.white.withValues(alpha: 0.9)
