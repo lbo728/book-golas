@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:book_golas/ui/book_list/widgets/book_list_screen.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_bottom_bar.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_search_overlay.dart';
 import 'package:book_golas/ui/calendar/widgets/calendar_screen.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 import 'package:book_golas/config/app_config.dart';
@@ -508,19 +509,27 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _onSearchTap() {
-    Navigator.push(
+    // HIG: 검색 필드에 초점을 맞춘 상태로 시작 (키보드 즉시 표시)
+    showLiquidGlassSearchOverlay(
       context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const ReadingStartScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: animation,
-            child: child,
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 200),
-      ),
+      onSearch: (query) {
+        // 검색 결과로 ReadingStartScreen 이동 (title 파라미터로 검색어 전달)
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                ReadingStartScreen(title: query),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+            transitionDuration: const Duration(milliseconds: 200),
+          ),
+        );
+      },
     );
   }
 

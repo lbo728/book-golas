@@ -9,8 +9,9 @@ import 'package:flutter/services.dart';
 /// HIG_LIQUID_GLASS.md 참조:
 /// - Liquid Glass 재질: 반투명 유리, 콘텐츠 위에 떠 있는 형태
 /// - 적응형 색상: 아래 콘텐츠가 밝으면 어둡게, 어두우면 밝게
-/// - 검색은 탭 막대 뒤쪽 끝에 시각적으로 구별된 탭으로 배치
-/// - 물방울 확대 애니메이션: 선택된 탭이 위로 확대되며 미끄러지듯 이동
+/// - 검색 버튼: 분리된 원형 버튼, 탭 시 검색 필드 표시
+/// - 물방울 확대 애니메이션: 롱프레스로 드래그하며 탭 전환
+/// - 렌즈 효과: 물방울 영역 내 콘텐츠 굴절
 class LiquidGlassBottomBar extends StatefulWidget {
   final int selectedIndex;
   final ValueChanged<int> onTabSelected;
@@ -31,10 +32,14 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _slideAnimation;
-  int _previousIndex = 0;
 
-  // 탭 설정 (4개 네비게이션 탭 + 1개 검색 탭)
-  static const List<_TabItemData> _navigationTabs = [
+  // 롱프레스 드래그 상태
+  bool _isDragging = false;
+  double _dragPosition = 0.0;
+  double _tabWidth = 0.0;
+
+  // 탭 설정 (4개 네비게이션 탭)
+  static const List<_TabItemData> _tabs = [
     _TabItemData(
       icon: CupertinoIcons.house,
       activeIcon: CupertinoIcons.house_fill,
@@ -57,17 +62,9 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
     ),
   ];
 
-  // 검색 탭 (뒤쪽 끝에 시각적으로 구별)
-  static const _TabItemData _searchTab = _TabItemData(
-    icon: CupertinoIcons.search,
-    activeIcon: CupertinoIcons.search,
-    label: '검색',
-  );
-
   @override
   void initState() {
     super.initState();
-    _previousIndex = widget.selectedIndex;
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -84,10 +81,9 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
   @override
   void didUpdateWidget(LiquidGlassBottomBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.selectedIndex != widget.selectedIndex) {
-      _previousIndex = oldWidget.selectedIndex;
+    if (oldWidget.selectedIndex != widget.selectedIndex && !_isDragging) {
       _slideAnimation = Tween<double>(
-        begin: _previousIndex.toDouble(),
+        begin: _slideAnimation.value,
         end: widget.selectedIndex.toDouble(),
       ).animate(CurvedAnimation(
         parent: _controller,
@@ -103,115 +99,218 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
     super.dispose();
   }
 
+  /// 롱프레스 시작
+  void _onLongPressStart(LongPressStartDetails details) {
+    setState(() {
+      _isDragging = true;
+      _dragPosition = _slideAnimation.value;
+    });
+    HapticFeedback.mediumImpact();
+  }
+
+  /// 롱프레스 드래그 중
+  void _onLongPressMoveUpdate(LongPressMoveUpdateDetails details) {
+    if (!_isDragging || _tabWidth <= 0) return;
+
+    final newPosition = details.localPosition.dx / _tabWidth;
+    final clampedPosition = newPosition.clamp(0.0, (_tabs.length - 1).toDouble());
+
+    setState(() {
+      _dragPosition = clampedPosition;
+    });
+
+    // 탭 경계를 넘을 때 햅틱 피드백
+    final currentTab = _dragPosition.round();
+    final previousTab = (_dragPosition - 0.1).round();
+    if (currentTab != previousTab) {
+      HapticFeedback.selectionClick();
+    }
+  }
+
+  /// 롱프레스 종료
+  void _onLongPressEnd(LongPressEndDetails details) {
+    if (!_isDragging) return;
+
+    final targetIndex = _dragPosition.round().clamp(0, _tabs.length - 1);
+
+    setState(() {
+      _isDragging = false;
+    });
+
+    // 애니메이션으로 최종 위치로 이동
+    _slideAnimation = Tween<double>(
+      begin: _dragPosition,
+      end: targetIndex.toDouble(),
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    ));
+    _controller.forward(from: 0);
+
+    // 탭 선택
+    if (targetIndex != widget.selectedIndex) {
+      widget.onTabSelected(targetIndex);
+    }
+
+    HapticFeedback.lightImpact();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // HIG: 아래 콘텐츠에 반응하여 라이트/다크 모드로 조정
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       margin: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
-      child: _buildLiquidGlassTabBar(isDark),
+      child: Row(
+        children: [
+          // Pill TabBar (4개 탭)
+          Expanded(
+            child: _buildLiquidGlassTabBar(isDark),
+          ),
+          const SizedBox(width: 12),
+          // 분리된 원형 검색 버튼
+          _buildSearchButton(isDark),
+        ],
+      ),
     );
   }
 
-  /// Liquid Glass 효과가 적용된 TabBar (검색 탭 포함)
-  /// HIG: "탭 막대의 뒤쪽 끝에는 별도의 검색 항목을 포함할 수 있습니다"
+  /// Liquid Glass 효과가 적용된 TabBar
   Widget _buildLiquidGlassTabBar(bool isDark) {
-    // HIG 적응형 색상: 아래 콘텐츠가 밝으면 어둡게, 어두우면 밝게
+    // HIG 적응형 색상
     final glassColor = isDark
-        ? Colors.white.withValues(alpha: 0.12) // 어두운 배경 → 밝은 글래스
-        : Colors.black.withValues(alpha: 0.08); // 밝은 배경 → 어두운 글래스
+        ? Colors.white.withValues(alpha: 0.12)
+        : Colors.black.withValues(alpha: 0.08);
 
     final borderColor = isDark
         ? Colors.white.withValues(alpha: 0.15)
         : Colors.black.withValues(alpha: 0.08);
 
-    // HIG: 아이콘/텍스트는 모노크롬 색상 체계
     final foregroundColor = isDark ? Colors.white : Colors.black;
     final inactiveForegroundColor = isDark
         ? Colors.white.withValues(alpha: 0.5)
         : Colors.black.withValues(alpha: 0.5);
 
-    final indicatorColor = isDark
-        ? Colors.white.withValues(alpha: 0.18)
-        : Colors.black.withValues(alpha: 0.1);
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(100),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-        child: Container(
-          height: 64,
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-          decoration: BoxDecoration(
-            color: glassColor,
-            borderRadius: BorderRadius.circular(100),
-            border: Border.all(
-              color: borderColor,
-              width: 0.5,
+    return GestureDetector(
+      onLongPressStart: _onLongPressStart,
+      onLongPressMoveUpdate: _onLongPressMoveUpdate,
+      onLongPressEnd: _onLongPressEnd,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(100),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+          child: Container(
+            height: 64,
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            decoration: BoxDecoration(
+              color: glassColor,
+              borderRadius: BorderRadius.circular(100),
+              border: Border.all(
+                color: borderColor,
+                width: 0.5,
+              ),
             ),
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              // 네비게이션 탭 영역과 검색 탭 영역 분리
-              final totalTabs = _navigationTabs.length + 1; // +1 for search
-              final tabWidth = constraints.maxWidth / totalTabs;
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                _tabWidth = constraints.maxWidth / _tabs.length;
 
-              return Stack(
-                children: [
-                  // 슬라이딩 인디케이터 (네비게이션 탭만)
-                  AnimatedBuilder(
-                    animation: _slideAnimation,
-                    builder: (context, child) {
-                      return Positioned(
-                        left: _slideAnimation.value * tabWidth,
-                        top: 0,
-                        bottom: 0,
-                        width: tabWidth,
-                        child: Center(
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            width: tabWidth - 8,
-                            height: 56,
-                            decoration: BoxDecoration(
-                              color: indicatorColor,
-                              borderRadius: BorderRadius.circular(100),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  // 탭 아이템들 (네비게이션 탭 + 구분선 + 검색 탭)
-                  Row(
-                    children: [
-                      // 네비게이션 탭들
-                      ...List.generate(_navigationTabs.length, (index) {
+                return Stack(
+                  children: [
+                    // 물방울 인디케이터 (렌즈 효과)
+                    _buildDropletIndicator(isDark, constraints.maxWidth),
+                    // 탭 아이템들
+                    Row(
+                      children: List.generate(_tabs.length, (index) {
                         return Expanded(
                           child: _buildTabItem(
                             index,
-                            _navigationTabs[index],
+                            _tabs[index],
                             foregroundColor,
                             inactiveForegroundColor,
-                            isSearchTab: false,
                           ),
                         );
                       }),
-                      // 검색 탭 (뒤쪽 끝, 시각적으로 구별)
-                      _buildSearchTab(
-                        tabWidth,
-                        foregroundColor,
-                        inactiveForegroundColor,
-                        isDark,
-                      ),
-                    ],
-                  ),
-                ],
-              );
-            },
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  /// 물방울 인디케이터 (렌즈 효과 포함)
+  Widget _buildDropletIndicator(bool isDark, double maxWidth) {
+    final indicatorColor = isDark
+        ? Colors.white.withValues(alpha: 0.22)
+        : Colors.black.withValues(alpha: 0.12);
+
+    // 렌즈 효과를 위한 하이라이트 색상
+    final highlightColor = isDark
+        ? Colors.white.withValues(alpha: 0.35)
+        : Colors.white.withValues(alpha: 0.6);
+
+    return AnimatedBuilder(
+      animation: _slideAnimation,
+      builder: (context, child) {
+        // 드래그 중이면 드래그 위치, 아니면 애니메이션 값 사용
+        final currentPosition = _isDragging ? _dragPosition : _slideAnimation.value;
+        final tabWidth = maxWidth / _tabs.length;
+
+        return Positioned(
+          left: currentPosition * tabWidth,
+          top: 0,
+          bottom: 0,
+          width: tabWidth,
+          child: Center(
+            child: Container(
+              width: tabWidth - 8,
+              height: 56,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                // 물방울 렌즈 효과: 그라디언트로 굴절 시뮬레이션
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    highlightColor,
+                    indicatorColor,
+                    indicatorColor.withValues(alpha: indicatorColor.a * 0.7),
+                  ],
+                  stops: const [0.0, 0.3, 1.0],
+                ),
+                // 내부 그림자로 깊이감
+                boxShadow: [
+                  BoxShadow(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 8,
+                    spreadRadius: -2,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              // 내부 하이라이트 (상단 반사광)
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100),
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.center,
+                    colors: [
+                      Colors.white.withValues(alpha: isDark ? 0.15 : 0.4),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -220,9 +319,8 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
     int index,
     _TabItemData tab,
     Color foregroundColor,
-    Color inactiveForegroundColor, {
-    required bool isSearchTab,
-  }) {
+    Color inactiveForegroundColor,
+  ) {
     final isSelected = widget.selectedIndex == index;
 
     return GestureDetector(
@@ -234,123 +332,129 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
       child: AnimatedBuilder(
         animation: _slideAnimation,
         builder: (context, child) {
-          // 현재 애니메이션 진행 중인 위치와의 거리 계산
-          final distance = (_slideAnimation.value - index).abs();
-          final isNear = distance < 1.0;
+          // 현재 위치 (드래그 중이면 드래그 위치 사용)
+          final currentPosition = _isDragging ? _dragPosition : _slideAnimation.value;
 
-          // 물방울 확대 효과: 가까울수록 확대
-          final scale = isNear ? 1.0 + (1.0 - distance) * 0.1 : 1.0;
+          // 물방울과의 거리 계산 (0~1 범위로 정규화)
+          final distance = (currentPosition - index).abs();
+
+          // 물방울이 이 탭과 겹치는 정도 (0: 완전히 겹침, 1: 전혀 안겹침)
+          final overlap = (1.0 - distance).clamp(0.0, 1.0);
+
+          // 물방울 확대 효과: 겹칠수록 확대
+          final scale = 1.0 + overlap * 0.12;
           // 위로 올라오는 효과
-          final translateY = isNear ? -(1.0 - distance) * 4 : 0.0;
+          final translateY = -overlap * 5;
+          // 투명도 조절: 겹칠수록 더 선명
+          final opacity = 0.5 + overlap * 0.5;
 
           return Transform.translate(
             offset: Offset(0, translateY),
             child: Transform.scale(
               scale: scale,
-              child: child,
+              child: Opacity(
+                opacity: opacity,
+                child: _buildTabContent(
+                  index,
+                  tab,
+                  foregroundColor,
+                  inactiveForegroundColor,
+                  isSelected || overlap > 0.5,
+                ),
+              ),
             ),
           );
         },
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: Icon(
-                  isSelected ? tab.activeIcon : tab.icon,
-                  key: ValueKey('${index}_$isSelected'),
-                  color: isSelected ? foregroundColor : inactiveForegroundColor,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(height: 2),
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 200),
-                style: TextStyle(
-                  color:
-                      isSelected ? foregroundColor : inactiveForegroundColor,
-                  fontSize: 10,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                ),
-                child: Text(
-                  tab.label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        ),
+        child: null,
       ),
     );
   }
 
-  /// 검색 탭 (탭 막대 뒤쪽 끝에 시각적으로 구별된 탭)
-  /// HIG: "검색을 탭 막대의 뒤쪽에 시각적으로 구별된 탭으로 배치할 수 있습니다"
-  Widget _buildSearchTab(
-    double tabWidth,
+  /// 탭 콘텐츠 (아이콘 + 라벨)
+  Widget _buildTabContent(
+    int index,
+    _TabItemData tab,
     Color foregroundColor,
     Color inactiveForegroundColor,
-    bool isDark,
+    bool isHighlighted,
   ) {
-    // 구분선 색상
-    final dividerColor = isDark
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            isHighlighted ? tab.activeIcon : tab.icon,
+            color: isHighlighted ? foregroundColor : inactiveForegroundColor,
+            size: 22,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            tab.label,
+            style: TextStyle(
+              color: isHighlighted ? foregroundColor : inactiveForegroundColor,
+              fontSize: 10,
+              fontWeight: isHighlighted ? FontWeight.w600 : FontWeight.w500,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 분리된 원형 검색 버튼 (Liquid Glass 효과)
+  Widget _buildSearchButton(bool isDark) {
+    final glassColor = isDark
         ? Colors.white.withValues(alpha: 0.15)
         : Colors.black.withValues(alpha: 0.1);
 
-    return SizedBox(
-      width: tabWidth,
-      child: Row(
-        children: [
-          // 시각적 구분선
-          Container(
-            width: 1,
-            height: 32,
-            margin: const EdgeInsets.only(right: 4),
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.2)
+        : Colors.black.withValues(alpha: 0.1);
+
+    final iconColor = isDark
+        ? Colors.white.withValues(alpha: 0.9)
+        : Colors.black.withValues(alpha: 0.7);
+
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        widget.onSearchTap();
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(100),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+          child: Container(
+            width: 56,
+            height: 56,
             decoration: BoxDecoration(
-              color: dividerColor,
-              borderRadius: BorderRadius.circular(0.5),
-            ),
-          ),
-          // 검색 탭 아이템
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                HapticFeedback.selectionClick();
-                widget.onSearchTap();
-              },
-              behavior: HitTestBehavior.opaque,
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      _searchTab.icon,
-                      color: inactiveForegroundColor,
-                      size: 22,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      _searchTab.label,
-                      style: TextStyle(
-                        color: inactiveForegroundColor,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
+              color: glassColor,
+              borderRadius: BorderRadius.circular(100),
+              border: Border.all(
+                color: borderColor,
+                width: 0.5,
+              ),
+              // 렌즈 효과
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white.withValues(alpha: isDark ? 0.15 : 0.3),
+                  glassColor,
+                ],
               ),
             ),
+            child: Icon(
+              CupertinoIcons.search,
+              color: iconColor,
+              size: 22,
+            ),
           ),
-        ],
+        ),
       ),
     );
   }
