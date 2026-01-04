@@ -496,12 +496,20 @@ class _GlassContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final isFocusedOrError = state == GlassTextFieldState.focused ||
         state == GlassTextFieldState.error;
+    final borderWidth = _getBorderWidth();
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeOut,
-      child: ClipRRect(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(
+          color: _getBorderColor(),
+          width: borderWidth,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius - borderWidth),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
@@ -522,11 +530,6 @@ class _GlassContainer extends StatelessWidget {
                         Colors.white
                             .withValues(alpha: isFocusedOrError ? 0.95 : 0.65),
                       ],
-              ),
-              borderRadius: BorderRadius.circular(borderRadius),
-              border: Border.all(
-                color: _getBorderColor(),
-                width: _getBorderWidth(),
               ),
             ),
             child: child,
