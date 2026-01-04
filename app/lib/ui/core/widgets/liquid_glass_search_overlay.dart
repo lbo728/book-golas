@@ -142,17 +142,19 @@ class _LiquidGlassSearchOverlayState extends State<LiquidGlassSearchOverlay>
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: glassColor,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: borderColor,
-              width: 0.5,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: glassColor,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: borderColor,
+                width: 0.5,
+              ),
             ),
-          ),
-          child: Row(
+            child: Row(
             children: [
               Icon(
                 CupertinoIcons.search,
@@ -209,6 +211,7 @@ class _LiquidGlassSearchOverlayState extends State<LiquidGlassSearchOverlay>
                 ),
               ),
             ],
+          ),
           ),
         ),
       ),
