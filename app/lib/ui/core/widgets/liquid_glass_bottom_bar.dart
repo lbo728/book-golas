@@ -318,7 +318,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
     );
   }
 
-  /// 개별 탭 아이템 (물방울 확대 애니메이션)
+  /// 개별 탭 아이템
   Widget _buildTabItem(
     int index,
     _TabItemData tab,
@@ -345,28 +345,12 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
           // 물방울이 이 탭과 겹치는 정도 (0: 완전히 겹침, 1: 전혀 안겹침)
           final overlap = (1.0 - distance).clamp(0.0, 1.0);
 
-          // 물방울 확대 효과: 겹칠수록 확대
-          final scale = 1.0 + overlap * 0.12;
-          // 위로 올라오는 효과
-          final translateY = -overlap * 5;
-          // 투명도 조절: 겹칠수록 더 선명
-          final opacity = 0.5 + overlap * 0.5;
-
-          return Transform.translate(
-            offset: Offset(0, translateY),
-            child: Transform.scale(
-              scale: scale,
-              child: Opacity(
-                opacity: opacity,
-                child: _buildTabContent(
-                  index,
-                  tab,
-                  foregroundColor,
-                  inactiveForegroundColor,
-                  isSelected || overlap > 0.5,
-                ),
-              ),
-            ),
+          return _buildTabContent(
+            index,
+            tab,
+            foregroundColor,
+            inactiveForegroundColor,
+            isSelected || overlap > 0.5,
           );
         },
         child: null,
