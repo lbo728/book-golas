@@ -5,8 +5,9 @@ import 'package:book_golas/ui/reading_chart/widgets/reading_chart_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:book_golas/ui/book_list/widgets/book_list_screen.dart';
-import 'package:book_golas/ui/core/widgets/linear_bottom_bar.dart';
-import 'package:book_golas/ui/search/widgets/search_screen.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_bottom_bar.dart';
+import 'package:book_golas/ui/calendar/widgets/calendar_screen.dart';
+import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 import 'package:book_golas/config/app_config.dart';
 import 'package:book_golas/data/repositories/book_repository.dart';
 import 'package:book_golas/data/repositories/auth_repository.dart';
@@ -496,6 +497,7 @@ class _MainScreenState extends State<MainScreen> {
   List<Widget> get _pages => [
         const BookListScreen(),
         const ReadingChartScreen(),
+        const CalendarScreen(),
         const MyPageScreen(),
       ];
 
@@ -510,7 +512,7 @@ class _MainScreenState extends State<MainScreen> {
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            const SearchScreen(),
+            const ReadingStartScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(
             opacity: animation,
@@ -530,7 +532,7 @@ class _MainScreenState extends State<MainScreen> {
       body: _pages[_selectedIndex],
       backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
       extendBody: true,
-      bottomNavigationBar: LinearBottomBar(
+      bottomNavigationBar: LiquidGlassBottomBar(
         selectedIndex: _selectedIndex,
         onTabSelected: _onItemTapped,
         onSearchTap: _onSearchTap,
