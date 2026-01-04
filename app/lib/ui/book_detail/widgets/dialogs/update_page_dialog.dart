@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/widgets/glass_text_field.dart';
+import 'package:book_golas/ui/core/widgets/glass_text_field.dart';
 
 class UpdatePageDialog {
   /// 페이지 업데이트 다이얼로그 표시

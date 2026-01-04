@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/widgets/glass_text_field.dart';
+import 'package:book_golas/ui/core/widgets/glass_text_field.dart';
 
 class TodayGoalSheet {
   /// 오늘의 분량 설정 시트 표시
