@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -6,6 +5,9 @@ import 'package:book_golas/ui/reading_chart/widgets/reading_chart_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:book_golas/ui/book_list/widgets/book_list_screen.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_bottom_bar.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_search_overlay.dart';
+import 'package:book_golas/ui/calendar/widgets/calendar_screen.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 import 'package:book_golas/config/app_config.dart';
 import 'package:book_golas/data/repositories/book_repository.dart';
@@ -389,19 +391,12 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen>
-    with SingleTickerProviderStateMixin {
+class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
-  bool _isDropdownOpen = false;
-  late AnimationController _animationController;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
 
     // FCM 초기화를 첫 프레임 이후에 실행
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -500,15 +495,10 @@ class _MainScreenState extends State<MainScreen>
     });
   }
 
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
   List<Widget> get _pages => [
         const BookListScreen(),
         const ReadingChartScreen(),
+        const CalendarScreen(),
         const MyPageScreen(),
       ];
 
@@ -518,108 +508,30 @@ class _MainScreenState extends State<MainScreen>
     });
   }
 
-  Widget _buildLiquidGlassBottomBar() {
-    return Container(
-      margin: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1C1C1E).withOpacity(0.88),
-        borderRadius: BorderRadius.circular(36),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.25),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
+  void _onSearchTap(Offset searchButtonPosition, double searchButtonSize) {
+    // HIG: 검색 필드에 초점을 맞춘 상태로 시작 (키보드 즉시 표시)
+    showLiquidGlassSearchOverlay(
+      context,
+      searchButtonPosition: searchButtonPosition,
+      searchButtonSize: searchButtonSize,
+      onSearch: (query) {
+        // 검색 결과로 ReadingStartScreen 이동 (title 파라미터로 검색어 전달)
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                ReadingStartScreen(title: query),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+            transitionDuration: const Duration(milliseconds: 200),
           ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(36),
-        child: Stack(
-          children: [
-            // 슬라이딩 배경 인디케이터
-            Positioned(
-              top: 4,
-              bottom: 4,
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  // 부모 컨테이너의 너비를 가져오기 위해 MediaQuery 사용
-                  final containerWidth = MediaQuery.of(context).size.width -
-                      32 -
-                      24; // margin + padding
-                  final itemWidth = containerWidth / 3;
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                    transform: Matrix4.translationValues(
-                      itemWidth * _selectedIndex + 4,
-                      0,
-                      0,
-                    ),
-                    width: itemWidth - 8,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.18),
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                  );
-                },
-              ),
-            ),
-            // 네비게이션 아이템들
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(
-                    0, CupertinoIcons.house_fill, CupertinoIcons.house, '홈'),
-                _buildNavItem(1, CupertinoIcons.chart_bar_square_fill,
-                    CupertinoIcons.chart_bar_square, '독서 상태'),
-                _buildNavItem(2, CupertinoIcons.person_crop_circle_fill,
-                    CupertinoIcons.person_crop_circle, '마이페이지'),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem(
-      int index, IconData activeIcon, IconData inactiveIcon, String label) {
-    final isSelected = _selectedIndex == index;
-
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          if (!_isDropdownOpen) {
-            _onItemTapped(index);
-            _animationController.forward(from: 0.0);
-          }
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                isSelected ? activeIcon : inactiveIcon,
-                color: Colors.white,
-                size: 26,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  color: Colors.white.withOpacity(isSelected ? 1.0 : 0.7),
-                  fontSize: 11,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -627,134 +539,15 @@ class _MainScreenState extends State<MainScreen>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Stack(
-      children: [
-        Scaffold(
-          body: _pages[_selectedIndex],
-          backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
-          extendBody: true,
-          bottomNavigationBar: _buildLiquidGlassBottomBar(),
-        ),
-        if (_isDropdownOpen)
-          AnimatedOpacity(
-            opacity: _isDropdownOpen ? 1.0 : 0.0,
-            duration: const Duration(
-              milliseconds: 200,
-            ),
-            curve: Curves.easeInOut,
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _isDropdownOpen = false;
-                });
-              },
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: const Color.fromRGBO(0, 0, 0, 0.3),
-              ),
-            ),
-          ),
-        Positioned(
-          bottom: 108,
-          right: 16,
-          child: Stack(
-            alignment: Alignment.bottomRight,
-            children: [
-              AnimatedOpacity(
-                opacity: _isDropdownOpen ? 1.0 : 0.0,
-                duration: const Duration(
-                  milliseconds: 200,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    bottom: 64,
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color.fromRGBO(0, 0, 0, 0.2),
-                          offset: Offset(0, 4),
-                          blurRadius: 24,
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: IntrinsicWidth(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _isDropdownOpen = false;
-                              });
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ReadingStartScreen(),
-                                ),
-                              );
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.only(
-                                left: 12,
-                                right: 16,
-                                top: 8,
-                                bottom: 8,
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.book,
-                                    color: isDark ? Colors.white : Colors.black,
-                                  ),
-                                  const SizedBox(
-                                    width: 8,
-                                  ),
-                                  Text(
-                                    '새 독서 시작',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w400,
-                                      color:
-                                          isDark ? Colors.white : Colors.black,
-                                      decoration: TextDecoration.none,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              FloatingActionButton(
-                backgroundColor: Colors.blue,
-                elevation: 2,
-                shape: const CircleBorder(),
-                onPressed: () {
-                  setState(() {
-                    _isDropdownOpen = !_isDropdownOpen;
-                  });
-                },
-                child: Icon(
-                  _isDropdownOpen ? Icons.close : Icons.add,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+    return Scaffold(
+      body: _pages[_selectedIndex],
+      backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
+      extendBody: true,
+      bottomNavigationBar: LiquidGlassBottomBar(
+        selectedIndex: _selectedIndex,
+        onTabSelected: _onItemTapped,
+        onSearchTap: _onSearchTap,
+      ),
     );
   }
 }
