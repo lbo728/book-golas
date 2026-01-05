@@ -1,3 +1,4 @@
+import 'package:confetti/confetti.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -34,10 +35,12 @@ import 'widgets/sheets/full_title_sheet.dart';
 
 class BookDetailScreen extends StatelessWidget {
   final Book book;
+  final bool showCelebration;
 
   const BookDetailScreen({
     super.key,
     required this.book,
+    this.showCelebration = false,
   });
 
   @override
@@ -57,13 +60,15 @@ class BookDetailScreen extends StatelessWidget {
           create: (_) => ReadingProgressViewModel(bookId: book.id!),
         ),
       ],
-      child: const _BookDetailContent(),
+      child: _BookDetailContent(showCelebration: showCelebration),
     );
   }
 }
 
 class _BookDetailContent extends StatefulWidget {
-  const _BookDetailContent();
+  final bool showCelebration;
+
+  const _BookDetailContent({this.showCelebration = false});
 
   @override
   State<_BookDetailContent> createState() => _BookDetailContentState();
@@ -76,6 +81,9 @@ class _BookDetailContentState extends State<_BookDetailContent>
   late Animation<double> _progressAnimation;
   double _animatedProgress = 0.0;
   final ScrollController _scrollController = ScrollController();
+
+  // Confetti 컨트롤러
+  ConfettiController? _confettiController;
 
   @override
   void initState() {
@@ -101,7 +109,33 @@ class _BookDetailContentState extends State<_BookDetailContent>
       bookVm.loadDailyAchievements();
       memorableVm.fetchBookImages();
       progressVm.fetchProgressHistory();
+
+      // 축하 애니메이션 표시
+      if (widget.showCelebration) {
+        _showCelebration();
+      }
     });
+  }
+
+  /// 축하 애니메이션 표시 (컨페티 + 스낵바)
+  void _showCelebration() {
+    _confettiController = ConfettiController(
+      duration: const Duration(seconds: 3),
+    );
+    _confettiController!.play();
+
+    // 화이팅 메시지 스낵바
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        CustomSnackbar.show(
+          context,
+          message: '새로운 독서 여정을 시작합니다! 화이팅! 📚',
+          type: SnackbarType.success,
+        );
+      }
+    });
+
+    setState(() {});
   }
 
   @override
@@ -109,6 +143,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
     _tabController.dispose();
     _progressAnimController.dispose();
     _scrollController.dispose();
+    _confettiController?.dispose();
     super.dispose();
   }
 
@@ -254,6 +289,25 @@ class _BookDetailContentState extends State<_BookDetailContent>
                 FloatingActionBar(
                   onUpdatePageTap: () => _showUpdatePageDialog(bookVm),
                   onAddMemorablePageTap: _showAddMemorablePageModal,
+                ),
+              // 컨페티 애니메이션
+              if (_confettiController != null)
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: ConfettiWidget(
+                    confettiController: _confettiController!,
+                    blastDirectionality: BlastDirectionality.explosive,
+                    shouldLoop: false,
+                    colors: const [
+                      Color(0xFF5B7FFF),
+                      Color(0xFF10B981),
+                      Color(0xFFFFD700),
+                      Color(0xFFFF6B6B),
+                      Color(0xFFAB47BC),
+                    ],
+                    numberOfParticles: 30,
+                    gravity: 0.2,
+                  ),
                 ),
             ],
           ),
