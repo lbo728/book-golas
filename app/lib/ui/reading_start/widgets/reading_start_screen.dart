@@ -1,4 +1,8 @@
+import 'dart:ui';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_golas/data/services/book_service.dart';
@@ -53,6 +57,7 @@ class _ReadingStartContent extends StatefulWidget {
 class _ReadingStartContentState extends State<_ReadingStartContent> {
   final TextEditingController _titleController = TextEditingController();
   final PageController _pageController = PageController();
+  final FocusNode _searchFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -69,6 +74,11 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
         );
         vm.goToSchedulePage();
       });
+    } else {
+      // 검색 필드에 자동 포커스
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _searchFocusNode.requestFocus();
+      });
     }
 
     _titleController.addListener(() {
@@ -80,6 +90,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
   void dispose() {
     _titleController.dispose();
     _pageController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -111,215 +122,343 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
       builder: (context, vm, _) {
         return Scaffold(
           backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
-          appBar: AppBar(
-            backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
-            elevation: 0,
-            leading: IconButton(
-              icon: Icon(
-                Icons.arrow_back,
-                color: isDark ? Colors.white : Colors.black,
-              ),
-              onPressed: () {
-                if (vm.currentPageIndex > 0) {
-                  _previousPage(vm);
-                } else {
-                  Navigator.pop(context);
-                }
-              },
+          resizeToAvoidBottomInset: true,
+          body: SafeArea(
+            bottom: false,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 커스텀 헤더
+                _buildHeader(vm, isDark),
+                // 콘텐츠
+                Expanded(
+                  child: PageView(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      _buildBookTitleInputPage(vm, isDark),
+                      _buildReadingSchedulePage(vm, isDark),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            title: Text(
-              '독서 시작하기',
-              style: TextStyle(color: isDark ? Colors.white : Colors.black),
-            ),
-          ),
-          body: PageView(
-            controller: _pageController,
-            physics: const NeverScrollableScrollPhysics(),
-            children: [
-              _buildBookTitleInputPage(vm, isDark),
-              _buildReadingSchedulePage(vm, isDark),
-            ],
           ),
         );
       },
     );
   }
 
-  Widget _buildBookTitleInputPage(ReadingStartViewModel vm, bool isDark) {
-    return Stack(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 40),
-              TextField(
-                controller: _titleController,
-                decoration: InputDecoration(
-                  hintText: '책 이름을 입력해주세요.',
-                  hintStyle: TextStyle(
-                    color: isDark ? Colors.grey[600] : Colors.grey,
-                    fontSize: 16,
-                  ),
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: isDark ? Colors.grey[700]! : Colors.grey,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: isDark ? Colors.grey[700]! : Colors.grey,
-                    ),
-                  ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                ),
-                style: TextStyle(
-                  fontSize: 16,
-                  color: isDark ? Colors.white : Colors.black,
-                ),
+  Widget _buildHeader(ReadingStartViewModel vm, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 뒤로가기 버튼
+          GestureDetector(
+            onTap: () {
+              if (vm.currentPageIndex > 0) {
+                _previousPage(vm);
+              } else {
+                Navigator.pop(context);
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Icon(
+                CupertinoIcons.back,
+                color: isDark ? Colors.white : Colors.black,
+                size: 24,
               ),
-              const SizedBox(height: 16),
-              if (vm.isSearching)
-                const Center(child: CircularProgressIndicator())
-              else if (vm.searchResults.isNotEmpty)
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: vm.searchResults.length,
-                    itemBuilder: (context, index) {
-                      final book = vm.searchResults[index];
-                      final isSelected = vm.selectedBook != null &&
-                          vm.isSameBook(vm.selectedBook!, book);
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 4),
-                        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                        child: ListTile(
-                          selected: isSelected,
-                          tileColor:
-                              isSelected ? Colors.blue.withValues(alpha: 0.12) : null,
-                          leading: book.imageUrl != null
-                              ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(4),
-                                  child: Image.network(
-                                    book.imageUrl!,
-                                    width: 40,
-                                    height: 60,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        width: 40,
-                                        height: 60,
-                                        color: Colors.grey[200],
-                                        child: const Icon(Icons.book, size: 20),
-                                      );
-                                    },
-                                  ),
-                                )
-                              : Container(
-                                  width: 40,
-                                  height: 60,
-                                  color: Colors.grey[200],
-                                  child: const Icon(Icons.book, size: 20),
-                                ),
-                          title: Text(
-                            book.title,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          subtitle: Text(
-                            book.author,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (book.totalPages != null)
-                                Text(
-                                  '${book.totalPages}p',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              if (isSelected) ...[
-                                const SizedBox(width: 8),
-                                const Icon(
-                                  Icons.check_circle,
-                                  color: Colors.blue,
-                                  size: 20,
-                                ),
-                              ],
-                            ],
-                          ),
-                          onTap: () => vm.selectBook(book),
-                        ),
-                      );
-                    },
-                  ),
-                )
-              else if (_titleController.text.trim().isNotEmpty)
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      '검색 결과가 없습니다',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                )
-              else
-                const Spacer(),
-            ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          // 제목
+          Text(
+            '독서 시작하기',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black,
+            ),
+          ),
+          const SizedBox(height: 4),
+          // 부제목 (검색 페이지일 때만)
+          if (vm.currentPageIndex == 0)
+            Text(
+              '독서를 시작할 책을 검색해보세요.',
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.white54 : Colors.grey[600],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBookTitleInputPage(ReadingStartViewModel vm, bool isDark) {
+    return Column(
+      children: [
+        // 검색 결과 리스트 영역
+        Expanded(
+          child: _buildSearchResultsList(vm, isDark),
+        ),
+        // 하단 검색바
+        _buildBottomSearchBar(vm, isDark),
+      ],
+    );
+  }
+
+  Widget _buildSearchResultsList(ReadingStartViewModel vm, bool isDark) {
+    // 검색 중
+    if (vm.isSearching) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    // 검색 결과 있음
+    if (vm.searchResults.isNotEmpty) {
+      return ListView.builder(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        itemCount: vm.searchResults.length,
+        itemBuilder: (context, index) {
+          final book = vm.searchResults[index];
+          final isSelected =
+              vm.selectedBook != null && vm.isSameBook(vm.selectedBook!, book);
+          return _buildSearchResultItem(book, isSelected, vm, isDark);
+        },
+      );
+    }
+
+    // 검색어는 있지만 결과 없음
+    if (_titleController.text.trim().isNotEmpty) {
+      return Center(
+        child: Text(
+          '검색 결과가 없습니다',
+          style: TextStyle(
+            color: isDark ? Colors.white54 : Colors.grey[600],
+            fontSize: 14,
           ),
         ),
-        Positioned(
-          left: 16,
-          right: 16,
-          bottom: 16,
-          child: SafeArea(
-            top: false,
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: vm.canProceedToSchedule ? () => _nextPage(vm) : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+      );
+    }
+
+    // 초기 상태 (검색어 없음)
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildSearchResultItem(
+    BookSearchResult book,
+    bool isSelected,
+    ReadingStartViewModel vm,
+    bool isDark,
+  ) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        vm.selectBook(book);
+        _nextPage(vm);
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color(0xFF5B7FFF).withValues(alpha: 0.15)
+              : (isDark ? const Color(0xFF1E1E1E) : Colors.white),
+          borderRadius: BorderRadius.circular(12),
+          border: isSelected
+              ? Border.all(color: const Color(0xFF5B7FFF), width: 1.5)
+              : null,
+        ),
+        child: Row(
+          children: [
+            // 책 표지
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: book.imageUrl != null
+                  ? Image.network(
+                      book.imageUrl!,
+                      width: 50,
+                      height: 70,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 50,
+                          height: 70,
+                          color: isDark ? Colors.grey[800] : Colors.grey[200],
+                          child: Icon(
+                            Icons.book,
+                            size: 24,
+                            color: isDark ? Colors.grey[600] : Colors.grey[400],
+                          ),
+                        );
+                      },
+                    )
+                  : Container(
+                      width: 50,
+                      height: 70,
+                      color: isDark ? Colors.grey[800] : Colors.grey[200],
+                      child: Icon(
+                        Icons.book,
+                        size: 24,
+                        color: isDark ? Colors.grey[600] : Colors.grey[400],
+                      ),
+                    ),
+            ),
+            const SizedBox(width: 12),
+            // 책 정보
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    book.title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                child: const Text(
-                  '다음',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
+                  const SizedBox(height: 4),
+                  Text(
+                    book.author,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDark ? Colors.white54 : Colors.grey[600],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
+                ],
+              ),
+            ),
+            // 페이지 수 + 선택 아이콘
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (book.totalPages != null)
+                  Text(
+                    '${book.totalPages}p',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: isDark ? Colors.white70 : Colors.grey[700],
+                    ),
+                  ),
+                if (isSelected) ...[
+                  const SizedBox(height: 8),
+                  const Icon(
+                    Icons.check_circle,
+                    color: Color(0xFF5B7FFF),
+                    size: 22,
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomSearchBar(ReadingStartViewModel vm, bool isDark) {
+    final glassColor = isDark
+        ? Colors.white.withValues(alpha: 0.12)
+        : Colors.black.withValues(alpha: 0.08);
+
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.15)
+        : Colors.black.withValues(alpha: 0.08);
+
+    final foregroundColor = isDark ? Colors.white : Colors.black;
+    final hintColor = isDark
+        ? Colors.white.withValues(alpha: 0.4)
+        : Colors.black.withValues(alpha: 0.4);
+
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(100),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+            child: Container(
+              height: 56,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: glassColor,
+                borderRadius: BorderRadius.circular(100),
+                border: Border.all(
+                  color: borderColor,
+                  width: 0.5,
                 ),
+              ),
+              child: Row(
+                children: [
+                  // 검색 아이콘
+                  Icon(
+                    CupertinoIcons.search,
+                    color: hintColor,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  // 검색 입력 필드
+                  Expanded(
+                    child: TextField(
+                      controller: _titleController,
+                      focusNode: _searchFocusNode,
+                      style: TextStyle(
+                        color: foregroundColor,
+                        fontSize: 16,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: '도서 제목을 입력해주세요',
+                        hintStyle: TextStyle(
+                          color: hintColor,
+                          fontSize: 16,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                        isDense: true,
+                      ),
+                      textInputAction: TextInputAction.search,
+                    ),
+                  ),
+                  // X 버튼 (텍스트가 있을 때만 표시)
+                  if (_titleController.text.isNotEmpty)
+                    GestureDetector(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        _titleController.clear();
+                        vm.clearSelection();
+                      },
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.1)
+                              : Colors.black.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                        child: Icon(
+                          CupertinoIcons.xmark,
+                          color: foregroundColor.withValues(alpha: 0.6),
+                          size: 16,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 
