@@ -68,6 +68,9 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
   // 선택 완료 버튼 pressed 상태
   bool _isSelectionButtonPressed = false;
 
+  // 검색어 입력 상태 (clear 버튼 표시용)
+  bool _hasSearchText = false;
+
   @override
   void initState() {
     super.initState();
@@ -86,6 +89,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
 
     if (widget.title != null) {
       _titleController.text = widget.title!;
+      _hasSearchText = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _pageController.animateToPage(
           1,
@@ -101,13 +105,29 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
       });
     }
 
-    _titleController.addListener(() {
-      vm.onSearchQueryChanged(_titleController.text);
-    });
+    _titleController.addListener(_onSearchTextChanged);
+  }
+
+  void _onSearchTextChanged() {
+    final vm = context.read<ReadingStartViewModel>();
+    vm.onSearchQueryChanged(_titleController.text);
+
+    final hasText = _titleController.text.isNotEmpty;
+    if (_hasSearchText != hasText) {
+      setState(() {
+        _hasSearchText = hasText;
+      });
+    }
+  }
+
+  void _clearSearchText() {
+    _titleController.clear();
+    _searchFocusNode.requestFocus();
   }
 
   @override
   void dispose() {
+    _titleController.removeListener(_onSearchTextChanged);
     _titleController.dispose();
     _pageController.dispose();
     _searchFocusNode.dispose();
@@ -416,7 +436,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
     return _buildSearchModeBar(vm, isDark);
   }
 
-  /// 검색 모드 바: 검색 입력 + 분리된 원형 X 버튼 (화면 닫기)
+  /// 검색 모드 바: 검색 입력 + 분리된 원형 뒤로가기 버튼 (화면 닫기)
   Widget _buildSearchModeBar(ReadingStartViewModel vm, bool isDark) {
     final glassColor = isDark
         ? Colors.white.withValues(alpha: 0.12)
@@ -435,10 +455,11 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
         ? Colors.white.withValues(alpha: 0.7)
         : Colors.black.withValues(alpha: 0.5);
 
+    // 홈 LiquidGlassBottomBar와 동일한 포지션 (bottom: 20)
     return SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
         child: Row(
           children: [
             // 검색바 (확장)
@@ -448,7 +469,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
                   child: Container(
-                    height: 56,
+                    height: 62,
                     decoration: BoxDecoration(
                       color: glassColor,
                       borderRadius: BorderRadius.circular(100),
@@ -497,6 +518,31 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                             textInputAction: TextInputAction.search,
                           ),
                         ),
+                        // Clear 버튼 (텍스트 입력 시 표시)
+                        if (_hasSearchText)
+                          GestureDetector(
+                            onTap: _clearSearchText,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 16),
+                              child: Container(
+                                width: 20,
+                                height: 20,
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? Colors.white.withValues(alpha: 0.3)
+                                      : Colors.black.withValues(alpha: 0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  CupertinoIcons.xmark,
+                                  color: isDark
+                                      ? Colors.black.withValues(alpha: 0.7)
+                                      : Colors.white.withValues(alpha: 0.9),
+                                  size: 12,
+                                ),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -504,7 +550,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
               ),
             ),
             const SizedBox(width: 12),
-            // 분리된 원형 X 버튼
+            // 분리된 원형 뒤로가기 버튼
             GestureDetector(
               onTap: () {
                 HapticFeedback.selectionClick();
@@ -515,8 +561,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
                   child: Container(
-                    width: 56,
-                    height: 56,
+                    width: 62,
+                    height: 62,
                     decoration: BoxDecoration(
                       color: glassColor,
                       borderRadius: BorderRadius.circular(100),
@@ -526,11 +572,11 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                       ),
                     ),
                     child: Icon(
-                      CupertinoIcons.xmark,
+                      CupertinoIcons.chevron_back,
                       color: isDark
                           ? Colors.white.withValues(alpha: 0.9)
                           : Colors.black.withValues(alpha: 0.7),
-                      size: 20,
+                      size: 22,
                     ),
                   ),
                 ),
@@ -554,10 +600,11 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
 
     final foregroundColor = isDark ? Colors.white : Colors.black;
 
+    // 홈 LiquidGlassBottomBar와 동일한 포지션 (bottom: 20)
     return SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
         child: Row(
           children: [
             // 뒤로가기 버튼 (선택 해제)
@@ -571,8 +618,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
                   child: Container(
-                    width: 56,
-                    height: 56,
+                    width: 62,
+                    height: 62,
                     decoration: BoxDecoration(
                       color: glassColor,
                       borderRadius: BorderRadius.circular(100),
@@ -582,9 +629,9 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                       ),
                     ),
                     child: Icon(
-                      CupertinoIcons.back,
-                      color: foregroundColor.withValues(alpha: 0.8),
-                      size: 20,
+                      CupertinoIcons.chevron_back,
+                      color: foregroundColor.withValues(alpha: 0.9),
+                      size: 22,
                     ),
                   ),
                 ),
@@ -627,7 +674,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                     curve: Curves.easeOutCubic,
                     builder: (context, pressValue, child) {
                       return Container(
-                        height: 56,
+                        height: 62,
                         decoration: BoxDecoration(
                           // fill: #343434
                           color: const Color(0xFF343434),

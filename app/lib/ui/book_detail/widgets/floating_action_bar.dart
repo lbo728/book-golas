@@ -16,13 +16,12 @@ class FloatingActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bottomPadding = MediaQuery.of(context).padding.bottom;
 
-    // 홈 LiquidGlassBottomBar와 동일한 포지션
+    // 홈 LiquidGlassBottomBar와 동일한 포지션 (bottom: 20, SafeArea 미적용)
     return Positioned(
       left: 16,
       right: 16,
-      bottom: 20 + bottomPadding,
+      bottom: 20,
       child: Row(
         children: [
           Expanded(
