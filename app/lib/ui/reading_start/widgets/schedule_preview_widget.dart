@@ -25,7 +25,7 @@ class SchedulePreviewWidget extends StatefulWidget {
 }
 
 class _SchedulePreviewWidgetState extends State<SchedulePreviewWidget> {
-  bool _isExpanded = false;
+  bool _isExpanded = true;
 
   int get targetDays {
     final days = widget.targetDate.difference(widget.startDate).inDays;
