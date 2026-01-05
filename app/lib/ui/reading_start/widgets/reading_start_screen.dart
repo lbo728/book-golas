@@ -280,105 +280,112 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
         HapticFeedback.selectionClick();
         vm.selectBook(book);
       },
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
         margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xFF5B7FFF).withValues(alpha: 0.15)
-              : (isDark ? const Color(0xFF1E1E1E) : Colors.white),
-          borderRadius: BorderRadius.circular(12),
+          // 다크 배경 (#343434)
+          color: const Color(0xFF343434),
+          borderRadius: BorderRadius.circular(16),
+          // 선택 시 파란 테두리
           border: isSelected
-              ? Border.all(color: const Color(0xFF5B7FFF), width: 1.5)
-              : null,
+              ? Border.all(color: const Color(0xFF5B7FFF), width: 2)
+              : Border.all(color: const Color(0xFF3A3A3A), width: 1),
         ),
         child: Row(
           children: [
-            // 책 표지
+            // 책 표지 (더 큰 사이즈)
             ClipRRect(
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(8),
               child: book.imageUrl != null
                   ? Image.network(
                       book.imageUrl!,
-                      width: 50,
-                      height: 70,
+                      width: 60,
+                      height: 84,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
-                          width: 50,
-                          height: 70,
-                          color: isDark ? Colors.grey[800] : Colors.grey[200],
-                          child: Icon(
+                          width: 60,
+                          height: 84,
+                          color: Colors.grey[800],
+                          child: const Icon(
                             Icons.book,
-                            size: 24,
-                            color: isDark ? Colors.grey[600] : Colors.grey[400],
+                            size: 28,
+                            color: Colors.grey,
                           ),
                         );
                       },
                     )
                   : Container(
-                      width: 50,
-                      height: 70,
-                      color: isDark ? Colors.grey[800] : Colors.grey[200],
-                      child: Icon(
+                      width: 60,
+                      height: 84,
+                      color: Colors.grey[800],
+                      child: const Icon(
                         Icons.book,
-                        size: 24,
-                        color: isDark ? Colors.grey[600] : Colors.grey[400],
+                        size: 28,
+                        color: Colors.grey,
                       ),
                     ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 16),
             // 책 정보
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // 제목
                   Text(
                     book.title,
-                    style: TextStyle(
-                      fontSize: 15,
+                    style: const TextStyle(
+                      fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : Colors.black87,
+                      color: Colors.white,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
+                  // 저자
                   Text(
                     book.author,
                     style: TextStyle(
-                      fontSize: 13,
-                      color: isDark ? Colors.white54 : Colors.grey[600],
+                      fontSize: 14,
+                      color: Colors.white.withValues(alpha: 0.6),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  const SizedBox(height: 4),
+                  // 페이지 수
+                  if (book.totalPages != null)
+                    Text(
+                      '${book.totalPages}p',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white.withValues(alpha: 0.6),
+                      ),
+                    ),
                 ],
               ),
             ),
-            // 페이지 수 + 선택 아이콘
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                if (book.totalPages != null)
-                  Text(
-                    '${book.totalPages}p',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: isDark ? Colors.white70 : Colors.grey[700],
-                    ),
-                  ),
-                if (isSelected) ...[
-                  const SizedBox(height: 8),
-                  const Icon(
-                    Icons.check_circle,
-                    color: Color(0xFF5B7FFF),
-                    size: 22,
-                  ),
-                ],
-              ],
-            ),
+            // 선택 체크마크
+            if (isSelected)
+              Container(
+                width: 28,
+                height: 28,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF5B7FFF),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.check,
+                  color: Colors.white,
+                  size: 18,
+                ),
+              ),
           ],
         ),
       ),
@@ -606,76 +613,74 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                   onTapCancel: () {
                     setState(() => _isSelectionButtonPressed = false);
                   },
-                  child: AnimatedContainer(
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(
+                      begin: _isSelectionButtonPressed ? 0.0 : 1.0,
+                      end: _isSelectionButtonPressed ? 1.0 : 0.0,
+                    ),
                     duration: const Duration(milliseconds: 150),
                     curve: Curves.easeOutCubic,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      // fill: #343434
-                      color: const Color(0xFF343434),
-                      borderRadius: BorderRadius.circular(100),
-                      // stroke: #363636 1px
-                      border: Border.all(
-                        color: const Color(0xFF363636),
-                        width: 1,
-                      ),
-                      // pressed 상태에 따른 shadow 변경
-                      boxShadow: _isSelectionButtonPressed
-                          ? [
-                              // Pressed: drop shadow (x:4, y:4, blur:24, #000 12%)
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.12),
-                                blurRadius: 24,
-                                offset: const Offset(4, 4),
-                              ),
-                            ]
-                          : [
-                              // Normal: inner shadow 효과 (blur:12, #fff 7%)
-                              BoxShadow(
-                                color: Colors.white.withValues(alpha: 0.07),
-                                blurRadius: 12,
-                                spreadRadius: -4,
-                              ),
-                            ],
-                    ),
-                    child: Stack(
-                      children: [
-                        // Inner shadow 효과 (그라디언트 오버레이) - pressed 상태에 따라 변경
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 150),
-                          curve: Curves.easeOutCubic,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
-                            gradient: RadialGradient(
-                              center: Alignment.center,
-                              radius: 1.2,
-                              colors: _isSelectionButtonPressed
-                                  ? [
-                                      // Pressed: inner shadow (blur:24, #fff 20%)
-                                      Colors.white.withValues(alpha: 0.20),
-                                      Colors.transparent,
-                                    ]
-                                  : [
-                                      // Normal
-                                      Colors.transparent,
-                                      Colors.white.withValues(alpha: 0.05),
-                                    ],
-                            ),
+                    builder: (context, pressValue, child) {
+                      return Container(
+                        height: 56,
+                        decoration: BoxDecoration(
+                          // fill: #343434
+                          color: const Color(0xFF343434),
+                          borderRadius: BorderRadius.circular(100),
+                          // stroke: #363636 1px
+                          border: Border.all(
+                            color: const Color(0xFF363636),
+                            width: 1,
                           ),
-                        ),
-                        // 텍스트
-                        const Center(
-                          child: Text(
-                            '선택 완료',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                          // 부드러운 shadow 전환
+                          boxShadow: [
+                            // Drop shadow (pressed 상태)
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.12 * pressValue),
+                              blurRadius: 24 * pressValue,
+                              offset: Offset(4 * pressValue, 4 * pressValue),
                             ),
-                          ),
+                            // Inner glow (normal 상태)
+                            BoxShadow(
+                              color: Colors.white.withValues(alpha: 0.07 * (1 - pressValue)),
+                              blurRadius: 12,
+                              spreadRadius: -4,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                        child: Stack(
+                          children: [
+                            // Inner shadow 효과 (부드러운 그라디언트 전환)
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(100),
+                                gradient: RadialGradient(
+                                  center: Alignment.center,
+                                  radius: 1.2,
+                                  colors: [
+                                    // pressed: #fff 20%, normal: transparent
+                                    Colors.white.withValues(alpha: 0.20 * pressValue),
+                                    // pressed: transparent, normal: #fff 5%
+                                    Colors.white.withValues(alpha: 0.05 * (1 - pressValue)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            // 텍스트
+                            const Center(
+                              child: Text(
+                                '선택 완료',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
