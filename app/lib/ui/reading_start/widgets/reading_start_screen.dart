@@ -205,8 +205,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
         Expanded(
           child: _buildSearchResultsList(vm, isDark),
         ),
-        // 하단 검색바
-        _buildBottomSearchBar(vm, isDark),
+        // 하단 바 (검색바 또는 독서시작하기 버튼)
+        _buildBottomBar(vm, isDark),
       ],
     );
   }
@@ -258,7 +258,6 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
       onTap: () {
         HapticFeedback.selectionClick();
         vm.selectBook(book);
-        _nextPage(vm);
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
@@ -365,7 +364,18 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
     );
   }
 
-  Widget _buildBottomSearchBar(ReadingStartViewModel vm, bool isDark) {
+  /// 하단 바: 책 선택 여부에 따라 검색바 또는 독서시작하기 버튼으로 전환
+  Widget _buildBottomBar(ReadingStartViewModel vm, bool isDark) {
+    // 책이 선택된 경우: 독서시작하기 버튼 + 뒤로가기 버튼
+    if (vm.selectedBook != null) {
+      return _buildSelectionModeBar(vm, isDark);
+    }
+    // 책이 선택되지 않은 경우: 검색바
+    return _buildSearchModeBar(vm, isDark);
+  }
+
+  /// 검색 모드 바: 검색 입력 + X 버튼 (화면 닫기)
+  Widget _buildSearchModeBar(ReadingStartViewModel vm, bool isDark) {
     final glassColor = isDark
         ? Colors.white.withValues(alpha: 0.12)
         : Colors.black.withValues(alpha: 0.08);
@@ -429,34 +439,123 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
                       textInputAction: TextInputAction.search,
                     ),
                   ),
-                  // X 버튼 (텍스트가 있을 때만 표시)
-                  if (_titleController.text.isNotEmpty)
-                    GestureDetector(
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        _titleController.clear();
-                        vm.clearSelection();
-                      },
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? Colors.white.withValues(alpha: 0.1)
-                              : Colors.black.withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(100),
-                        ),
-                        child: Icon(
-                          CupertinoIcons.xmark,
-                          color: foregroundColor.withValues(alpha: 0.6),
-                          size: 16,
-                        ),
+                  // X 버튼: 화면 닫기
+                  GestureDetector(
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.1)
+                            : Colors.black.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: Icon(
+                        CupertinoIcons.xmark,
+                        color: foregroundColor.withValues(alpha: 0.6),
+                        size: 16,
                       ),
                     ),
+                  ),
                 ],
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  /// 선택 모드 바: 뒤로가기 버튼 + 독서 시작하기 버튼
+  Widget _buildSelectionModeBar(ReadingStartViewModel vm, bool isDark) {
+    final glassColor = isDark
+        ? Colors.white.withValues(alpha: 0.12)
+        : Colors.black.withValues(alpha: 0.08);
+
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.15)
+        : Colors.black.withValues(alpha: 0.08);
+
+    final foregroundColor = isDark ? Colors.white : Colors.black;
+
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+        child: Row(
+          children: [
+            // 뒤로가기 버튼 (선택 해제)
+            GestureDetector(
+              onTap: () {
+                HapticFeedback.selectionClick();
+                vm.clearSelection();
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(100),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+                  child: Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: glassColor,
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(
+                        color: borderColor,
+                        width: 0.5,
+                      ),
+                    ),
+                    child: Icon(
+                      CupertinoIcons.back,
+                      color: foregroundColor.withValues(alpha: 0.8),
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // 독서 시작하기 버튼
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  _nextPage(vm);
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(100),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+                    child: Container(
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF5B7FFF).withValues(alpha: 0.9),
+                        borderRadius: BorderRadius.circular(100),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          width: 0.5,
+                        ),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          '독서 시작하기',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -587,19 +686,19 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
                   color: const Color(0xFF10B981).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.check_circle_outline,
                       color: Color(0xFF10B981),
                       size: 18,
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Text(
                       '오늘부터 시작합니다',
                       style: TextStyle(
                         fontSize: 14,
-                        color: const Color(0xFF10B981),
+                        color: Color(0xFF10B981),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
