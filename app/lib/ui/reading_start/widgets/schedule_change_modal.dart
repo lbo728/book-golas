@@ -34,28 +34,27 @@ class ScheduleChangeModal {
             final estimatedDays = (totalPages / dailyTarget).ceil();
             final estimatedEndDate = startDate.add(Duration(days: estimatedDays));
 
-            return SafeArea(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(24),
-                  ),
+            return Container(
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(height: 12),
-                    // 드래그 핸들
-                    Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[400],
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 12),
+                  // 드래그 핸들
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[400],
+                      borderRadius: BorderRadius.circular(2),
                     ),
-                    const SizedBox(height: 24),
+                  ),
+                  const SizedBox(height: 24),
                     // 헤더
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -241,10 +240,11 @@ class ScheduleChangeModal {
                         ),
                       ),
                     ),
+                    // SafeArea 대신 수동 하단 패딩
+                    SizedBox(height: MediaQuery.of(context).padding.bottom),
                   ],
                 ),
-              ),
-            );
+              );
           },
         );
       },

@@ -55,14 +55,30 @@ class _ReadingStartContent extends StatefulWidget {
   State<_ReadingStartContent> createState() => _ReadingStartContentState();
 }
 
-class _ReadingStartContentState extends State<_ReadingStartContent> {
+class _ReadingStartContentState extends State<_ReadingStartContent>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _titleController = TextEditingController();
   final PageController _pageController = PageController();
   final FocusNode _searchFocusNode = FocusNode();
 
+  // 선택 완료 버튼 슬라이드 애니메이션
+  late AnimationController _selectionBarAnimController;
+  late Animation<double> _selectionBarAnimation;
+
   @override
   void initState() {
     super.initState();
+
+    // 선택 완료 버튼 애니메이션 초기화
+    _selectionBarAnimController = AnimationController(
+      duration: const Duration(milliseconds: 350),
+      vsync: this,
+    );
+    _selectionBarAnimation = CurvedAnimation(
+      parent: _selectionBarAnimController,
+      curve: Curves.easeOutCubic,
+    );
+
     final vm = context.read<ReadingStartViewModel>();
 
     if (widget.title != null) {
@@ -92,6 +108,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
     _titleController.dispose();
     _pageController.dispose();
     _searchFocusNode.dispose();
+    _selectionBarAnimController.dispose();
     super.dispose();
   }
 
@@ -369,7 +386,16 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
   Widget _buildBottomBar(ReadingStartViewModel vm, bool isDark) {
     // 책이 선택된 경우: 독서시작하기 버튼 + 뒤로가기 버튼
     if (vm.selectedBook != null) {
+      // 애니메이션 시작 (선택 완료 버튼 슬라이드 인)
+      if (!_selectionBarAnimController.isAnimating &&
+          _selectionBarAnimController.value == 0) {
+        _selectionBarAnimController.forward();
+      }
       return _buildSelectionModeBar(vm, isDark);
+    }
+    // 책이 선택 해제된 경우 애니메이션 리셋
+    if (_selectionBarAnimController.value > 0) {
+      _selectionBarAnimController.reset();
     }
     // 책이 선택되지 않은 경우: 검색바
     return _buildSearchModeBar(vm, isDark);
@@ -501,7 +527,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
     );
   }
 
-  /// 선택 모드 바: 뒤로가기 버튼 + 선택 완료 버튼
+  /// 선택 모드 바: 뒤로가기 버튼 + 선택 완료 버튼 (슬라이드 애니메이션)
   Widget _buildSelectionModeBar(ReadingStartViewModel vm, bool isDark) {
     final glassColor = isDark
         ? Colors.white.withValues(alpha: 0.12)
@@ -550,37 +576,75 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
               ),
             ),
             const SizedBox(width: 12),
-            // 선택 완료 버튼
+            // 선택 완료 버튼 (슬라이드 애니메이션)
             Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  HapticFeedback.selectionClick();
-                  _nextPage(vm);
+              child: AnimatedBuilder(
+                animation: _selectionBarAnimation,
+                builder: (context, child) {
+                  // 우측에서 슬라이드 인 + 폭 확장 애니메이션
+                  final slideValue = _selectionBarAnimation.value;
+                  return Transform.translate(
+                    offset: Offset((1 - slideValue) * 100, 0),
+                    child: Opacity(
+                      opacity: slideValue.clamp(0.0, 1.0),
+                      child: child,
+                    ),
+                  );
                 },
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(100),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-                    child: Container(
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF5B7FFF).withValues(alpha: 0.9),
-                        borderRadius: BorderRadius.circular(100),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          width: 0.5,
-                        ),
+                child: GestureDetector(
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    _nextPage(vm);
+                  },
+                  child: Container(
+                    height: 56,
+                    decoration: BoxDecoration(
+                      // fill: #343434
+                      color: const Color(0xFF343434),
+                      borderRadius: BorderRadius.circular(100),
+                      // stroke: #363636 1px
+                      border: Border.all(
+                        color: const Color(0xFF363636),
+                        width: 1,
                       ),
-                      child: const Center(
-                        child: Text(
-                          '선택 완료',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                      // inner shadow 효과: 흰색 그림자로 시뮬레이션
+                      boxShadow: [
+                        // Inner shadow 효과를 위한 외부 glow
+                        BoxShadow(
+                          color: Colors.white.withValues(alpha: 0.07),
+                          blurRadius: 12,
+                          spreadRadius: -4,
+                        ),
+                      ],
+                    ),
+                    child: Stack(
+                      children: [
+                        // Inner shadow 효과 (그라디언트 오버레이)
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100),
+                            gradient: RadialGradient(
+                              center: Alignment.center,
+                              radius: 1.2,
+                              colors: [
+                                Colors.transparent,
+                                Colors.white.withValues(alpha: 0.05),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
+                        // 텍스트
+                        const Center(
+                          child: Text(
+                            '선택 완료',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
