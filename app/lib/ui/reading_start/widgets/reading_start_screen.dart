@@ -65,6 +65,9 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
   late AnimationController _selectionBarAnimController;
   late Animation<double> _selectionBarAnimation;
 
+  // 선택 완료 버튼 pressed 상태
+  bool _isSelectionButtonPressed = false;
+
   @override
   void initState() {
     super.initState();
@@ -576,7 +579,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
               ),
             ),
             const SizedBox(width: 12),
-            // 선택 완료 버튼 (슬라이드 애니메이션)
+            // 선택 완료 버튼 (슬라이드 애니메이션 + pressed 상태)
             Expanded(
               child: AnimatedBuilder(
                 animation: _selectionBarAnimation,
@@ -592,11 +595,20 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                   );
                 },
                 child: GestureDetector(
-                  onTap: () {
+                  onTapDown: (_) {
+                    setState(() => _isSelectionButtonPressed = true);
+                  },
+                  onTapUp: (_) {
+                    setState(() => _isSelectionButtonPressed = false);
                     HapticFeedback.selectionClick();
                     _nextPage(vm);
                   },
-                  child: Container(
+                  onTapCancel: () {
+                    setState(() => _isSelectionButtonPressed = false);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    curve: Curves.easeOutCubic,
                     height: 56,
                     decoration: BoxDecoration(
                       // fill: #343434
@@ -607,29 +619,47 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                         color: const Color(0xFF363636),
                         width: 1,
                       ),
-                      // inner shadow 효과: 흰색 그림자로 시뮬레이션
-                      boxShadow: [
-                        // Inner shadow 효과를 위한 외부 glow
-                        BoxShadow(
-                          color: Colors.white.withValues(alpha: 0.07),
-                          blurRadius: 12,
-                          spreadRadius: -4,
-                        ),
-                      ],
+                      // pressed 상태에 따른 shadow 변경
+                      boxShadow: _isSelectionButtonPressed
+                          ? [
+                              // Pressed: drop shadow (x:4, y:4, blur:24, #000 12%)
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.12),
+                                blurRadius: 24,
+                                offset: const Offset(4, 4),
+                              ),
+                            ]
+                          : [
+                              // Normal: inner shadow 효과 (blur:12, #fff 7%)
+                              BoxShadow(
+                                color: Colors.white.withValues(alpha: 0.07),
+                                blurRadius: 12,
+                                spreadRadius: -4,
+                              ),
+                            ],
                     ),
                     child: Stack(
                       children: [
-                        // Inner shadow 효과 (그라디언트 오버레이)
-                        Container(
+                        // Inner shadow 효과 (그라디언트 오버레이) - pressed 상태에 따라 변경
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
+                          curve: Curves.easeOutCubic,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(100),
                             gradient: RadialGradient(
                               center: Alignment.center,
                               radius: 1.2,
-                              colors: [
-                                Colors.transparent,
-                                Colors.white.withValues(alpha: 0.05),
-                              ],
+                              colors: _isSelectionButtonPressed
+                                  ? [
+                                      // Pressed: inner shadow (blur:24, #fff 20%)
+                                      Colors.white.withValues(alpha: 0.20),
+                                      Colors.transparent,
+                                    ]
+                                  : [
+                                      // Normal
+                                      Colors.transparent,
+                                      Colors.white.withValues(alpha: 0.05),
+                                    ],
                             ),
                           ),
                         ),
