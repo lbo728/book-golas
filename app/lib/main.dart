@@ -507,13 +507,13 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  void _onSearchSubmit(String query) {
-    // 검색 결과로 ReadingStartScreen 이동 (title 파라미터로 검색어 전달)
+  void _onSearchTap(Offset searchButtonPosition, double searchButtonSize) {
+    // 독서 시작하기 화면으로 바로 이동 (검색바가 하단에 포함됨)
     Navigator.push(
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            ReadingStartScreen(title: query),
+            const ReadingStartScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(
             opacity: animation,
@@ -536,7 +536,7 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: LiquidGlassBottomBar(
         selectedIndex: _selectedIndex,
         onTabSelected: _onItemTapped,
-        onSearchSubmit: _onSearchSubmit,
+        onSearchTap: _onSearchTap,
       ),
     );
   }
