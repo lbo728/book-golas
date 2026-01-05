@@ -13,6 +13,7 @@ import 'package:book_golas/ui/reading_start/view_model/reading_start_view_model.
 import 'package:book_golas/ui/reading_start/widgets/schedule_change_modal.dart';
 import 'package:book_golas/ui/reading_start/widgets/schedule_preview_widget.dart';
 import 'package:book_golas/ui/reading_start/widgets/status_selector_widget.dart';
+import 'package:book_golas/ui/book_detail/widgets/dialogs/update_target_date_dialog.dart';
 
 class ReadingStartScreen extends StatelessWidget {
   final String? title;
@@ -374,7 +375,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
     return _buildSearchModeBar(vm, isDark);
   }
 
-  /// 검색 모드 바: 검색 입력 + X 버튼 (화면 닫기)
+  /// 검색 모드 바: 검색 입력 + 분리된 원형 X 버튼 (화면 닫기)
   Widget _buildSearchModeBar(ReadingStartViewModel vm, bool isDark) {
     final glassColor = isDark
         ? Colors.white.withValues(alpha: 0.12)
@@ -386,91 +387,121 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
 
     final foregroundColor = isDark ? Colors.white : Colors.black;
     final hintColor = isDark
-        ? Colors.white.withValues(alpha: 0.4)
-        : Colors.black.withValues(alpha: 0.4);
+        ? Colors.white.withValues(alpha: 0.5)
+        : Colors.black.withValues(alpha: 0.5);
+
+    final iconColor = isDark
+        ? Colors.white.withValues(alpha: 0.7)
+        : Colors.black.withValues(alpha: 0.5);
 
     return SafeArea(
       top: false,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(100),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-            child: Container(
-              height: 56,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: glassColor,
+        child: Row(
+          children: [
+            // 검색바 (확장)
+            Expanded(
+              child: ClipRRect(
                 borderRadius: BorderRadius.circular(100),
-                border: Border.all(
-                  color: borderColor,
-                  width: 0.5,
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+                  child: Container(
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: glassColor,
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(
+                        color: borderColor,
+                        width: 0.5,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        // 검색 아이콘
+                        Padding(
+                          padding: const EdgeInsets.only(left: 16),
+                          child: Icon(
+                            CupertinoIcons.search,
+                            color: iconColor,
+                            size: 20,
+                          ),
+                        ),
+                        // 검색 입력 필드
+                        Expanded(
+                          child: TextField(
+                            controller: _titleController,
+                            focusNode: _searchFocusNode,
+                            style: TextStyle(
+                              color: foregroundColor,
+                              fontSize: 16,
+                            ),
+                            cursorColor: foregroundColor,
+                            decoration: InputDecoration(
+                              hintText: '책 제목을 입력해주세요.',
+                              hintStyle: TextStyle(
+                                color: hintColor,
+                                fontSize: 16,
+                              ),
+                              filled: false,
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 0,
+                              ),
+                            ),
+                            textInputAction: TextInputAction.search,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              child: Row(
-                children: [
-                  // 검색 아이콘
-                  Icon(
-                    CupertinoIcons.search,
-                    color: hintColor,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  // 검색 입력 필드
-                  Expanded(
-                    child: TextField(
-                      controller: _titleController,
-                      focusNode: _searchFocusNode,
-                      style: TextStyle(
-                        color: foregroundColor,
-                        fontSize: 16,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: '도서 제목을 입력해주세요',
-                        hintStyle: TextStyle(
-                          color: hintColor,
-                          fontSize: 16,
-                        ),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                        isDense: true,
-                      ),
-                      textInputAction: TextInputAction.search,
-                    ),
-                  ),
-                  // X 버튼: 화면 닫기
-                  GestureDetector(
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? Colors.white.withValues(alpha: 0.1)
-                            : Colors.black.withValues(alpha: 0.05),
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      child: Icon(
-                        CupertinoIcons.xmark,
-                        color: foregroundColor.withValues(alpha: 0.6),
-                        size: 16,
+            ),
+            const SizedBox(width: 12),
+            // 분리된 원형 X 버튼
+            GestureDetector(
+              onTap: () {
+                HapticFeedback.selectionClick();
+                Navigator.pop(context);
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(100),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+                  child: Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: glassColor,
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(
+                        color: borderColor,
+                        width: 0.5,
                       ),
                     ),
+                    child: Icon(
+                      CupertinoIcons.xmark,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.9)
+                          : Colors.black.withValues(alpha: 0.7),
+                      size: 20,
+                    ),
                   ),
-                ],
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 
-  /// 선택 모드 바: 뒤로가기 버튼 + 독서 시작하기 버튼
+  /// 선택 모드 바: 뒤로가기 버튼 + 선택 완료 버튼
   Widget _buildSelectionModeBar(ReadingStartViewModel vm, bool isDark) {
     final glassColor = isDark
         ? Colors.white.withValues(alpha: 0.12)
@@ -519,7 +550,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
               ),
             ),
             const SizedBox(width: 12),
-            // 독서 시작하기 버튼
+            // 선택 완료 버튼
             Expanded(
               child: GestureDetector(
                 onTap: () {
@@ -542,7 +573,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
                       ),
                       child: const Center(
                         child: Text(
-                          '독서 시작하기',
+                          '선택 완료',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -561,10 +592,128 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
     );
   }
 
+  /// 다이얼 UI 날짜 선택 모달 표시
+  void _showDatePickerModal({
+    required BuildContext context,
+    required bool isDark,
+    required DateTime selectedDate,
+    required DateTime minimumDate,
+    required void Function(DateTime) onDateChanged,
+  }) {
+    DateTime pickedDate = selectedDate;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 드래그 핸들
+                  Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[400],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  // 선택된 날짜 표시
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${pickedDate.year}년 ${pickedDate.month}월 ${pickedDate.day}일',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // 다이얼 피커
+                  Container(
+                    height: 180,
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: KoreanDatePicker(
+                      isDark: isDark,
+                      selectedDate: pickedDate,
+                      minimumDate: minimumDate,
+                      onDateChanged: (newDate) {
+                        HapticFeedback.selectionClick();
+                        setModalState(() {
+                          pickedDate = newDate;
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // 확인 버튼
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        onDateChanged(pickedDate);
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF5B7FFF),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        '확인',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget _buildReadingSchedulePage(ReadingStartViewModel vm, bool isDark) {
     final totalPages = vm.selectedBook?.totalPages ?? widget.totalPages ?? 0;
 
-    return SingleChildScrollView(
+    return GestureDetector(
+      onHorizontalDragEnd: (details) {
+        // 우측으로 스와이프 시 뒤로가기
+        if (details.primaryVelocity != null && details.primaryVelocity! > 300) {
+          _previousPage(vm);
+        }
+      },
+      child: SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -636,17 +785,13 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
               ),
               const SizedBox(height: 8),
               GestureDetector(
-                onTap: () async {
-                  final DateTime? picked = await showDatePicker(
-                    context: context,
-                    initialDate: vm.plannedStartDate,
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime(2101),
-                  );
-                  if (picked != null) {
-                    vm.setPlannedStartDate(picked);
-                  }
-                },
+                onTap: () => _showDatePickerModal(
+                  context: context,
+                  isDark: isDark,
+                  selectedDate: vm.plannedStartDate,
+                  minimumDate: DateTime.now(),
+                  onDateChanged: vm.setPlannedStartDate,
+                ),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -719,17 +864,13 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
             ),
             const SizedBox(height: 8),
             GestureDetector(
-              onTap: () async {
-                final DateTime? picked = await showDatePicker(
-                  context: context,
-                  initialDate: vm.targetDate,
-                  firstDate: vm.effectiveStartDate,
-                  lastDate: DateTime(2101),
-                );
-                if (picked != null && picked != vm.targetDate) {
-                  vm.setTargetDate(picked);
-                }
-              },
+              onTap: () => _showDatePickerModal(
+                context: context,
+                isDark: isDark,
+                selectedDate: vm.targetDate,
+                minimumDate: vm.effectiveStartDate,
+                onDateChanged: vm.setTargetDate,
+              ),
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -853,6 +994,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent> {
           ],
         ),
       ),
+    ),
     );
   }
 }
