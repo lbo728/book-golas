@@ -33,12 +33,16 @@ class _LiquidGlassSearchOverlayState extends State<LiquidGlassSearchOverlay>
   late FocusNode _focusNode;
   late AnimationController _animationController;
   late Animation<double> _expandAnimation;
+  bool _hasText = false;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
     _focusNode = FocusNode();
+
+    // 텍스트 변경 감지
+    _controller.addListener(_onTextChanged);
 
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 350),
@@ -62,8 +66,23 @@ class _LiquidGlassSearchOverlayState extends State<LiquidGlassSearchOverlay>
     });
   }
 
+  void _onTextChanged() {
+    final hasText = _controller.text.isNotEmpty;
+    if (_hasText != hasText) {
+      setState(() {
+        _hasText = hasText;
+      });
+    }
+  }
+
+  void _clearText() {
+    _controller.clear();
+    _focusNode.requestFocus();
+  }
+
   @override
   void dispose() {
+    _controller.removeListener(_onTextChanged);
     _controller.dispose();
     _focusNode.dispose();
     _animationController.dispose();
@@ -139,11 +158,11 @@ class _LiquidGlassSearchOverlayState extends State<LiquidGlassSearchOverlay>
               child: _buildSearchBar(isDark),
             ),
 
-            // X 닫기 버튼 (고정 위치)
+            // 뒤로가기 버튼 (고정 위치)
             Positioned(
               right: 16,
               bottom: bottomPadding + 20,
-              child: _buildCloseButton(isDark),
+              child: _buildBackButton(isDark),
             ),
           ],
         );
@@ -230,6 +249,31 @@ class _LiquidGlassSearchOverlayState extends State<LiquidGlassSearchOverlay>
                     ),
                   ),
                 ),
+                // Clear 버튼 (텍스트 입력 시 표시)
+                if (_hasText)
+                  GestureDetector(
+                    onTap: _clearText,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 16),
+                      child: Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.3)
+                              : Colors.black.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          CupertinoIcons.xmark,
+                          color: isDark
+                              ? Colors.black.withValues(alpha: 0.7)
+                              : Colors.white.withValues(alpha: 0.9),
+                          size: 12,
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -238,7 +282,7 @@ class _LiquidGlassSearchOverlayState extends State<LiquidGlassSearchOverlay>
     );
   }
 
-  Widget _buildCloseButton(bool isDark) {
+  Widget _buildBackButton(bool isDark) {
     // 탭바와 동일한 색상
     final glassColor = isDark
         ? Colors.white.withValues(alpha: 0.12)
@@ -273,9 +317,9 @@ class _LiquidGlassSearchOverlayState extends State<LiquidGlassSearchOverlay>
               ),
             ),
             child: Icon(
-              CupertinoIcons.xmark,
+              CupertinoIcons.chevron_back,
               color: iconColor,
-              size: 20,
+              size: 22,
             ),
           ),
         ),

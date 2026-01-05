@@ -16,45 +16,45 @@ class FloatingActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
 
+    // 홈 LiquidGlassBottomBar와 동일한 포지션
     return Positioned(
-      left: 20,
-      right: 20,
-      bottom: 20,
-      child: SafeArea(
-        child: Row(
-          children: [
-            Expanded(
-              child: _buildUpdatePageButton(isDark),
-            ),
-            const SizedBox(width: 10),
-            _buildAddButton(isDark),
-          ],
-        ),
+      left: 16,
+      right: 16,
+      bottom: 20 + bottomPadding,
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildUpdatePageButton(isDark),
+          ),
+          const SizedBox(width: 12),
+          _buildAddButton(isDark),
+        ],
       ),
     );
   }
 
   Widget _buildUpdatePageButton(bool isDark) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(100),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
             onTap: onUpdatePageTap,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(100),
             child: Container(
-              height: 52,
+              height: 62,
               decoration: BoxDecoration(
                 color: isDark
                     ? Colors.white.withValues(alpha: 0.12)
-                    : Colors.black.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(18),
+                    : Colors.black.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(100),
                 border: Border.all(
                   color: isDark
-                      ? Colors.white.withValues(alpha: 0.2)
+                      ? Colors.white.withValues(alpha: 0.15)
                       : Colors.black.withValues(alpha: 0.08),
                   width: 0.5,
                 ),
@@ -91,25 +91,25 @@ class FloatingActionBar extends StatelessWidget {
 
   Widget _buildAddButton(bool isDark) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(26),
+      borderRadius: BorderRadius.circular(100),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
             onTap: onAddMemorablePageTap,
-            borderRadius: BorderRadius.circular(26),
+            borderRadius: BorderRadius.circular(100),
             child: Container(
-              width: 52,
-              height: 52,
+              width: 62,
+              height: 62,
               decoration: BoxDecoration(
                 color: isDark
                     ? Colors.white.withValues(alpha: 0.12)
-                    : Colors.black.withValues(alpha: 0.06),
+                    : Colors.black.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isDark
-                      ? Colors.white.withValues(alpha: 0.2)
+                      ? Colors.white.withValues(alpha: 0.15)
                       : Colors.black.withValues(alpha: 0.08),
                   width: 0.5,
                 ),
@@ -118,8 +118,8 @@ class FloatingActionBar extends StatelessWidget {
                 CupertinoIcons.plus,
                 size: 22,
                 color: isDark
-                    ? Colors.white.withValues(alpha: 0.85)
-                    : Colors.black.withValues(alpha: 0.65),
+                    ? Colors.white.withValues(alpha: 0.9)
+                    : Colors.black.withValues(alpha: 0.7),
               ),
             ),
           ),
