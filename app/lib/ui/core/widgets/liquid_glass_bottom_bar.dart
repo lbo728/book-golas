@@ -16,13 +16,16 @@ class LiquidGlassBottomBar extends StatefulWidget {
   final int selectedIndex;
   final ValueChanged<int> onTabSelected;
   /// 검색 버튼 탭 콜백: (버튼 위치, 버튼 크기) 전달
-  final void Function(Offset position, double size) onSearchTap;
+  final void Function(Offset position, double size)? onSearchTap;
+  /// 검색 제출 콜백
+  final ValueChanged<String>? onSearchSubmit;
 
   const LiquidGlassBottomBar({
     super.key,
     required this.selectedIndex,
     required this.onTabSelected,
-    required this.onSearchTap,
+    this.onSearchTap,
+    this.onSearchSubmit,
   });
 
   @override
@@ -30,7 +33,7 @@ class LiquidGlassBottomBar extends StatefulWidget {
 }
 
 class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _slideAnimation;
 
@@ -41,6 +44,13 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
 
   // 검색 버튼 위치 추적
   final GlobalKey _searchButtonKey = GlobalKey();
+
+  // 검색 모드 상태
+  bool _isSearchMode = false;
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  late AnimationController _searchModeController;
+  late Animation<double> _searchModeAnimation;
 
   // 탭 설정 (4개 네비게이션 탭)
   static const List<_TabItemData> _tabs = [
@@ -80,6 +90,16 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
       parent: _controller,
       curve: Curves.easeOutCubic,
     ));
+
+    // 검색 모드 애니메이션 초기화
+    _searchModeController = AnimationController(
+      duration: const Duration(milliseconds: 350),
+      vsync: this,
+    );
+    _searchModeAnimation = CurvedAnimation(
+      parent: _searchModeController,
+      curve: Curves.easeOutCubic,
+    );
   }
 
   @override
@@ -100,7 +120,41 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
   @override
   void dispose() {
     _controller.dispose();
+    _searchModeController.dispose();
+    _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
+  }
+
+  /// 검색 모드 진입
+  void _enterSearchMode() {
+    setState(() {
+      _isSearchMode = true;
+    });
+    _searchModeController.forward();
+    Future.delayed(const Duration(milliseconds: 200), () {
+      _searchFocusNode.requestFocus();
+    });
+  }
+
+  /// 검색 모드 종료
+  void _exitSearchMode() {
+    _searchFocusNode.unfocus();
+    _searchModeController.reverse().then((_) {
+      setState(() {
+        _isSearchMode = false;
+        _searchController.clear();
+      });
+    });
+  }
+
+  /// 검색 제출
+  void _submitSearch() {
+    final query = _searchController.text.trim();
+    if (query.isNotEmpty) {
+      widget.onSearchSubmit?.call(query);
+      _exitSearchMode();
+    }
   }
 
   /// 롱프레스 시작
@@ -165,16 +219,132 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
 
     return Container(
       margin: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
-      child: Row(
-        children: [
-          // Pill TabBar (4개 탭)
-          Expanded(
-            child: _buildLiquidGlassTabBar(isDark),
+      child: AnimatedBuilder(
+        animation: _searchModeAnimation,
+        builder: (context, child) {
+          // 검색 모드가 활성화되면 전체 바를 검색창으로 전환
+          if (_isSearchMode || _searchModeAnimation.value > 0) {
+            return _buildSearchModeBar(isDark);
+          }
+
+          return Row(
+            children: [
+              // Pill TabBar (4개 탭)
+              Expanded(
+                child: _buildLiquidGlassTabBar(isDark),
+              ),
+              const SizedBox(width: 12),
+              // 분리된 원형 검색 버튼
+              _buildSearchButton(isDark),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  /// 검색 모드 UI (전체 바가 검색창으로 변환)
+  Widget _buildSearchModeBar(bool isDark) {
+    final glassColor = isDark
+        ? Colors.white.withValues(alpha: 0.12)
+        : Colors.black.withValues(alpha: 0.08);
+
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.15)
+        : Colors.black.withValues(alpha: 0.08);
+
+    final foregroundColor = isDark ? Colors.white : Colors.black;
+    final hintColor = isDark
+        ? Colors.white.withValues(alpha: 0.4)
+        : Colors.black.withValues(alpha: 0.4);
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(100),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+        child: Container(
+          height: 62,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          decoration: BoxDecoration(
+            color: glassColor,
+            borderRadius: BorderRadius.circular(100),
+            border: Border.all(
+              color: borderColor,
+              width: 0.5,
+            ),
           ),
-          const SizedBox(width: 12),
-          // 분리된 원형 검색 버튼
-          _buildSearchButton(isDark),
-        ],
+          child: Row(
+            children: [
+              // 취소 버튼 (좌측)
+              GestureDetector(
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  _exitSearchMode();
+                },
+                child: Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : Colors.black.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: Icon(
+                    CupertinoIcons.xmark,
+                    color: foregroundColor.withValues(alpha: 0.7),
+                    size: 18,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // 검색 입력 필드
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  focusNode: _searchFocusNode,
+                  style: TextStyle(
+                    color: foregroundColor,
+                    fontSize: 16,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: '책 제목 또는 저자 검색',
+                    hintStyle: TextStyle(
+                      color: hintColor,
+                      fontSize: 16,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.zero,
+                    isDense: true,
+                  ),
+                  textInputAction: TextInputAction.search,
+                  onSubmitted: (_) => _submitSearch(),
+                ),
+              ),
+              const SizedBox(width: 8),
+              // 검색 버튼 (우측)
+              GestureDetector(
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  _submitSearch();
+                },
+                child: Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF5B7FFF),
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.search,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -408,19 +578,12 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
         ? Colors.white.withValues(alpha: 0.9)
         : Colors.black.withValues(alpha: 0.7);
 
-    const buttonSize = 62.0;
-
     return GestureDetector(
       key: _searchButtonKey,
       onTap: () {
         HapticFeedback.selectionClick();
-        // 검색 버튼의 화면 위치 계산
-        final RenderBox? renderBox =
-            _searchButtonKey.currentContext?.findRenderObject() as RenderBox?;
-        if (renderBox != null) {
-          final position = renderBox.localToGlobal(Offset.zero);
-          widget.onSearchTap(position, buttonSize);
-        }
+        // 검색 모드로 전환
+        _enterSearchMode();
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(100),

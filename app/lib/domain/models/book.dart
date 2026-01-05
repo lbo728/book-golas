@@ -1,3 +1,16 @@
+/// 독서 상태를 나타내는 enum
+enum BookStatus {
+  planned('planned'),   // 읽을 예정
+  reading('reading'),   // 독서 중
+  completed('completed'); // 완독
+
+  final String value;
+  const BookStatus(this.value);
+
+  static BookStatus fromString(String? s) =>
+      values.firstWhere((e) => e.value == s, orElse: () => reading);
+}
+
 class BookSearchResult {
   final String title;
   final String author;
