@@ -254,11 +254,11 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
           Positioned.fill(
             child: _buildSearchResultsList(vm, isDark),
           ),
-          // 하단 바 (플로팅, 홈 LiquidGlassBottomBar와 동일한 포지션)
+          // 하단 바 (플로팅)
           Positioned(
             left: 16,
             right: 16,
-            bottom: 20,
+            bottom: 28,
             child: _buildBottomBar(vm, isDark),
           ),
         ],
@@ -431,28 +431,17 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
     );
   }
 
-  /// 하단 바: 책 선택 여부에 따라 검색바 또는 독서시작하기 버튼으로 전환
+  /// 하단 바: 검색 모드 ↔ 선택 모드 간 부드러운 전환 애니메이션
   Widget _buildBottomBar(ReadingStartViewModel vm, bool isDark) {
-    // 책이 선택된 경우: 독서시작하기 버튼 + 뒤로가기 버튼
-    if (vm.selectedBook != null) {
-      // 애니메이션 시작 (선택 완료 버튼 슬라이드 인)
-      if (!_selectionBarAnimController.isAnimating &&
-          _selectionBarAnimController.value == 0) {
-        _selectionBarAnimController.forward();
-      }
-      return _buildSelectionModeBar(vm, isDark);
-    }
-    // 책이 선택 해제된 경우 애니메이션 리셋
-    if (_selectionBarAnimController.value > 0) {
-      _selectionBarAnimController.reset();
-    }
-    // 책이 선택되지 않은 경우: 검색바
-    return _buildSearchModeBar(vm, isDark);
-  }
+    final isSelectionMode = vm.selectedBook != null;
 
-  /// 검색 모드 바: 검색 입력 + 분리된 원형 뒤로가기 버튼 (화면 닫기)
-  /// 포지션은 Stack의 Positioned에서 처리 (left: 16, right: 16, bottom: 20)
-  Widget _buildSearchModeBar(ReadingStartViewModel vm, bool isDark) {
+    // 애니메이션 제어
+    if (isSelectionMode && !_selectionBarAnimController.isCompleted) {
+      _selectionBarAnimController.forward();
+    } else if (!isSelectionMode && _selectionBarAnimController.value > 0) {
+      _selectionBarAnimController.reverse();
+    }
+
     final glassColor = isDark
         ? Colors.white.withValues(alpha: 0.12)
         : Colors.black.withValues(alpha: 0.08);
@@ -470,117 +459,227 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
         ? Colors.white.withValues(alpha: 0.7)
         : Colors.black.withValues(alpha: 0.5);
 
-    return Row(
-      children: [
-        // 검색바 (확장)
-        Expanded(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(100),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-              child: Container(
-                height: 62,
-                decoration: BoxDecoration(
-                  color: glassColor,
-                  borderRadius: BorderRadius.circular(100),
-                  border: Border.all(
-                    color: borderColor,
-                    width: 0.5,
+    return AnimatedBuilder(
+      animation: _selectionBarAnimation,
+      builder: (context, _) {
+        final t = _selectionBarAnimation.value;
+
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final totalWidth = constraints.maxWidth;
+            const buttonSize = 48.0;
+            const gap = 12.0;
+
+            // 검색 모드: [검색바(expanded)] [gap] [뒤로가기(48)]
+            // 선택 모드: [뒤로가기(48)] [gap] [선택완료(expanded)]
+            // t=0: 검색 모드, t=1: 선택 모드
+
+            final expandedWidth = totalWidth - buttonSize - gap;
+
+            // 좌측 요소 너비: 검색바(expanded) → 뒤로가기(48)
+            final leftWidth = expandedWidth - (expandedWidth - buttonSize) * t;
+
+            // 우측 요소 너비: 뒤로가기(48) → 선택완료(expanded)
+            final rightWidth = buttonSize + (expandedWidth - buttonSize) * t;
+
+            return Row(
+              children: [
+                // 좌측: 검색바 → 뒤로가기 버튼으로 모핑
+                SizedBox(
+                  width: leftWidth,
+                  child: _buildLeftElement(
+                    vm,
+                    isDark,
+                    t,
+                    glassColor,
+                    borderColor,
+                    foregroundColor,
+                    hintColor,
+                    iconColor,
                   ),
                 ),
-                child: Row(
-                  children: [
-                    // 검색 아이콘
-                    Padding(
-                      padding: const EdgeInsets.only(left: 16),
-                      child: Icon(
-                        CupertinoIcons.search,
-                        color: iconColor,
-                        size: 20,
-                      ),
-                    ),
-                    // 검색 입력 필드
-                    Expanded(
-                      child: TextField(
-                        controller: _titleController,
-                        focusNode: _searchFocusNode,
-                        style: TextStyle(
-                          color: foregroundColor,
-                          fontSize: 16,
-                        ),
-                        cursorColor: foregroundColor,
-                        decoration: InputDecoration(
-                          hintText: '책 제목을 입력해주세요.',
-                          hintStyle: TextStyle(
-                            color: hintColor,
-                            fontSize: 16,
-                          ),
-                          filled: false,
-                          border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 0,
-                          ),
-                        ),
-                        textInputAction: TextInputAction.search,
-                      ),
-                    ),
-                    // Clear 버튼 (텍스트 입력 시 표시)
-                    if (_hasSearchText)
-                      GestureDetector(
-                        onTap: _clearSearchText,
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 16),
-                          child: Container(
-                            width: 20,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? Colors.white.withValues(alpha: 0.3)
-                                  : Colors.black.withValues(alpha: 0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              CupertinoIcons.xmark,
-                              color: isDark
-                                  ? Colors.black.withValues(alpha: 0.7)
-                                  : Colors.white.withValues(alpha: 0.9),
-                              size: 12,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
+                const SizedBox(width: gap),
+                // 우측: 뒤로가기 버튼 → 선택 완료로 모핑
+                SizedBox(
+                  width: rightWidth,
+                  child: _buildRightElement(
+                    vm,
+                    isDark,
+                    t,
+                    glassColor,
+                    borderColor,
+                    foregroundColor,
+                  ),
                 ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  /// 좌측 요소: 검색바 (t=0) ↔ 뒤로가기 버튼 (t=1)
+  Widget _buildLeftElement(
+    ReadingStartViewModel vm,
+    bool isDark,
+    double t,
+    Color glassColor,
+    Color borderColor,
+    Color foregroundColor,
+    Color hintColor,
+    Color iconColor,
+  ) {
+    return GestureDetector(
+      onTap: t > 0.5
+          ? () {
+              HapticFeedback.selectionClick();
+              vm.clearSelection();
+            }
+          : null,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(100),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+          child: Container(
+            height: 48,
+            decoration: BoxDecoration(
+              color: glassColor,
+              borderRadius: BorderRadius.circular(100),
+              border: Border.all(
+                color: borderColor,
+                width: 0.5,
               ),
+            ),
+            child: Stack(
+              children: [
+                // 검색바 내용 (t=0일 때 보임)
+                Opacity(
+                  opacity: (1 - t * 2).clamp(0.0, 1.0),
+                  child: Center(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 16),
+                          child: Icon(
+                            CupertinoIcons.search,
+                            color: isDark ? Colors.white : Colors.black.withValues(alpha: 0.5),
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            controller: _titleController,
+                            focusNode: _searchFocusNode,
+                            style: TextStyle(
+                              color: foregroundColor,
+                              fontSize: 16,
+                              height: 1.2,
+                            ),
+                            cursorColor: foregroundColor,
+                            textAlignVertical: TextAlignVertical.center,
+                            decoration: InputDecoration(
+                              hintText: '책 제목을 입력해주세요.',
+                              hintStyle: TextStyle(
+                                color: hintColor,
+                                fontSize: 16,
+                                height: 1.2,
+                              ),
+                              filled: false,
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              isDense: true,
+                              isCollapsed: true,
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                            textInputAction: TextInputAction.search,
+                          ),
+                        ),
+                        if (_hasSearchText)
+                          GestureDetector(
+                            onTap: _clearSearchText,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 14),
+                              child: Container(
+                                width: 20,
+                                height: 20,
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? Colors.white.withValues(alpha: 0.3)
+                                      : Colors.black.withValues(alpha: 0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  CupertinoIcons.xmark,
+                                  color: isDark
+                                      ? Colors.black.withValues(alpha: 0.7)
+                                      : Colors.white.withValues(alpha: 0.9),
+                                  size: 12,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+                // 뒤로가기 아이콘 (t=1일 때 보임)
+                Opacity(
+                  opacity: ((t - 0.5) * 2).clamp(0.0, 1.0),
+                  child: Center(
+                    child: Icon(
+                      CupertinoIcons.chevron_back,
+                      color: foregroundColor.withValues(alpha: 0.9),
+                      size: 22,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
-        const SizedBox(width: 12),
-        // 분리된 원형 뒤로가기 버튼
-        GestureDetector(
-          onTap: () {
-            HapticFeedback.selectionClick();
-            Navigator.pop(context);
-          },
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(100),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-              child: Container(
-                width: 62,
-                height: 62,
-                decoration: BoxDecoration(
-                  color: glassColor,
-                  borderRadius: BorderRadius.circular(100),
-                  border: Border.all(
-                    color: borderColor,
-                    width: 0.5,
-                  ),
+      ),
+    );
+  }
+
+  /// 우측 요소: 뒤로가기 버튼 (t=0) ↔ 선택 완료 버튼 (t=1)
+  Widget _buildRightElement(
+    ReadingStartViewModel vm,
+    bool isDark,
+    double t,
+    Color glassColor,
+    Color borderColor,
+    Color foregroundColor,
+  ) {
+    // t < 0.5: 뒤로가기 버튼 (화면 닫기)
+    // t >= 0.5: 선택 완료 버튼
+    final isSelectionButton = t > 0.5;
+
+    if (!isSelectionButton) {
+      // 뒤로가기 버튼 (검색 모드)
+      return GestureDetector(
+        onTap: () {
+          HapticFeedback.selectionClick();
+          Navigator.pop(context);
+        },
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(100),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+            child: Container(
+              height: 48,
+              decoration: BoxDecoration(
+                color: glassColor,
+                borderRadius: BorderRadius.circular(100),
+                border: Border.all(
+                  color: borderColor,
+                  width: 0.5,
                 ),
+              ),
+              child: Center(
                 child: Icon(
                   CupertinoIcons.chevron_back,
                   color: isDark
@@ -592,156 +691,70 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
             ),
           ),
         ),
-      ],
-    );
-  }
+      );
+    }
 
-  /// 선택 모드 바: 뒤로가기 버튼 + 선택 완료 버튼 (슬라이드 애니메이션)
-  /// 포지션은 Stack의 Positioned에서 처리 (left: 16, right: 16, bottom: 20)
-  Widget _buildSelectionModeBar(ReadingStartViewModel vm, bool isDark) {
-    final glassColor = isDark
-        ? Colors.white.withValues(alpha: 0.12)
-        : Colors.black.withValues(alpha: 0.08);
-
-    final borderColor = isDark
-        ? Colors.white.withValues(alpha: 0.15)
-        : Colors.black.withValues(alpha: 0.08);
-
-    final foregroundColor = isDark ? Colors.white : Colors.black;
-
-    return Row(
-      children: [
-        // 뒤로가기 버튼 (선택 해제)
-        GestureDetector(
-          onTap: () {
-            HapticFeedback.selectionClick();
-            vm.clearSelection();
-          },
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(100),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-              child: Container(
-                width: 62,
-                height: 62,
-                decoration: BoxDecoration(
-                  color: glassColor,
-                  borderRadius: BorderRadius.circular(100),
-                  border: Border.all(
-                    color: borderColor,
-                    width: 0.5,
+    // 선택 완료 버튼 (선택 모드)
+    return GestureDetector(
+      onTapDown: (_) {
+        setState(() => _isSelectionButtonPressed = true);
+      },
+      onTapUp: (_) {
+        setState(() => _isSelectionButtonPressed = false);
+        HapticFeedback.selectionClick();
+        FocusScope.of(context).unfocus();
+        _nextPage(vm);
+      },
+      onTapCancel: () {
+        setState(() => _isSelectionButtonPressed = false);
+      },
+      child: TweenAnimationBuilder<double>(
+        tween: Tween<double>(
+          begin: _isSelectionButtonPressed ? 0.0 : 1.0,
+          end: _isSelectionButtonPressed ? 1.0 : 0.0,
+        ),
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeOutCubic,
+        builder: (context, pressValue, child) {
+          return Opacity(
+            opacity: ((t - 0.5) * 2).clamp(0.0, 1.0),
+            child: Container(
+              height: 48,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(100),
+                border: Border.all(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  width: 0.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.12 + 0.08 * pressValue),
+                    blurRadius: 16 + 8 * pressValue,
+                    offset: Offset(0, 4 + 4 * pressValue),
+                    spreadRadius: -2,
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Text(
+                  '선택 완료',
+                  style: TextStyle(
+                    color: Colors.black.withValues(alpha: 0.9),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                child: Icon(
-                  CupertinoIcons.chevron_back,
-                  color: foregroundColor.withValues(alpha: 0.9),
-                  size: 22,
-                ),
               ),
             ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        // 선택 완료 버튼 (슬라이드 애니메이션 + pressed 상태)
-        Expanded(
-          child: AnimatedBuilder(
-            animation: _selectionBarAnimation,
-            builder: (context, child) {
-              // 우측에서 슬라이드 인 + 폭 확장 애니메이션
-              final slideValue = _selectionBarAnimation.value;
-              return Transform.translate(
-                offset: Offset((1 - slideValue) * 100, 0),
-                child: Opacity(
-                  opacity: slideValue.clamp(0.0, 1.0),
-                  child: child,
-                ),
-              );
-            },
-            child: GestureDetector(
-              onTapDown: (_) {
-                setState(() => _isSelectionButtonPressed = true);
-              },
-              onTapUp: (_) {
-                setState(() => _isSelectionButtonPressed = false);
-                HapticFeedback.selectionClick();
-                _nextPage(vm);
-              },
-              onTapCancel: () {
-                setState(() => _isSelectionButtonPressed = false);
-              },
-              child: TweenAnimationBuilder<double>(
-                tween: Tween<double>(
-                  begin: _isSelectionButtonPressed ? 0.0 : 1.0,
-                  end: _isSelectionButtonPressed ? 1.0 : 0.0,
-                ),
-                duration: const Duration(milliseconds: 150),
-                curve: Curves.easeOutCubic,
-                builder: (context, pressValue, child) {
-                  return Container(
-                    height: 62,
-                    decoration: BoxDecoration(
-                      // fill: #343434
-                      color: const Color(0xFF343434),
-                      borderRadius: BorderRadius.circular(100),
-                      // stroke: #363636 1px
-                      border: Border.all(
-                        color: const Color(0xFF363636),
-                        width: 1,
-                      ),
-                      // 부드러운 shadow 전환
-                      boxShadow: [
-                        // Drop shadow (pressed 상태)
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.12 * pressValue),
-                          blurRadius: 24 * pressValue,
-                          offset: Offset(4 * pressValue, 4 * pressValue),
-                        ),
-                        // Inner glow (normal 상태)
-                        BoxShadow(
-                          color: Colors.white.withValues(alpha: 0.07 * (1 - pressValue)),
-                          blurRadius: 12,
-                          spreadRadius: -4,
-                        ),
-                      ],
-                    ),
-                    child: Stack(
-                      children: [
-                        // Inner shadow 효과 (부드러운 그라디언트 전환)
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
-                            gradient: RadialGradient(
-                              center: Alignment.center,
-                              radius: 1.2,
-                              colors: [
-                                // pressed: #fff 20%, normal: transparent
-                                Colors.white.withValues(alpha: 0.20 * pressValue),
-                                // pressed: transparent, normal: #fff 5%
-                                Colors.white.withValues(alpha: 0.05 * (1 - pressValue)),
-                              ],
-                            ),
-                          ),
-                        ),
-                        // 텍스트
-                        const Center(
-                          child: Text(
-                            '선택 완료',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-        ),
-      ],
+          );
+        },
+      ),
     );
   }
 
