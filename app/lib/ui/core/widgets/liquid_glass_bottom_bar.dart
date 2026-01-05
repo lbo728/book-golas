@@ -164,7 +164,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      margin: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
+      margin: const EdgeInsets.only(left: 16, right: 16, bottom: 22),
       child: Row(
         children: [
           // Pill TabBar (4개 탭)
