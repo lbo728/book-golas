@@ -17,11 +17,11 @@ class FloatingActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // 홈 LiquidGlassBottomBar와 동일한 포지션 (bottom: 20, SafeArea 미적용)
+    // 홈 LiquidGlassBottomBar와 동일한 포지션 (bottom: 22, SafeArea 미적용)
     return Positioned(
       left: 16,
       right: 16,
-      bottom: 20,
+      bottom: 22,
       child: Row(
         children: [
           Expanded(
