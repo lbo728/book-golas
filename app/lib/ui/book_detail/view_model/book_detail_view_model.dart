@@ -225,4 +225,21 @@ class BookDetailViewModel extends BaseViewModel {
     _currentBook = book;
     notifyListeners();
   }
+
+  /// 최신 책 데이터를 DB에서 가져와 갱신
+  Future<void> refreshBook() async {
+    try {
+      final bookId = _currentBook.id;
+      if (bookId == null) return;
+
+      final freshBook = await _bookService.getBookById(bookId);
+      if (freshBook != null) {
+        _currentBook = freshBook;
+        print('📖 [ViewModel] refreshBook 성공: current_page=${freshBook.currentPage}');
+        notifyListeners();
+      }
+    } catch (e) {
+      print('📖 [ViewModel] refreshBook 실패: $e');
+    }
+  }
 }

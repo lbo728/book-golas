@@ -100,13 +100,19 @@ class _BookDetailContentState extends State<_BookDetailContent>
       curve: Curves.elasticOut,
     );
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final bookVm = context.read<BookDetailViewModel>();
       final memorableVm = context.read<MemorablePageViewModel>();
       final progressVm = context.read<ReadingProgressViewModel>();
 
-      _animatedProgress = bookVm.currentBook.currentPage / bookVm.currentBook.totalPages;
-      bookVm.loadDailyAchievements();
+      // 최신 책 데이터 가져오기 (DB에서 fresh data)
+      await bookVm.refreshBook();
+      await bookVm.loadDailyAchievements();
+
+      if (mounted) {
+        _animatedProgress = bookVm.currentBook.currentPage / bookVm.currentBook.totalPages;
+      }
+
       memorableVm.fetchBookImages();
       progressVm.fetchProgressHistory();
 
@@ -346,6 +352,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
     final totalPages = bookVm.currentBook.totalPages;
     final oldProgress = oldPage / totalPages;
     final newProgress = newPage / totalPages;
+    final wasGoalAchieved = bookVm.isTodayGoalAchieved;
 
     final success = await bookVm.updateCurrentPage(newPage);
     if (success && mounted) {
@@ -355,6 +362,11 @@ class _BookDetailContentState extends State<_BookDetailContent>
       final pagesRead = newPage - oldPage;
       if (bookVm.isTodayGoalAchieved) {
         CustomSnackbar.show(context, message: '오늘 목표 달성! +$pagesRead 페이지 🎉', type: SnackbarType.success);
+
+        // 이번 업데이트로 목표 달성했으면 컨페티 표시
+        if (!wasGoalAchieved) {
+          _showGoalAchievedCelebration();
+        }
       } else {
         final dailyTarget = bookVm.currentBook.dailyTargetPages ?? 0;
         final remaining = dailyTarget - bookVm.todayPagesRead;
@@ -369,6 +381,16 @@ class _BookDetailContentState extends State<_BookDetailContent>
     } else if (mounted) {
       CustomSnackbar.show(context, message: '오류가 발생했습니다', type: SnackbarType.error);
     }
+  }
+
+  /// 목표 달성 축하 애니메이션
+  void _showGoalAchievedCelebration() {
+    _confettiController?.dispose();
+    _confettiController = ConfettiController(
+      duration: const Duration(seconds: 2),
+    );
+    _confettiController!.play();
+    setState(() {});
   }
 
   void _showDailyTargetChangeDialog(BookDetailViewModel bookVm) async {
