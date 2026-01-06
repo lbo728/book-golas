@@ -411,12 +411,15 @@ class _BookDetailContentState extends State<_BookDetailContent>
         publicUrl = storage.from('book-images').getPublicUrl(fileName);
       }
 
+      final userId = Supabase.instance.client.auth.currentUser?.id;
       await Supabase.instance.client.from('book_images').insert({
         'book_id': bookVm.currentBook.id,
+        'user_id': userId,
         'image_url': publicUrl,
         'caption': '',
         'extracted_text': extractedText.isEmpty ? null : extractedText,
         'page_number': pageNumber,
+        'created_at': DateTime.now().toIso8601String(),
       });
 
       await memorableVm.fetchBookImages();
@@ -428,7 +431,9 @@ class _BookDetailContentState extends State<_BookDetailContent>
         CustomSnackbar.show(context, message: '인상적인 페이지가 저장되었습니다', type: SnackbarType.success);
       }
       return true;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('🔴 업로드 실패: $e');
+      debugPrint('🔴 스택 트레이스: $stackTrace');
       if (mounted) {
         final errorMessage = e.toString();
         final isNetworkError = errorMessage.contains('SocketException') || errorMessage.contains('Connection') || errorMessage.contains('timeout');
