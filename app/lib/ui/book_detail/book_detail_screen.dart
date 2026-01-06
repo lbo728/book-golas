@@ -411,11 +411,11 @@ class _BookDetailContentState extends State<_BookDetailContent>
     );
   }
 
-  void _showAddMemorablePageModal() {
+  void _showAddMemorablePageModal() async {
     final memorableVm = context.read<MemorablePageViewModel>();
     final bookVm = context.read<BookDetailViewModel>();
 
-    showAddMemorablePageModal(
+    final result = await showAddMemorablePageModal(
       context: context,
       initialImageBytes: memorableVm.pendingImageBytes,
       initialExtractedText: memorableVm.pendingExtractedText,
@@ -434,14 +434,22 @@ class _BookDetailContentState extends State<_BookDetailContent>
       onUpload: ({Uint8List? imageBytes, required String extractedText, int? pageNumber}) async {
         return await _uploadAndSaveMemorablePage(imageBytes: imageBytes, extractedText: extractedText, pageNumber: pageNumber);
       },
-      onDismiss: (imageBytes, text, pageNumber) {
-        if (imageBytes != null) {
-          memorableVm.setPendingImage(bytes: imageBytes, extractedText: text, pageNumber: pageNumber);
-        } else {
-          memorableVm.clearPendingImage();
+      onStateChanged: (imageBytes, text, pageNumber) {
+        if (imageBytes != null || text.isNotEmpty || pageNumber != null) {
+          memorableVm.setPendingImage(
+            bytes: imageBytes ?? Uint8List(0),
+            extractedText: text,
+            pageNumber: pageNumber,
+          );
         }
       },
     );
+
+    if (!mounted) return;
+
+    if (result != null && result['clear'] == true) {
+      memorableVm.clearPendingImage();
+    }
   }
 
   Future<bool> _uploadAndSaveMemorablePage({Uint8List? imageBytes, required String extractedText, int? pageNumber}) async {
@@ -457,12 +465,15 @@ class _BookDetailContentState extends State<_BookDetailContent>
         publicUrl = storage.from('book-images').getPublicUrl(fileName);
       }
 
+      final userId = Supabase.instance.client.auth.currentUser?.id;
       await Supabase.instance.client.from('book_images').insert({
         'book_id': bookVm.currentBook.id,
+        'user_id': userId,
         'image_url': publicUrl,
         'caption': '',
         'extracted_text': extractedText.isEmpty ? null : extractedText,
         'page_number': pageNumber,
+        'created_at': DateTime.now().toIso8601String(),
       });
 
       await memorableVm.fetchBookImages();
@@ -471,10 +482,12 @@ class _BookDetailContentState extends State<_BookDetailContent>
       if (mounted) {
         _tabController.animateTo(0);
         _scrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-        CustomSnackbar.show(context, message: '인상적인 페이지가 저장되었습니다', type: SnackbarType.success);
+        CustomSnackbar.show(context, message: '기록이 저장되었습니다', type: SnackbarType.success);
       }
       return true;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('🔴 업로드 실패: $e');
+      debugPrint('🔴 스택 트레이스: $stackTrace');
       if (mounted) {
         final errorMessage = e.toString();
         final isNetworkError = errorMessage.contains('SocketException') || errorMessage.contains('Connection') || errorMessage.contains('timeout');
@@ -482,7 +495,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
           context: context,
           builder: (dialogContext) => CupertinoAlertDialog(
             title: const Text('업로드 실패'),
-            content: Text(isNetworkError ? '네트워크 연결을 확인해주세요.\n연결 상태가 양호하면 다시 시도해주세요.' : '인상적인 페이지를 저장하는 중 오류가 발생했습니다.\n업로드 버튼을 눌러 다시 시도해주세요.'),
+            content: Text(isNetworkError ? '네트워크 연결을 확인해주세요.\n연결 상태가 양호하면 다시 시도해주세요.' : '기록을 저장하는 중 오류가 발생했습니다.\n업로드 버튼을 눌러 다시 시도해주세요.'),
             actions: [CupertinoDialogAction(child: const Text('확인'), onPressed: () => Navigator.pop(dialogContext))],
           ),
         );
