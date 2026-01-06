@@ -25,6 +25,8 @@ class AddMemorablePageModal extends StatefulWidget {
     required String extractedText,
     int? pageNumber,
   }) onUpload;
+  final void Function(Uint8List? imageBytes, String text, int? pageNumber)?
+      onStateChanged;
 
   const AddMemorablePageModal({
     super.key,
@@ -37,6 +39,7 @@ class AddMemorablePageModal extends StatefulWidget {
     required this.onShowReplaceImageConfirmation,
     required this.onExtractText,
     required this.onUpload,
+    this.onStateChanged,
   });
 
   @override
@@ -305,6 +308,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
               _pageController.text = extractedPageNum.toString();
             }
           });
+          _notifyStateChanged();
         });
       }
     });
@@ -317,6 +321,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
         _pageValidationError = null;
         _hasShownPageError = false;
       });
+      _notifyStateChanged();
       return;
     }
     final parsed = int.tryParse(value);
@@ -344,6 +349,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
           _hasShownPageError = false;
         });
       }
+      _notifyStateChanged();
     }
   }
 
@@ -373,6 +379,14 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
       'text': _textController.text,
       'pageNumber': int.tryParse(_pageController.text),
     };
+  }
+
+  void _notifyStateChanged() {
+    widget.onStateChanged?.call(
+      _fullImageBytes,
+      _textController.text,
+      int.tryParse(_pageController.text),
+    );
   }
 
   @override
@@ -579,6 +593,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                         _pageController.text = ocrPageNumber.toString();
                       }
                     });
+                    _notifyStateChanged();
                   });
                 });
               },
@@ -630,6 +645,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                 _pageController.text = ocrPageNumber.toString();
               }
             });
+            _notifyStateChanged();
           }),
       child: Center(
         child: Column(
@@ -838,6 +854,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
             textInputAction: TextInputAction.newline,
             onChanged: (value) {
               setState(() {});
+              _notifyStateChanged();
             },
             onTap: () {
               Future.delayed(const Duration(milliseconds: 300), () {
@@ -1000,6 +1017,8 @@ Future<Map<String, dynamic>?> showAddMemorablePageModal({
     required String extractedText,
     int? pageNumber,
   }) onUpload,
+  void Function(Uint8List? imageBytes, String text, int? pageNumber)?
+      onStateChanged,
 }) {
   return showModalBottomSheet<Map<String, dynamic>?>(
     context: context,
@@ -1018,6 +1037,7 @@ Future<Map<String, dynamic>?> showAddMemorablePageModal({
           onShowReplaceImageConfirmation: onShowReplaceImageConfirmation,
           onExtractText: onExtractText,
           onUpload: onUpload,
+          onStateChanged: onStateChanged,
         ),
   );
 }

@@ -380,23 +380,20 @@ class _BookDetailContentState extends State<_BookDetailContent>
       onUpload: ({Uint8List? imageBytes, required String extractedText, int? pageNumber}) async {
         return await _uploadAndSaveMemorablePage(imageBytes: imageBytes, extractedText: extractedText, pageNumber: pageNumber);
       },
+      onStateChanged: (imageBytes, text, pageNumber) {
+        if (imageBytes != null || text.isNotEmpty || pageNumber != null) {
+          memorableVm.setPendingImage(
+            bytes: imageBytes ?? Uint8List(0),
+            extractedText: text,
+            pageNumber: pageNumber,
+          );
+        }
+      },
     );
 
     if (!mounted) return;
 
-    if (result != null) {
-      final imageBytes = result['imageBytes'] as Uint8List?;
-      final text = result['text'] as String? ?? '';
-      final pageNumber = result['pageNumber'] as int?;
-
-      if (imageBytes != null || text.isNotEmpty || pageNumber != null) {
-        memorableVm.setPendingImage(
-          bytes: imageBytes ?? Uint8List(0),
-          extractedText: text,
-          pageNumber: pageNumber,
-        );
-      }
-    } else {
+    if (result == null) {
       memorableVm.clearPendingImage();
     }
   }
