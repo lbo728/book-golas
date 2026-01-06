@@ -113,6 +113,7 @@ class BookDetailViewModel extends BaseViewModel {
       final updatedBook = await _bookService.updateCurrentPage(
         _currentBook.id!,
         newPage,
+        previousPage: previousPage,
       );
 
       if (updatedBook != null) {

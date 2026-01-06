@@ -98,15 +98,21 @@ class BookService {
     }
   }
 
-  Future<Book?> updateCurrentPage(String bookId, int currentPage) async {
+  Future<Book?> updateCurrentPage(
+    String bookId,
+    int currentPage, {
+    int? previousPage,
+  }) async {
     try {
-      // 이전 페이지 가져오기 (히스토리 기록용)
-      int previousPage = 0;
-      try {
-        final existingBook = _books.firstWhere((b) => b.id == bookId);
-        previousPage = existingBook.currentPage;
-      } catch (_) {
-        // 로컬 캐시에 없으면 previousPage = 0
+      // 이전 페이지 결정 (파라미터 > 캐시 > 0)
+      int prevPage = previousPage ?? 0;
+      if (previousPage == null) {
+        try {
+          final existingBook = _books.firstWhere((b) => b.id == bookId);
+          prevPage = existingBook.currentPage;
+        } catch (_) {
+          // 로컬 캐시에 없으면 previousPage = 0
+        }
       }
 
       // books 테이블 업데이트
@@ -126,18 +132,24 @@ class BookService {
       final index = _books.indexWhere((b) => b.id == bookId);
       if (index != -1) {
         _books[index] = updatedBook;
+      } else {
+        _books.add(updatedBook);
       }
 
-      // 페이지가 증가한 경우에만 히스토리 기록
-      if (currentPage > previousPage) {
-        final userId = _supabase.auth.currentUser?.id;
-        if (userId != null) {
-          await _supabase.from('reading_progress_history').insert({
-            'user_id': userId,
-            'book_id': bookId,
-            'page': currentPage,
-            'previous_page': previousPage,
-          });
+      // 페이지가 증가한 경우에만 히스토리 기록 (별도 try-catch로 분리)
+      if (currentPage > prevPage) {
+        try {
+          final userId = _supabase.auth.currentUser?.id;
+          if (userId != null) {
+            await _supabase.from('reading_progress_history').insert({
+              'user_id': userId,
+              'book_id': bookId,
+              'page': currentPage,
+              'previous_page': prevPage,
+            });
+          }
+        } catch (historyError) {
+          print('히스토리 기록 실패 (무시됨): $historyError');
         }
       }
 

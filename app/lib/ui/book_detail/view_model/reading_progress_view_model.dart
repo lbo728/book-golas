@@ -23,7 +23,14 @@ class ReadingProgressViewModel extends BaseViewModel {
           .eq('book_id', _bookId)
           .order('created_at', ascending: true);
 
-      _progressHistory = (response as List).cast<Map<String, dynamic>>();
+      _progressHistory = (response as List).map((record) {
+        final map = Map<String, dynamic>.from(record as Map);
+        if (map['created_at'] != null && map['created_at'] is String) {
+          map['created_at'] = DateTime.parse(map['created_at'] as String);
+        }
+        return map;
+      }).toList();
+
       notifyListeners();
       return _progressHistory!;
     } catch (e) {
