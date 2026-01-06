@@ -89,12 +89,38 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
     Navigator.pop(context);
   }
 
-  void _showExtractTextConfirmation(bool isDark) {
+  void _handleOcrExtraction(bool isDark) {
+    if (_fullImageBytes == null) return;
+
+    widget.onExtractText(_fullImageBytes!, (ocrText, extractedPageNum) {
+      if (!mounted) return;
+
+      if (ocrText.isEmpty) {
+        return;
+      }
+
+      _showOcrResultConfirmation(
+        isDark: isDark,
+        extractedText: ocrText,
+        extractedPageNum: extractedPageNum,
+      );
+    });
+  }
+
+  void _showOcrResultConfirmation({
+    required bool isDark,
+    required String extractedText,
+    required int? extractedPageNum,
+  }) {
     showModalBottomSheet<bool>(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder:
           (bottomSheetContext) => Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
+            ),
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
@@ -115,26 +141,69 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                   ),
                 ),
                 Text(
-                  '텍스트를 추출하시겠어요?',
+                  '추출된 텍스트',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white : Colors.black,
-                    height: 1.5,
                   ),
                 ),
+                const SizedBox(height: 16),
+                Flexible(
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.grey[900] : Colors.grey[100],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                      ),
+                    ),
+                    child: SingleChildScrollView(
+                      child: Text(
+                        extractedText,
+                        style: TextStyle(
+                          fontSize: 14,
+                          height: 1.6,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                if (extractedPageNum != null) ...[
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        CupertinoIcons.book,
+                        size: 14,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '페이지 $extractedPageNum',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: 8),
                 Text(
-                  '작성하신 텍스트를 덮어씁니다.\n크레딧을 소모합니다.',
+                  '소모된 크레딧은 복구되지 않습니다.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 14,
-                    color: isDark ? Colors.grey[400] : Colors.grey[600],
-                    height: 1.4,
+                    fontSize: 12,
+                    color: isDark ? Colors.grey[500] : Colors.grey[500],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
                 Row(
                   children: [
                     Expanded(
@@ -148,7 +217,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                           ),
                           child: Center(
                             child: Text(
-                              '취소',
+                              '다시 선택',
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
@@ -172,7 +241,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                           ),
                           child: const Center(
                             child: Text(
-                              '추출하기',
+                              '적용하기',
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
@@ -191,19 +260,20 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
               ],
             ),
           ),
-    ).then((shouldProceed) {
-      if (shouldProceed == true && _fullImageBytes != null) {
-        widget.onExtractText(_fullImageBytes!, (ocrText, extractedPageNum) {
-          if (!mounted) return;
-          setState(() {
-            _textController.text = ocrText;
-            if (extractedPageNum != null) {
-              _pageNumber = extractedPageNum;
-              _pageController.text = extractedPageNum.toString();
-            }
-          });
-          _notifyStateChanged();
+    ).then((shouldApply) {
+      if (!mounted) return;
+
+      if (shouldApply == true) {
+        setState(() {
+          _textController.text = extractedText;
+          if (extractedPageNum != null) {
+            _pageNumber = extractedPageNum;
+            _pageController.text = extractedPageNum.toString();
+          }
         });
+        _notifyStateChanged();
+      } else if (shouldApply == false) {
+        _handleOcrExtraction(Theme.of(context).brightness == Brightness.dark);
       }
     });
   }
@@ -441,7 +511,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
             bottom: 8,
             right: 8,
             child: GestureDetector(
-              onTap: () => _showExtractTextConfirmation(isDark),
+              onTap: () => _handleOcrExtraction(isDark),
               behavior: HitTestBehavior.opaque,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -825,6 +895,9 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
   }
 
   Widget _buildKeyboardAccessory(bool isDark) {
+    final isPageFocused = _pageFocusNode.hasFocus;
+    final isTextFocused = _textFocusNode.hasFocus;
+
     return Positioned(
       left: 0,
       right: 0,
@@ -832,7 +905,8 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
       child: KeyboardAccessoryBar(
         isDark: isDark,
         showNavigation: true,
-        icon: CupertinoIcons.checkmark,
+        canGoUp: isTextFocused,
+        canGoDown: isPageFocused,
         onUp: () {
           if (_textFocusNode.hasFocus) {
             _textFocusNode.unfocus();
