@@ -141,10 +141,19 @@ class BookDetailViewModel extends BaseViewModel {
         final pagesRead = newPage - previousPage;
         if (pagesRead > 0) {
           _todayPagesRead += pagesRead;
+
+          // 오늘 달성 여부 로컬 업데이트 (DB 쿼리 대신 즉시 반영)
+          final dailyTarget = _currentBook.dailyTargetPages ?? 0;
+          if (dailyTarget > 0) {
+            final now = DateTime.now();
+            final todayKey =
+                '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+            _dailyAchievements[todayKey] = _todayPagesRead >= dailyTarget;
+            print('📖 [ViewModel] 로컬 달성 업데이트: $todayKey = ${_dailyAchievements[todayKey]}');
+          }
         }
         print('📖 [ViewModel] todayPagesRead=$_todayPagesRead, isTodayGoalAchieved=$isTodayGoalAchieved');
 
-        await loadDailyAchievements();
         notifyListeners();
         return true;
       }
