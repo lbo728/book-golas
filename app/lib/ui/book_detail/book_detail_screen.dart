@@ -353,7 +353,17 @@ class _BookDetailContentState extends State<_BookDetailContent>
       _scrollController.animateTo(0, duration: const Duration(milliseconds: 500), curve: Curves.easeOutCubic);
 
       final pagesRead = newPage - oldPage;
-      CustomSnackbar.show(context, message: '+$pagesRead 페이지! ${newPage}p 도달', type: SnackbarType.success);
+      if (bookVm.isTodayGoalAchieved) {
+        CustomSnackbar.show(context, message: '오늘 목표 달성! +$pagesRead 페이지 🎉', type: SnackbarType.success);
+      } else {
+        final dailyTarget = bookVm.currentBook.dailyTargetPages ?? 0;
+        final remaining = dailyTarget - bookVm.todayPagesRead;
+        if (remaining > 0) {
+          CustomSnackbar.show(context, message: '+$pagesRead 페이지! 오늘 목표까지 ${remaining}p 남음', type: SnackbarType.info);
+        } else {
+          CustomSnackbar.show(context, message: '+$pagesRead 페이지! ${newPage}p 도달', type: SnackbarType.success);
+        }
+      }
 
       context.read<ReadingProgressViewModel>().fetchProgressHistory();
     } else if (mounted) {

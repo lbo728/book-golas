@@ -11,12 +11,20 @@ class BookDetailViewModel extends BaseViewModel {
   int _todayTargetPage = 0;
   int _attemptCount = 1;
   Map<String, bool> _dailyAchievements = {};
+  int _todayPagesRead = 0;
 
   Book get currentBook => _currentBook;
   int get todayStartPage => _todayStartPage;
   int get todayTargetPage => _todayTargetPage;
   int get attemptCount => _attemptCount;
   Map<String, bool> get dailyAchievements => _dailyAchievements;
+  int get todayPagesRead => _todayPagesRead;
+
+  bool get isTodayGoalAchieved {
+    final dailyTarget = _currentBook.dailyTargetPages ?? 0;
+    if (dailyTarget == 0) return false;
+    return _todayPagesRead >= dailyTarget;
+  }
 
   int get daysLeft {
     final now = DateTime.now();
@@ -57,36 +65,65 @@ class BookDetailViewModel extends BaseViewModel {
   }
 
   Future<void> loadDailyAchievements() async {
-    final achievements = <String, bool>{};
-    final startDate = _currentBook.startDate;
-    final now = DateTime.now();
+    try {
+      final achievements = <String, bool>{};
+      final dailyTarget = _currentBook.dailyTargetPages ?? 0;
 
-    for (var i = 0; i < now.difference(startDate).inDays; i++) {
-      final date = startDate.add(Duration(days: i));
-      final dateKey =
-          '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-      achievements[dateKey] = i % 3 != 1;
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) return;
+
+      final response = await Supabase.instance.client
+          .from('reading_progress_history')
+          .select('page, previous_page, created_at')
+          .eq('book_id', _currentBook.id!)
+          .eq('user_id', userId)
+          .order('created_at', ascending: true);
+
+      final dailyPages = <String, int>{};
+      for (final record in response as List) {
+        final createdAt = DateTime.parse(record['created_at'] as String);
+        final dateKey =
+            '${createdAt.year}-${createdAt.month.toString().padLeft(2, '0')}-${createdAt.day.toString().padLeft(2, '0')}';
+        final pagesRead =
+            (record['page'] as int) - (record['previous_page'] as int? ?? 0);
+        dailyPages[dateKey] = (dailyPages[dateKey] ?? 0) + pagesRead;
+      }
+
+      for (final entry in dailyPages.entries) {
+        achievements[entry.key] = entry.value >= dailyTarget;
+      }
+
+      final now = DateTime.now();
+      final todayKey =
+          '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      _todayPagesRead = dailyPages[todayKey] ?? 0;
+
+      _dailyAchievements = achievements;
+      notifyListeners();
+    } catch (e) {
+      print('일일 달성 현황 로드 실패: $e');
+      _dailyAchievements = {};
+      notifyListeners();
     }
-
-    _dailyAchievements = achievements;
-    notifyListeners();
   }
 
   Future<bool> updateCurrentPage(int newPage) async {
     try {
-      final response = await Supabase.instance.client
-          .from('books')
-          .update({
-            'current_page': newPage,
-            'updated_at': DateTime.now().toIso8601String(),
-          })
-          .eq('id', _currentBook.id!)
-          .select()
-          .single();
+      final previousPage = _currentBook.currentPage;
+      final updatedBook = await _bookService.updateCurrentPage(
+        _currentBook.id!,
+        newPage,
+      );
 
-      if (response['id'] != null) {
-        _currentBook = _currentBook.copyWith(currentPage: newPage);
-        notifyListeners();
+      if (updatedBook != null) {
+        _currentBook = updatedBook;
+
+        final pagesRead = newPage - previousPage;
+        if (pagesRead > 0) {
+          _todayPagesRead += pagesRead;
+        }
+
+        await loadDailyAchievements();
         return true;
       }
       return false;
