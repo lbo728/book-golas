@@ -168,7 +168,6 @@ Future<void> pickImageAndExtractText(
   ImageSource source,
   Function(Uint8List imageBytes, String ocrText, int? pageNumber) onComplete,
 ) async {
-  bool isLoadingDialogShown = false;
   final parentContext = context;
   Uint8List? fullImageBytes;
 
@@ -179,214 +178,26 @@ Future<void> pickImageAndExtractText(
 
     fullImageBytes = await pickedFile.readAsBytes();
 
-    await Future.delayed(const Duration(milliseconds: 100));
-
-    final isDark = Theme.of(parentContext).brightness == Brightness.dark;
-    final shouldExtract = await showModalBottomSheet<bool>(
-      context: parentContext,
-      backgroundColor: Colors.transparent,
-      useRootNavigator: true,
-      builder: (context) {
-        return Container(
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 20),
-                decoration: BoxDecoration(
-                  color: Colors.grey[400],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              Icon(
-                Icons.document_scanner_outlined,
-                size: 48,
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                '텍스트를 추출하시겠어요?',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : Colors.black,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '크레딧이 소모됩니다',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: isDark ? Colors.grey[400] : Colors.grey[600],
-                ),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(
-                            color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                          ),
-                        ),
-                      ),
-                      child: Text(
-                        '괜찮아요',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: isDark ? Colors.grey[400] : Colors.grey[600],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF5B7FFF),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        '추출할게요',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: MediaQuery.of(context).padding.bottom),
-            ],
-          ),
-        );
-      },
-    );
-
-    if (shouldExtract != true) {
-      onComplete(fullImageBytes, '', null);
-      return;
-    }
-
-    debugPrint('🟡 OCR: 크롭 화면 표시 중...');
-    final croppedFile = await ImageCropper().cropImage(
-      sourcePath: pickedFile.path,
-      uiSettings: [
-        IOSUiSettings(
-          title: '텍스트 추출 영역 선택',
-          cancelButtonTitle: '취소',
-          doneButtonTitle: '완료',
-          aspectRatioLockEnabled: false,
-          resetAspectRatioEnabled: true,
-          rotateButtonsHidden: false,
-          rotateClockwiseButtonHidden: true,
-        ),
-        AndroidUiSettings(
-          toolbarTitle: '텍스트 추출 영역 선택',
-          toolbarColor: const Color(0xFF5B7FFF),
-          toolbarWidgetColor: Colors.white,
-          initAspectRatio: CropAspectRatioPreset.original,
-          lockAspectRatio: false,
-          hideBottomControls: false,
-        ),
-      ],
-    );
-
-    if (croppedFile == null) {
-      debugPrint('🟠 OCR: 사용자가 크롭을 취소했습니다.');
-      return;
-    }
-
-    debugPrint('🟡 OCR: 크롭 완료, 텍스트 추출 시작...');
-    isLoadingDialogShown = true;
-    showDialog(
-      context: parentContext,
-      barrierDismissible: false,
-      builder: (dialogContext) => PopScope(
-        canPop: false,
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Theme.of(dialogContext).brightness == Brightness.dark
-                  ? const Color(0xFF2A2A2A)
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CircularProgressIndicator(color: Color(0xFF5B7FFF)),
-                const SizedBox(height: 16),
-                Text(
-                  '텍스트 추출 중...',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(dialogContext).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+    debugPrint('🟡 OCR: 페이지 번호 자동 추출 시작...');
 
     final ocrService = GoogleVisionOcrService();
-    final croppedBytes = await croppedFile.readAsBytes();
-    debugPrint('🟡 OCR: 크롭된 이미지 크기: ${croppedBytes.length} bytes');
-
-    final ocrText = await ocrService.extractTextFromBytes(croppedBytes);
+    final ocrText = await ocrService.extractTextFromBytes(fullImageBytes);
     final pageNumber = extractPageNumber(ocrText ?? '');
 
-    if (isLoadingDialogShown) {
-      Navigator.of(parentContext, rootNavigator: true).pop();
-      isLoadingDialogShown = false;
+    if (pageNumber != null) {
+      debugPrint('🟢 OCR: 페이지 번호 자동 추출 성공 - $pageNumber');
+    } else {
+      debugPrint('🟠 OCR: 페이지 번호를 찾지 못했습니다.');
     }
 
-    if (ocrText == null || ocrText.isEmpty) {
-      debugPrint('🟠 OCR: 텍스트 추출 결과가 비어있습니다.');
-      CustomSnackbar.show(parentContext, message: '텍스트를 추출하지 못했습니다. 이미지만 추가됩니다.', rootOverlay: true);
-      onComplete(fullImageBytes, '', null);
-      return;
-    }
-
-    debugPrint('🟢 OCR: 텍스트 추출 성공 (길이: ${ocrText.length})');
-    onComplete(fullImageBytes, ocrText, pageNumber);
+    onComplete(fullImageBytes, '', pageNumber);
   } catch (e) {
     debugPrint('🔴 OCR: 예외 발생 - $e');
 
-    if (isLoadingDialogShown) {
-      try {
-        Navigator.of(parentContext, rootNavigator: true).pop();
-      } catch (_) {}
-    }
-
     if (fullImageBytes != null) {
-      CustomSnackbar.show(parentContext, message: '텍스트 추출에 실패했습니다. 이미지만 추가됩니다.', rootOverlay: true);
       onComplete(fullImageBytes, '', null);
     } else {
-      CustomSnackbar.show(parentContext, message: '텍스트 추출에 실패했습니다. 다시 시도해주세요.', rootOverlay: true);
+      CustomSnackbar.show(parentContext, message: '이미지를 불러오지 못했습니다.', rootOverlay: true);
     }
   }
 }
