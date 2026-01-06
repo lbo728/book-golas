@@ -161,7 +161,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                           onTap: () {
                             Navigator.pop(bottomSheetContext);
                             _uploadSuccess = true;
-                            Navigator.pop(context, null);
+                            Navigator.pop(context, {'clear': true});
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 14),
@@ -362,7 +362,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
     );
     if (success && mounted) {
       _uploadSuccess = true;
-      Navigator.pop(context, null);
+      Navigator.pop(context, {'clear': true});
     } else {
       setState(() => _isUploading = false);
     }

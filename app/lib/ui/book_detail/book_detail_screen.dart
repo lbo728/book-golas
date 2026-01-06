@@ -393,7 +393,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
 
     if (!mounted) return;
 
-    if (result == null) {
+    if (result != null && result['clear'] == true) {
       memorableVm.clearPendingImage();
     }
   }
