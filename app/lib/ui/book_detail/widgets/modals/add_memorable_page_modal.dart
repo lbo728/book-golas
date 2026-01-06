@@ -85,115 +85,8 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
     super.dispose();
   }
 
-  void _showCancelConfirmation(bool isDark) {
-    final hasChanges =
-        _fullImageBytes != null ||
-        _textController.text.isNotEmpty ||
-        _pageController.text.isNotEmpty;
-
-    if (hasChanges) {
-      showModalBottomSheet(
-        context: context,
-        backgroundColor: Colors.transparent,
-        builder:
-            (bottomSheetContext) => Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20),
-                ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 4,
-                    margin: const EdgeInsets.only(bottom: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[400],
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  Text(
-                    '변경 중인 사항이 취소됩니다.\n닫으시겠어요?',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: isDark ? Colors.white : Colors.black,
-                      height: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => Navigator.pop(bottomSheetContext),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            decoration: BoxDecoration(
-                              color:
-                                  isDark ? Colors.grey[800] : Colors.grey[200],
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Center(
-                              child: Text(
-                                '취소',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color:
-                                      isDark
-                                          ? Colors.grey[300]
-                                          : Colors.grey[700],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.pop(bottomSheetContext);
-                            _uploadSuccess = true;
-                            Navigator.pop(context, {'clear': true});
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            decoration: BoxDecoration(
-                              color: Colors.red[400],
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                '닫기',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(bottomSheetContext).padding.bottom + 8,
-                  ),
-                ],
-              ),
-            ),
-      );
-    } else {
-      Navigator.pop(context);
-    }
+  void _handleClose() {
+    Navigator.pop(context);
   }
 
   void _showExtractTextConfirmation(bool isDark) {
@@ -301,6 +194,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
     ).then((shouldProceed) {
       if (shouldProceed == true && _fullImageBytes != null) {
         widget.onExtractText(_fullImageBytes!, (ocrText, extractedPageNum) {
+          if (!mounted) return;
           setState(() {
             _textController.text = ocrText;
             if (extractedPageNum != null) {
@@ -468,7 +362,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
-            onTap: () => _showCancelConfirmation(isDark),
+            onTap: _handleClose,
             child: Container(
               padding: const EdgeInsets.all(8),
               child: Icon(
