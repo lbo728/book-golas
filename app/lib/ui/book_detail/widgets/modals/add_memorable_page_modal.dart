@@ -25,8 +25,6 @@ class AddMemorablePageModal extends StatefulWidget {
     required String extractedText,
     int? pageNumber,
   }) onUpload;
-  final void Function(Uint8List? imageBytes, String text, int? pageNumber)
-      onDismiss;
 
   const AddMemorablePageModal({
     super.key,
@@ -39,7 +37,6 @@ class AddMemorablePageModal extends StatefulWidget {
     required this.onShowReplaceImageConfirmation,
     required this.onExtractText,
     required this.onUpload,
-    required this.onDismiss,
   });
 
   @override
@@ -83,17 +80,6 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
     _pageFocusNode.dispose();
     _scrollController.dispose();
     super.dispose();
-  }
-
-  void _handleDismiss() {
-    if (!_uploadSuccess) {
-      widget.onDismiss(
-        _fullImageBytes,
-        _textController.text,
-        int.tryParse(_pageController.text),
-      );
-    }
-    Navigator.pop(context);
   }
 
   void _showCancelConfirmation(bool isDark) {
@@ -172,8 +158,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                           onTap: () {
                             Navigator.pop(bottomSheetContext);
                             _uploadSuccess = true;
-                            widget.onDismiss(null, '', null);
-                            Navigator.pop(context);
+                            Navigator.pop(context, null);
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 14),
@@ -371,8 +356,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
     );
     if (success && mounted) {
       _uploadSuccess = true;
-      widget.onDismiss(null, '', null);
-      Navigator.pop(context);
+      Navigator.pop(context, null);
     } else {
       setState(() => _isUploading = false);
     }
@@ -383,13 +367,31 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
       _pageController.text.isNotEmpty &&
       _pageValidationError == null;
 
+  Map<String, dynamic> _getCurrentState() {
+    return {
+      'imageBytes': _fullImageBytes,
+      'text': _textController.text,
+      'pageNumber': int.tryParse(_pageController.text),
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final isKeyboardOpen = keyboardHeight > 0;
 
-    return GestureDetector(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (_uploadSuccess) {
+          Navigator.pop(context, null);
+        } else {
+          Navigator.pop(context, _getCurrentState());
+        }
+      },
+      child: GestureDetector(
       onTap: () {
         _textFocusNode.unfocus();
         _pageFocusNode.unfocus();
@@ -430,6 +432,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
           ),
         ),
       ),
+    ),
     );
   }
 
@@ -978,7 +981,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
   }
 }
 
-void showAddMemorablePageModal({
+Future<Map<String, dynamic>?> showAddMemorablePageModal({
   required BuildContext context,
   Uint8List? initialImageBytes,
   String initialExtractedText = '',
@@ -997,10 +1000,8 @@ void showAddMemorablePageModal({
     required String extractedText,
     int? pageNumber,
   }) onUpload,
-  required void Function(Uint8List? imageBytes, String text, int? pageNumber)
-      onDismiss,
 }) {
-  showModalBottomSheet(
+  return showModalBottomSheet<Map<String, dynamic>?>(
     context: context,
     isScrollControlled: true,
     isDismissible: true,
@@ -1017,7 +1018,6 @@ void showAddMemorablePageModal({
           onShowReplaceImageConfirmation: onShowReplaceImageConfirmation,
           onExtractText: onExtractText,
           onUpload: onUpload,
-          onDismiss: onDismiss,
         ),
   );
 }

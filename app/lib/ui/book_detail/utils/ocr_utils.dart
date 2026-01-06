@@ -170,13 +170,14 @@ Future<void> pickImageAndExtractText(
 ) async {
   bool isLoadingDialogShown = false;
   final parentContext = context;
+  Uint8List? fullImageBytes;
 
   try {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: source);
     if (pickedFile == null) return;
 
-    final fullImageBytes = await pickedFile.readAsBytes();
+    fullImageBytes = await pickedFile.readAsBytes();
 
     await Future.delayed(const Duration(milliseconds: 100));
 
@@ -365,7 +366,8 @@ Future<void> pickImageAndExtractText(
 
     if (ocrText == null || ocrText.isEmpty) {
       debugPrint('🟠 OCR: 텍스트 추출 결과가 비어있습니다.');
-      CustomSnackbar.show(parentContext, message: '텍스트를 추출하지 못했습니다. 다른 영역을 선택해보세요.', rootOverlay: true);
+      CustomSnackbar.show(parentContext, message: '텍스트를 추출하지 못했습니다. 이미지만 추가됩니다.', rootOverlay: true);
+      onComplete(fullImageBytes, '', null);
       return;
     }
 
@@ -380,7 +382,12 @@ Future<void> pickImageAndExtractText(
       } catch (_) {}
     }
 
-    CustomSnackbar.show(parentContext, message: '텍스트 추출에 실패했습니다. 다시 시도해주세요.', rootOverlay: true);
+    if (fullImageBytes != null) {
+      CustomSnackbar.show(parentContext, message: '텍스트 추출에 실패했습니다. 이미지만 추가됩니다.', rootOverlay: true);
+      onComplete(fullImageBytes, '', null);
+    } else {
+      CustomSnackbar.show(parentContext, message: '텍스트 추출에 실패했습니다. 다시 시도해주세요.', rootOverlay: true);
+    }
   }
 }
 

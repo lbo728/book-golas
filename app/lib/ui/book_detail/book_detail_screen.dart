@@ -357,11 +357,11 @@ class _BookDetailContentState extends State<_BookDetailContent>
     );
   }
 
-  void _showAddMemorablePageModal() {
+  void _showAddMemorablePageModal() async {
     final memorableVm = context.read<MemorablePageViewModel>();
     final bookVm = context.read<BookDetailViewModel>();
 
-    showAddMemorablePageModal(
+    final result = await showAddMemorablePageModal(
       context: context,
       initialImageBytes: memorableVm.pendingImageBytes,
       initialExtractedText: memorableVm.pendingExtractedText,
@@ -380,14 +380,25 @@ class _BookDetailContentState extends State<_BookDetailContent>
       onUpload: ({Uint8List? imageBytes, required String extractedText, int? pageNumber}) async {
         return await _uploadAndSaveMemorablePage(imageBytes: imageBytes, extractedText: extractedText, pageNumber: pageNumber);
       },
-      onDismiss: (imageBytes, text, pageNumber) {
-        if (imageBytes != null) {
-          memorableVm.setPendingImage(bytes: imageBytes, extractedText: text, pageNumber: pageNumber);
-        } else {
-          memorableVm.clearPendingImage();
-        }
-      },
     );
+
+    if (!mounted) return;
+
+    if (result != null) {
+      final imageBytes = result['imageBytes'] as Uint8List?;
+      final text = result['text'] as String? ?? '';
+      final pageNumber = result['pageNumber'] as int?;
+
+      if (imageBytes != null || text.isNotEmpty || pageNumber != null) {
+        memorableVm.setPendingImage(
+          bytes: imageBytes ?? Uint8List(0),
+          extractedText: text,
+          pageNumber: pageNumber,
+        );
+      }
+    } else {
+      memorableVm.clearPendingImage();
+    }
   }
 
   Future<bool> _uploadAndSaveMemorablePage({Uint8List? imageBytes, required String extractedText, int? pageNumber}) async {
