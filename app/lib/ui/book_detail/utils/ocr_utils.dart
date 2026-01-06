@@ -169,36 +169,19 @@ Future<void> pickImageAndExtractText(
   Function(Uint8List imageBytes, String ocrText, int? pageNumber) onComplete,
 ) async {
   final parentContext = context;
-  Uint8List? fullImageBytes;
 
   try {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: source);
     if (pickedFile == null) return;
 
-    fullImageBytes = await pickedFile.readAsBytes();
+    final fullImageBytes = await pickedFile.readAsBytes();
+    debugPrint('🟢 이미지 선택 완료 (${fullImageBytes.length} bytes)');
 
-    debugPrint('🟡 OCR: 페이지 번호 자동 추출 시작...');
-
-    final ocrService = GoogleVisionOcrService();
-    final ocrText = await ocrService.extractTextFromBytes(fullImageBytes);
-    final pageNumber = extractPageNumber(ocrText ?? '');
-
-    if (pageNumber != null) {
-      debugPrint('🟢 OCR: 페이지 번호 자동 추출 성공 - $pageNumber');
-    } else {
-      debugPrint('🟠 OCR: 페이지 번호를 찾지 못했습니다.');
-    }
-
-    onComplete(fullImageBytes, '', pageNumber);
+    onComplete(fullImageBytes, '', null);
   } catch (e) {
-    debugPrint('🔴 OCR: 예외 발생 - $e');
-
-    if (fullImageBytes != null) {
-      onComplete(fullImageBytes, '', null);
-    } else {
-      CustomSnackbar.show(parentContext, message: '이미지를 불러오지 못했습니다.', rootOverlay: true);
-    }
+    debugPrint('🔴 이미지 선택 예외 발생 - $e');
+    CustomSnackbar.show(parentContext, message: '이미지를 불러오지 못했습니다.', rootOverlay: true);
   }
 }
 

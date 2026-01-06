@@ -113,6 +113,8 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
     showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
+      isDismissible: false,
+      enableDrag: false,
       backgroundColor: Colors.transparent,
       builder:
           (bottomSheetContext) => Container(
