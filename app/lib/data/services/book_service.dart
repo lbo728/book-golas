@@ -115,6 +115,8 @@ class BookService {
         }
       }
 
+      print('📖 [BookService] 페이지 업데이트 시작: bookId=$bookId, $prevPage → $currentPage');
+
       // books 테이블 업데이트
       final response = await _supabase
           .from(_tableName)
@@ -127,6 +129,7 @@ class BookService {
           .single();
 
       final updatedBook = Book.fromJson(response);
+      print('📖 [BookService] DB 업데이트 성공: current_page=${updatedBook.currentPage}');
 
       // 로컬 캐시 업데이트
       final index = _books.indexWhere((b) => b.id == bookId);
@@ -147,15 +150,16 @@ class BookService {
               'page': currentPage,
               'previous_page': prevPage,
             });
+            print('📖 [BookService] 히스토리 기록 성공: $prevPage → $currentPage');
           }
         } catch (historyError) {
-          print('히스토리 기록 실패 (무시됨): $historyError');
+          print('📖 [BookService] 히스토리 기록 실패 (무시됨): $historyError');
         }
       }
 
       return updatedBook;
     } catch (e) {
-      print('현재 페이지 업데이트 실패: $e');
+      print('📖 [BookService] 페이지 업데이트 실패: $e');
       return null;
     }
   }

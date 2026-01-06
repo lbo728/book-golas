@@ -70,7 +70,12 @@ class BookDetailViewModel extends BaseViewModel {
       final dailyTarget = _currentBook.dailyTargetPages ?? 0;
 
       final userId = Supabase.instance.client.auth.currentUser?.id;
-      if (userId == null) return;
+      if (userId == null) {
+        print('📊 [loadDailyAchievements] userId is null, skipping');
+        return;
+      }
+
+      print('📊 [loadDailyAchievements] bookId=${_currentBook.id}, dailyTarget=$dailyTarget');
 
       final response = await Supabase.instance.client
           .from('reading_progress_history')
@@ -79,8 +84,10 @@ class BookDetailViewModel extends BaseViewModel {
           .eq('user_id', userId)
           .order('created_at', ascending: true);
 
+      print('📊 [loadDailyAchievements] 히스토리 레코드 수: ${(response as List).length}');
+
       final dailyPages = <String, int>{};
-      for (final record in response as List) {
+      for (final record in response) {
         final createdAt = DateTime.parse(record['created_at'] as String);
         final dateKey =
             '${createdAt.year}-${createdAt.month.toString().padLeft(2, '0')}-${createdAt.day.toString().padLeft(2, '0')}';
@@ -89,8 +96,13 @@ class BookDetailViewModel extends BaseViewModel {
         dailyPages[dateKey] = (dailyPages[dateKey] ?? 0) + pagesRead;
       }
 
-      for (final entry in dailyPages.entries) {
-        achievements[entry.key] = entry.value >= dailyTarget;
+      print('📊 [loadDailyAchievements] 날짜별 페이지: $dailyPages');
+
+      // dailyTarget이 0이면 (null 케이스) 달성 불가로 처리
+      if (dailyTarget > 0) {
+        for (final entry in dailyPages.entries) {
+          achievements[entry.key] = entry.value >= dailyTarget;
+        }
       }
 
       final now = DateTime.now();
@@ -98,10 +110,13 @@ class BookDetailViewModel extends BaseViewModel {
           '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
       _todayPagesRead = dailyPages[todayKey] ?? 0;
 
+      print('📊 [loadDailyAchievements] todayKey=$todayKey, todayPagesRead=$_todayPagesRead');
+      print('📊 [loadDailyAchievements] achievements=$achievements');
+
       _dailyAchievements = achievements;
       notifyListeners();
     } catch (e) {
-      print('일일 달성 현황 로드 실패: $e');
+      print('📊 [loadDailyAchievements] 실패: $e');
       _dailyAchievements = {};
       notifyListeners();
     }
@@ -110,6 +125,9 @@ class BookDetailViewModel extends BaseViewModel {
   Future<bool> updateCurrentPage(int newPage) async {
     try {
       final previousPage = _currentBook.currentPage;
+      print('📖 [ViewModel] 페이지 업데이트 요청: ${_currentBook.title} ($previousPage → $newPage)');
+      print('📖 [ViewModel] bookId=${_currentBook.id}, dailyTargetPages=${_currentBook.dailyTargetPages}');
+
       final updatedBook = await _bookService.updateCurrentPage(
         _currentBook.id!,
         newPage,
@@ -117,18 +135,23 @@ class BookDetailViewModel extends BaseViewModel {
       );
 
       if (updatedBook != null) {
+        print('📖 [ViewModel] 업데이트 성공: current_page=${updatedBook.currentPage}');
         _currentBook = updatedBook;
 
         final pagesRead = newPage - previousPage;
         if (pagesRead > 0) {
           _todayPagesRead += pagesRead;
         }
+        print('📖 [ViewModel] todayPagesRead=$_todayPagesRead, isTodayGoalAchieved=$isTodayGoalAchieved');
 
         await loadDailyAchievements();
+        notifyListeners();
         return true;
       }
+      print('📖 [ViewModel] 업데이트 실패: updatedBook is null');
       return false;
     } catch (e) {
+      print('📖 [ViewModel] 예외 발생: $e');
       setError('페이지 업데이트에 실패했습니다: $e');
       return false;
     }
