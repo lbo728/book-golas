@@ -58,6 +58,8 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
   bool _hideKeyboardAccessory = false;
   bool _uploadSuccess = false;
   int? _pageNumber;
+  final List<String> _textHistory = [];
+  String _lastSavedText = '';
 
   @override
   void initState() {
@@ -71,10 +73,20 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
               : '',
     );
     _pageNumber = widget.initialPageNumber;
+    _lastSavedText = widget.initialExtractedText;
+
+    _pageFocusNode.addListener(_onFocusChange);
+    _textFocusNode.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    _pageFocusNode.removeListener(_onFocusChange);
+    _textFocusNode.removeListener(_onFocusChange);
     _textController.dispose();
     _pageController.dispose();
     _textFocusNode.dispose();
@@ -82,6 +94,31 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
     _scrollController.dispose();
     super.dispose();
   }
+
+  void _saveTextToHistory() {
+    final currentText = _textController.text;
+    if (_textHistory.isEmpty || _textHistory.last != currentText) {
+      _textHistory.add(currentText);
+      if (_textHistory.length > 50) {
+        _textHistory.removeAt(0);
+      }
+    }
+  }
+
+  void _undoText() {
+    if (_textHistory.isEmpty) return;
+
+    final previousText = _textHistory.removeLast();
+    setState(() {
+      _textController.text = previousText;
+      _textController.selection = TextSelection.fromPosition(
+        TextPosition(offset: previousText.length),
+      );
+    });
+    _notifyStateChanged();
+  }
+
+  bool get _canUndo => _textHistory.isNotEmpty;
 
   void _handleClose() {
     Navigator.pop(context);
@@ -264,6 +301,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
       if (!mounted) return;
 
       if (shouldApply == true) {
+        _saveTextToHistory();
         setState(() {
           _textController.text = extractedText;
           if (extractedPageNum != null) {
@@ -775,28 +813,58 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                 ),
               ],
             ),
-            if (_textController.text.isNotEmpty)
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _textController.clear();
-                  });
-                },
-                child: Row(
-                  children: [
-                    Icon(CupertinoIcons.trash, size: 14, color: Colors.red[400]),
-                    const SizedBox(width: 4),
-                    Text(
-                      '모두 지우기',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.red[400],
-                      ),
+            Row(
+              children: [
+                if (_canUndo)
+                  GestureDetector(
+                    onTap: _undoText,
+                    child: Row(
+                      children: [
+                        Icon(
+                          CupertinoIcons.arrow_uturn_left,
+                          size: 14,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '되돌리기',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
+                if (_canUndo && _textController.text.isNotEmpty)
+                  const SizedBox(width: 16),
+                if (_textController.text.isNotEmpty)
+                  GestureDetector(
+                    onTap: () {
+                      _saveTextToHistory();
+                      setState(() {
+                        _textController.clear();
+                      });
+                      _notifyStateChanged();
+                    },
+                    child: Row(
+                      children: [
+                        Icon(CupertinoIcons.trash, size: 14, color: Colors.red[400]),
+                        const SizedBox(width: 4),
+                        Text(
+                          '모두 지우기',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.red[400],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
           ],
         ),
         const SizedBox(height: 12),

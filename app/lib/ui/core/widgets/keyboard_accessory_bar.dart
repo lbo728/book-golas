@@ -32,9 +32,10 @@ class KeyboardAccessoryBar extends StatelessWidget {
     final effectiveAlpha = enabled ? 1.0 : 0.3;
 
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: enabled ? onTap : null,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         child: Icon(
           iconData,
           size: 20,
