@@ -796,7 +796,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '인상적인 문구',
+                  '기록 문구',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -905,7 +905,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
               color: isDark ? Colors.white : Colors.black,
             ),
             decoration: InputDecoration(
-              hintText: '인상적인 대목을 기록해보세요.',
+              hintText: '인상 깊은 대목을 기록해보세요.',
               hintStyle: TextStyle(
                 color: isDark ? Colors.grey[600] : Colors.grey[400],
               ),

@@ -7,7 +7,7 @@ class CustomTabBar extends StatelessWidget {
   const CustomTabBar({
     super.key,
     required this.tabController,
-    this.tabLabels = const ['인상적인 페이지', '히스토리', '상세'],
+    this.tabLabels = const ['기록', '히스토리', '상세'],
   });
 
   @override

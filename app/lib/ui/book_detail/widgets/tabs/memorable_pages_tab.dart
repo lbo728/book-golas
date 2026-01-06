@@ -274,7 +274,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
     if (createdAt != null) {
       try {
         final date = DateTime.parse(createdAt);
-        formattedDate = '${date.month}/${date.day}';
+        formattedDate = '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
       } catch (_) {}
     }
 
@@ -306,7 +306,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
           constraints: const BoxConstraints(minHeight: 80),
           child: IntrinsicHeight(
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (hasImageUrl) _buildThumbnail(imageId, imageUrl!, isDark),
                 _buildTextContent(
@@ -334,8 +334,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
           bottomLeft: Radius.circular(12),
         ),
         child: SizedBox(
-          width: 80,
-          height: 80,
+          width: 90,
           child: CachedNetworkImage(
             imageUrl: imageUrl,
             cacheManager: BookImageCacheManager.instance,

@@ -428,7 +428,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
       if (mounted) {
         _tabController.animateTo(0);
         _scrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-        CustomSnackbar.show(context, message: '인상적인 페이지가 저장되었습니다', type: SnackbarType.success);
+        CustomSnackbar.show(context, message: '기록이 저장되었습니다', type: SnackbarType.success);
       }
       return true;
     } catch (e, stackTrace) {
@@ -441,7 +441,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
           context: context,
           builder: (dialogContext) => CupertinoAlertDialog(
             title: const Text('업로드 실패'),
-            content: Text(isNetworkError ? '네트워크 연결을 확인해주세요.\n연결 상태가 양호하면 다시 시도해주세요.' : '인상적인 페이지를 저장하는 중 오류가 발생했습니다.\n업로드 버튼을 눌러 다시 시도해주세요.'),
+            content: Text(isNetworkError ? '네트워크 연결을 확인해주세요.\n연결 상태가 양호하면 다시 시도해주세요.' : '기록을 저장하는 중 오류가 발생했습니다.\n업로드 버튼을 눌러 다시 시도해주세요.'),
             actions: [CupertinoDialogAction(child: const Text('확인'), onPressed: () => Navigator.pop(dialogContext))],
           ),
         );
