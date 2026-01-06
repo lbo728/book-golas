@@ -663,7 +663,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
             ),
             const SizedBox(width: 8),
             Text(
-              '인상적인 문구',
+              '기록 문구',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
@@ -807,7 +807,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                 child:
                     _textController.text.isEmpty
                         ? Text(
-                          '인상적인 문구가 없습니다.',
+                          '기록된 문구가 없습니다.',
                           style: TextStyle(
                             fontSize: 15,
                             height: 1.6,
@@ -871,7 +871,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                 child:
                     _textController.text.isEmpty
                         ? Text(
-                          '인상적인 문구가 없습니다.',
+                          '기록된 문구가 없습니다.',
                           style: TextStyle(
                             fontSize: 15,
                             height: 1.6,
@@ -962,8 +962,8 @@ void showExistingImageModal({
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    isDismissible: false,
-    enableDrag: false,
+    isDismissible: true,
+    enableDrag: true,
     backgroundColor: Colors.transparent,
     builder:
         (modalContext) => ExistingImageModal(
