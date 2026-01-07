@@ -10,6 +10,7 @@ class DashboardProgressWidget extends StatelessWidget {
   final int daysLeft;
   final int pagesLeft;
   final int? dailyTargetPages;
+  final bool isTodayGoalAchieved;
   final VoidCallback onDailyTargetTap;
 
   const DashboardProgressWidget({
@@ -20,6 +21,7 @@ class DashboardProgressWidget extends StatelessWidget {
     required this.daysLeft,
     required this.pagesLeft,
     required this.dailyTargetPages,
+    this.isTodayGoalAchieved = false,
     required this.onDailyTargetTap,
   });
 
@@ -153,34 +155,68 @@ class DashboardProgressWidget extends StatelessWidget {
         (daysLeft > 0 ? (pagesLeft / daysLeft).ceil() : pagesLeft);
     if (dailyTarget <= 0) return const SizedBox.shrink();
 
-    return GestureDetector(
-      onTap: onDailyTargetTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: const Color(0xFF10B981).withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              '오늘 목표: ${dailyTarget}p',
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF10B981),
-              ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          onTap: onDailyTargetTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xFF10B981).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
             ),
-            const SizedBox(width: 6),
-            const Icon(
-              CupertinoIcons.pencil,
-              size: 13,
-              color: Color(0xFF10B981),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '오늘 목표: ${dailyTarget}p',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF10B981),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                const Icon(
+                  CupertinoIcons.pencil,
+                  size: 13,
+                  color: Color(0xFF10B981),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+        if (isTodayGoalAchieved) ...[
+          const SizedBox(height: 4),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFD700).withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  CupertinoIcons.checkmark_seal_fill,
+                  size: 12,
+                  color: Color(0xFFD4A000),
+                ),
+                SizedBox(width: 4),
+                Text(
+                  '목표 달성',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFD4A000),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

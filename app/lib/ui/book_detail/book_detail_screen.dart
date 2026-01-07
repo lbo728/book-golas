@@ -29,6 +29,7 @@ import 'widgets/compact_reading_schedule.dart';
 import 'widgets/compact_streak_row.dart';
 import 'widgets/floating_action_bar.dart';
 import 'widgets/custom_tab_bar.dart';
+import 'widgets/sheets/daily_target_confirm_sheet.dart';
 import 'widgets/sheets/delete_confirmation_sheet.dart';
 import 'widgets/sheets/image_source_sheet.dart';
 import 'widgets/sheets/full_title_sheet.dart';
@@ -100,13 +101,22 @@ class _BookDetailContentState extends State<_BookDetailContent>
       curve: Curves.elasticOut,
     );
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final bookVm = context.read<BookDetailViewModel>();
       final memorableVm = context.read<MemorablePageViewModel>();
       final progressVm = context.read<ReadingProgressViewModel>();
 
-      _animatedProgress = bookVm.currentBook.currentPage / bookVm.currentBook.totalPages;
-      bookVm.loadDailyAchievements();
+      // 최신 책 데이터 가져오기 (DB에서 fresh data)
+      await bookVm.refreshBook();
+
+      // DB eventual consistency를 위한 딜레이 후 achievements 로드
+      await Future.delayed(const Duration(milliseconds: 300));
+      await bookVm.loadDailyAchievements();
+
+      if (mounted) {
+        _animatedProgress = bookVm.currentBook.currentPage / bookVm.currentBook.totalPages;
+      }
+
       memorableVm.fetchBookImages();
       progressVm.fetchProgressHistory();
 
@@ -212,6 +222,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 daysLeft: bookVm.daysLeft,
                                 pagesLeft: bookVm.pagesLeft,
                                 dailyTargetPages: book.dailyTargetPages,
+                                isTodayGoalAchieved: bookVm.isTodayGoalAchieved,
                                 onDailyTargetTap: () => _showDailyTargetChangeDialog(bookVm),
                               ),
                               const SizedBox(height: 12),
@@ -346,6 +357,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
     final totalPages = bookVm.currentBook.totalPages;
     final oldProgress = oldPage / totalPages;
     final newProgress = newPage / totalPages;
+    final wasGoalAchieved = bookVm.isTodayGoalAchieved;
 
     final success = await bookVm.updateCurrentPage(newPage);
     if (success && mounted) {
@@ -353,7 +365,21 @@ class _BookDetailContentState extends State<_BookDetailContent>
       _scrollController.animateTo(0, duration: const Duration(milliseconds: 500), curve: Curves.easeOutCubic);
 
       final pagesRead = newPage - oldPage;
-      CustomSnackbar.show(context, message: '+$pagesRead 페이지! ${newPage}p 도달', type: SnackbarType.success);
+      if (bookVm.isTodayGoalAchieved) {
+        CustomSnackbar.show(context, message: '오늘 목표 달성! +$pagesRead 페이지 🎉', type: SnackbarType.success);
+
+        // 이번 업데이트로 목표 달성했으면 컨페티 표시
+        if (!wasGoalAchieved) {
+          _showGoalAchievedCelebration();
+        }
+      } else {
+        final remaining = bookVm.pagesToGoal;
+        if (remaining > 0) {
+          CustomSnackbar.show(context, message: '+$pagesRead 페이지! 오늘 목표까지 ${remaining}p 남음', type: SnackbarType.info);
+        } else {
+          CustomSnackbar.show(context, message: '+$pagesRead 페이지! ${newPage}p 도달', type: SnackbarType.success);
+        }
+      }
 
       context.read<ReadingProgressViewModel>().fetchProgressHistory();
     } else if (mounted) {
@@ -361,7 +387,20 @@ class _BookDetailContentState extends State<_BookDetailContent>
     }
   }
 
+  /// 목표 달성 축하 애니메이션
+  void _showGoalAchievedCelebration() {
+    _confettiController?.dispose();
+    _confettiController = ConfettiController(
+      duration: const Duration(seconds: 2),
+    );
+    _confettiController!.play();
+    setState(() {});
+  }
+
   void _showDailyTargetChangeDialog(BookDetailViewModel bookVm) async {
+    final confirmed = await showDailyTargetConfirmSheet(context: context);
+    if (confirmed != true || !mounted) return;
+
     await DailyTargetDialog.show(
       context: context,
       book: bookVm.currentBook,
