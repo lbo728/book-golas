@@ -417,13 +417,17 @@ class _BookListScreenState extends State<BookListScreen>
     final isCompleted = book.currentPage >= book.totalPages && book.totalPages > 0;
 
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => BookDetailScreen(book: book),
           ),
         );
+        // 돌아왔을 때 최신 데이터 갱신
+        if (mounted) {
+          context.read<BookListViewModel>().refresh();
+        }
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),

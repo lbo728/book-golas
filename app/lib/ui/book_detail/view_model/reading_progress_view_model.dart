@@ -18,12 +18,19 @@ class ReadingProgressViewModel extends BaseViewModel {
     setLoading(true);
     try {
       final response = await Supabase.instance.client
-          .from('reading_progress')
+          .from('reading_progress_history')
           .select()
           .eq('book_id', _bookId)
           .order('created_at', ascending: true);
 
-      _progressHistory = (response as List).cast<Map<String, dynamic>>();
+      _progressHistory = (response as List).map((record) {
+        final map = Map<String, dynamic>.from(record as Map);
+        if (map['created_at'] != null && map['created_at'] is String) {
+          map['created_at'] = DateTime.parse(map['created_at'] as String);
+        }
+        return map;
+      }).toList();
+
       notifyListeners();
       return _progressHistory!;
     } catch (e) {
@@ -44,8 +51,9 @@ class ReadingProgressViewModel extends BaseViewModel {
   int getTotalPagesRead() {
     if (_progressHistory == null || _progressHistory!.isEmpty) return 0;
     return _progressHistory!.fold<int>(0, (sum, record) {
-      final pages = record['pages_read'] as int? ?? 0;
-      return sum + pages;
+      final page = record['page'] as int? ?? 0;
+      final previousPage = record['previous_page'] as int? ?? 0;
+      return sum + (page - previousPage);
     });
   }
 
@@ -81,9 +89,8 @@ class ReadingProgressViewModel extends BaseViewModel {
   }
 
   Future<bool> addProgressRecord({
-    required int pagesRead,
-    required int currentPage,
-    String? note,
+    required int page,
+    required int previousPage,
   }) async {
     try {
       final userId = Supabase.instance.client.auth.currentUser?.id;
@@ -92,13 +99,11 @@ class ReadingProgressViewModel extends BaseViewModel {
         return false;
       }
 
-      await Supabase.instance.client.from('reading_progress').insert({
+      await Supabase.instance.client.from('reading_progress_history').insert({
         'book_id': _bookId,
         'user_id': userId,
-        'pages_read': pagesRead,
-        'current_page': currentPage,
-        'note': note,
-        'created_at': DateTime.now().toIso8601String(),
+        'page': page,
+        'previous_page': previousPage,
       });
 
       await fetchProgressHistory();
