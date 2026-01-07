@@ -7,6 +7,7 @@ import 'package:book_golas/domain/models/book.dart';
 
 class BookListViewModel extends BaseViewModel {
   StreamSubscription<List<Map<String, dynamic>>>? _booksSubscription;
+  StreamSubscription<AuthState>? _authSubscription;
 
   List<Book> _books = [];
   int _selectedTabIndex = 0;
@@ -27,8 +28,29 @@ class BookListViewModel extends BaseViewModel {
 
   void initialize() {
     if (_isInitialized) return;
-    _isInitialized = true;
-    _init();
+
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId != null) {
+      _isInitialized = true;
+      _init();
+    } else {
+      // 아직 인증이 안 됐으면 auth 상태 변경 리스너 설정
+      _setupAuthListener();
+    }
+  }
+
+  void _setupAuthListener() {
+    _authSubscription?.cancel();
+    _authSubscription = Supabase.instance.client.auth.onAuthStateChange.listen(
+      (data) {
+        if (data.session?.user.id != null && !_isInitialized) {
+          _isInitialized = true;
+          _authSubscription?.cancel();
+          _authSubscription = null;
+          _init();
+        }
+      },
+    );
   }
 
   void cycleToNextTab() {
@@ -94,6 +116,7 @@ class BookListViewModel extends BaseViewModel {
   @override
   void dispose() {
     _booksSubscription?.cancel();
+    _authSubscription?.cancel();
     super.dispose();
   }
 }
