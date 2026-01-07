@@ -29,6 +29,7 @@ import 'widgets/compact_reading_schedule.dart';
 import 'widgets/compact_streak_row.dart';
 import 'widgets/floating_action_bar.dart';
 import 'widgets/custom_tab_bar.dart';
+import 'widgets/sheets/daily_target_confirm_sheet.dart';
 import 'widgets/sheets/delete_confirmation_sheet.dart';
 import 'widgets/sheets/image_source_sheet.dart';
 import 'widgets/sheets/full_title_sheet.dart';
@@ -107,6 +108,9 @@ class _BookDetailContentState extends State<_BookDetailContent>
 
       // 최신 책 데이터 가져오기 (DB에서 fresh data)
       await bookVm.refreshBook();
+
+      // DB eventual consistency를 위한 딜레이 후 achievements 로드
+      await Future.delayed(const Duration(milliseconds: 300));
       await bookVm.loadDailyAchievements();
 
       if (mounted) {
@@ -218,6 +222,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 daysLeft: bookVm.daysLeft,
                                 pagesLeft: bookVm.pagesLeft,
                                 dailyTargetPages: book.dailyTargetPages,
+                                isTodayGoalAchieved: bookVm.isTodayGoalAchieved,
                                 onDailyTargetTap: () => _showDailyTargetChangeDialog(bookVm),
                               ),
                               const SizedBox(height: 12),
@@ -368,8 +373,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
           _showGoalAchievedCelebration();
         }
       } else {
-        final dailyTarget = bookVm.currentBook.dailyTargetPages ?? 0;
-        final remaining = dailyTarget - bookVm.todayPagesRead;
+        final remaining = bookVm.pagesToGoal;
         if (remaining > 0) {
           CustomSnackbar.show(context, message: '+$pagesRead 페이지! 오늘 목표까지 ${remaining}p 남음', type: SnackbarType.info);
         } else {
@@ -394,6 +398,9 @@ class _BookDetailContentState extends State<_BookDetailContent>
   }
 
   void _showDailyTargetChangeDialog(BookDetailViewModel bookVm) async {
+    final confirmed = await showDailyTargetConfirmSheet(context: context);
+    if (confirmed != true || !mounted) return;
+
     await DailyTargetDialog.show(
       context: context,
       book: bookVm.currentBook,

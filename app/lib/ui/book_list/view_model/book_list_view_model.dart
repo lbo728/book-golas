@@ -63,8 +63,22 @@ class BookListViewModel extends BaseViewModel {
   }
 
   Future<void> refresh() async {
-    await Future.delayed(const Duration(milliseconds: 800));
-    notifyListeners();
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) return;
+
+    try {
+      final response = await Supabase.instance.client
+          .from('books')
+          .select()
+          .eq('user_id', userId)
+          .order('created_at', ascending: false);
+
+      _books = (response as List).map((e) => Book.fromJson(e)).toList();
+      print('📚 [BookListViewModel] refresh 완료: ${_books.length}권');
+      notifyListeners();
+    } catch (e) {
+      print('📚 [BookListViewModel] refresh 실패: $e');
+    }
   }
 
   @override

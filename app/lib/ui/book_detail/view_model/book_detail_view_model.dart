@@ -8,22 +8,36 @@ class BookDetailViewModel extends BaseViewModel {
 
   Book _currentBook;
   int _todayStartPage = 0;
-  int _todayTargetPage = 0;
   int _attemptCount = 1;
   Map<String, bool> _dailyAchievements = {};
   int _todayPagesRead = 0;
+  bool _isTodayGoalAchievedLocked = false;
 
   Book get currentBook => _currentBook;
   int get todayStartPage => _todayStartPage;
-  int get todayTargetPage => _todayTargetPage;
   int get attemptCount => _attemptCount;
   Map<String, bool> get dailyAchievements => _dailyAchievements;
   int get todayPagesRead => _todayPagesRead;
 
+  /// 오늘의 목표 페이지 (오늘 시작 페이지 + 일일 목표)
+  int get todayGoalPage {
+    final dailyTarget = _currentBook.dailyTargetPages ?? 0;
+    return _todayStartPage + dailyTarget;
+  }
+
+  /// 오늘 목표까지 남은 페이지
+  int get pagesToGoal {
+    final goal = todayGoalPage;
+    final remaining = goal - _currentBook.currentPage;
+    return remaining > 0 ? remaining : 0;
+  }
+
+  /// 오늘 목표 달성 여부 (한번 달성하면 오늘은 고정)
   bool get isTodayGoalAchieved {
     final dailyTarget = _currentBook.dailyTargetPages ?? 0;
     if (dailyTarget == 0) return false;
-    return _todayPagesRead >= dailyTarget;
+    if (_isTodayGoalAchievedLocked) return true;
+    return _currentBook.currentPage >= todayGoalPage;
   }
 
   int get daysLeft {
@@ -60,8 +74,8 @@ class BookDetailViewModel extends BaseViewModel {
   })  : _bookService = bookService,
         _currentBook = initialBook,
         _attemptCount = initialBook.attemptCount {
-    _todayStartPage = initialBook.startDate.day;
-    _todayTargetPage = initialBook.targetDate.day;
+    // 초기 시작 페이지는 현재 페이지로 설정 (loadDailyAchievements에서 정확히 계산)
+    _todayStartPage = initialBook.currentPage;
   }
 
   Future<void> loadDailyAchievements() async {
@@ -110,7 +124,18 @@ class BookDetailViewModel extends BaseViewModel {
           '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
       _todayPagesRead = dailyPages[todayKey] ?? 0;
 
+      // 오늘 시작 페이지 계산 (현재 페이지 - 오늘 읽은 페이지)
+      _todayStartPage = _currentBook.currentPage - _todayPagesRead;
+
+      // 이미 목표 달성했는지 확인하고 lock
+      if (dailyTarget > 0 && _currentBook.currentPage >= todayGoalPage) {
+        _isTodayGoalAchievedLocked = true;
+        achievements[todayKey] = true;
+      }
+
       print('📊 [loadDailyAchievements] todayKey=$todayKey, todayPagesRead=$_todayPagesRead');
+      print('📊 [loadDailyAchievements] todayStartPage=$_todayStartPage, todayGoalPage=$todayGoalPage');
+      print('📊 [loadDailyAchievements] isTodayGoalAchievedLocked=$_isTodayGoalAchievedLocked');
       print('📊 [loadDailyAchievements] achievements=$achievements');
 
       _dailyAchievements = achievements;
@@ -148,8 +173,17 @@ class BookDetailViewModel extends BaseViewModel {
             final now = DateTime.now();
             final todayKey =
                 '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-            _dailyAchievements[todayKey] = _todayPagesRead >= dailyTarget;
-            print('📖 [ViewModel] 로컬 달성 업데이트: $todayKey = ${_dailyAchievements[todayKey]}');
+
+            // 새 로직: currentPage >= todayGoalPage 이면 목표 달성
+            final goalAchieved = _currentBook.currentPage >= todayGoalPage;
+            _dailyAchievements[todayKey] = goalAchieved;
+
+            // 목표 달성 시 lock (오늘은 고정)
+            if (goalAchieved && !_isTodayGoalAchievedLocked) {
+              _isTodayGoalAchievedLocked = true;
+              print('📖 [ViewModel] 오늘 목표 달성! Lock 설정');
+            }
+            print('📖 [ViewModel] 로컬 달성 업데이트: $todayKey = $goalAchieved');
           }
         }
         print('📖 [ViewModel] todayPagesRead=$_todayPagesRead, isTodayGoalAchieved=$isTodayGoalAchieved');
