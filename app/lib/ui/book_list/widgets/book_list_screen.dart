@@ -86,41 +86,42 @@ class _BookListScreenState extends State<BookListScreen>
               preferredSize: const Size.fromHeight(50),
               child: Container(
                 color: isDark ? const Color(0xFF121212) : Colors.white,
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            _buildScrollableTabItem('전체', 0, selectedTabIndex, isDark),
-                            _buildScrollableTabItem('독서 중', 1, selectedTabIndex, isDark),
-                            _buildScrollableTabItem('완독', 2, selectedTabIndex, isDark),
-                            _buildScrollableTabItem('다시 읽을 책', 3, selectedTabIndex, isDark),
-                          ],
+                child: SizedBox(
+                  height: 50,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 48,
+                          child: Row(
+                            children: [
+                              _buildScrollableTabItem('전체', 0, selectedTabIndex, isDark),
+                              _buildScrollableTabItem('독서 중', 1, selectedTabIndex, isDark),
+                              _buildScrollableTabItem('완독', 2, selectedTabIndex, isDark),
+                              _buildScrollableTabItem('다시 읽을 책', 3, selectedTabIndex, isDark),
+                            ],
+                          ),
                         ),
-                      ),
+                        AnimatedBuilder(
+                          animation: _tabController.animation!,
+                          builder: (context, child) {
+                            const tabWidth = 100.0;
+                            final animationValue = _tabController.animation!.value;
+                            return Transform.translate(
+                              offset: Offset(tabWidth * animationValue, 0),
+                              child: Container(
+                                width: tabWidth,
+                                height: 2,
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
-                    Container(
-                      height: 2,
-                      alignment: Alignment.centerLeft,
-                      child: AnimatedBuilder(
-                        animation: _tabController.animation!,
-                        builder: (context, child) {
-                          const tabWidth = 100.0;
-                          final animationValue = _tabController.animation!.value;
-                          return Transform.translate(
-                            offset: Offset(tabWidth * animationValue, 0),
-                            child: Container(
-                              width: tabWidth,
-                              height: 2,
-                              color: isDark ? Colors.white : Colors.black,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -196,22 +197,23 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   Widget _buildScrollableTabItem(String title, int index, int selectedTabIndex, bool isDark) {
+    final isSelected = selectedTabIndex == index;
     return GestureDetector(
       onTap: () => _tabController.animateTo(index),
-      child: Container(
+      child: SizedBox(
         width: 100,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Text(
-          title,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: selectedTabIndex == index
-                ? FontWeight.w600
-                : FontWeight.w400,
-            color: selectedTabIndex == index
-                ? (isDark ? Colors.white : Colors.black)
-                : (isDark ? Colors.grey[400] : Colors.grey[600]),
+        height: 48,
+        child: Center(
+          child: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+              color: isSelected
+                  ? (isDark ? Colors.white : Colors.black)
+                  : (isDark ? Colors.grey[400] : Colors.grey[600]),
+            ),
           ),
         ),
       ),
@@ -581,6 +583,7 @@ class _PressableBookCardState extends State<_PressableBookCard>
   late Animation<double> _scaleAnimation;
   late Animation<double> _brightnessAnimation;
   final GlobalKey _cardKey = GlobalKey();
+  bool _isLongPressing = false;
 
   @override
   void initState() {
@@ -605,25 +608,37 @@ class _PressableBookCardState extends State<_PressableBookCard>
 
   void _onTapDown(TapDownDetails details) {
     _controller.forward();
-    HapticFeedback.lightImpact();
   }
 
   void _onTapUp(TapUpDetails details) {
-    HapticFeedback.lightImpact();
-    _controller.reverse().then((_) {
-      widget.onTap();
+    Future.delayed(const Duration(milliseconds: 80), () {
+      if (mounted) {
+        _controller.reverse().then((_) {
+          if (mounted) {
+            widget.onTap();
+          }
+        });
+      }
     });
   }
 
   void _onTapCancel() {
-    _controller.reverse();
+    // onTapCancel이 onLongPressStart보다 먼저 호출되므로
+    // 잠시 대기 후 _isLongPressing 체크
+    Future.delayed(const Duration(milliseconds: 50), () {
+      if (!_isLongPressing && mounted) {
+        _controller.reverse();
+      }
+    });
   }
 
-  void _onLongPress() {
+  void _onLongPressStart(LongPressStartDetails details) {
+    _isLongPressing = true;
     HapticFeedback.mediumImpact();
   }
 
   void _onLongPressEnd(LongPressEndDetails details) {
+    _isLongPressing = false;
     _controller.reverse();
 
     final RenderBox? renderBox = _cardKey.currentContext?.findRenderObject() as RenderBox?;
@@ -660,7 +675,7 @@ class _PressableBookCardState extends State<_PressableBookCard>
       onTapDown: _onTapDown,
       onTapUp: _onTapUp,
       onTapCancel: _onTapCancel,
-      onLongPress: _onLongPress,
+      onLongPressStart: _onLongPressStart,
       onLongPressEnd: _onLongPressEnd,
       child: AnimatedBuilder(
         animation: _controller,
