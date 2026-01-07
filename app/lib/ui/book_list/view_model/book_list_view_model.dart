@@ -11,6 +11,7 @@ class BookListViewModel extends BaseViewModel {
   List<Book> _books = [];
   int _selectedTabIndex = 0;
   bool _showAllCurrentBooks = false;
+  bool _isInitialized = false;
 
   List<Book> get books => _books;
   int get selectedTabIndex => _selectedTabIndex;
@@ -22,8 +23,17 @@ class BookListViewModel extends BaseViewModel {
   List<Book> get completedBooks =>
       _books.where((book) => book.currentPage >= book.totalPages).toList();
 
-  BookListViewModel() {
+  BookListViewModel();
+
+  void initialize() {
+    if (_isInitialized) return;
+    _isInitialized = true;
     _init();
+  }
+
+  void cycleToNextTab() {
+    _selectedTabIndex = (_selectedTabIndex + 1) % 4;
+    notifyListeners();
   }
 
   void _init() {
