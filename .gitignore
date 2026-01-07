@@ -13,5 +13,4 @@ firebase-debug.log
 .env*.local
 
 # Claude Code
-CLAUDE.md
-.claude/
+.claude/settings.local.json
