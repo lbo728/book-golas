@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:book_golas/ui/reading_chart/widgets/reading_chart_screen.dart';
@@ -397,8 +398,10 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
 
-    // FCM 초기화를 첫 프레임 이후에 실행
+    // 인증 완료 후 BookListViewModel 초기화 및 FCM 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      context.read<BookListViewModel>().initialize();
+
       await FCMService().initialize();
       debugPrint('FCM 서비스 초기화 완료');
 
@@ -502,9 +505,14 @@ class _MainScreenState extends State<MainScreen> {
       ];
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (index == 0 && _selectedIndex == 0) {
+      HapticFeedback.lightImpact();
+      context.read<BookListViewModel>().cycleToNextTab();
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
   }
 
   void _onSearchTap(Offset searchButtonPosition, double searchButtonSize) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -23,16 +24,26 @@ class _BookListScreenState extends State<BookListScreen>
   void initState() {
     super.initState();
     final vm = context.read<BookListViewModel>();
-    _tabController = TabController(length: 3, vsync: this, initialIndex: vm.selectedTabIndex);
+    _tabController = TabController(length: 4, vsync: this, initialIndex: vm.selectedTabIndex);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         vm.setSelectedTabIndex(_tabController.index);
       }
     });
+
+    vm.addListener(_syncTabController);
+  }
+
+  void _syncTabController() {
+    final vm = context.read<BookListViewModel>();
+    if (_tabController.index != vm.selectedTabIndex) {
+      _tabController.animateTo(vm.selectedTabIndex);
+    }
   }
 
   @override
   void dispose() {
+    context.read<BookListViewModel>().removeListener(_syncTabController);
     _tabController.dispose();
     super.dispose();
   }
@@ -75,82 +86,28 @@ class _BookListScreenState extends State<BookListScreen>
               preferredSize: const Size.fromHeight(50),
               child: Container(
                 color: isDark ? const Color(0xFF121212) : Colors.white,
-                child: Stack(
+                child: Column(
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => _tabController.animateTo(0),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              child: Text(
-                                '전체',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: selectedTabIndex == 0
-                                      ? FontWeight.w600
-                                      : FontWeight.w400,
-                                  color: selectedTabIndex == 0
-                                      ? (isDark ? Colors.white : Colors.black)
-                                      : (isDark ? Colors.grey[400] : Colors.grey[600]),
-                                ),
-                              ),
-                            ),
-                          ),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _buildScrollableTabItem('전체', 0, selectedTabIndex, isDark),
+                            _buildScrollableTabItem('독서 중', 1, selectedTabIndex, isDark),
+                            _buildScrollableTabItem('완독', 2, selectedTabIndex, isDark),
+                            _buildScrollableTabItem('다시 읽을 책', 3, selectedTabIndex, isDark),
+                          ],
                         ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => _tabController.animateTo(1),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              child: Text(
-                                '독서 중',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: selectedTabIndex == 1
-                                      ? FontWeight.w600
-                                      : FontWeight.w400,
-                                  color: selectedTabIndex == 1
-                                      ? (isDark ? Colors.white : Colors.black)
-                                      : (isDark ? Colors.grey[400] : Colors.grey[600]),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => _tabController.animateTo(2),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              child: Text(
-                                '완독',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: selectedTabIndex == 2
-                                      ? FontWeight.w600
-                                      : FontWeight.w400,
-                                  color: selectedTabIndex == 2
-                                      ? (isDark ? Colors.white : Colors.black)
-                                      : (isDark ? Colors.grey[400] : Colors.grey[600]),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                    Positioned(
-                      bottom: 0,
+                    Container(
+                      height: 2,
+                      alignment: Alignment.centerLeft,
                       child: AnimatedBuilder(
                         animation: _tabController.animation!,
                         builder: (context, child) {
-                          final screenWidth = MediaQuery.of(context).size.width;
-                          final tabWidth = screenWidth / 3;
+                          const tabWidth = 100.0;
                           final animationValue = _tabController.animation!.value;
                           return Transform.translate(
                             offset: Offset(tabWidth * animationValue, 0),
@@ -233,7 +190,109 @@ class _BookListScreenState extends State<BookListScreen>
         _buildAllBooksTab(vm, isDark),
         _buildReadingBooksTab(vm, isDark),
         _buildCompletedBooksTab(vm, isDark),
+        _buildRereadBooksTab(vm, isDark),
       ],
+    );
+  }
+
+  Widget _buildScrollableTabItem(String title, int index, int selectedTabIndex, bool isDark) {
+    return GestureDetector(
+      onTap: () => _tabController.animateTo(index),
+      child: Container(
+        width: 100,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Text(
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: selectedTabIndex == index
+                ? FontWeight.w600
+                : FontWeight.w400,
+            color: selectedTabIndex == index
+                ? (isDark ? Colors.white : Colors.black)
+                : (isDark ? Colors.grey[400] : Colors.grey[600]),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRereadBooksTab(BookListViewModel vm, bool isDark) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.auto_stories,
+            size: 80,
+            color: isDark ? Colors.grey[600] : Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '다시 읽을 책',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '준비 중입니다',
+            style: TextStyle(
+              fontSize: 14,
+              color: isDark ? Colors.grey[600] : Colors.grey[400],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReadingEmptyState() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.book_outlined,
+            size: 80,
+            color: Colors.grey,
+          ),
+          SizedBox(height: 16),
+          Text(
+            '현재 읽고 있는 책이 없습니다',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompletedEmptyState() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.book_outlined,
+            size: 80,
+            color: Colors.grey,
+          ),
+          SizedBox(height: 16),
+          Text(
+            '완독한 책이 없습니다',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.grey,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -293,7 +352,7 @@ class _BookListScreenState extends State<BookListScreen>
                     onTap: () => vm.toggleShowAllCurrentBooks(),
                     child: Text(
                       vm.showAllCurrentBooks ? '접기' : '더보기',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 14,
                         color: Colors.blue,
                         fontWeight: FontWeight.w500,
@@ -329,26 +388,7 @@ class _BookListScreenState extends State<BookListScreen>
     final readingBooks = vm.readingBooks;
 
     if (readingBooks.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.book_outlined,
-              size: 80,
-              color: Colors.grey,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '현재 읽고 있는 책이 없습니다',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey,
-              ),
-            ),
-          ],
-        ),
-      );
+      return _buildReadingEmptyState();
     }
 
     return RefreshIndicator(
@@ -367,26 +407,7 @@ class _BookListScreenState extends State<BookListScreen>
     final completedBooks = vm.completedBooks;
 
     if (completedBooks.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.book_outlined,
-              size: 80,
-              color: Colors.grey,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '완독한 책이 없습니다',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey,
-              ),
-            ),
-          ],
-        ),
-      );
+      return _buildCompletedEmptyState();
     }
 
     return RefreshIndicator(
@@ -402,21 +423,11 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   Widget _buildBookCard(Book book) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final target = DateTime(book.targetDate.year, book.targetDate.month, book.targetDate.day);
-    final daysLeft = target.difference(today).inDays;
-    final totalDays = book.targetDate.difference(book.startDate).inDays;
-    final daysPassed = DateTime.now().difference(book.startDate).inDays;
-    final progressPercentage =
-        totalDays > 0 ? (daysPassed / totalDays * 100).clamp(0, 100) : 0;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final pageProgress = book.totalPages > 0
-        ? (book.currentPage / book.totalPages).clamp(0.0, 1.0)
-        : 0.0;
-    final isCompleted = book.currentPage >= book.totalPages && book.totalPages > 0;
 
-    return GestureDetector(
+    return _PressableBookCard(
+      book: book,
+      isDark: isDark,
       onTap: () async {
         await Navigator.push(
           context,
@@ -424,144 +435,10 @@ class _BookListScreenState extends State<BookListScreen>
             builder: (context) => BookDetailScreen(book: book),
           ),
         );
-        // 돌아왔을 때 최신 데이터 갱신
         if (mounted) {
           context.read<BookListViewModel>().refresh();
         }
       },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: isDark
-                  ? Colors.black.withValues(alpha: 0.3)
-                  : Colors.grey.withValues(alpha: 0.1),
-              spreadRadius: 1,
-              blurRadius: 3,
-              offset: const Offset(0, 1),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 60,
-              height: 80,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                ),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: BookImageWidget(
-                  imageUrl: book.imageUrl,
-                  iconSize: 30,
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    book.title,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      // D-day 뱃지
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: daysLeft < 0
-                              ? const Color(0xFFEF4444).withValues(alpha: 0.12)
-                              : (isCompleted
-                                  ? const Color(0xFF10B981).withValues(alpha: 0.12)
-                                  : const Color(0xFF5B7FFF).withValues(alpha: 0.12)),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          daysLeft >= 0 ? 'D-$daysLeft' : 'D+${daysLeft.abs()}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: daysLeft < 0
-                                ? const Color(0xFFEF4444)
-                                : (isCompleted
-                                    ? const Color(0xFF10B981)
-                                    : const Color(0xFF5B7FFF)),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // 페이지 정보
-                      Text(
-                        '${book.currentPage}/${book.totalPages}페이지',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: isDark ? Colors.grey[400] : Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: LinearProgressIndicator(
-                            value: pageProgress,
-                            backgroundColor: isDark
-                                ? Colors.grey[700]
-                                : Colors.grey[200],
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              isCompleted
-                                  ? const Color(0xFF10B981)
-                                  : const Color(0xFF5B7FFF),
-                            ),
-                            minHeight: 6,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${(pageProgress * 100).toStringAsFixed(0)}%',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: isCompleted
-                              ? const Color(0xFF10B981)
-                              : const Color(0xFF5B7FFF),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.arrow_forward_ios,
-              color: isDark ? Colors.grey[400] : Colors.grey,
-              size: 16,
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -678,6 +555,257 @@ class _BookListScreenState extends State<BookListScreen>
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _PressableBookCard extends StatefulWidget {
+  final Book book;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _PressableBookCard({
+    required this.book,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  State<_PressableBookCard> createState() => _PressableBookCardState();
+}
+
+class _PressableBookCardState extends State<_PressableBookCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _brightnessAnimation;
+  final GlobalKey _cardKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.96).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+    _brightnessAnimation = Tween<double>(begin: 0.0, end: 0.1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onTapDown(TapDownDetails details) {
+    _controller.forward();
+    HapticFeedback.lightImpact();
+  }
+
+  void _onTapUp(TapUpDetails details) {
+    HapticFeedback.lightImpact();
+    _controller.reverse().then((_) {
+      widget.onTap();
+    });
+  }
+
+  void _onTapCancel() {
+    _controller.reverse();
+  }
+
+  void _onLongPress() {
+    HapticFeedback.mediumImpact();
+  }
+
+  void _onLongPressEnd(LongPressEndDetails details) {
+    _controller.reverse();
+
+    final RenderBox? renderBox = _cardKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox != null) {
+      final localPosition = renderBox.globalToLocal(details.globalPosition);
+      final isInsideCard = localPosition.dx >= 0 &&
+          localPosition.dx <= renderBox.size.width &&
+          localPosition.dy >= 0 &&
+          localPosition.dy <= renderBox.size.height;
+
+      if (isInsideCard) {
+        HapticFeedback.lightImpact();
+        widget.onTap();
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final book = widget.book;
+    final isDark = widget.isDark;
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final target = DateTime(book.targetDate.year, book.targetDate.month, book.targetDate.day);
+    final daysLeft = target.difference(today).inDays;
+    final pageProgress = book.totalPages > 0
+        ? (book.currentPage / book.totalPages).clamp(0.0, 1.0)
+        : 0.0;
+    final isCompleted = book.currentPage >= book.totalPages && book.totalPages > 0;
+
+    return GestureDetector(
+      key: _cardKey,
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onTapCancel: _onTapCancel,
+      onLongPress: _onLongPress,
+      onLongPressEnd: _onLongPressEnd,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimation.value,
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              foregroundDecoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: _brightnessAnimation.value),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: isDark
+                        ? Colors.black.withValues(alpha: 0.3)
+                        : Colors.grey.withValues(alpha: 0.1),
+                    spreadRadius: 1,
+                    blurRadius: 3,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 60,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                        ),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: BookImageWidget(
+                          imageUrl: book.imageUrl,
+                          iconSize: 30,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            book.title,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: daysLeft < 0
+                                      ? const Color(0xFFEF4444).withValues(alpha: 0.12)
+                                      : (isCompleted
+                                          ? const Color(0xFF10B981).withValues(alpha: 0.12)
+                                          : const Color(0xFF5B7FFF).withValues(alpha: 0.12)),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  daysLeft >= 0 ? 'D-$daysLeft' : 'D+${daysLeft.abs()}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: daysLeft < 0
+                                        ? const Color(0xFFEF4444)
+                                        : (isCompleted
+                                            ? const Color(0xFF10B981)
+                                            : const Color(0xFF5B7FFF)),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${book.currentPage}/${book.totalPages}페이지',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: LinearProgressIndicator(
+                                    value: pageProgress,
+                                    backgroundColor: isDark
+                                        ? Colors.grey[700]
+                                        : Colors.grey[200],
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      isCompleted
+                                          ? const Color(0xFF10B981)
+                                          : const Color(0xFF5B7FFF),
+                                    ),
+                                    minHeight: 6,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${(pageProgress * 100).toStringAsFixed(0)}%',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: isCompleted
+                                      ? const Color(0xFF10B981)
+                                      : const Color(0xFF5B7FFF),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      color: isDark ? Colors.grey[400] : Colors.grey,
+                      size: 16,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
