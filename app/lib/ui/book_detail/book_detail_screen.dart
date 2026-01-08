@@ -616,9 +616,21 @@ class _BookDetailContentState extends State<_BookDetailContent>
   Future<void> _showImageSourceActionSheet(
       {required Function(Uint8List imageBytes, String ocrText, int? pageNumber)
           onImageSelected}) async {
-    final source = await showImageSourceSheet(context: context);
-    if (source != null && mounted) {
-      await pickImageAndExtractText(context, source, onImageSelected);
+    final sourceType = await showImageSourceSheet(context: context);
+    if (sourceType == null || !mounted) return;
+
+    switch (sourceType) {
+      case ImageSourceType.documentScan:
+        await scanDocumentAndExtractText(context, onImageSelected);
+        break;
+      case ImageSourceType.camera:
+        await pickImageAndExtractText(
+            context, ImageSource.camera, onImageSelected);
+        break;
+      case ImageSourceType.gallery:
+        await pickImageAndExtractText(
+            context, ImageSource.gallery, onImageSelected);
+        break;
     }
   }
 
