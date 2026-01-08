@@ -1,8 +1,8 @@
-/// 독서 상태를 나타내는 enum
 enum BookStatus {
-  planned('planned'),   // 읽을 예정
-  reading('reading'),   // 독서 중
-  completed('completed'); // 완독
+  planned('planned'),
+  reading('reading'),
+  completed('completed'),
+  willRetry('will_retry');
 
   final String value;
   const BookStatus(this.value);

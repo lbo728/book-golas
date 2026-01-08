@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/ui/core/view_model/base_view_model.dart';
@@ -19,10 +20,11 @@ class BookListViewModel extends BaseViewModel {
   bool get showAllCurrentBooks => _showAllCurrentBooks;
 
   List<Book> get readingBooks =>
-      _books.where((book) => book.currentPage < book.totalPages).toList();
+      _books.where((book) => book.status == BookStatus.reading.value).toList();
 
-  List<Book> get completedBooks =>
-      _books.where((book) => book.currentPage >= book.totalPages).toList();
+  List<Book> get completedBooks => _books
+      .where((book) => book.status == BookStatus.completed.value)
+      .toList();
 
   BookListViewModel();
 
@@ -34,7 +36,6 @@ class BookListViewModel extends BaseViewModel {
       _isInitialized = true;
       _init();
     } else {
-      // 아직 인증이 안 됐으면 auth 상태 변경 리스너 설정
       _setupAuthListener();
     }
   }
@@ -70,16 +71,16 @@ class BookListViewModel extends BaseViewModel {
         .eq('user_id', userId)
         .order('created_at', ascending: false)
         .listen(
-      (rows) {
-        _books = rows.map((e) => Book.fromJson(e)).toList();
-        setLoading(false);
-        notifyListeners();
-      },
-      onError: (error) {
-        setError(error.toString());
-        setLoading(false);
-      },
-    );
+          (rows) {
+            _books = rows.map((e) => Book.fromJson(e)).toList();
+            setLoading(false);
+            notifyListeners();
+          },
+          onError: (error) {
+            setError(error.toString());
+            setLoading(false);
+          },
+        );
   }
 
   void setSelectedTabIndex(int index) {
@@ -106,10 +107,10 @@ class BookListViewModel extends BaseViewModel {
           .order('created_at', ascending: false);
 
       _books = (response as List).map((e) => Book.fromJson(e)).toList();
-      print('📚 [BookListViewModel] refresh 완료: ${_books.length}권');
+      debugPrint('[BookListViewModel] refresh done: ${_books.length} books');
       notifyListeners();
     } catch (e) {
-      print('📚 [BookListViewModel] refresh 실패: $e');
+      debugPrint('[BookListViewModel] refresh failed: $e');
     }
   }
 
