@@ -4,9 +4,12 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/domain/models/home_display_mode.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_context_menu.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/book_list/view_model/book_list_view_model.dart';
+import 'package:book_golas/ui/book_list/widgets/sheets/reading_books_selection_sheet.dart';
 
 class BookListScreen extends StatefulWidget {
   const BookListScreen({super.key});
@@ -19,12 +22,14 @@ class _BookListScreenState extends State<BookListScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   bool _isRefreshing = false;
+  final GlobalKey _editButtonKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
     final vm = context.read<BookListViewModel>();
-    _tabController = TabController(length: 4, vsync: this, initialIndex: vm.selectedTabIndex);
+    _tabController = TabController(
+        length: 4, vsync: this, initialIndex: vm.selectedTabIndex);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         vm.setSelectedTabIndex(_tabController.index);
@@ -64,71 +69,181 @@ class _BookListScreenState extends State<BookListScreen>
     }
   }
 
+  void _showDisplayModeMenu(BuildContext context, BookListViewModel vm) {
+    final RenderBox? renderBox =
+        _editButtonKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    final position = renderBox.localToGlobal(Offset.zero);
+    final buttonBottom = position.dy + renderBox.size.height;
+
+    showLiquidGlassContextMenu<HomeDisplayMode>(
+      context,
+      position: Offset(position.dx, buttonBottom),
+      items: const [
+        ContextMenuItem(
+          label: '모든 독서만 보기',
+          value: HomeDisplayMode.allBooks,
+          icon: Icons.view_list,
+        ),
+        ContextMenuItem(
+          label: '진행 중인 독서만 보기',
+          value: HomeDisplayMode.readingDetail,
+          icon: Icons.menu_book,
+        ),
+      ],
+      onItemSelected: (mode) {
+        vm.setDisplayMode(mode);
+        if (mode == HomeDisplayMode.readingDetail) {
+          _handleReadingDetailMode(vm);
+        }
+      },
+    );
+  }
+
+  void _handleReadingDetailMode(BookListViewModel vm) {
+    final readingBooks = vm.readingBooks;
+
+    if (readingBooks.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('진행 중인 독서가 없습니다'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      vm.setDisplayMode(HomeDisplayMode.allBooks);
+      return;
+    }
+
+    if (readingBooks.length == 1) {
+      vm.setSelectedBook(readingBooks.first.id!);
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => ReadingBooksSelectionSheet(
+        books: readingBooks,
+        onBookSelected: (book) {
+          Navigator.pop(context);
+          vm.setSelectedBook(book.id!);
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Consumer<BookListViewModel>(
       builder: (context, vm, _) {
-        final selectedTabIndex = vm.selectedTabIndex;
+        if (vm.displayMode == HomeDisplayMode.readingDetail &&
+            vm.selectedBook != null) {
+          return _buildReadingDetailView(vm, isDark);
+        }
 
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('독서 목록'),
-            centerTitle: false,
-            titleTextStyle: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white : Colors.black,
-            ),
-            scrolledUnderElevation: 0,
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(50),
-              child: Container(
-                color: isDark ? const Color(0xFF121212) : Colors.white,
-                child: SizedBox(
-                  height: 50,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: 48,
-                          child: Row(
-                            children: [
-                              _buildScrollableTabItem('전체', 0, selectedTabIndex, isDark),
-                              _buildScrollableTabItem('독서 중', 1, selectedTabIndex, isDark),
-                              _buildScrollableTabItem('완독', 2, selectedTabIndex, isDark),
-                              _buildScrollableTabItem('다시 읽을 책', 3, selectedTabIndex, isDark),
-                            ],
-                          ),
-                        ),
-                        AnimatedBuilder(
-                          animation: _tabController.animation!,
-                          builder: (context, child) {
-                            const tabWidth = 100.0;
-                            final animationValue = _tabController.animation!.value;
-                            return Transform.translate(
-                              offset: Offset(tabWidth * animationValue, 0),
-                              child: Container(
-                                width: tabWidth,
-                                height: 2,
-                                color: isDark ? Colors.white : Colors.black,
-                              ),
-                            );
-                          },
-                        ),
-                      ],
+        return _buildAllBooksView(vm, isDark);
+      },
+    );
+  }
+
+  Widget _buildReadingDetailView(BookListViewModel vm, bool isDark) {
+    return Scaffold(
+      backgroundColor:
+          isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FA),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
+        actions: [
+          _PressableEditButton(
+            buttonKey: _editButtonKey,
+            onTap: () => _showDisplayModeMenu(context, vm),
+            isDark: isDark,
+          ),
+        ],
+      ),
+      body: BookDetailScreen(
+        key: ValueKey(vm.selectedBookId),
+        book: vm.selectedBook!,
+        isEmbedded: true,
+      ),
+    );
+  }
+
+  Widget _buildAllBooksView(BookListViewModel vm, bool isDark) {
+    final selectedTabIndex = vm.selectedTabIndex;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('독서 목록'),
+        centerTitle: false,
+        titleTextStyle: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: isDark ? Colors.white : Colors.black,
+        ),
+        scrolledUnderElevation: 0,
+        actions: [
+          _PressableEditButton(
+            buttonKey: _editButtonKey,
+            onTap: () => _showDisplayModeMenu(context, vm),
+            isDark: isDark,
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(50),
+          child: Container(
+            color: isDark ? const Color(0xFF121212) : Colors.white,
+            child: SizedBox(
+              height: 50,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 48,
+                      child: Row(
+                        children: [
+                          _buildScrollableTabItem(
+                              '전체', 0, selectedTabIndex, isDark),
+                          _buildScrollableTabItem(
+                              '독서 중', 1, selectedTabIndex, isDark),
+                          _buildScrollableTabItem(
+                              '완독', 2, selectedTabIndex, isDark),
+                          _buildScrollableTabItem(
+                              '다시 읽을 책', 3, selectedTabIndex, isDark),
+                        ],
+                      ),
                     ),
-                  ),
+                    AnimatedBuilder(
+                      animation: _tabController.animation!,
+                      builder: (context, child) {
+                        const tabWidth = 100.0;
+                        final animationValue = _tabController.animation!.value;
+                        return Transform.translate(
+                          offset: Offset(tabWidth * animationValue, 0),
+                          child: Container(
+                            width: tabWidth,
+                            height: 2,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
-          body: _buildBody(vm, isDark),
-        );
-      },
+        ),
+      ),
+      body: _buildBody(vm, isDark),
     );
   }
 
@@ -196,7 +311,8 @@ class _BookListScreenState extends State<BookListScreen>
     );
   }
 
-  Widget _buildScrollableTabItem(String title, int index, int selectedTabIndex, bool isDark) {
+  Widget _buildScrollableTabItem(
+      String title, int index, int selectedTabIndex, bool isDark) {
     final isSelected = selectedTabIndex == index;
     return GestureDetector(
       onTap: () => _tabController.animateTo(index),
@@ -364,9 +480,8 @@ class _BookListScreenState extends State<BookListScreen>
               ],
             ),
             const SizedBox(height: 12),
-            ...(vm.showAllCurrentBooks
-                ? readingBooks
-                : readingBooks.take(3)).map((book) => _buildBookCard(book)),
+            ...(vm.showAllCurrentBooks ? readingBooks : readingBooks.take(3))
+                .map((book) => _buildBookCard(book)),
             const SizedBox(height: 24),
             Divider(color: isDark ? Colors.grey[700] : Colors.grey[300]),
             const SizedBox(height: 24),
@@ -641,7 +756,8 @@ class _PressableBookCardState extends State<_PressableBookCard>
     _isLongPressing = false;
     _controller.reverse();
 
-    final RenderBox? renderBox = _cardKey.currentContext?.findRenderObject() as RenderBox?;
+    final RenderBox? renderBox =
+        _cardKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox != null) {
       final localPosition = renderBox.globalToLocal(details.globalPosition);
       final isInsideCard = localPosition.dx >= 0 &&
@@ -663,12 +779,14 @@ class _PressableBookCardState extends State<_PressableBookCard>
 
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final target = DateTime(book.targetDate.year, book.targetDate.month, book.targetDate.day);
+    final target = DateTime(
+        book.targetDate.year, book.targetDate.month, book.targetDate.day);
     final daysLeft = target.difference(today).inDays;
     final pageProgress = book.totalPages > 0
         ? (book.currentPage / book.totalPages).clamp(0.0, 1.0)
         : 0.0;
-    final isCompleted = book.currentPage >= book.totalPages && book.totalPages > 0;
+    final isCompleted =
+        book.currentPage >= book.totalPages && book.totalPages > 0;
 
     return GestureDetector(
       key: _cardKey,
@@ -685,7 +803,8 @@ class _PressableBookCardState extends State<_PressableBookCard>
             child: Container(
               margin: const EdgeInsets.only(bottom: 16),
               foregroundDecoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: _brightnessAnimation.value),
+                color:
+                    Colors.white.withValues(alpha: _brightnessAnimation.value),
                 borderRadius: BorderRadius.circular(8),
               ),
               decoration: BoxDecoration(
@@ -742,17 +861,23 @@ class _PressableBookCardState extends State<_PressableBookCard>
                           Row(
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
                                   color: daysLeft < 0
-                                      ? const Color(0xFFEF4444).withValues(alpha: 0.12)
+                                      ? const Color(0xFFEF4444)
+                                          .withValues(alpha: 0.12)
                                       : (isCompleted
-                                          ? const Color(0xFF10B981).withValues(alpha: 0.12)
-                                          : const Color(0xFF5B7FFF).withValues(alpha: 0.12)),
+                                          ? const Color(0xFF10B981)
+                                              .withValues(alpha: 0.12)
+                                          : const Color(0xFF5B7FFF)
+                                              .withValues(alpha: 0.12)),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
-                                  daysLeft >= 0 ? 'D-$daysLeft' : 'D+${daysLeft.abs()}',
+                                  daysLeft >= 0
+                                      ? 'D-$daysLeft'
+                                      : 'D+${daysLeft.abs()}',
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
@@ -769,7 +894,9 @@ class _PressableBookCardState extends State<_PressableBookCard>
                                 '${book.currentPage}/${book.totalPages}페이지',
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                  color: isDark
+                                      ? Colors.grey[400]
+                                      : Colors.grey[600],
                                 ),
                               ),
                             ],
@@ -816,6 +943,124 @@ class _PressableBookCardState extends State<_PressableBookCard>
                       size: 16,
                     ),
                   ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _PressableEditButton extends StatefulWidget {
+  final GlobalKey buttonKey;
+  final VoidCallback onTap;
+  final bool isDark;
+
+  const _PressableEditButton({
+    required this.buttonKey,
+    required this.onTap,
+    required this.isDark,
+  });
+
+  @override
+  State<_PressableEditButton> createState() => _PressableEditButtonState();
+}
+
+class _PressableEditButtonState extends State<_PressableEditButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _brightnessAnimation;
+  bool _isLongPressing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.96).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+    _brightnessAnimation = Tween<double>(begin: 0.0, end: 0.1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onTapDown(TapDownDetails details) {
+    _controller.forward();
+  }
+
+  void _onTapUp(TapUpDetails details) {
+    Future.delayed(const Duration(milliseconds: 80), () {
+      if (mounted) {
+        _controller.reverse().then((_) {
+          if (mounted) {
+            widget.onTap();
+          }
+        });
+      }
+    });
+  }
+
+  void _onTapCancel() {
+    Future.delayed(const Duration(milliseconds: 50), () {
+      if (!_isLongPressing && mounted) {
+        _controller.reverse();
+      }
+    });
+  }
+
+  void _onLongPressStart(LongPressStartDetails details) {
+    _isLongPressing = true;
+    HapticFeedback.mediumImpact();
+  }
+
+  void _onLongPressEnd(LongPressEndDetails details) {
+    _isLongPressing = false;
+    _controller.reverse();
+    HapticFeedback.lightImpact();
+    widget.onTap();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      key: widget.buttonKey,
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onTapCancel: _onTapCancel,
+      onLongPressStart: _onLongPressStart,
+      onLongPressEnd: _onLongPressEnd,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimation.value,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              foregroundDecoration: BoxDecoration(
+                color:
+                    Colors.white.withValues(alpha: _brightnessAnimation.value),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: Text(
+                  '편집',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: widget.isDark ? Colors.white : Colors.black,
+                  ),
                 ),
               ),
             ),
