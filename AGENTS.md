@@ -132,13 +132,141 @@ UI (lib/ui/) → ViewModel → Repository → Service
 
 ## Git Workflow
 
-### Branches
-- `feature/BYU-XXX-description`
-- `fix/BYU-XXX-description`  
-- `daily/YYYY-MM-DD`
+### Branch Strategy
 
-### Commits
-English conventional commits: `feat:`, `fix:`, `refactor:`
+```
+main (Production)
+ │
+ └── dev (TestFlight)
+      │
+      └── daily/YYYY-MM-DD (일별 작업 그룹화 - 직접 커밋 금지!)
+           │
+           ├── feature/BYU-XXX-task-name (실제 작업 브랜치)
+           ├── feature/BYU-YYY-another-task
+           └── fix/BYU-ZZZ-bug-fix
+```
+
+**브랜치 역할:**
+
+| 브랜치 | 용도 | 직접 커밋 |
+|--------|------|----------|
+| `main` | Production 릴리즈 | ❌ 금지 |
+| `dev` | 개발 통합 브랜치 | ❌ 금지 |
+| `daily/YYYY-MM-DD` | 일별 작업 그룹화 (머지 타겟) | ❌ 금지 |
+| `feature/BYU-XXX-*` | **실제 코드 작업** | ✅ 허용 |
+
+### Daily Workflow
+
+⚠️ **중요: `daily` 브랜치에 직접 커밋하지 마라. 반드시 `feature/BYU-XXX` 브랜치를 만들어서 작업해라.**
+
+```
+1. 작업 시작
+   ├── daily/YYYY-MM-DD 브랜치가 없으면 dev에서 생성
+   └── daily 브랜치에서 feature/BYU-XXX 브랜치 생성 ← 여기서 작업!
+
+2. 이슈별 작업 (각 이슈마다 반복)
+   ├── feature/BYU-XXX 브랜치에서 코드 작성 및 커밋
+   ├── 작업 완료 시 feature/BYU-XXX → daily PR 생성 및 머지
+   └── 다음 이슈는 daily에서 새로운 feature/BYU-YYY 브랜치 생성
+
+3. 일일 작업 완료
+   └── daily → dev PR 생성 → 머지 → TestFlight 자동 배포
+
+4. 버전 릴리즈
+   └── dev → main PR 생성 (버전 태그: v1.x.x) → 머지 → App Store 배포
+```
+
+### 브랜치 생성 예시
+
+```bash
+# 1. daily 브랜치 생성 (없으면)
+git checkout dev
+git pull origin dev
+git checkout -b daily/2025-01-07
+
+# 2. 이슈 작업용 feature 브랜치 생성
+git checkout daily/2025-01-07
+git checkout -b feature/BYU-225-fix-network-error
+
+# 3. 작업 및 커밋 (feature 브랜치에서!)
+# ... 코드 작성 ...
+git add .
+git commit -m "fix: 네트워크 오류 수정 (BYU-225)"
+
+# 4. feature → daily PR 생성 및 머지
+git push origin feature/BYU-225-fix-network-error
+gh pr create --base daily/2025-01-07 --head feature/BYU-225-fix-network-error
+
+# 5. 다음 이슈는 daily에서 새 브랜치
+git checkout daily/2025-01-07
+git pull origin daily/2025-01-07
+git checkout -b feature/BYU-248-tab-cycling
+```
+
+### Commit Rules
+
+- 반드시 gh를 **lbo728** 계정으로 커밋, 푸시, PR을 진행해야해.
+- 커밋 메세지는 영문 컨벤셔널 커밋으로 해야해. (단, description은 한글 불릿 포인트로 작성.)
+- 맥락 별로 커밋을 만들며 진행해야해.
+
+### Merge Rules
+
+- PR 머지 시 반드시 **"Create a merge commit"** 방식으로 머지해라.
+- ❌ "Squash and merge" 사용 금지
+- ❌ "Rebase and merge" 사용 금지
+- `gh pr merge` 사용 시: `gh pr merge --merge` (기본값이 merge commit)
+
+### PR Template
+
+PR 생성 시 아래 템플릿을 사용해. (인용문은 지우고 해당 내용을 작성)
+
+```markdown
+> 이번 PR의 목적을 한 문장으로 요약해주세요.
+>
+> - 예: 사용자가 프로필 정보를 수정할 수 있는 기능을 추가했습니다.
+
+## 📋 Changes
+
+> 주요 변경사항을 bullet로 정리해주세요.
+>
+> - 예:
+>   - `UserProfileEdit.tsx` 컴포넌트 추가
+>   - `/api/user/profile` PUT 엔드포인트 연결
+>   - Validation 로직 추가
+
+## 🧠 Context & Background
+
+> 이 변경이 필요한 이유를 설명해주세요.
+> 관련된 이슈나 문서 링크를 첨부해도 좋아요.
+>
+> - 예: 유저 피드백에 따라 프로필 수정 기능이 필요했습니다. (#45)
+
+## ✅ How to Test
+
+> 테스트 방법을 단계별로 작성해주세요.
+>
+> - 예:
+>   1. `/profile/edit` 페이지로 이동
+>   2. 이름 수정 후 저장 클릭
+>   3. 수정 내용이 DB에 반영되는지 확인
+
+## 🧾 Screenshots or Videos (Optional)
+
+> UI 변경이 있을 경우, Before / After 이미지를 첨부해주세요.
+> 또는 Loom, GitHub Video를 추가해도 좋아요.
+
+## 🔗 Related Issues
+
+> 연관된 이슈를 연결해주세요.
+>
+> - 예:
+>   - Closes: #123
+>   - Related: #456
+
+## 🙌 Additional Notes (Optional)
+
+> 기타 참고사항, TODO, 리뷰어에게 요청사항 등을 작성해주세요. - 예: 스타일 관련 부분은 별도 PR로 분리 예정입니다.
+```
 
 ## Critical Rules
 
