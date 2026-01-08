@@ -13,7 +13,7 @@ enum HomeDisplayMode {
   String toDisplayString() {
     switch (this) {
       case HomeDisplayMode.allBooks:
-        return '모든 독서만 보기';
+        return '모든 독서 보기';
       case HomeDisplayMode.readingDetail:
         return '진행 중인 독서만 보기';
     }
