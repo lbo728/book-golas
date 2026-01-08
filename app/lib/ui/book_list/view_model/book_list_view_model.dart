@@ -12,6 +12,25 @@ class BookListViewModel extends BaseViewModel {
   static const String _displayModeKey = 'home_display_mode';
   static const String _selectedBookIdKey = 'selected_reading_book_id';
 
+  static HomeDisplayMode? _preloadedDisplayMode;
+  static String? _preloadedSelectedBookId;
+  static bool _isPreloaded = false;
+
+  static Future<void> preloadPreferences() async {
+    if (_isPreloaded) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedMode = prefs.getString(_displayModeKey);
+      _preloadedDisplayMode = HomeDisplayMode.fromString(savedMode);
+      _preloadedSelectedBookId = prefs.getString(_selectedBookIdKey);
+      _isPreloaded = true;
+      debugPrint('✅ BookListViewModel preferences 프리로드 완료');
+    } catch (e) {
+      debugPrint('⚠️ BookListViewModel preferences 프리로드 실패: $e');
+      _isPreloaded = true;
+    }
+  }
+
   StreamSubscription<List<Map<String, dynamic>>>? _booksSubscription;
   StreamSubscription<AuthState>? _authSubscription;
 
@@ -25,6 +44,7 @@ class BookListViewModel extends BaseViewModel {
   List<Book> get books => _books;
   int get selectedTabIndex => _selectedTabIndex;
   bool get showAllCurrentBooks => _showAllCurrentBooks;
+  bool get isPreferencesLoaded => _isPreloaded;
   HomeDisplayMode get displayMode => _displayMode;
   String? get selectedBookId => _selectedBookId;
 
@@ -44,7 +64,12 @@ class BookListViewModel extends BaseViewModel {
       .where((book) => book.status == BookStatus.completed.value)
       .toList();
 
-  BookListViewModel();
+  BookListViewModel() {
+    if (_isPreloaded) {
+      _displayMode = _preloadedDisplayMode ?? HomeDisplayMode.allBooks;
+      _selectedBookId = _preloadedSelectedBookId;
+    }
+  }
 
   void initialize() {
     if (_isInitialized) return;
@@ -60,16 +85,12 @@ class BookListViewModel extends BaseViewModel {
     }
   }
 
-  Future<void> _loadDisplayMode() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final savedMode = prefs.getString(_displayModeKey);
-      _displayMode = HomeDisplayMode.fromString(savedMode);
-      _selectedBookId = prefs.getString(_selectedBookIdKey);
-      notifyListeners();
-    } catch (e) {
-      debugPrint('표시 모드 로드 실패: $e');
+  void _loadDisplayMode() {
+    if (_isPreloaded) {
+      _displayMode = _preloadedDisplayMode ?? HomeDisplayMode.allBooks;
+      _selectedBookId = _preloadedSelectedBookId;
     }
+    notifyListeners();
   }
 
   Future<void> setDisplayMode(HomeDisplayMode mode) async {

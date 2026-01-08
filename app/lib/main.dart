@@ -100,6 +100,10 @@ class AppBootstrap extends StatelessWidget {
       );
       debugPrint('✅ Supabase 초기화 성공');
 
+      // BookListViewModel preferences 프리로드
+      debugPrint('📚 홈 화면 설정 프리로드 시작');
+      await BookListViewModel.preloadPreferences();
+
       debugPrint('🎉 모든 초기화 완료');
     } catch (e, stackTrace) {
       debugPrint('❌ 초기화 중 에러 발생: $e');
@@ -479,8 +483,7 @@ class _MainScreenState extends State<MainScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    BookDetailScreen(book: targetBook),
+                builder: (context) => BookDetailScreen(book: targetBook),
               ),
             );
           }

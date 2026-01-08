@@ -6,7 +6,6 @@ import 'package:shimmer/shimmer.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/domain/models/home_display_mode.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
-import 'package:book_golas/ui/core/widgets/liquid_glass_context_menu.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/book_list/view_model/book_list_view_model.dart';
 import 'package:book_golas/ui/book_list/widgets/sheets/reading_books_selection_sheet.dart';
@@ -22,7 +21,7 @@ class _BookListScreenState extends State<BookListScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   bool _isRefreshing = false;
-  final GlobalKey _editButtonKey = GlobalKey();
+  final GlobalKey<_PressableEditButtonState> _editButtonKey = GlobalKey();
 
   @override
   void initState() {
@@ -69,35 +68,47 @@ class _BookListScreenState extends State<BookListScreen>
     }
   }
 
-  void _showDisplayModeMenu(BuildContext context, BookListViewModel vm) {
-    final RenderBox? renderBox =
-        _editButtonKey.currentContext?.findRenderObject() as RenderBox?;
-    if (renderBox == null) return;
+  void _toggleDisplayMode(BookListViewModel vm) {
+    if (vm.displayMode == HomeDisplayMode.allBooks) {
+      vm.setDisplayMode(HomeDisplayMode.readingDetail);
+      _handleReadingDetailMode(vm);
+    } else {
+      vm.setDisplayMode(HomeDisplayMode.allBooks);
+      _showModeChangeSnackBar('전체 독서 보기로 전환되었습니다.');
+    }
+  }
 
-    final position = renderBox.localToGlobal(Offset.zero);
-    final buttonBottom = position.dy + renderBox.size.height;
-
-    showLiquidGlassContextMenu<HomeDisplayMode>(
-      context,
-      position: Offset(position.dx, buttonBottom),
-      items: const [
-        ContextMenuItem(
-          label: '모든 독서만 보기',
-          value: HomeDisplayMode.allBooks,
-          icon: Icons.view_list,
+  void _showModeChangeSnackBar(String message) {
+    _editButtonKey.currentState?.triggerTransitionAnimation();
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(
+              Icons.check_circle_outline,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              message,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+            ),
+          ],
         ),
-        ContextMenuItem(
-          label: '진행 중인 독서만 보기',
-          value: HomeDisplayMode.readingDetail,
-          icon: Icons.menu_book,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
-      ],
-      onItemSelected: (mode) {
-        vm.setDisplayMode(mode);
-        if (mode == HomeDisplayMode.readingDetail) {
-          _handleReadingDetailMode(vm);
-        }
-      },
+        backgroundColor: const Color(0xFF323232),
+        duration: const Duration(seconds: 2),
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      ),
     );
   }
 
@@ -117,6 +128,7 @@ class _BookListScreenState extends State<BookListScreen>
 
     if (readingBooks.length == 1) {
       vm.setSelectedBook(readingBooks.first.id!);
+      _showModeChangeSnackBar('진행 중인 독서 보기로 전환되었습니다.');
       return;
     }
 
@@ -129,9 +141,14 @@ class _BookListScreenState extends State<BookListScreen>
         onBookSelected: (book) {
           Navigator.pop(context);
           vm.setSelectedBook(book.id!);
+          _showModeChangeSnackBar('진행 중인 독서 보기로 전환되었습니다.');
         },
       ),
     );
+  }
+
+  String _getToggleButtonLabel(HomeDisplayMode mode) {
+    return mode == HomeDisplayMode.readingDetail ? '전체 독서 보기' : '진행 중인 독서만 보기';
   }
 
   @override
@@ -140,110 +157,112 @@ class _BookListScreenState extends State<BookListScreen>
 
     return Consumer<BookListViewModel>(
       builder: (context, vm, _) {
-        if (vm.displayMode == HomeDisplayMode.readingDetail &&
-            vm.selectedBook != null) {
-          return _buildReadingDetailView(vm, isDark);
+        if (!vm.isPreferencesLoaded) {
+          return Scaffold(
+            backgroundColor:
+                isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FA),
+            body: const SizedBox.shrink(),
+          );
         }
 
-        return _buildAllBooksView(vm, isDark);
+        final isReadingDetailMode =
+            vm.displayMode == HomeDisplayMode.readingDetail;
+        final isReadingDetail = isReadingDetailMode && vm.selectedBook != null;
+
+        if (isReadingDetailMode && vm.selectedBook == null && vm.isLoading) {
+          return Scaffold(
+            backgroundColor:
+                isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FA),
+            body: const SizedBox.shrink(),
+          );
+        }
+
+        return Scaffold(
+          backgroundColor:
+              isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FA),
+          appBar: AppBar(
+            backgroundColor: isReadingDetail ? Colors.transparent : null,
+            elevation: 0,
+            surfaceTintColor: Colors.transparent,
+            scrolledUnderElevation: 0,
+            title: isReadingDetail ? null : const Text('독서 목록'),
+            centerTitle: false,
+            titleTextStyle: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white : Colors.black,
+            ),
+            actions: [
+              _PressableEditButton(
+                buttonKey: _editButtonKey,
+                onTap: () => _toggleDisplayMode(vm),
+                isDark: isDark,
+                label: _getToggleButtonLabel(vm.displayMode),
+                icon: Icons.sync_alt,
+              ),
+            ],
+            bottom: isReadingDetail ? null : _buildTabBar(vm, isDark),
+          ),
+          body: isReadingDetail
+              ? BookDetailScreen(
+                  key: ValueKey(vm.selectedBookId),
+                  book: vm.selectedBook!,
+                  isEmbedded: true,
+                )
+              : _buildBody(vm, isDark),
+        );
       },
     );
   }
 
-  Widget _buildReadingDetailView(BookListViewModel vm, bool isDark) {
-    return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        surfaceTintColor: Colors.transparent,
-        scrolledUnderElevation: 0,
-        actions: [
-          _PressableEditButton(
-            buttonKey: _editButtonKey,
-            onTap: () => _showDisplayModeMenu(context, vm),
-            isDark: isDark,
-          ),
-        ],
-      ),
-      body: BookDetailScreen(
-        key: ValueKey(vm.selectedBookId),
-        book: vm.selectedBook!,
-        isEmbedded: true,
-      ),
-    );
-  }
-
-  Widget _buildAllBooksView(BookListViewModel vm, bool isDark) {
+  PreferredSize _buildTabBar(BookListViewModel vm, bool isDark) {
     final selectedTabIndex = vm.selectedTabIndex;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('독서 목록'),
-        centerTitle: false,
-        titleTextStyle: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: isDark ? Colors.white : Colors.black,
-        ),
-        scrolledUnderElevation: 0,
-        actions: [
-          _PressableEditButton(
-            buttonKey: _editButtonKey,
-            onTap: () => _showDisplayModeMenu(context, vm),
-            isDark: isDark,
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(50),
-          child: Container(
-            color: isDark ? const Color(0xFF121212) : Colors.white,
-            child: SizedBox(
-              height: 50,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: 48,
-                      child: Row(
-                        children: [
-                          _buildScrollableTabItem(
-                              '전체', 0, selectedTabIndex, isDark),
-                          _buildScrollableTabItem(
-                              '독서 중', 1, selectedTabIndex, isDark),
-                          _buildScrollableTabItem(
-                              '완독', 2, selectedTabIndex, isDark),
-                          _buildScrollableTabItem(
-                              '다시 읽을 책', 3, selectedTabIndex, isDark),
-                        ],
-                      ),
-                    ),
-                    AnimatedBuilder(
-                      animation: _tabController.animation!,
-                      builder: (context, child) {
-                        const tabWidth = 100.0;
-                        final animationValue = _tabController.animation!.value;
-                        return Transform.translate(
-                          offset: Offset(tabWidth * animationValue, 0),
-                          child: Container(
-                            width: tabWidth,
-                            height: 2,
-                            color: isDark ? Colors.white : Colors.black,
-                          ),
-                        );
-                      },
-                    ),
-                  ],
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(50),
+      child: Container(
+        color: isDark ? const Color(0xFF121212) : Colors.white,
+        child: SizedBox(
+          height: 50,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 48,
+                  child: Row(
+                    children: [
+                      _buildScrollableTabItem(
+                          '전체', 0, selectedTabIndex, isDark),
+                      _buildScrollableTabItem(
+                          '독서 중', 1, selectedTabIndex, isDark),
+                      _buildScrollableTabItem(
+                          '완독', 2, selectedTabIndex, isDark),
+                      _buildScrollableTabItem(
+                          '다시 읽을 책', 3, selectedTabIndex, isDark),
+                    ],
+                  ),
                 ),
-              ),
+                AnimatedBuilder(
+                  animation: _tabController.animation!,
+                  builder: (context, child) {
+                    const tabWidth = 100.0;
+                    final animationValue = _tabController.animation!.value;
+                    return Transform.translate(
+                      offset: Offset(tabWidth * animationValue, 0),
+                      child: Container(
+                        width: tabWidth,
+                        height: 2,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
           ),
         ),
       ),
-      body: _buildBody(vm, isDark),
     );
   }
 
@@ -957,11 +976,15 @@ class _PressableEditButton extends StatefulWidget {
   final GlobalKey buttonKey;
   final VoidCallback onTap;
   final bool isDark;
+  final String label;
+  final IconData icon;
 
   const _PressableEditButton({
     required this.buttonKey,
     required this.onTap,
     required this.isDark,
+    required this.label,
+    required this.icon,
   });
 
   @override
@@ -969,41 +992,88 @@ class _PressableEditButton extends StatefulWidget {
 }
 
 class _PressableEditButtonState extends State<_PressableEditButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+    with TickerProviderStateMixin {
+  late AnimationController _pressController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _brightnessAnimation;
   bool _isLongPressing = false;
 
+  late AnimationController _transitionController;
+  late Animation<double> _rotationAnimation;
+  late Animation<double> _fadeOutAnimation;
+  late Animation<double> _fadeInAnimation;
+  String _displayedLabel = '';
+
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    _displayedLabel = widget.label;
+
+    _pressController = AnimationController(
       duration: const Duration(milliseconds: 150),
       vsync: this,
     );
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.96).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+      CurvedAnimation(parent: _pressController, curve: Curves.easeInOut),
     );
     _brightnessAnimation = Tween<double>(begin: 0.0, end: 0.1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+      CurvedAnimation(parent: _pressController, curve: Curves.easeInOut),
     );
+
+    _transitionController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+    _rotationAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _transitionController, curve: Curves.easeInOut),
+    );
+    _fadeOutAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _transitionController,
+        curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
+      ),
+    );
+    _fadeInAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _transitionController,
+        curve: const Interval(0.5, 1.0, curve: Curves.easeIn),
+      ),
+    );
+
+    _transitionController.addListener(() {
+      if (_transitionController.value >= 0.5 &&
+          _displayedLabel != widget.label) {
+        setState(() {
+          _displayedLabel = widget.label;
+        });
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant _PressableEditButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+  }
+
+  void triggerTransitionAnimation() {
+    _transitionController.forward(from: 0.0);
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _pressController.dispose();
+    _transitionController.dispose();
     super.dispose();
   }
 
   void _onTapDown(TapDownDetails details) {
-    _controller.forward();
+    _pressController.forward();
   }
 
   void _onTapUp(TapUpDetails details) {
     Future.delayed(const Duration(milliseconds: 80), () {
       if (mounted) {
-        _controller.reverse().then((_) {
+        _pressController.reverse().then((_) {
           if (mounted) {
             widget.onTap();
           }
@@ -1015,7 +1085,7 @@ class _PressableEditButtonState extends State<_PressableEditButton>
   void _onTapCancel() {
     Future.delayed(const Duration(milliseconds: 50), () {
       if (!_isLongPressing && mounted) {
-        _controller.reverse();
+        _pressController.reverse();
       }
     });
   }
@@ -1027,7 +1097,7 @@ class _PressableEditButtonState extends State<_PressableEditButton>
 
   void _onLongPressEnd(LongPressEndDetails details) {
     _isLongPressing = false;
-    _controller.reverse();
+    _pressController.reverse();
     HapticFeedback.lightImpact();
     widget.onTap();
   }
@@ -1042,26 +1112,54 @@ class _PressableEditButtonState extends State<_PressableEditButton>
       onLongPressStart: _onLongPressStart,
       onLongPressEnd: _onLongPressEnd,
       child: AnimatedBuilder(
-        animation: _controller,
+        animation: _pressController,
         builder: (context, child) {
           return Transform.scale(
             scale: _scaleAnimation.value,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               foregroundDecoration: BoxDecoration(
                 color:
                     Colors.white.withValues(alpha: _brightnessAnimation.value),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Center(
-                child: Text(
-                  '편집',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: widget.isDark ? Colors.white : Colors.black,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AnimatedBuilder(
+                    animation: _transitionController,
+                    builder: (context, child) {
+                      return Transform.rotate(
+                        angle: _rotationAnimation.value * 2 * 3.14159,
+                        child: Icon(
+                          widget.icon,
+                          size: 18,
+                          color: widget.isDark ? Colors.white : Colors.black,
+                        ),
+                      );
+                    },
                   ),
-                ),
+                  const SizedBox(width: 6),
+                  AnimatedBuilder(
+                    animation: _transitionController,
+                    builder: (context, child) {
+                      final opacity = _transitionController.value <= 0.5
+                          ? _fadeOutAnimation.value
+                          : _fadeInAnimation.value;
+                      return Opacity(
+                        opacity: opacity,
+                        child: Text(
+                          _displayedLabel,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: widget.isDark ? Colors.white : Colors.black,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           );
