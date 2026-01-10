@@ -6,6 +6,8 @@ import 'package:shimmer/shimmer.dart';
 
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
+import 'package:book_golas/ui/core/widgets/full_text_view_modal.dart';
+import 'package:book_golas/ui/core/utils/text_history_manager.dart';
 import 'package:book_golas/data/services/image_cache_manager.dart';
 
 class ExistingImageModal extends StatefulWidget {
@@ -16,7 +18,8 @@ class ExistingImageModal extends StatefulWidget {
   final int totalPages;
   final String? cachedEditedText;
   final void Function(String imageId, String? imageUrl) onFullScreenImage;
-  final void Function(String imageId, String? imageUrl, {bool dismissParentOnDelete}) onDeleteImage;
+  final void Function(String imageId, String? imageUrl,
+      {bool dismissParentOnDelete}) onDeleteImage;
   final void Function({
     required String imageUrl,
     required void Function(String extractedText) onConfirm,
@@ -70,12 +73,41 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
   bool _hasShownPageError = false;
   bool _listenerAdded = false;
 
+  late TextHistoryManager _historyManager;
+
+  void _saveTextToHistory() {
+    _historyManager.saveIfChanged();
+  }
+
+  void _undoText() {
+    if (_historyManager.undo()) {
+      widget.onTextEdited(widget.imageId, _textController.text);
+    }
+  }
+
+  void _redoText() {
+    if (_historyManager.redo()) {
+      widget.onTextEdited(widget.imageId, _textController.text);
+    }
+  }
+
+  bool get _canUndo => _historyManager.canUndo;
+  bool get _canRedo => _historyManager.canRedo;
+
   @override
   void initState() {
     super.initState();
     _originalText =
         widget.cachedEditedText ?? widget.initialExtractedText ?? '';
     _textController = TextEditingController(text: _originalText);
+    _historyManager = TextHistoryManager(
+      controller: _textController,
+      initialText: _originalText,
+      onHistoryChanged: () {
+        if (mounted) setState(() {});
+      },
+    );
+    _textController.addListener(_onTextChanged);
     _pageNumberController = TextEditingController(
       text: widget.pageNumber?.toString() ?? '',
     );
@@ -83,9 +115,14 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
     _editingPageNumber = widget.pageNumber;
   }
 
+  void _onTextChanged() {
+    _saveTextToHistory();
+  }
+
   @override
   void dispose() {
     widget.onTextEdited(widget.imageId, _textController.text);
+    _textController.removeListener(_onTextChanged);
     _textController.dispose();
     _pageNumberController.dispose();
     _focusNode.dispose();
@@ -101,106 +138,102 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
       showModalBottomSheet(
         context: context,
         backgroundColor: Colors.transparent,
-        builder:
-            (bottomSheetContext) => Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20),
+        builder: (bottomSheetContext) => Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[400],
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+              Text(
+                '수정 중인 내용이 있습니다.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? Colors.white : Colors.black,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
                 children: [
-                  Container(
-                    width: 40,
-                    height: 4,
-                    margin: const EdgeInsets.only(bottom: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[400],
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  Text(
-                    '수정 중인 내용이 있습니다.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: isDark ? Colors.white : Colors.black,
-                      height: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.pop(bottomSheetContext);
-                            setState(() {
-                              _textController.text = _originalText;
-                              _editingPageNumber = widget.pageNumber;
-                              _pageNumberController.text =
-                                  widget.pageNumber?.toString() ?? '';
-                              _isEditing = false;
-                            });
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            decoration: BoxDecoration(
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pop(bottomSheetContext);
+                        setState(() {
+                          _textController.text = _originalText;
+                          _editingPageNumber = widget.pageNumber;
+                          _pageNumberController.text =
+                              widget.pageNumber?.toString() ?? '';
+                          _isEditing = false;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          color: isDark ? Colors.grey[800] : Colors.grey[200],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '변경사항 무시',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
                               color:
-                                  isDark ? Colors.grey[800] : Colors.grey[200],
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Center(
-                              child: Text(
-                                '변경사항 무시',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color:
-                                      isDark
-                                          ? Colors.grey[300]
-                                          : Colors.grey[700],
-                                ),
-                              ),
+                                  isDark ? Colors.grey[300] : Colors.grey[700],
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => Navigator.pop(bottomSheetContext),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF5B7FFF),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                '이어서 하기',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                  SizedBox(
-                    height: MediaQuery.of(bottomSheetContext).padding.bottom + 8,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(bottomSheetContext),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF5B7FFF),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            '이어서 하기',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
-            ),
+              SizedBox(
+                height: MediaQuery.of(bottomSheetContext).padding.bottom + 8,
+              ),
+            ],
+          ),
+        ),
       );
     } else {
       setState(() {
@@ -246,7 +279,8 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
       );
       if (success && mounted) {
         Navigator.pop(context);
-        CustomSnackbar.show(context, message: '저장되었습니다', type: SnackbarType.success);
+        CustomSnackbar.show(context,
+            message: '저장되었습니다', type: SnackbarType.success);
       } else {
         setState(() => _isSaving = false);
       }
@@ -271,10 +305,9 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
     final screenHeight = MediaQuery.of(context).size.height;
     final defaultModalHeight = screenHeight * 0.85;
     final availableHeight = screenHeight - statusBarHeight - keyboardHeight;
-    final modalHeight =
-        isKeyboardOpen
-            ? availableHeight.clamp(0.0, defaultModalHeight)
-            : defaultModalHeight;
+    final modalHeight = isKeyboardOpen
+        ? availableHeight.clamp(0.0, defaultModalHeight)
+        : defaultModalHeight;
 
     return PopScope(
       canPop: !_isEditing,
@@ -310,10 +343,9 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                     _buildDragHandle(isDark),
                     _buildHeader(isDark),
                     Expanded(
-                      child:
-                          hasImage
-                              ? _buildWithImageContent(isDark)
-                              : _buildTextOnlyContent(isDark),
+                      child: hasImage
+                          ? _buildWithImageContent(isDark)
+                          : _buildTextOnlyContent(isDark),
                     ),
                   ],
                 ),
@@ -367,10 +399,9 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           TextButton(
-            onPressed:
-                _isEditing
-                    ? () => _showCancelConfirmation(isDark)
-                    : () => Navigator.pop(context),
+            onPressed: _isEditing
+                ? () => _showCancelConfirmation(isDark)
+                : () => Navigator.pop(context),
             child: Text(
               _isEditing ? '취소' : '닫기',
               style: TextStyle(
@@ -383,9 +414,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
             _buildPageNumberEditor(isDark)
           else
             Text(
-              _editingPageNumber != null
-                  ? 'p.$_editingPageNumber'
-                  : '페이지 미설정',
+              _editingPageNumber != null ? 'p.$_editingPageNumber' : '페이지 미설정',
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
@@ -447,10 +476,9 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
-              color:
-                  _pageNumberError
-                      ? Colors.red
-                      : (isDark ? Colors.white : Colors.black),
+              color: _pageNumberError
+                  ? Colors.red
+                  : (isDark ? Colors.white : Colors.black),
             ),
             decoration: InputDecoration(
               isDense: true,
@@ -486,18 +514,73 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
   }
 
   Widget _buildWithImageContent(bool isDark) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildImagePreview(isDark),
-          const SizedBox(height: 20),
-          _buildTextHeader(isDark),
-          const SizedBox(height: 12),
-          _buildTextContent(isDark, minHeight: 150),
-          const SizedBox(height: 40),
-        ],
+    final isTextFocused = _isEditing && _focusNode.hasFocus;
+
+    if (isTextFocused) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTextHeader(isDark),
+            const SizedBox(height: 12),
+            Expanded(child: _buildFullModeTextField(isDark)),
+            const SizedBox(height: 20),
+          ],
+        ),
+      );
+    }
+
+    return Scrollbar(
+      thumbVisibility: true,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildImagePreview(isDark),
+            const SizedBox(height: 20),
+            _buildTextHeader(isDark),
+            const SizedBox(height: 12),
+            _buildTextContent(isDark, minHeight: 150),
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFullModeTextField(bool isDark) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: isDark ? Colors.grey[900] : Colors.grey[100],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+        ),
+      ),
+      child: TextField(
+        controller: _textController,
+        focusNode: _focusNode,
+        maxLines: null,
+        expands: true,
+        keyboardType: TextInputType.multiline,
+        textInputAction: TextInputAction.newline,
+        textAlignVertical: TextAlignVertical.top,
+        style: TextStyle(
+          fontSize: 15,
+          height: 1.6,
+          color: isDark ? Colors.white : Colors.black,
+        ),
+        decoration: InputDecoration(
+          hintText: '텍스트를 입력하세요...',
+          hintStyle: TextStyle(
+            color: isDark ? Colors.grey[600] : Colors.grey[400],
+          ),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.all(16),
+        ),
       ),
     );
   }
@@ -545,24 +628,21 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                   imageUrl: _imageUrl!,
                   cacheManager: BookImageCacheManager.instance,
                   fit: BoxFit.cover,
-                  placeholder:
-                      (context, url) => Shimmer.fromColors(
-                        baseColor:
-                            isDark ? Colors.grey[800]! : Colors.grey[300]!,
-                        highlightColor:
-                            isDark ? Colors.grey[700]! : Colors.grey[100]!,
-                        child: Container(
-                          color: isDark ? Colors.grey[800] : Colors.grey[200],
-                        ),
-                      ),
-                  errorWidget:
-                      (context, url, error) => Container(
-                        color: isDark ? Colors.grey[800] : Colors.grey[200],
-                        child: Icon(
-                          CupertinoIcons.photo,
-                          color: isDark ? Colors.grey[600] : Colors.grey[400],
-                        ),
-                      ),
+                  placeholder: (context, url) => Shimmer.fromColors(
+                    baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                    highlightColor:
+                        isDark ? Colors.grey[700]! : Colors.grey[100]!,
+                    child: Container(
+                      color: isDark ? Colors.grey[800] : Colors.grey[200],
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    color: isDark ? Colors.grey[800] : Colors.grey[200],
+                    child: Icon(
+                      CupertinoIcons.photo,
+                      color: isDark ? Colors.grey[600] : Colors.grey[400],
+                    ),
+                  ),
                 ),
               ),
               Positioned(
@@ -604,7 +684,8 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
         child: const Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.document_scanner_outlined, size: 14, color: Colors.white),
+            Icon(Icons.document_scanner_outlined,
+                size: 14, color: Colors.white),
             SizedBox(width: 4),
             Text(
               '텍스트 추출',
@@ -641,7 +722,8 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
         child: const Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(CupertinoIcons.arrow_2_squarepath, size: 14, color: Colors.white),
+            Icon(CupertinoIcons.arrow_2_squarepath,
+                size: 14, color: Colors.white),
             SizedBox(width: 4),
             Text('교체하기', style: TextStyle(fontSize: 12, color: Colors.white)),
           ],
@@ -672,17 +754,53 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
             ),
           ],
         ),
-        if (!_isEditing)
-          _buildTextActions(isDark)
-        else
-          _buildClearButton(),
+        if (!_isEditing) _buildTextActions(isDark) else _buildClearButton(),
       ],
     );
+  }
+
+  void _showFullTextModal(bool isDark) {
+    showFullTextViewModal(
+      context: context,
+      initialText: _textController.text,
+    ).then((modifiedText) {
+      if (!mounted) return;
+      if (modifiedText != null) {
+        _saveTextToHistory();
+        _textController.text = modifiedText;
+        widget.onTextEdited(widget.imageId, modifiedText);
+        setState(() {});
+      }
+    });
   }
 
   Widget _buildTextActions(bool isDark) {
     return Row(
       children: [
+        if (_textController.text.isNotEmpty) ...[
+          GestureDetector(
+            onTap: () => _showFullTextModal(isDark),
+            child: Row(
+              children: [
+                Icon(
+                  CupertinoIcons.arrow_up_left_arrow_down_right,
+                  size: 14,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '전체보기',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+        ],
         GestureDetector(
           onTap: () {
             if (_textController.text.isNotEmpty) {
@@ -720,7 +838,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
             setState(() {
               _isEditing = true;
             });
-            Future.delayed(const Duration(milliseconds: 100), () {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
               _focusNode.requestFocus();
             });
           },
@@ -764,49 +882,57 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
   }
 
   Widget _buildTextContent(bool isDark, {required double minHeight}) {
-    return Container(
-      constraints: BoxConstraints(minHeight: minHeight),
-      decoration: BoxDecoration(
-        color:
-            (_isEditing || _textController.text.isNotEmpty)
-                ? (isDark ? Colors.grey[900] : Colors.grey[100])
-                : Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
-        border:
-            (_isEditing || _textController.text.isNotEmpty)
-                ? Border.all(
+    return GestureDetector(
+      onTap: _isEditing
+          ? () {
+              _focusNode.requestFocus();
+            }
+          : null,
+      child: Container(
+        constraints: BoxConstraints(minHeight: minHeight, maxHeight: 200),
+        decoration: BoxDecoration(
+          color: (_isEditing || _textController.text.isNotEmpty)
+              ? (isDark ? Colors.grey[900] : Colors.grey[100])
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: (_isEditing || _textController.text.isNotEmpty)
+              ? Border.all(
                   color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
                 )
-                : null,
-      ),
-      child:
-          _isEditing
-              ? TextField(
-                controller: _textController,
-                focusNode: _focusNode,
-                maxLines: null,
-                minLines: 6,
-                keyboardType: TextInputType.multiline,
-                textInputAction: TextInputAction.newline,
-                style: TextStyle(
-                  fontSize: 15,
-                  height: 1.6,
-                  color: isDark ? Colors.white : Colors.black,
-                ),
-                decoration: InputDecoration(
-                  hintText: '텍스트를 입력하세요...',
-                  hintStyle: TextStyle(
-                    color: isDark ? Colors.grey[600] : Colors.grey[400],
+              : null,
+        ),
+        child: _isEditing
+            ? Scrollbar(
+                thumbVisibility: true,
+                child: TextField(
+                  controller: _textController,
+                  focusNode: _focusNode,
+                  maxLines: null,
+                  expands: true,
+                  keyboardType: TextInputType.multiline,
+                  textInputAction: TextInputAction.newline,
+                  textAlignVertical: TextAlignVertical.top,
+                  style: TextStyle(
+                    fontSize: 15,
+                    height: 1.6,
+                    color: isDark ? Colors.white : Colors.black,
                   ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.all(16),
+                  decoration: InputDecoration(
+                    hintText: '텍스트를 입력하세요...',
+                    hintStyle: TextStyle(
+                      color: isDark ? Colors.grey[600] : Colors.grey[400],
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.all(16),
+                  ),
                 ),
               )
-              : Padding(
-                padding: const EdgeInsets.all(16),
-                child:
-                    _textController.text.isEmpty
-                        ? Text(
+            : Scrollbar(
+                thumbVisibility: true,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: _textController.text.isEmpty
+                      ? Text(
                           '기록된 문구가 없습니다.',
                           style: TextStyle(
                             fontSize: 15,
@@ -814,7 +940,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                             color: isDark ? Colors.grey[500] : Colors.grey[500],
                           ),
                         )
-                        : SelectableText(
+                      : SelectableText(
                           _textController.text,
                           style: TextStyle(
                             fontSize: 15,
@@ -822,7 +948,9 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                             color: isDark ? Colors.white : Colors.black,
                           ),
                         ),
+                ),
               ),
+      ),
     );
   }
 
@@ -830,96 +958,102 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color:
-            _isEditing
-                ? (isDark ? Colors.grey[900] : Colors.grey[100])
-                : Colors.transparent,
+        color: _isEditing
+            ? (isDark ? Colors.grey[900] : Colors.grey[100])
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
-        border:
-            _isEditing
-                ? Border.all(
-                  color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                )
-                : null,
-      ),
-      child:
-          _isEditing
-              ? TextField(
-                controller: _textController,
-                focusNode: _focusNode,
-                maxLines: null,
-                expands: true,
-                keyboardType: TextInputType.multiline,
-                textInputAction: TextInputAction.newline,
-                textAlignVertical: TextAlignVertical.top,
-                style: TextStyle(
-                  fontSize: 15,
-                  height: 1.6,
-                  color: isDark ? Colors.white : Colors.black,
-                ),
-                decoration: InputDecoration(
-                  hintText: '텍스트를 입력하세요...',
-                  hintStyle: TextStyle(
-                    color: isDark ? Colors.grey[600] : Colors.grey[400],
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.all(16),
-                ),
+        border: _isEditing
+            ? Border.all(
+                color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
               )
-              : SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child:
-                    _textController.text.isEmpty
-                        ? Text(
-                          '기록된 문구가 없습니다.',
-                          style: TextStyle(
-                            fontSize: 15,
-                            height: 1.6,
-                            color: isDark ? Colors.grey[500] : Colors.grey[500],
-                          ),
-                        )
-                        : SelectableText(
-                          _textController.text,
-                          style: TextStyle(
-                            fontSize: 17,
-                            height: 1.8,
-                            color: isDark ? Colors.white : Colors.black,
-                          ),
-                        ),
+            : null,
+      ),
+      child: _isEditing
+          ? TextField(
+              controller: _textController,
+              focusNode: _focusNode,
+              maxLines: null,
+              expands: true,
+              keyboardType: TextInputType.multiline,
+              textInputAction: TextInputAction.newline,
+              textAlignVertical: TextAlignVertical.top,
+              style: TextStyle(
+                fontSize: 15,
+                height: 1.6,
+                color: isDark ? Colors.white : Colors.black,
               ),
+              decoration: InputDecoration(
+                hintText: '텍스트를 입력하세요...',
+                hintStyle: TextStyle(
+                  color: isDark ? Colors.grey[600] : Colors.grey[400],
+                ),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.all(16),
+              ),
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: _textController.text.isEmpty
+                  ? Text(
+                      '기록된 문구가 없습니다.',
+                      style: TextStyle(
+                        fontSize: 15,
+                        height: 1.6,
+                        color: isDark ? Colors.grey[500] : Colors.grey[500],
+                      ),
+                    )
+                  : SelectableText(
+                      _textController.text,
+                      style: TextStyle(
+                        fontSize: 17,
+                        height: 1.8,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                    ),
+            ),
     );
   }
 
   Widget _buildKeyboardAccessory(bool isDark) {
+    final isTextFocused = _focusNode.hasFocus;
+
     return Positioned(
       left: 0,
       right: 0,
       bottom: 0,
       child: KeyboardAccessoryBar(
         isDark: isDark,
-        showNavigation: true,
+        showNavigation: !isTextFocused,
         icon: CupertinoIcons.checkmark,
-        onUp: () {
-          if (_focusNode.hasFocus) {
-            _focusNode.unfocus();
-            _pageNumberFocusNode.requestFocus();
-          }
-        },
-        onDown: () {
-          if (_pageNumberFocusNode.hasFocus) {
-            _pageNumberFocusNode.unfocus();
-            _focusNode.requestFocus();
-          }
-        },
+        onUndo: (isTextFocused && _canUndo) ? _undoText : null,
+        canUndo: isTextFocused && _canUndo,
+        onRedo: (isTextFocused && _canRedo) ? _redoText : null,
+        canRedo: isTextFocused && _canRedo,
+        onUp: !isTextFocused
+            ? null
+            : () {
+                if (_focusNode.hasFocus) {
+                  _saveTextToHistory();
+                  _focusNode.unfocus();
+                  _pageNumberFocusNode.requestFocus();
+                }
+              },
+        onDown: !isTextFocused
+            ? null
+            : () {
+                if (_pageNumberFocusNode.hasFocus) {
+                  _pageNumberFocusNode.unfocus();
+                  _focusNode.requestFocus();
+                }
+              },
         onDone: () {
           setState(() {
             _hideKeyboardAccessory = true;
           });
           if (_focusNode.hasFocus) {
-            _focusNode.unfocus();
-          } else {
-            _pageNumberFocusNode.unfocus();
+            _saveTextToHistory();
           }
+          SystemChannels.textInput.invokeMethod('TextInput.hide');
           Future.delayed(const Duration(milliseconds: 300), () {
             if (mounted) {
               setState(() {
@@ -942,7 +1076,9 @@ void showExistingImageModal({
   required int totalPages,
   String? cachedEditedText,
   required void Function(String imageId, String? imageUrl) onFullScreenImage,
-  required void Function(String imageId, String? imageUrl, {bool dismissParentOnDelete}) onDeleteImage,
+  required void Function(String imageId, String? imageUrl,
+          {bool dismissParentOnDelete})
+      onDeleteImage,
   required void Function({
     required String imageUrl,
     required void Function(String extractedText) onConfirm,
@@ -963,22 +1099,21 @@ void showExistingImageModal({
     context: context,
     isScrollControlled: true,
     isDismissible: true,
-    enableDrag: true,
+    enableDrag: false,
     backgroundColor: Colors.transparent,
-    builder:
-        (modalContext) => ExistingImageModal(
-          imageId: imageId,
-          initialImageUrl: initialImageUrl,
-          initialExtractedText: initialExtractedText,
-          pageNumber: pageNumber,
-          totalPages: totalPages,
-          cachedEditedText: cachedEditedText,
-          onFullScreenImage: onFullScreenImage,
-          onDeleteImage: onDeleteImage,
-          onReExtractText: onReExtractText,
-          onReplaceImage: onReplaceImage,
-          onSave: onSave,
-          onTextEdited: onTextEdited,
-        ),
+    builder: (modalContext) => ExistingImageModal(
+      imageId: imageId,
+      initialImageUrl: initialImageUrl,
+      initialExtractedText: initialExtractedText,
+      pageNumber: pageNumber,
+      totalPages: totalPages,
+      cachedEditedText: cachedEditedText,
+      onFullScreenImage: onFullScreenImage,
+      onDeleteImage: onDeleteImage,
+      onReExtractText: onReExtractText,
+      onReplaceImage: onReplaceImage,
+      onSave: onSave,
+      onTextEdited: onTextEdited,
+    ),
   );
 }
