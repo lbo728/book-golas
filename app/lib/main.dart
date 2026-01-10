@@ -5,7 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:book_golas/ui/reading_chart/widgets/reading_chart_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:book_golas/ui/book_list/widgets/book_list_screen.dart';
+import 'package:book_golas/ui/home/widgets/home_screen.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_bottom_bar.dart';
 import 'package:book_golas/ui/calendar/widgets/calendar_screen.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
@@ -99,6 +99,10 @@ class AppBootstrap extends StatelessWidget {
         ),
       );
       debugPrint('✅ Supabase 초기화 성공');
+
+      // HomeViewModel preferences 프리로드
+      debugPrint('📚 홈 화면 설정 프리로드 시작');
+      await HomeViewModel.preloadPreferences();
 
       debugPrint('🎉 모든 초기화 완료');
     } catch (e, stackTrace) {
@@ -479,8 +483,7 @@ class _MainScreenState extends State<MainScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    BookDetailScreen(book: targetBook),
+                builder: (context) => BookDetailScreen(book: targetBook),
               ),
             );
           }
@@ -498,7 +501,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   List<Widget> get _pages => [
-        const BookListScreen(),
+        const HomeScreen(),
         const ReadingChartScreen(),
         const CalendarScreen(),
         const MyPageScreen(),

@@ -7,7 +7,13 @@ import 'package:image_picker/image_picker.dart';
 
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 
-Future<ImageSource?> showImageSourceSheet({
+enum ImageSourceType {
+  camera,
+  gallery,
+  documentScan,
+}
+
+Future<ImageSourceType?> showImageSourceSheet({
   required BuildContext context,
 }) async {
   final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -15,7 +21,7 @@ Future<ImageSource?> showImageSourceSheet({
       (Platform.isAndroid || Platform.isIOS) &&
       (Platform.isAndroid || (Platform.isIOS && !Platform.isMacOS));
 
-  return showModalBottomSheet<ImageSource>(
+  return showModalBottomSheet<ImageSourceType>(
     context: context,
     backgroundColor: Colors.transparent,
     builder: (sheetContext) {
@@ -42,6 +48,44 @@ Future<ImageSource?> showImageSourceSheet({
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
+                    color: const Color(0xFF10B981).withAlpha(25),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.doc_text_viewfinder,
+                    color: Color(0xFF10B981),
+                  ),
+                ),
+                title: Text(
+                  '문서 스캔',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
+                subtitle: Text(
+                  '평탄화 및 자동 보정',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
+                onTap: isCameraAvailable && Platform.isIOS
+                    ? () => Navigator.pop(
+                        sheetContext, ImageSourceType.documentScan)
+                    : () {
+                        Navigator.pop(sheetContext);
+                        CustomSnackbar.show(
+                          context,
+                          message: '시뮬레이터에서는 카메라를 사용할 수 없습니다',
+                          type: SnackbarType.warning,
+                        );
+                      },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
                     color: const Color(0xFF5B7FFF).withAlpha(25),
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -57,8 +101,15 @@ Future<ImageSource?> showImageSourceSheet({
                     color: isDark ? Colors.white : Colors.black,
                   ),
                 ),
+                subtitle: Text(
+                  '일반 촬영',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
                 onTap: isCameraAvailable && Platform.isIOS
-                    ? () => Navigator.pop(sheetContext, ImageSource.camera)
+                    ? () => Navigator.pop(sheetContext, ImageSourceType.camera)
                     : () {
                         Navigator.pop(sheetContext);
                         CustomSnackbar.show(
@@ -87,7 +138,15 @@ Future<ImageSource?> showImageSourceSheet({
                     color: isDark ? Colors.white : Colors.black,
                   ),
                 ),
-                onTap: () => Navigator.pop(sheetContext, ImageSource.gallery),
+                subtitle: Text(
+                  '저장된 이미지 선택',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
+                onTap: () =>
+                    Navigator.pop(sheetContext, ImageSourceType.gallery),
               ),
               const SizedBox(height: 20),
             ],

@@ -115,7 +115,8 @@ class BookService {
         }
       }
 
-      print('📖 [BookService] 페이지 업데이트 시작: bookId=$bookId, $prevPage → $currentPage');
+      print(
+          '📖 [BookService] 페이지 업데이트 시작: bookId=$bookId, $prevPage → $currentPage');
 
       // books 테이블 업데이트
       final response = await _supabase
@@ -129,7 +130,8 @@ class BookService {
           .single();
 
       final updatedBook = Book.fromJson(response);
-      print('📖 [BookService] DB 업데이트 성공: current_page=${updatedBook.currentPage}');
+      print(
+          '📖 [BookService] DB 업데이트 성공: current_page=${updatedBook.currentPage}');
 
       // 로컬 캐시 업데이트
       final index = _books.indexWhere((b) => b.id == bookId);
@@ -190,11 +192,15 @@ class BookService {
 
   Future<List<Book>> getActiveBooks() async {
     try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return [];
+
       final response = await _supabase
           .from(_tableName)
           .select()
-          .lt('current_page', 'total_pages')
-          .order('created_at', ascending: false);
+          .eq('user_id', userId)
+          .eq('status', 'reading')
+          .order('updated_at', ascending: false);
 
       return (response as List).map((json) => Book.fromJson(json)).toList();
     } catch (e) {
