@@ -244,13 +244,8 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
                 return Stack(
                   children: [
                     // 물방울 인디케이터 (렌즈 효과)
-                    Positioned(
-                      left: chevronWidth,
-                      right: 0,
-                      top: 0,
-                      bottom: 0,
-                      child: _buildDropletIndicator(isDark, availableWidth),
-                    ),
+                    _buildDropletIndicator(
+                        isDark, availableWidth, chevronWidth),
                     // 탭 아이템들
                     Row(
                       children: [
@@ -295,7 +290,8 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
   }
 
   /// 물방울 인디케이터 (렌즈 효과 포함)
-  Widget _buildDropletIndicator(bool isDark, double maxWidth) {
+  Widget _buildDropletIndicator(
+      bool isDark, double maxWidth, double chevronWidth) {
     final indicatorColor = isDark
         ? Colors.white.withValues(alpha: 0.22)
         : Colors.black.withValues(alpha: 0.12);
@@ -314,7 +310,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
         final tabWidth = maxWidth / _tabs.length;
 
         return Positioned(
-          left: currentPosition * tabWidth,
+          left: chevronWidth + currentPosition * tabWidth,
           top: 0,
           bottom: 0,
           width: tabWidth,

@@ -653,22 +653,26 @@ class _MainScreenState extends State<MainScreen>
 
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 22),
-      child: Stack(
-        children: [
-          SlideTransition(
-            position: _readingDetailBarSlide,
-            child: ReadingDetailBottomBar(
-              onBackTap: _switchToRegularBar,
-              onUpdatePageTap: _onUpdatePageTap,
-              onAddMemorablePageTap: _onAddMemorablePageTap,
-            ),
-          ),
-          if (_showRegularBarInReadingMode)
+      child: SizedBox(
+        height: 62,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
             SlideTransition(
-              position: _regularBarSlide,
-              child: _buildRegularBarContent(),
+              position: _readingDetailBarSlide,
+              child: ReadingDetailBottomBar(
+                onBackTap: _switchToRegularBar,
+                onUpdatePageTap: _onUpdatePageTap,
+                onAddMemorablePageTap: _onAddMemorablePageTap,
+              ),
             ),
-        ],
+            if (_showRegularBarInReadingMode)
+              SlideTransition(
+                position: _regularBarSlide,
+                child: _buildRegularBarContent(),
+              ),
+          ],
+        ),
       ),
     );
   }
