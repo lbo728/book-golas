@@ -31,6 +31,9 @@ import 'ui/auth/widgets/my_page_screen.dart';
 import 'domain/models/book.dart';
 import 'ui/book_detail/book_detail_screen.dart';
 
+final RouteObserver<ModalRoute<void>> routeObserver =
+    RouteObserver<ModalRoute<void>>();
+
 // 백그라운드 메시지 핸들러 (main 함수 밖에 정의)
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -359,6 +362,7 @@ class MyApp extends StatelessWidget {
                 ),
               ),
             ),
+            navigatorObservers: [routeObserver],
             home: const AuthWrapper(),
           );
         },
@@ -395,8 +399,27 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen> with RouteAware {
   int _selectedIndex = 0;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    if (_selectedIndex == 0) {
+      context.read<BookListViewModel>().refresh();
+    }
+  }
 
   @override
   void initState() {
