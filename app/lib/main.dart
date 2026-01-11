@@ -651,8 +651,8 @@ class _MainScreenState extends State<MainScreen>
       );
     }
 
-    return Container(
-      margin: const EdgeInsets.only(left: 16, right: 16, bottom: 22),
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 22),
       child: Stack(
         children: [
           SlideTransition(
