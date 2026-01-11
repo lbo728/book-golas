@@ -19,11 +19,16 @@ class BookListViewModel extends BaseViewModel {
   int get selectedTabIndex => _selectedTabIndex;
   bool get showAllCurrentBooks => _showAllCurrentBooks;
 
-  List<Book> get readingBooks =>
-      _books.where((book) => book.status == BookStatus.reading.value).toList();
+  List<Book> get readingBooks => _books
+      .where((book) =>
+          book.status == BookStatus.reading.value &&
+          !(book.currentPage >= book.totalPages && book.totalPages > 0))
+      .toList();
 
   List<Book> get completedBooks => _books
-      .where((book) => book.status == BookStatus.completed.value)
+      .where((book) =>
+          book.status == BookStatus.completed.value ||
+          (book.currentPage >= book.totalPages && book.totalPages > 0))
       .toList();
 
   BookListViewModel();

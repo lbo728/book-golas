@@ -33,6 +33,7 @@ import 'widgets/sheets/daily_target_confirm_sheet.dart';
 import 'widgets/sheets/delete_confirmation_sheet.dart';
 import 'widgets/sheets/image_source_sheet.dart';
 import 'widgets/sheets/full_title_sheet.dart';
+import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 
 class BookDetailScreen extends StatelessWidget {
   final Book book;
@@ -129,6 +130,11 @@ class _BookDetailContentState extends State<_BookDetailContent>
 
       memorableVm.fetchBookImages();
       progressVm.fetchProgressHistory();
+
+      // 완독 상태면 히스토리 탭으로 이동
+      if (_isBookCompleted(bookVm.currentBook)) {
+        _tabController.animateTo(1);
+      }
 
       // 축하 애니메이션 표시
       if (widget.showCelebration) {
@@ -229,22 +235,31 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 attemptCount: bookVm.attemptCount,
                                 onEditTap: () =>
                                     _showUpdateTargetDateDialog(bookVm),
+                                showEditButton: !_isBookCompleted(book),
                               ),
                               const SizedBox(height: 12),
-                              DashboardProgressWidget(
-                                animatedProgress: _animatedProgress,
-                                currentPage: book.currentPage,
-                                totalPages: book.totalPages,
-                                daysLeft: bookVm.daysLeft,
-                                pagesLeft: bookVm.pagesLeft,
-                                dailyTargetPages: book.dailyTargetPages,
-                                isTodayGoalAchieved: bookVm.isTodayGoalAchieved,
-                                onDailyTargetTap: () =>
-                                    _showDailyTargetChangeDialog(bookVm),
-                              ),
-                              const SizedBox(height: 12),
-                              CompactStreakRow(
-                                  dailyAchievements: bookVm.dailyAchievements),
+                              if (!_isBookCompleted(book)) ...[
+                                DashboardProgressWidget(
+                                  animatedProgress: _animatedProgress,
+                                  currentPage: book.currentPage,
+                                  totalPages: book.totalPages,
+                                  daysLeft: bookVm.daysLeft,
+                                  pagesLeft: bookVm.pagesLeft,
+                                  dailyTargetPages: book.dailyTargetPages,
+                                  isTodayGoalAchieved:
+                                      bookVm.isTodayGoalAchieved,
+                                  onDailyTargetTap: () =>
+                                      _showDailyTargetChangeDialog(bookVm),
+                                ),
+                                const SizedBox(height: 12),
+                                CompactStreakRow(
+                                    dailyAchievements:
+                                        bookVm.dailyAchievements),
+                              ],
+                              if (_isBookCompleted(book)) ...[
+                                const SizedBox(height: 12),
+                                _buildRestartReadingButton(context, book),
+                              ],
                               const SizedBox(height: 20),
                             ],
                           ),
@@ -324,7 +339,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
               ),
               if (isKeyboardOpen)
                 const KeyboardDoneButton()
-              else
+              else if (!_isBookCompleted(bookVm.currentBook))
                 FloatingActionBar(
                   onUpdatePageTap: () => _showUpdatePageDialog(bookVm),
                   onAddMemorablePageTap: _showAddMemorablePageModal,
@@ -716,6 +731,98 @@ class _BookDetailContentState extends State<_BookDetailContent>
         return success;
       },
       onTextEdited: (id, text) => memorableVm.setEditedText(id, text),
+    );
+  }
+
+  bool _isBookCompleted(Book book) {
+    return book.currentPage >= book.totalPages && book.totalPages > 0;
+  }
+
+  void _navigateToReadingStart(BuildContext context) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const ReadingStartScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 200),
+      ),
+    );
+  }
+
+  Widget _buildRestartReadingButton(BuildContext context, Book book) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return GestureDetector(
+      onTap: () => _navigateToReadingStart(context),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.refresh_rounded,
+                    color: Color(0xFF5B7FFF),
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '이어서 독서하기',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '이번에도 몰입해서 독서 목표를 달성해보아요!',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            Icon(
+              CupertinoIcons.chevron_right,
+              color: isDark ? Colors.grey[400] : Colors.grey[500],
+              size: 20,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

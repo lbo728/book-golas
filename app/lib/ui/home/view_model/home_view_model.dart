@@ -60,8 +60,11 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
-  List<Book> get readingBooks =>
-      books.where((book) => book.status == BookStatus.reading.value).toList();
+  List<Book> get readingBooks => books
+      .where((book) =>
+          book.status == BookStatus.reading.value &&
+          !(book.currentPage >= book.totalPages && book.totalPages > 0))
+      .toList();
 
   Future<void> setDisplayMode(HomeDisplayMode mode) async {
     _displayMode = mode;
