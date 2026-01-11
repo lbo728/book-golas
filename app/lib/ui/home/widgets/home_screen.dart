@@ -12,7 +12,13 @@ import 'package:book_golas/ui/book_list/widgets/sheets/reading_books_selection_s
 import 'package:book_golas/ui/reading_progress/widgets/reading_progress_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final void Function(VoidCallback updatePage, VoidCallback addMemorable)?
+      onCallbacksReady;
+
+  const HomeScreen({
+    super.key,
+    this.onCallbacksReady,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -125,7 +131,10 @@ class _HomeScreenState extends State<HomeScreen> {
               isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FA),
           appBar: _buildAppBar(vm, isDark, isReadingDetail),
           body: isReadingDetail
-              ? ReadingProgressScreen(book: selectedBook!)
+              ? ReadingProgressScreen(
+                  book: selectedBook,
+                  onCallbacksReady: widget.onCallbacksReady,
+                )
               : const BookListScreen(),
         );
       },

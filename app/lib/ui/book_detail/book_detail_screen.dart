@@ -39,12 +39,15 @@ class BookDetailScreen extends StatelessWidget {
   final Book book;
   final bool showCelebration;
   final bool isEmbedded;
+  final void Function(VoidCallback updatePage, VoidCallback addMemorable)?
+      onCallbacksReady;
 
   const BookDetailScreen({
     super.key,
     required this.book,
     this.showCelebration = false,
     this.isEmbedded = false,
+    this.onCallbacksReady,
   });
 
   @override
@@ -67,6 +70,7 @@ class BookDetailScreen extends StatelessWidget {
       child: _BookDetailContent(
         showCelebration: showCelebration,
         isEmbedded: isEmbedded,
+        onCallbacksReady: onCallbacksReady,
       ),
     );
   }
@@ -75,10 +79,13 @@ class BookDetailScreen extends StatelessWidget {
 class _BookDetailContent extends StatefulWidget {
   final bool showCelebration;
   final bool isEmbedded;
+  final void Function(VoidCallback updatePage, VoidCallback addMemorable)?
+      onCallbacksReady;
 
   const _BookDetailContent({
     this.showCelebration = false,
     this.isEmbedded = false,
+    this.onCallbacksReady,
   });
 
   @override
@@ -139,6 +146,14 @@ class _BookDetailContentState extends State<_BookDetailContent>
       // 축하 애니메이션 표시
       if (widget.showCelebration) {
         _showCelebration();
+      }
+
+      // 콜백 준비 완료 알림 (embedded 모드에서 외부에서 FloatingActionBar 대신 사용)
+      if (widget.onCallbacksReady != null && mounted) {
+        widget.onCallbacksReady!(
+          () => _showUpdatePageDialog(bookVm),
+          _showAddMemorablePageModal,
+        );
       }
     });
   }
@@ -339,7 +354,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
               ),
               if (isKeyboardOpen)
                 const KeyboardDoneButton()
-              else if (!_isBookCompleted(bookVm.currentBook))
+              else if (!_isBookCompleted(bookVm.currentBook) &&
+                  !widget.isEmbedded)
                 FloatingActionBar(
                   onUpdatePageTap: () => _showUpdatePageDialog(bookVm),
                   onAddMemorablePageTap: _showAddMemorablePageModal,

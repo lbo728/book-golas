@@ -15,14 +15,27 @@ import 'package:flutter/services.dart';
 class LiquidGlassBottomBar extends StatefulWidget {
   final int selectedIndex;
   final ValueChanged<int> onTabSelected;
+
   /// 검색 버튼 탭 콜백: (버튼 위치, 버튼 크기) 전달
   final void Function(Offset position, double size) onSearchTap;
+
+  /// 진행 중인 독서 모드로 전환 버튼 표시 여부
+  final bool showReadingDetailButton;
+
+  /// 진행 중인 독서 모드로 전환 버튼 탭 콜백
+  final VoidCallback? onReadingDetailTap;
+
+  /// 마진 제거 여부 (애니메이션 스택에서 사용 시)
+  final bool noMargin;
 
   const LiquidGlassBottomBar({
     super.key,
     required this.selectedIndex,
     required this.onTabSelected,
     required this.onSearchTap,
+    this.showReadingDetailButton = false,
+    this.onReadingDetailTap,
+    this.noMargin = false,
   });
 
   @override
@@ -117,7 +130,8 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
     if (!_isDragging || _tabWidth <= 0) return;
 
     final newPosition = details.localPosition.dx / _tabWidth;
-    final clampedPosition = newPosition.clamp(0.0, (_tabs.length - 1).toDouble());
+    final clampedPosition =
+        newPosition.clamp(0.0, (_tabs.length - 1).toDouble());
 
     setState(() {
       _dragPosition = clampedPosition;
@@ -163,19 +177,30 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    final content = Row(
+      children: [
+        // Pill TabBar (4개 탭)
+        Expanded(
+          child: _buildLiquidGlassTabBar(isDark),
+        ),
+        const SizedBox(width: 12),
+        // 분리된 원형 검색 버튼
+        _buildSearchButton(isDark),
+        // 진행 중인 독서 모드로 전환 버튼 (showReadingDetailButton이 true일 때만 표시)
+        if (widget.showReadingDetailButton) ...[
+          const SizedBox(width: 12),
+          _buildReadingDetailButton(isDark),
+        ],
+      ],
+    );
+
+    if (widget.noMargin) {
+      return content;
+    }
+
     return Container(
       margin: const EdgeInsets.only(left: 16, right: 16, bottom: 22),
-      child: Row(
-        children: [
-          // Pill TabBar (4개 탭)
-          Expanded(
-            child: _buildLiquidGlassTabBar(isDark),
-          ),
-          const SizedBox(width: 12),
-          // 분리된 원형 검색 버튼
-          _buildSearchButton(isDark),
-        ],
-      ),
+      child: content,
     );
   }
 
@@ -260,7 +285,8 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
       animation: _slideAnimation,
       builder: (context, child) {
         // 드래그 중이면 드래그 위치, 아니면 애니메이션 값 사용
-        final currentPosition = _isDragging ? _dragPosition : _slideAnimation.value;
+        final currentPosition =
+            _isDragging ? _dragPosition : _slideAnimation.value;
         final tabWidth = maxWidth / _tabs.length;
 
         return Positioned(
@@ -337,7 +363,8 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
         animation: _slideAnimation,
         builder: (context, child) {
           // 현재 위치 (드래그 중이면 드래그 위치 사용)
-          final currentPosition = _isDragging ? _dragPosition : _slideAnimation.value;
+          final currentPosition =
+              _isDragging ? _dragPosition : _slideAnimation.value;
 
           // 물방울과의 거리 계산 (0~1 범위로 정규화)
           final distance = (currentPosition - index).abs();
@@ -439,6 +466,51 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
             ),
             child: Icon(
               CupertinoIcons.search,
+              color: iconColor,
+              size: 22,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 진행 중인 독서 모드로 전환하는 원형 버튼
+  Widget _buildReadingDetailButton(bool isDark) {
+    final glassColor = isDark
+        ? Colors.white.withValues(alpha: 0.12)
+        : Colors.black.withValues(alpha: 0.08);
+
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.15)
+        : Colors.black.withValues(alpha: 0.08);
+
+    final iconColor = isDark
+        ? Colors.white.withValues(alpha: 0.9)
+        : Colors.black.withValues(alpha: 0.7);
+
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        widget.onReadingDetailTap?.call();
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(100),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+          child: Container(
+            width: 62,
+            height: 62,
+            decoration: BoxDecoration(
+              color: glassColor,
+              borderRadius: BorderRadius.circular(100),
+              border: Border.all(
+                color: borderColor,
+                width: 0.5,
+              ),
+            ),
+            child: Icon(
+              CupertinoIcons.chevron_right,
               color: iconColor,
               size: 22,
             ),
