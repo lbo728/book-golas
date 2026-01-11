@@ -64,11 +64,28 @@ class BookListViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  void _init() {
+  Future<void> _init() async {
     final userId = Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) return;
 
     setLoading(true);
+
+    try {
+      final response = await Supabase.instance.client
+          .from('books')
+          .select()
+          .eq('user_id', userId)
+          .order('created_at', ascending: false);
+
+      _books = (response as List).map((e) => Book.fromJson(e)).toList();
+      setLoading(false);
+      notifyListeners();
+    } catch (e) {
+      debugPrint('[BookListViewModel] Initial fetch failed: $e');
+      setError(e.toString());
+      setLoading(false);
+      return;
+    }
 
     _booksSubscription = Supabase.instance.client
         .from('books')
@@ -78,12 +95,10 @@ class BookListViewModel extends BaseViewModel {
         .listen(
           (rows) {
             _books = rows.map((e) => Book.fromJson(e)).toList();
-            setLoading(false);
             notifyListeners();
           },
           onError: (error) {
-            setError(error.toString());
-            setLoading(false);
+            debugPrint('[BookListViewModel] Realtime stream error: $error');
           },
         );
   }
