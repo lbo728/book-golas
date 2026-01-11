@@ -19,6 +19,9 @@ class BookListViewModel extends BaseViewModel {
   int get selectedTabIndex => _selectedTabIndex;
   bool get showAllCurrentBooks => _showAllCurrentBooks;
 
+  @override
+  bool get isLoading => !_isInitialized || super.isLoading;
+
   List<Book> get readingBooks => _books
       .where((book) =>
           book.status == BookStatus.reading.value &&

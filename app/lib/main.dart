@@ -107,6 +107,10 @@ class AppBootstrap extends StatelessWidget {
       debugPrint('📚 홈 화면 설정 프리로드 시작');
       await HomeViewModel.preloadPreferences();
 
+      // ThemeViewModel 프리로드
+      debugPrint('🎨 테마 설정 프리로드 시작');
+      await ThemeViewModel.preloadTheme();
+
       debugPrint('🎉 모든 초기화 완료');
     } catch (e, stackTrace) {
       debugPrint('❌ 초기화 중 에러 발생: $e');
