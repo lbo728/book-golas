@@ -222,6 +222,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
           body: Stack(
             children: [
               SafeArea(
+                bottom: !widget.isEmbedded,
                 child: NestedScrollView(
                   controller: _scrollController,
                   headerSliverBuilder: (context, innerBoxIsScrolled) {
