@@ -390,49 +390,40 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
     bool isHighlighted,
   ) {
     final showArrow = index == 0 && widget.showReadingDetailButton;
+    final iconColor = isHighlighted ? foregroundColor : inactiveForegroundColor;
 
-    return SizedBox(
-      height: 54,
+    return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(
-            height: 24,
-            child: Stack(
-              clipBehavior: Clip.none,
-              alignment: Alignment.center,
-              children: [
-                Icon(
-                  isHighlighted ? tab.activeIcon : tab.icon,
-                  color:
-                      isHighlighted ? foregroundColor : inactiveForegroundColor,
-                  size: 24,
-                ),
-                if (showArrow)
-                  Positioned(
-                    left: -16,
-                    child: Icon(
-                      CupertinoIcons.chevron_up_chevron_down,
-                      color: isHighlighted
-                          ? foregroundColor
-                          : inactiveForegroundColor,
-                      size: 12,
-                    ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (showArrow)
+                Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Icon(
+                    CupertinoIcons.chevron_up_chevron_down,
+                    color: iconColor,
+                    size: 12,
                   ),
-              ],
-            ),
+                ),
+              Icon(
+                isHighlighted ? tab.activeIcon : tab.icon,
+                color: iconColor,
+                size: 24,
+              ),
+            ],
           ),
           const SizedBox(height: 2),
           Text(
             tab.label,
             style: TextStyle(
-              color: isHighlighted ? foregroundColor : inactiveForegroundColor,
+              color: iconColor,
               fontSize: 10,
               fontWeight: isHighlighted ? FontWeight.w600 : FontWeight.w500,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
