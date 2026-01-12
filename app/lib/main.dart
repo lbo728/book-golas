@@ -652,7 +652,7 @@ class _MainScreenState extends State<MainScreen>
     }
 
     return Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 22),
+      padding: const EdgeInsets.only(left: 12, right: 12, bottom: 22),
       child: SizedBox(
         height: 62,
         child: Stack(

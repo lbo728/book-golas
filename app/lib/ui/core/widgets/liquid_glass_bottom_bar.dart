@@ -194,7 +194,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
     }
 
     return Container(
-      margin: const EdgeInsets.only(left: 16, right: 16, bottom: 22),
+      margin: const EdgeInsets.only(left: 12, right: 12, bottom: 22),
       child: content,
     );
   }

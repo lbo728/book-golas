@@ -72,7 +72,7 @@ class ReadingDetailBottomBar extends StatelessWidget {
               ),
             ),
             child: Icon(
-              CupertinoIcons.chevron_left,
+              CupertinoIcons.arrow_left,
               color: iconColor,
               size: 22,
             ),
