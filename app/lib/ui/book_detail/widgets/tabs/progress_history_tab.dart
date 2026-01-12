@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -34,13 +36,14 @@ class ProgressHistoryTab extends StatelessWidget {
           return _buildSkeleton(isDark);
         }
 
-        final data = snapshot.data ?? [];
+        final rawData = snapshot.data ?? [];
 
-        if (data.isEmpty) {
+        if (rawData.isEmpty) {
           return _buildEmptyState(isDark);
         }
 
-        return _buildContent(data, isDark);
+        final aggregatedData = _aggregateByDate(rawData);
+        return _buildContent(aggregatedData, isDark);
       },
     );
   }
@@ -101,7 +104,8 @@ class ProgressHistoryTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildChartCard(data, spots, maxPage, dailyPagesSpots, maxDailyPage, isDark),
+          _buildChartCard(
+              data, spots, maxPage, dailyPagesSpots, maxDailyPage, isDark),
           const SizedBox(height: 16),
           _buildReadingStateAnalysis(isDark, data),
           const SizedBox(height: 16),
@@ -135,7 +139,8 @@ class ProgressHistoryTab extends StatelessWidget {
           const SizedBox(height: 16),
           _buildLegendRow(isDark),
           const SizedBox(height: 20),
-          _buildChart(data, spots, maxPage, dailyPagesSpots, maxDailyPage, isDark),
+          _buildChart(
+              data, spots, maxPage, dailyPagesSpots, maxDailyPage, isDark),
         ],
       ),
     );
@@ -340,9 +345,8 @@ class ProgressHistoryTab extends StatelessWidget {
                         ),
                       );
                     },
-                    interval: data.length > 5
-                        ? (data.length / 4).ceilToDouble()
-                        : 1,
+                    interval:
+                        data.length > 5 ? (data.length / 4).ceilToDouble() : 1,
                   ),
                 ),
               ),
@@ -378,7 +382,8 @@ class ProgressHistoryTab extends StatelessWidget {
     );
   }
 
-  Widget _buildReadingStateAnalysis(bool isDark, List<Map<String, dynamic>> progressData) {
+  Widget _buildReadingStateAnalysis(
+      bool isDark, List<Map<String, dynamic>> progressData) {
     final analysisResult = _analyzeReadingState(progressData);
     final emoji = analysisResult['emoji'] as String;
     final title = analysisResult['title'] as String;
@@ -422,7 +427,8 @@ class ProgressHistoryTab extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 5, vertical: 1),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF6B35).withValues(alpha: 0.15),
+                          color:
+                              const Color(0xFFFF6B35).withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -454,13 +460,13 @@ class ProgressHistoryTab extends StatelessWidget {
     );
   }
 
-  Map<String, dynamic> _analyzeReadingState(List<Map<String, dynamic>> progressData) {
+  Map<String, dynamic> _analyzeReadingState(
+      List<Map<String, dynamic>> progressData) {
     final totalDays = targetDate.difference(startDate).inDays + 1;
     final elapsedDays = DateTime.now().difference(startDate).inDays;
 
-    final expectedProgress = elapsedDays > 0
-        ? (elapsedDays / totalDays * 100).clamp(0, 100)
-        : 0.0;
+    final expectedProgress =
+        elapsedDays > 0 ? (elapsedDays / totalDays * 100).clamp(0, 100) : 0.0;
     final progressDiff = progressPercentage - expectedProgress;
 
     if (progressPercentage >= 100) {
@@ -662,6 +668,30 @@ class ProgressHistoryTab extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  List<Map<String, dynamic>> _aggregateByDate(List<Map<String, dynamic>> data) {
+    if (data.isEmpty) return [];
+
+    final SplayTreeMap<String, Map<String, dynamic>> dateMap = SplayTreeMap();
+
+    for (final entry in data) {
+      final createdAt = entry['created_at'] as DateTime;
+      final dateKey =
+          '${createdAt.year}-${createdAt.month.toString().padLeft(2, '0')}-${createdAt.day.toString().padLeft(2, '0')}';
+      final page = entry['page'] as int;
+
+      if (!dateMap.containsKey(dateKey) ||
+          (dateMap[dateKey]!['page'] as int) < page) {
+        dateMap[dateKey] = {
+          'page': page,
+          'created_at':
+              DateTime(createdAt.year, createdAt.month, createdAt.day),
+        };
+      }
+    }
+
+    return dateMap.values.toList();
   }
 
   Widget _buildSkeleton(bool isDark) {
