@@ -132,13 +132,13 @@ class ExpandedNavigationBottomBar extends StatelessWidget {
         child: Row(
           children: [
             Icon(
-              CupertinoIcons.arrow_left,
+              CupertinoIcons.arrow_right,
               size: 18,
               color: inactiveForegroundColor,
             ),
             const SizedBox(width: 12),
             Text(
-              '페이지 업데이트',
+              '독서상세 메뉴로',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,

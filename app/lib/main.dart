@@ -622,20 +622,35 @@ class _MainScreenState extends State<MainScreen>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final homeVm = context.watch<HomeViewModel>();
-    final isReadingDetailMode =
-        homeVm.displayMode == HomeDisplayMode.readingDetail &&
-            _selectedIndex == 0;
+    final isInReadingDetailContext =
+        homeVm.displayMode == HomeDisplayMode.readingDetail;
 
     return Scaffold(
-      body: _pages[_selectedIndex],
+      body: Stack(
+        children: [
+          _pages[_selectedIndex],
+          if (_showExpandedMenu)
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _showExpandedMenu = false;
+                  });
+                },
+                behavior: HitTestBehavior.opaque,
+                child: Container(color: Colors.transparent),
+              ),
+            ),
+        ],
+      ),
       backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
       extendBody: true,
-      bottomNavigationBar: _buildAnimatedBottomBar(isReadingDetailMode),
+      bottomNavigationBar: _buildAnimatedBottomBar(isInReadingDetailContext),
     );
   }
 
-  Widget _buildAnimatedBottomBar(bool isReadingDetailMode) {
-    if (!isReadingDetailMode) {
+  Widget _buildAnimatedBottomBar(bool isInReadingDetailContext) {
+    if (!isInReadingDetailContext) {
       if (_showRegularBarInReadingMode || _showExpandedMenu) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
@@ -664,6 +679,16 @@ class _MainScreenState extends State<MainScreen>
           onUpdatePageTap: _onUpdatePageTap,
           onSearchTap: _onSearchTap,
         ),
+      );
+    }
+
+    if (_selectedIndex != 0) {
+      return LiquidGlassBottomBar(
+        selectedIndex: _selectedIndex,
+        onTabSelected: _onTabSelectedInReadingModeFromOtherTab,
+        onSearchTap: _onSearchTap,
+        showReadingDetailButton: true,
+        onReadingDetailTap: _switchToHomeWithReadingDetail,
       );
     }
 
@@ -725,8 +750,28 @@ class _MainScreenState extends State<MainScreen>
 
   void _onBackToReadingDetailFromMenu() {
     setState(() {
+      _selectedIndex = 0;
       _showExpandedMenu = false;
       _showRegularBarInReadingMode = false;
+    });
+    _barSwitchController.reverse();
+  }
+
+  void _onTabSelectedInReadingModeFromOtherTab(int index) {
+    if (index == 0) {
+      _switchToHomeWithReadingDetail();
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+  }
+
+  void _switchToHomeWithReadingDetail() {
+    setState(() {
+      _selectedIndex = 0;
+      _showRegularBarInReadingMode = false;
+      _showExpandedMenu = false;
     });
     _barSwitchController.reverse();
   }

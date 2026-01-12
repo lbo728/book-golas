@@ -236,48 +236,24 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
             ),
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final chevronWidth =
-                    widget.showReadingDetailButton ? 28.0 : 0.0;
-                final availableWidth = constraints.maxWidth - chevronWidth;
-                _tabWidth = availableWidth / _tabs.length;
+                _tabWidth = constraints.maxWidth / _tabs.length;
 
                 return Stack(
                   children: [
                     // 물방울 인디케이터 (렌즈 효과)
-                    _buildDropletIndicator(
-                        isDark, availableWidth, chevronWidth),
+                    _buildDropletIndicator(isDark, constraints.maxWidth, 0),
                     // 탭 아이템들
                     Row(
-                      children: [
-                        // 진행 중인 독서 모드로 전환하는 화살표
-                        if (widget.showReadingDetailButton)
-                          GestureDetector(
-                            onTap: () {
-                              HapticFeedback.selectionClick();
-                              widget.onReadingDetailTap?.call();
-                            },
-                            behavior: HitTestBehavior.opaque,
-                            child: SizedBox(
-                              width: chevronWidth,
-                              height: 54,
-                              child: Icon(
-                                CupertinoIcons.chevron_up_chevron_down,
-                                size: 14,
-                                color: inactiveForegroundColor,
-                              ),
-                            ),
+                      children: List.generate(_tabs.length, (index) {
+                        return Expanded(
+                          child: _buildTabItem(
+                            index,
+                            _tabs[index],
+                            foregroundColor,
+                            inactiveForegroundColor,
                           ),
-                        ...List.generate(_tabs.length, (index) {
-                          return Expanded(
-                            child: _buildTabItem(
-                              index,
-                              _tabs[index],
-                              foregroundColor,
-                              inactiveForegroundColor,
-                            ),
-                          );
-                        }),
-                      ],
+                        );
+                      }),
                     ),
                   ],
                 );
@@ -413,16 +389,34 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
     Color inactiveForegroundColor,
     bool isHighlighted,
   ) {
+    final showArrow = index == 0 && widget.showReadingDetailButton;
+
     return SizedBox(
       height: 54,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            isHighlighted ? tab.activeIcon : tab.icon,
-            color: isHighlighted ? foregroundColor : inactiveForegroundColor,
-            size: 24,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (showArrow) ...[
+                Icon(
+                  CupertinoIcons.chevron_up_chevron_down,
+                  color:
+                      isHighlighted ? foregroundColor : inactiveForegroundColor,
+                  size: 12,
+                ),
+                const SizedBox(width: 4),
+              ],
+              Icon(
+                isHighlighted ? tab.activeIcon : tab.icon,
+                color:
+                    isHighlighted ? foregroundColor : inactiveForegroundColor,
+                size: 24,
+              ),
+            ],
           ),
           const SizedBox(height: 2),
           Text(
