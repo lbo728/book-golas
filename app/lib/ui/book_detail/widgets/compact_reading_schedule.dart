@@ -6,6 +6,7 @@ class CompactReadingSchedule extends StatelessWidget {
   final DateTime targetDate;
   final int attemptCount;
   final VoidCallback onEditTap;
+  final bool showEditButton;
 
   const CompactReadingSchedule({
     super.key,
@@ -13,6 +14,7 @@ class CompactReadingSchedule extends StatelessWidget {
     required this.targetDate,
     required this.attemptCount,
     required this.onEditTap,
+    this.showEditButton = true,
   });
 
   String _formatDate(DateTime date) {
@@ -64,13 +66,14 @@ class CompactReadingSchedule extends StatelessWidget {
             _buildAttemptBadge(),
           ],
           const Spacer(),
-          _buildEditButton(isDark),
+          if (showEditButton) _buildEditButton(isDark),
         ],
       ),
     );
   }
 
-  Widget _buildDateColumn(String label, String value, bool isDark, {required bool isBold}) {
+  Widget _buildDateColumn(String label, String value, bool isDark,
+      {required bool isBold}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

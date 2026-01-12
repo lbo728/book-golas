@@ -129,9 +129,30 @@ class BookService {
           .select()
           .single();
 
-      final updatedBook = Book.fromJson(response);
+      var updatedBook = Book.fromJson(response);
       print(
           '📖 [BookService] DB 업데이트 성공: current_page=${updatedBook.currentPage}');
+
+      // 완독 시 status를 'completed'로 변경
+      if (updatedBook.currentPage >= updatedBook.totalPages &&
+          updatedBook.totalPages > 0 &&
+          updatedBook.status != BookStatus.completed.value) {
+        try {
+          final statusResponse = await _supabase
+              .from(_tableName)
+              .update({
+                'status': BookStatus.completed.value,
+                'updated_at': DateTime.now().toIso8601String(),
+              })
+              .eq('id', bookId)
+              .select()
+              .single();
+          updatedBook = Book.fromJson(statusResponse);
+          print('📖 [BookService] 완독 상태로 변경: status=${updatedBook.status}');
+        } catch (statusError) {
+          print('📖 [BookService] 완독 상태 변경 실패 (무시됨): $statusError');
+        }
+      }
 
       // 로컬 캐시 업데이트
       final index = _books.indexWhere((b) => b.id == bookId);
