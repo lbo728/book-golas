@@ -89,10 +89,8 @@ class ProgressHistoryTab extends StatelessWidget {
 
     final dailyPagesSpots = data.asMap().entries.map((entry) {
       final idx = entry.key;
-      final page = entry.value['page'] as int;
-      final prevPage = idx > 0 ? data[idx - 1]['page'] as int : 0;
-      final dailyPages = (page - prevPage).toDouble();
-      return FlSpot(idx.toDouble(), dailyPages);
+      final dailyPage = entry.value['daily_page'] as int;
+      return FlSpot(idx.toDouble(), dailyPage.toDouble());
     }).toList();
 
     final maxDailyPage = dailyPagesSpots.isNotEmpty
@@ -257,6 +255,63 @@ class ProgressHistoryTab extends StatelessWidget {
 
           return LineChart(
             LineChartData(
+              lineTouchData: LineTouchData(
+                touchTooltipData: LineTouchTooltipData(
+                  tooltipBgColor:
+                      isDark ? const Color(0xFF2D2D2D) : Colors.white,
+                  tooltipBorder: BorderSide(
+                    color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                    width: 1,
+                  ),
+                  tooltipRoundedRadius: 8,
+                  tooltipPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  getTooltipItems: (touchedSpots) {
+                    return touchedSpots.map((touchedSpot) {
+                      final idx = touchedSpot.x.toInt();
+                      if (idx < 0 || idx >= data.length) return null;
+
+                      final entry = data[idx];
+                      final date = entry['created_at'] as DateTime;
+                      final cumulativePage = entry['page'] as int;
+                      final dailyPage = entry['daily_page'] as int;
+
+                      final isCumulativeLine =
+                          touchedSpot.barIndex == dailyPagesSpots.length;
+
+                      if (isCumulativeLine) {
+                        return LineTooltipItem(
+                          '${date.month}/${date.day}\n',
+                          TextStyle(
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                            fontSize: 11,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: '누적: $cumulativePage p\n',
+                              style: const TextStyle(
+                                color: Color(0xFF5B7FFF),
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text: '일일: +$dailyPage p',
+                              style: const TextStyle(
+                                color: Color(0xFF10B981),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                      return null;
+                    }).toList();
+                  },
+                ),
+                handleBuiltInTouches: true,
+              ),
               lineBarsData: [
                 ...dailyPagesSpots.map((spot) {
                   final scaledY = spot.y * barScaleFactor * 0.3;
@@ -329,8 +384,10 @@ class ProgressHistoryTab extends StatelessWidget {
                     showTitles: true,
                     reservedSize: 30,
                     getTitlesWidget: (value, meta) {
-                      final idx = value.toInt();
-                      if (idx < 0 || idx >= data.length) {
+                      final idx = value.round();
+                      if (idx < 0 ||
+                          idx >= data.length ||
+                          (value - idx).abs() > 0.01) {
                         return const SizedBox();
                       }
                       final date = data[idx]['created_at'] as DateTime;
@@ -345,8 +402,11 @@ class ProgressHistoryTab extends StatelessWidget {
                         ),
                       );
                     },
-                    interval:
-                        data.length > 5 ? (data.length / 4).ceilToDouble() : 1,
+                    interval: data.length > 5
+                        ? ((data.length - 1) / 4)
+                            .ceilToDouble()
+                            .clamp(1, data.length.toDouble())
+                        : 1,
                   ),
                 ),
               ),
@@ -691,7 +751,16 @@ class ProgressHistoryTab extends StatelessWidget {
       }
     }
 
-    return dateMap.values.toList();
+    final aggregatedList = dateMap.values.toList();
+
+    int prevPage = 0;
+    for (int i = 0; i < aggregatedList.length; i++) {
+      final currentPage = aggregatedList[i]['page'] as int;
+      aggregatedList[i]['daily_page'] = currentPage - prevPage;
+      prevPage = currentPage;
+    }
+
+    return aggregatedList;
   }
 
   Widget _buildSkeleton(bool isDark) {
