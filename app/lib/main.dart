@@ -625,24 +625,29 @@ class _MainScreenState extends State<MainScreen>
     final isInReadingDetailContext =
         homeVm.displayMode == HomeDisplayMode.readingDetail;
 
-    return Scaffold(
-      body: Stack(
+    Widget body = _pages[_selectedIndex];
+
+    if (_showExpandedMenu) {
+      body = Stack(
         children: [
-          _pages[_selectedIndex],
-          if (_showExpandedMenu)
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _showExpandedMenu = false;
-                  });
-                },
-                behavior: HitTestBehavior.opaque,
-                child: Container(color: Colors.transparent),
-              ),
+          body,
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _showExpandedMenu = false;
+                });
+              },
+              behavior: HitTestBehavior.opaque,
+              child: Container(color: Colors.transparent),
             ),
+          ),
         ],
-      ),
+      );
+    }
+
+    return Scaffold(
+      body: body,
       backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
       extendBody: true,
       bottomNavigationBar: _buildAnimatedBottomBar(isInReadingDetailContext),
