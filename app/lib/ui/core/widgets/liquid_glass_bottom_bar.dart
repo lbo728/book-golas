@@ -261,8 +261,8 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
                               width: chevronWidth,
                               height: 54,
                               child: Icon(
-                                CupertinoIcons.chevron_right,
-                                size: 16,
+                                CupertinoIcons.chevron_up_chevron_down,
+                                size: 14,
                                 color: inactiveForegroundColor,
                               ),
                             ),

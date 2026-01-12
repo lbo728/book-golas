@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:book_golas/ui/home/widgets/home_screen.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_bottom_bar.dart';
 import 'package:book_golas/ui/core/widgets/reading_detail_bottom_bar.dart';
+import 'package:book_golas/ui/core/widgets/expanded_navigation_bottom_bar.dart';
 import 'package:book_golas/domain/models/home_display_mode.dart';
 import 'package:book_golas/ui/calendar/widgets/calendar_screen.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
@@ -409,6 +410,7 @@ class _MainScreenState extends State<MainScreen>
     with RouteAware, TickerProviderStateMixin {
   int _selectedIndex = 0;
   bool _showRegularBarInReadingMode = false;
+  bool _showExpandedMenu = false;
   late AnimationController _barSwitchController;
   late Animation<Offset> _readingDetailBarSlide;
   late Animation<Offset> _regularBarSlide;
@@ -634,11 +636,12 @@ class _MainScreenState extends State<MainScreen>
 
   Widget _buildAnimatedBottomBar(bool isReadingDetailMode) {
     if (!isReadingDetailMode) {
-      if (_showRegularBarInReadingMode) {
+      if (_showRegularBarInReadingMode || _showExpandedMenu) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
             setState(() {
               _showRegularBarInReadingMode = false;
+              _showExpandedMenu = false;
             });
             _barSwitchController.reset();
           }
@@ -648,6 +651,19 @@ class _MainScreenState extends State<MainScreen>
         selectedIndex: _selectedIndex,
         onTabSelected: _onItemTapped,
         onSearchTap: _onSearchTap,
+      );
+    }
+
+    if (_showExpandedMenu) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 12, right: 12, bottom: 22),
+        child: ExpandedNavigationBottomBar(
+          selectedIndex: _selectedIndex,
+          onTabSelected: _onExpandedMenuTabSelected,
+          onBackToReadingDetail: _onBackToReadingDetailFromMenu,
+          onUpdatePageTap: _onUpdatePageTap,
+          onSearchTap: _onSearchTap,
+        ),
       );
     }
 
@@ -680,12 +696,39 @@ class _MainScreenState extends State<MainScreen>
   Widget _buildRegularBarContent() {
     return LiquidGlassBottomBar(
       selectedIndex: _selectedIndex,
-      onTabSelected: _onItemTapped,
+      onTabSelected: _onTabSelectedInReadingMode,
       onSearchTap: _onSearchTap,
       showReadingDetailButton: true,
       onReadingDetailTap: _switchToReadingDetailBar,
       noMargin: true,
     );
+  }
+
+  void _onTabSelectedInReadingMode(int index) {
+    if (index == 0) {
+      setState(() {
+        _showExpandedMenu = true;
+      });
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+  }
+
+  void _onExpandedMenuTabSelected(int index) {
+    setState(() {
+      _selectedIndex = index;
+      _showExpandedMenu = false;
+    });
+  }
+
+  void _onBackToReadingDetailFromMenu() {
+    setState(() {
+      _showExpandedMenu = false;
+      _showRegularBarInReadingMode = false;
+    });
+    _barSwitchController.reverse();
   }
 
   void _onUpdatePageTap() {
