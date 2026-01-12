@@ -7,6 +7,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:book_golas/ui/home/widgets/home_screen.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_bottom_bar.dart';
+import 'package:book_golas/ui/core/widgets/reading_detail_bottom_bar.dart';
+import 'package:book_golas/ui/core/widgets/expanded_navigation_bottom_bar.dart';
+import 'package:book_golas/domain/models/home_display_mode.dart';
 import 'package:book_golas/ui/calendar/widgets/calendar_screen.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 import 'package:book_golas/config/app_config.dart';
@@ -30,6 +33,9 @@ import 'ui/auth/widgets/login_screen.dart';
 import 'ui/auth/widgets/my_page_screen.dart';
 import 'domain/models/book.dart';
 import 'ui/book_detail/book_detail_screen.dart';
+
+final RouteObserver<ModalRoute<void>> routeObserver =
+    RouteObserver<ModalRoute<void>>();
 
 // 백그라운드 메시지 핸들러 (main 함수 밖에 정의)
 @pragma('vm:entry-point')
@@ -103,6 +109,10 @@ class AppBootstrap extends StatelessWidget {
       // HomeViewModel preferences 프리로드
       debugPrint('📚 홈 화면 설정 프리로드 시작');
       await HomeViewModel.preloadPreferences();
+
+      // ThemeViewModel 프리로드
+      debugPrint('🎨 테마 설정 프리로드 시작');
+      await ThemeViewModel.preloadTheme();
 
       debugPrint('🎉 모든 초기화 완료');
     } catch (e, stackTrace) {
@@ -359,6 +369,7 @@ class MyApp extends StatelessWidget {
                 ),
               ),
             ),
+            navigatorObservers: [routeObserver],
             home: const AuthWrapper(),
           );
         },
@@ -395,12 +406,62 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen>
+    with RouteAware, TickerProviderStateMixin {
   int _selectedIndex = 0;
+  bool _showRegularBarInReadingMode = false;
+  bool _showExpandedMenu = false;
+  late AnimationController _barSwitchController;
+  late Animation<Offset> _readingDetailBarSlide;
+  late Animation<Offset> _regularBarSlide;
+
+  VoidCallback? _updatePageCallback;
+  VoidCallback? _addMemorablePageCallback;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    _barSwitchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    if (_selectedIndex == 0) {
+      context.read<BookListViewModel>().refresh();
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+
+    _barSwitchController = AnimationController(
+      duration: const Duration(milliseconds: 350),
+      vsync: this,
+    );
+
+    _readingDetailBarSlide = Tween<Offset>(
+      begin: Offset.zero,
+      end: const Offset(-1.0, 0.0),
+    ).animate(CurvedAnimation(
+      parent: _barSwitchController,
+      curve: Curves.easeOutCubic,
+    ));
+
+    _regularBarSlide = Tween<Offset>(
+      begin: const Offset(1.0, 0.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _barSwitchController,
+      curve: Curves.easeOutCubic,
+    ));
 
     // 인증 완료 후 BookListViewModel 초기화 및 FCM 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -501,7 +562,12 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   List<Widget> get _pages => [
-        const HomeScreen(),
+        HomeScreen(
+          onCallbacksReady: (updatePage, addMemorable) {
+            _updatePageCallback = updatePage;
+            _addMemorablePageCallback = addMemorable;
+          },
+        ),
         const ReadingChartScreen(),
         const CalendarScreen(),
         const MyPageScreen(),
@@ -519,7 +585,6 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _onSearchTap(Offset searchButtonPosition, double searchButtonSize) {
-    // 독서 시작하기 화면으로 바로 이동 (검색바가 하단에 포함됨)
     Navigator.push(
       context,
       PageRouteBuilder(
@@ -536,19 +601,191 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
+  void _switchToRegularBar() {
+    setState(() {
+      _showRegularBarInReadingMode = true;
+    });
+    _barSwitchController.forward();
+  }
+
+  void _switchToReadingDetailBar() {
+    _barSwitchController.reverse().then((_) {
+      if (mounted) {
+        setState(() {
+          _showRegularBarInReadingMode = false;
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final homeVm = context.watch<HomeViewModel>();
+    final isInReadingDetailContext =
+        homeVm.displayMode == HomeDisplayMode.readingDetail;
+
+    Widget body = _pages[_selectedIndex];
+
+    if (_showExpandedMenu) {
+      body = Stack(
+        children: [
+          body,
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _showExpandedMenu = false;
+                });
+              },
+              behavior: HitTestBehavior.opaque,
+              child: Container(color: Colors.transparent),
+            ),
+          ),
+        ],
+      );
+    }
 
     return Scaffold(
-      body: _pages[_selectedIndex],
+      body: body,
       backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
       extendBody: true,
-      bottomNavigationBar: LiquidGlassBottomBar(
+      bottomNavigationBar: _buildAnimatedBottomBar(isInReadingDetailContext),
+    );
+  }
+
+  Widget _buildAnimatedBottomBar(bool isInReadingDetailContext) {
+    if (!isInReadingDetailContext) {
+      if (_showRegularBarInReadingMode || _showExpandedMenu) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            setState(() {
+              _showRegularBarInReadingMode = false;
+              _showExpandedMenu = false;
+            });
+            _barSwitchController.reset();
+          }
+        });
+      }
+      return LiquidGlassBottomBar(
         selectedIndex: _selectedIndex,
         onTabSelected: _onItemTapped,
         onSearchTap: _onSearchTap,
+      );
+    }
+
+    if (_showExpandedMenu) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 12, right: 12, bottom: 22),
+        child: ExpandedNavigationBottomBar(
+          selectedIndex: _selectedIndex,
+          onTabSelected: _onExpandedMenuTabSelected,
+          onBackToReadingDetail: _onBackToReadingDetailFromMenu,
+          onUpdatePageTap: _onUpdatePageTap,
+          onSearchTap: _onSearchTap,
+        ),
+      );
+    }
+
+    if (_selectedIndex != 0) {
+      return LiquidGlassBottomBar(
+        selectedIndex: _selectedIndex,
+        onTabSelected: _onTabSelectedInReadingModeFromOtherTab,
+        onSearchTap: _onSearchTap,
+        showReadingDetailButton: true,
+        onReadingDetailTap: _switchToHomeWithReadingDetail,
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 12, right: 12, bottom: 22),
+      child: SizedBox(
+        height: 62,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            SlideTransition(
+              position: _readingDetailBarSlide,
+              child: ReadingDetailBottomBar(
+                onBackTap: _switchToRegularBar,
+                onUpdatePageTap: _onUpdatePageTap,
+                onAddMemorablePageTap: _onAddMemorablePageTap,
+              ),
+            ),
+            if (_showRegularBarInReadingMode)
+              SlideTransition(
+                position: _regularBarSlide,
+                child: _buildRegularBarContent(),
+              ),
+          ],
+        ),
       ),
     );
+  }
+
+  Widget _buildRegularBarContent() {
+    return LiquidGlassBottomBar(
+      selectedIndex: _selectedIndex,
+      onTabSelected: _onTabSelectedInReadingMode,
+      onSearchTap: _onSearchTap,
+      showReadingDetailButton: true,
+      onReadingDetailTap: _switchToReadingDetailBar,
+      noMargin: true,
+    );
+  }
+
+  void _onTabSelectedInReadingMode(int index) {
+    if (index == 0) {
+      setState(() {
+        _showExpandedMenu = true;
+      });
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+  }
+
+  void _onExpandedMenuTabSelected(int index) {
+    setState(() {
+      _selectedIndex = index;
+      _showExpandedMenu = false;
+    });
+  }
+
+  void _onBackToReadingDetailFromMenu() {
+    setState(() {
+      _selectedIndex = 0;
+      _showExpandedMenu = false;
+      _showRegularBarInReadingMode = false;
+    });
+    _barSwitchController.reverse();
+  }
+
+  void _onTabSelectedInReadingModeFromOtherTab(int index) {
+    if (index == 0) {
+      _switchToHomeWithReadingDetail();
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+  }
+
+  void _switchToHomeWithReadingDetail() {
+    setState(() {
+      _selectedIndex = 0;
+      _showRegularBarInReadingMode = false;
+      _showExpandedMenu = false;
+    });
+    _barSwitchController.reverse();
+  }
+
+  void _onUpdatePageTap() {
+    _updatePageCallback?.call();
+  }
+
+  void _onAddMemorablePageTap() {
+    _addMemorablePageCallback?.call();
   }
 }
