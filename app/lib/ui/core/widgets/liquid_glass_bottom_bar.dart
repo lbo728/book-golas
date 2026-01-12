@@ -397,26 +397,31 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (showArrow) ...[
+          SizedBox(
+            height: 24,
+            child: Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: [
                 Icon(
-                  CupertinoIcons.chevron_up_chevron_down,
+                  isHighlighted ? tab.activeIcon : tab.icon,
                   color:
                       isHighlighted ? foregroundColor : inactiveForegroundColor,
-                  size: 12,
+                  size: 24,
                 ),
-                const SizedBox(width: 4),
+                if (showArrow)
+                  Positioned(
+                    left: -16,
+                    child: Icon(
+                      CupertinoIcons.chevron_up_chevron_down,
+                      color: isHighlighted
+                          ? foregroundColor
+                          : inactiveForegroundColor,
+                      size: 12,
+                    ),
+                  ),
               ],
-              Icon(
-                isHighlighted ? tab.activeIcon : tab.icon,
-                color:
-                    isHighlighted ? foregroundColor : inactiveForegroundColor,
-                size: 24,
-              ),
-            ],
+            ),
           ),
           const SizedBox(height: 2),
           Text(
