@@ -19,11 +19,11 @@ class ReadingStartViewModel extends BaseViewModel {
   int _currentPageIndex = 0;
   bool _isSaving = false;
 
-  // 새로 추가: 독서 상태 관련
   BookStatus _readingStatus = BookStatus.reading;
   DateTime _plannedStartDate = DateTime.now().add(const Duration(days: 1));
   int? _dailyTargetPages;
   Book? _createdBook;
+  int? _priority;
 
   List<BookSearchResult> get searchResults => _searchResults;
   bool get isSearching => _isSearching;
@@ -33,11 +33,11 @@ class ReadingStartViewModel extends BaseViewModel {
   int get currentPageIndex => _currentPageIndex;
   bool get isSaving => _isSaving;
 
-  // 새로 추가: 독서 상태 관련 getters
   BookStatus get readingStatus => _readingStatus;
   DateTime get plannedStartDate => _plannedStartDate;
   int? get dailyTargetPages => _dailyTargetPages;
   Book? get createdBook => _createdBook;
+  int? get priority => _priority;
 
   /// 실제 사용할 시작일 (상태에 따라 다름)
   DateTime get effectiveStartDate =>
@@ -101,15 +101,26 @@ class ReadingStartViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  /// 독서 상태 설정 (읽을 예정 / 바로 시작)
   void setReadingStatus(BookStatus status) {
     _readingStatus = status;
+    if (status == BookStatus.planned) {
+      _targetDate = _plannedStartDate.add(const Duration(days: 14));
+    } else {
+      _targetDate = DateTime.now().add(const Duration(days: 14));
+    }
     notifyListeners();
   }
 
-  /// 계획된 시작일 설정 (읽을 예정일 때 사용)
   void setPlannedStartDate(DateTime date) {
     _plannedStartDate = date;
+    if (_readingStatus == BookStatus.planned) {
+      _targetDate = date.add(const Duration(days: 14));
+    }
+    notifyListeners();
+  }
+
+  void setPriority(int? priority) {
+    _priority = priority;
     notifyListeners();
   }
 
@@ -167,6 +178,9 @@ class ReadingStartViewModel extends BaseViewModel {
         totalPages: _selectedBook?.totalPages ?? fallbackTotalPages ?? 0,
         status: _readingStatus.value,
         dailyTargetPages: _dailyTargetPages,
+        priority: _priority,
+        plannedStartDate:
+            _readingStatus == BookStatus.planned ? _plannedStartDate : null,
       );
 
       final bookData = book.toJson();

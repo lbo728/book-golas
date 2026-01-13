@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/domain/models/book.dart';
@@ -25,6 +26,7 @@ class BookService {
           .from(_tableName)
           .select()
           .eq('user_id', userId)
+          .isFilter('deleted_at', null)
           .order('created_at', ascending: false);
 
       _books = (response as List).map((json) => Book.fromJson(json)).toList();
@@ -32,7 +34,7 @@ class BookService {
       _isLoaded = true;
       return _books;
     } catch (e) {
-      print('책 목록 조회 실패: $e');
+      debugPrint('책 목록 조회 실패: $e');
       return [];
     }
   }
@@ -51,7 +53,7 @@ class BookService {
       _books.insert(0, newBook);
       return newBook;
     } catch (e) {
-      print('책 추가 실패: $e');
+      debugPrint('책 추가 실패: $e');
       return null;
     }
   }
@@ -67,7 +69,7 @@ class BookService {
       _books.insert(0, newBook);
       return newBook;
     } catch (e) {
-      print('책 추가 실패: $e');
+      debugPrint('책 추가 실패: $e');
       return null;
     }
   }
@@ -93,7 +95,7 @@ class BookService {
 
       return updatedBook;
     } catch (e) {
-      print('책 업데이트 실패: $e');
+      debugPrint('책 업데이트 실패: $e');
       return null;
     }
   }
@@ -104,21 +106,17 @@ class BookService {
     int? previousPage,
   }) async {
     try {
-      // 이전 페이지 결정 (파라미터 > 캐시 > 0)
       int prevPage = previousPage ?? 0;
       if (previousPage == null) {
         try {
           final existingBook = _books.firstWhere((b) => b.id == bookId);
           prevPage = existingBook.currentPage;
-        } catch (_) {
-          // 로컬 캐시에 없으면 previousPage = 0
-        }
+        } catch (_) {}
       }
 
-      print(
+      debugPrint(
           '📖 [BookService] 페이지 업데이트 시작: bookId=$bookId, $prevPage → $currentPage');
 
-      // books 테이블 업데이트
       final response = await _supabase
           .from(_tableName)
           .update({
@@ -130,10 +128,9 @@ class BookService {
           .single();
 
       var updatedBook = Book.fromJson(response);
-      print(
+      debugPrint(
           '📖 [BookService] DB 업데이트 성공: current_page=${updatedBook.currentPage}');
 
-      // 완독 시 status를 'completed'로 변경
       if (updatedBook.currentPage >= updatedBook.totalPages &&
           updatedBook.totalPages > 0 &&
           updatedBook.status != BookStatus.completed.value) {
@@ -148,13 +145,13 @@ class BookService {
               .select()
               .single();
           updatedBook = Book.fromJson(statusResponse);
-          print('📖 [BookService] 완독 상태로 변경: status=${updatedBook.status}');
+          debugPrint(
+              '📖 [BookService] 완독 상태로 변경: status=${updatedBook.status}');
         } catch (statusError) {
-          print('📖 [BookService] 완독 상태 변경 실패 (무시됨): $statusError');
+          debugPrint('📖 [BookService] 완독 상태 변경 실패 (무시됨): $statusError');
         }
       }
 
-      // 로컬 캐시 업데이트
       final index = _books.indexWhere((b) => b.id == bookId);
       if (index != -1) {
         _books[index] = updatedBook;
@@ -162,7 +159,6 @@ class BookService {
         _books.add(updatedBook);
       }
 
-      // 페이지가 증가한 경우에만 히스토리 기록 (별도 try-catch로 분리)
       if (currentPage > prevPage) {
         try {
           final userId = _supabase.auth.currentUser?.id;
@@ -173,40 +169,47 @@ class BookService {
               'page': currentPage,
               'previous_page': prevPage,
             });
-            print('📖 [BookService] 히스토리 기록 성공: $prevPage → $currentPage');
+            debugPrint('📖 [BookService] 히스토리 기록 성공: $prevPage → $currentPage');
           }
         } catch (historyError) {
-          print('📖 [BookService] 히스토리 기록 실패 (무시됨): $historyError');
+          debugPrint('📖 [BookService] 히스토리 기록 실패 (무시됨): $historyError');
         }
       }
 
       return updatedBook;
     } catch (e) {
-      print('📖 [BookService] 페이지 업데이트 실패: $e');
+      debugPrint('📖 [BookService] 페이지 업데이트 실패: $e');
       return null;
     }
   }
 
   Future<bool> deleteBook(String bookId) async {
     try {
-      await _supabase.from(_tableName).delete().eq('id', bookId);
+      await _supabase.from(_tableName).update({
+        'deleted_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', bookId);
 
       _books.removeWhere((book) => book.id == bookId);
       return true;
     } catch (e) {
-      print('책 삭제 실패: $e');
+      debugPrint('책 삭제 실패: $e');
       return false;
     }
   }
 
   Future<Book?> getBookById(String bookId) async {
     try {
-      final response =
-          await _supabase.from(_tableName).select().eq('id', bookId).single();
+      final response = await _supabase
+          .from(_tableName)
+          .select()
+          .eq('id', bookId)
+          .isFilter('deleted_at', null)
+          .single();
 
       return Book.fromJson(response);
     } catch (e) {
-      print('책 조회 실패: $e');
+      debugPrint('책 조회 실패: $e');
       return null;
     }
   }
@@ -221,11 +224,12 @@ class BookService {
           .select()
           .eq('user_id', userId)
           .eq('status', 'reading')
+          .isFilter('deleted_at', null)
           .order('updated_at', ascending: false);
 
       return (response as List).map((json) => Book.fromJson(json)).toList();
     } catch (e) {
-      print('진행 중인 책 조회 실패: $e');
+      debugPrint('진행 중인 책 조회 실패: $e');
       return [];
     }
   }
@@ -236,12 +240,137 @@ class BookService {
           .from(_tableName)
           .select()
           .gte('current_page', 'total_pages')
+          .isFilter('deleted_at', null)
           .order('updated_at', ascending: false);
 
       return (response as List).map((json) => Book.fromJson(json)).toList();
     } catch (e) {
-      print('완독한 책 조회 실패: $e');
+      debugPrint('완독한 책 조회 실패: $e');
       return [];
+    }
+  }
+
+  Future<Book?> pauseReading(String bookId) async {
+    try {
+      final response = await _supabase
+          .from(_tableName)
+          .update({
+            'status': BookStatus.willRetry.value,
+            'paused_at': DateTime.now().toIso8601String(),
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', bookId)
+          .select()
+          .single();
+
+      final updatedBook = Book.fromJson(response);
+
+      final index = _books.indexWhere((b) => b.id == bookId);
+      if (index != -1) {
+        _books[index] = updatedBook;
+      }
+
+      return updatedBook;
+    } catch (e) {
+      debugPrint('독서 중단 실패: $e');
+      return null;
+    }
+  }
+
+  Future<Book?> resumeReading(
+    String bookId, {
+    DateTime? newTargetDate,
+    bool incrementAttempt = true,
+  }) async {
+    try {
+      final currentBook = await getBookById(bookId);
+      if (currentBook == null) return null;
+
+      final updateData = <String, dynamic>{
+        'status': BookStatus.reading.value,
+        'paused_at': null,
+        'start_date': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+
+      if (newTargetDate != null) {
+        updateData['target_date'] = newTargetDate.toIso8601String();
+      }
+
+      if (incrementAttempt) {
+        updateData['attempt_count'] = currentBook.attemptCount + 1;
+      }
+
+      final response = await _supabase
+          .from(_tableName)
+          .update(updateData)
+          .eq('id', bookId)
+          .select()
+          .single();
+
+      final updatedBook = Book.fromJson(response);
+
+      final index = _books.indexWhere((b) => b.id == bookId);
+      if (index != -1) {
+        _books[index] = updatedBook;
+      }
+
+      return updatedBook;
+    } catch (e) {
+      debugPrint('독서 재개 실패: $e');
+      return null;
+    }
+  }
+
+  Future<Book?> updatePriority(String bookId, int? priority) async {
+    try {
+      final response = await _supabase
+          .from(_tableName)
+          .update({
+            'priority': priority,
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', bookId)
+          .select()
+          .single();
+
+      final updatedBook = Book.fromJson(response);
+
+      final index = _books.indexWhere((b) => b.id == bookId);
+      if (index != -1) {
+        _books[index] = updatedBook;
+      }
+
+      return updatedBook;
+    } catch (e) {
+      debugPrint('우선순위 업데이트 실패: $e');
+      return null;
+    }
+  }
+
+  Future<Book?> updatePlannedStartDate(String bookId, DateTime? date) async {
+    try {
+      final response = await _supabase
+          .from(_tableName)
+          .update({
+            'planned_start_date': date?.toIso8601String(),
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', bookId)
+          .select()
+          .single();
+
+      final updatedBook = Book.fromJson(response);
+
+      final index = _books.indexWhere((b) => b.id == bookId);
+      if (index != -1) {
+        _books[index] = updatedBook;
+      }
+
+      return updatedBook;
+    } catch (e) {
+      debugPrint('예정 시작일 업데이트 실패: $e');
+      return null;
     }
   }
 

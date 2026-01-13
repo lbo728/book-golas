@@ -33,6 +33,8 @@ import 'widgets/sheets/daily_target_confirm_sheet.dart';
 import 'widgets/sheets/delete_confirmation_sheet.dart';
 import 'widgets/sheets/image_source_sheet.dart';
 import 'widgets/sheets/full_title_sheet.dart';
+import 'widgets/sheets/pause_reading_confirmation_sheet.dart';
+import 'widgets/dialogs/edit_planned_book_dialog.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 
 class BookDetailScreen extends StatelessWidget {
@@ -240,6 +242,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 author: book.author,
                                 currentPage: book.currentPage,
                                 totalPages: book.totalPages,
+                                status: book.status,
                                 onImageTap: _showFullScreenImage,
                                 onTitleTap: () => showFullTitleSheet(
                                     context: context, title: book.title),
@@ -254,7 +257,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 showEditButton: !_isBookCompleted(book),
                               ),
                               const SizedBox(height: 12),
-                              if (!_isBookCompleted(book)) ...[
+                              if (_isBookReading(book)) ...[
                                 DashboardProgressWidget(
                                   animatedProgress: _animatedProgress,
                                   currentPage: book.currentPage,
@@ -271,6 +274,15 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 CompactStreakRow(
                                     dailyAchievements:
                                         bookVm.dailyAchievements),
+                              ],
+                              if (_isBookPlanned(book)) ...[
+                                const SizedBox(height: 12),
+                                _buildPlannedBookInfo(context, book, bookVm),
+                              ],
+                              if (_isBookPaused(book)) ...[
+                                const SizedBox(height: 12),
+                                _buildResumeReadingButton(
+                                    context, book, bookVm),
                               ],
                               if (_isBookCompleted(book)) ...[
                                 const SizedBox(height: 12),
@@ -345,6 +357,9 @@ class _BookDetailContentState extends State<_BookDetailContent>
                               dailyAchievements: bookVm.dailyAchievements,
                               onTargetDateChange: () =>
                                   _showUpdateTargetDateDialog(bookVm),
+                              onPauseReading: () =>
+                                  _showPauseReadingConfirmation(bookVm),
+                              onDelete: () => _showDeleteConfirmation(bookVm),
                             ),
                           ],
                         );
@@ -755,6 +770,292 @@ class _BookDetailContentState extends State<_BookDetailContent>
     return book.currentPage >= book.totalPages && book.totalPages > 0;
   }
 
+  bool _isBookPlanned(Book book) {
+    return book.status == BookStatus.planned.value;
+  }
+
+  bool _isBookPaused(Book book) {
+    return book.status == BookStatus.willRetry.value;
+  }
+
+  bool _isBookReading(Book book) {
+    return book.status == BookStatus.reading.value && !_isBookCompleted(book);
+  }
+
+  Widget _buildPlannedBookInfo(
+      BuildContext context, Book book, BookDetailViewModel bookVm) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final daysUntilStart =
+        book.plannedStartDate?.difference(DateTime.now()).inDays;
+
+    return GestureDetector(
+      onTap: () => _showEditPlannedBookDialog(bookVm),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.schedule_rounded,
+                    color: Color(0xFF5B7FFF),
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '독서 시작 예정',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        book.plannedStartDate != null
+                            ? '${book.plannedStartDate!.year}년 ${book.plannedStartDate!.month}월 ${book.plannedStartDate!.day}일${daysUntilStart != null ? " (D${daysUntilStart >= 0 ? '-' : '+'}${daysUntilStart.abs()})" : ""}'
+                            : '시작일 미정',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (book.priority != null) ...[
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: _getPriorityColor(book.priority!)
+                          .withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.flag_rounded,
+                          size: 14,
+                          color: _getPriorityColor(book.priority!),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          _getPriorityLabel(book.priority!),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: _getPriorityColor(book.priority!),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(width: 8),
+                Icon(
+                  CupertinoIcons.pencil,
+                  color: isDark ? Colors.grey[500] : Colors.grey[400],
+                  size: 18,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showEditPlannedBookDialog(BookDetailViewModel bookVm) async {
+    final book = bookVm.currentBook;
+    await EditPlannedBookDialog.show(
+      context: context,
+      currentPriority: book.priority,
+      currentPlannedStartDate: book.plannedStartDate,
+      onConfirm: (priority, plannedStartDate) async {
+        final success =
+            await bookVm.updatePlannedBookInfo(priority, plannedStartDate);
+        if (success && mounted) {
+          CustomSnackbar.show(
+            context,
+            message: '독서 계획이 수정되었습니다',
+            type: SnackbarType.success,
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildResumeReadingButton(
+      BuildContext context, Book book, BookDetailViewModel bookVm) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final progress =
+        book.totalPages > 0 ? book.currentPage / book.totalPages : 0.0;
+
+    return Column(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: progress,
+            backgroundColor: isDark ? Colors.grey[700] : Colors.grey[200],
+            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF5B7FFF)),
+            minHeight: 6,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          '중단 위치: ${book.currentPage}p / ${book.totalPages}p (${(progress * 100).toInt()}%)',
+          style: TextStyle(
+            fontSize: 13,
+            color: isDark ? Colors.grey[400] : Colors.grey[600],
+          ),
+        ),
+        const SizedBox(height: 12),
+        GestureDetector(
+          onTap: () => _showResumeReadingDialog(bookVm),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(
+                        Icons.play_arrow_rounded,
+                        color: Color(0xFF10B981),
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '독서 다시 시작하기',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${book.attemptCount + 1}번째 도전을 시작합니다',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                Icon(
+                  CupertinoIcons.chevron_right,
+                  color: isDark ? Colors.grey[400] : Colors.grey[500],
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _showResumeReadingDialog(BookDetailViewModel bookVm) async {
+    await UpdateTargetDateDialog.show(
+      context: context,
+      currentTargetDate: DateTime.now().add(const Duration(days: 14)),
+      nextAttemptCount: bookVm.attemptCount + 1,
+      onConfirm: (newDate, newAttempt) async {
+        final success = await bookVm.resumeReading(newDate);
+        if (success && mounted) {
+          _scrollController.animateTo(0,
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeOutCubic);
+          CustomSnackbar.show(context,
+              message: '$newAttempt번째 도전 시작! 화이팅!',
+              type: SnackbarType.success,
+              icon: Icons.play_arrow_rounded);
+        }
+      },
+    );
+  }
+
+  Color _getPriorityColor(int priority) {
+    switch (priority) {
+      case 1:
+        return const Color(0xFFFF3B30);
+      case 2:
+        return const Color(0xFFFF9500);
+      case 3:
+        return const Color(0xFF5B7FFF);
+      case 4:
+        return const Color(0xFF34C759);
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String _getPriorityLabel(int priority) {
+    switch (priority) {
+      case 1:
+        return '긴급';
+      case 2:
+        return '높음';
+      case 3:
+        return '보통';
+      case 4:
+        return '낮음';
+      default:
+        return '';
+    }
+  }
+
   void _navigateToReadingStart(BuildContext context) {
     Navigator.push(
       context,
@@ -841,5 +1142,46 @@ class _BookDetailContentState extends State<_BookDetailContent>
         ),
       ),
     );
+  }
+
+  Future<void> _showPauseReadingConfirmation(BookDetailViewModel bookVm) async {
+    final book = bookVm.currentBook;
+    final confirmed = await showPauseReadingConfirmationSheet(
+      context: context,
+      currentPage: book.currentPage,
+      totalPages: book.totalPages,
+    );
+
+    if (confirmed == true && mounted) {
+      final success = await bookVm.pauseReading();
+      if (success && mounted) {
+        CustomSnackbar.show(
+          context,
+          message: '독서를 잠시 쉬어갑니다. 언제든 다시 시작하세요!',
+          type: SnackbarType.info,
+          icon: CupertinoIcons.pause_circle,
+        );
+      }
+    }
+  }
+
+  Future<void> _showDeleteConfirmation(BookDetailViewModel bookVm) async {
+    final confirmed = await showDeleteConfirmationSheet(
+      context: context,
+      title: '독서를 삭제하시겠습니까?',
+      message: '삭제된 독서 기록은 복구할 수 없습니다.',
+    );
+
+    if (confirmed == true && mounted) {
+      final success = await BookService().deleteBook(bookVm.currentBook.id!);
+      if (success && mounted) {
+        CustomSnackbar.show(
+          context,
+          message: '독서가 삭제되었습니다',
+          type: SnackbarType.success,
+        );
+        Navigator.pop(context);
+      }
+    }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 
 class CompactBookHeader extends StatelessWidget {
@@ -9,6 +10,7 @@ class CompactBookHeader extends StatelessWidget {
   final String? author;
   final int currentPage;
   final int totalPages;
+  final String? status;
   final void Function(String heroTag, String imageUrl) onImageTap;
   final VoidCallback? onTitleTap;
 
@@ -20,11 +22,14 @@ class CompactBookHeader extends StatelessWidget {
     this.author,
     required this.currentPage,
     required this.totalPages,
+    this.status,
     required this.onImageTap,
     this.onTitleTap,
   });
 
-  bool get isCompleted => currentPage >= totalPages && totalPages > 0;
+  bool get isCompleted =>
+      status == BookStatus.completed.value ||
+      (currentPage >= totalPages && totalPages > 0);
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +42,7 @@ class CompactBookHeader extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -140,26 +145,58 @@ class CompactBookHeader extends StatelessWidget {
             ),
           ),
         ],
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-          decoration: BoxDecoration(
-            color: isCompleted
-                ? const Color(0xFF10B981).withOpacity(0.12)
-                : const Color(0xFF5B7FFF).withOpacity(0.12),
-            borderRadius: BorderRadius.circular(6),
+        _buildStatusBadge(),
+      ],
+    );
+  }
+
+  Widget _buildStatusBadge() {
+    final statusInfo = _getStatusInfo();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: statusInfo.color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: statusInfo.color,
+              shape: BoxShape.circle,
+            ),
           ),
-          child: Text(
-            isCompleted ? '✓ 완독' : '● 독서 중',
+          const SizedBox(width: 5),
+          Text(
+            statusInfo.label,
             style: TextStyle(
-              color: isCompleted
-                  ? const Color(0xFF10B981)
-                  : const Color(0xFF5B7FFF),
+              color: statusInfo.color,
               fontWeight: FontWeight.w600,
               fontSize: 11,
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
+  }
+
+  ({String label, Color color}) _getStatusInfo() {
+    if (isCompleted) {
+      return (label: '완독', color: const Color(0xFF10B981));
+    }
+
+    switch (status) {
+      case 'planned':
+        return (label: '읽을 예정', color: const Color(0xFF8B5CF6));
+      case 'will_retry':
+        return (label: '다시 읽을 책', color: const Color(0xFFFF9500));
+      case 'reading':
+      default:
+        return (label: '독서 중', color: const Color(0xFF5B7FFF));
+    }
   }
 }

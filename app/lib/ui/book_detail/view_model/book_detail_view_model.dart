@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'package:book_golas/ui/core/view_model/base_view_model.dart';
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/domain/models/book.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class BookDetailViewModel extends BaseViewModel {
   final BookService _bookService;
@@ -49,7 +51,8 @@ class BookDetailViewModel extends BaseViewModel {
 
   double get progressPercentage {
     if (_currentBook.totalPages == 0) return 0;
-    return (_currentBook.currentPage / _currentBook.totalPages * 100).clamp(0, 100);
+    return (_currentBook.currentPage / _currentBook.totalPages * 100)
+        .clamp(0, 100);
   }
 
   int get pagesLeft => (_currentBook.totalPages - _currentBook.currentPage)
@@ -85,11 +88,12 @@ class BookDetailViewModel extends BaseViewModel {
 
       final userId = Supabase.instance.client.auth.currentUser?.id;
       if (userId == null) {
-        print('📊 [loadDailyAchievements] userId is null, skipping');
+        debugPrint('📊 [loadDailyAchievements] userId is null, skipping');
         return;
       }
 
-      print('📊 [loadDailyAchievements] bookId=${_currentBook.id}, dailyTarget=$dailyTarget');
+      debugPrint(
+          '📊 [loadDailyAchievements] bookId=${_currentBook.id}, dailyTarget=$dailyTarget');
 
       final response = await Supabase.instance.client
           .from('reading_progress_history')
@@ -98,7 +102,8 @@ class BookDetailViewModel extends BaseViewModel {
           .eq('user_id', userId)
           .order('created_at', ascending: true);
 
-      print('📊 [loadDailyAchievements] 히스토리 레코드 수: ${(response as List).length}');
+      debugPrint(
+          '📊 [loadDailyAchievements] 히스토리 레코드 수: ${(response as List).length}');
 
       final dailyPages = <String, int>{};
       for (final record in response) {
@@ -110,7 +115,7 @@ class BookDetailViewModel extends BaseViewModel {
         dailyPages[dateKey] = (dailyPages[dateKey] ?? 0) + pagesRead;
       }
 
-      print('📊 [loadDailyAchievements] 날짜별 페이지: $dailyPages');
+      debugPrint('📊 [loadDailyAchievements] 날짜별 페이지: $dailyPages');
 
       // dailyTarget이 0이면 (null 케이스) 달성 불가로 처리
       if (dailyTarget > 0) {
@@ -133,15 +138,18 @@ class BookDetailViewModel extends BaseViewModel {
         achievements[todayKey] = true;
       }
 
-      print('📊 [loadDailyAchievements] todayKey=$todayKey, todayPagesRead=$_todayPagesRead');
-      print('📊 [loadDailyAchievements] todayStartPage=$_todayStartPage, todayGoalPage=$todayGoalPage');
-      print('📊 [loadDailyAchievements] isTodayGoalAchievedLocked=$_isTodayGoalAchievedLocked');
-      print('📊 [loadDailyAchievements] achievements=$achievements');
+      debugPrint(
+          '📊 [loadDailyAchievements] todayKey=$todayKey, todayPagesRead=$_todayPagesRead');
+      debugPrint(
+          '📊 [loadDailyAchievements] todayStartPage=$_todayStartPage, todayGoalPage=$todayGoalPage');
+      debugPrint(
+          '📊 [loadDailyAchievements] isTodayGoalAchievedLocked=$_isTodayGoalAchievedLocked');
+      debugPrint('📊 [loadDailyAchievements] achievements=$achievements');
 
       _dailyAchievements = achievements;
       notifyListeners();
     } catch (e) {
-      print('📊 [loadDailyAchievements] 실패: $e');
+      debugPrint('📊 [loadDailyAchievements] 실패: $e');
       _dailyAchievements = {};
       notifyListeners();
     }
@@ -150,8 +158,10 @@ class BookDetailViewModel extends BaseViewModel {
   Future<bool> updateCurrentPage(int newPage) async {
     try {
       final previousPage = _currentBook.currentPage;
-      print('📖 [ViewModel] 페이지 업데이트 요청: ${_currentBook.title} ($previousPage → $newPage)');
-      print('📖 [ViewModel] bookId=${_currentBook.id}, dailyTargetPages=${_currentBook.dailyTargetPages}');
+      debugPrint(
+          '📖 [ViewModel] 페이지 업데이트 요청: ${_currentBook.title} ($previousPage → $newPage)');
+      debugPrint(
+          '📖 [ViewModel] bookId=${_currentBook.id}, dailyTargetPages=${_currentBook.dailyTargetPages}');
 
       final updatedBook = await _bookService.updateCurrentPage(
         _currentBook.id!,
@@ -160,7 +170,8 @@ class BookDetailViewModel extends BaseViewModel {
       );
 
       if (updatedBook != null) {
-        print('📖 [ViewModel] 업데이트 성공: current_page=${updatedBook.currentPage}');
+        debugPrint(
+            '📖 [ViewModel] 업데이트 성공: current_page=${updatedBook.currentPage}');
         _currentBook = updatedBook;
 
         final pagesRead = newPage - previousPage;
@@ -181,20 +192,21 @@ class BookDetailViewModel extends BaseViewModel {
             // 목표 달성 시 lock (오늘은 고정)
             if (goalAchieved && !_isTodayGoalAchievedLocked) {
               _isTodayGoalAchievedLocked = true;
-              print('📖 [ViewModel] 오늘 목표 달성! Lock 설정');
+              debugPrint('📖 [ViewModel] 오늘 목표 달성! Lock 설정');
             }
-            print('📖 [ViewModel] 로컬 달성 업데이트: $todayKey = $goalAchieved');
+            debugPrint('📖 [ViewModel] 로컬 달성 업데이트: $todayKey = $goalAchieved');
           }
         }
-        print('📖 [ViewModel] todayPagesRead=$_todayPagesRead, isTodayGoalAchieved=$isTodayGoalAchieved');
+        debugPrint(
+            '📖 [ViewModel] todayPagesRead=$_todayPagesRead, isTodayGoalAchieved=$isTodayGoalAchieved');
 
         notifyListeners();
         return true;
       }
-      print('📖 [ViewModel] 업데이트 실패: updatedBook is null');
+      debugPrint('📖 [ViewModel] 업데이트 실패: updatedBook is null');
       return false;
     } catch (e) {
-      print('📖 [ViewModel] 예외 발생: $e');
+      debugPrint('📖 [ViewModel] 예외 발생: $e');
       setError('페이지 업데이트에 실패했습니다: $e');
       return false;
     }
@@ -260,7 +272,6 @@ class BookDetailViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  /// 최신 책 데이터를 DB에서 가져와 갱신
   Future<void> refreshBook() async {
     try {
       final bookId = _currentBook.id;
@@ -269,11 +280,111 @@ class BookDetailViewModel extends BaseViewModel {
       final freshBook = await _bookService.getBookById(bookId);
       if (freshBook != null) {
         _currentBook = freshBook;
-        print('📖 [ViewModel] refreshBook 성공: current_page=${freshBook.currentPage}');
+        debugPrint(
+            '📖 [ViewModel] refreshBook 성공: current_page=${freshBook.currentPage}');
         notifyListeners();
       }
     } catch (e) {
-      print('📖 [ViewModel] refreshBook 실패: $e');
+      debugPrint('📖 [ViewModel] refreshBook 실패: $e');
+    }
+  }
+
+  Future<bool> resumeReading(DateTime newTargetDate) async {
+    try {
+      final updatedBook = await _bookService.resumeReading(
+        _currentBook.id!,
+        newTargetDate: newTargetDate,
+        incrementAttempt: true,
+      );
+
+      if (updatedBook != null) {
+        _currentBook = updatedBook;
+        _attemptCount = updatedBook.attemptCount;
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      setError('독서 재개에 실패했습니다: $e');
+      return false;
+    }
+  }
+
+  Future<bool> pauseReading() async {
+    try {
+      final updatedBook = await _bookService.pauseReading(_currentBook.id!);
+
+      if (updatedBook != null) {
+        _currentBook = updatedBook;
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      setError('독서 중단에 실패했습니다: $e');
+      return false;
+    }
+  }
+
+  Future<bool> updatePriority(int? priority) async {
+    try {
+      final updatedBook =
+          await _bookService.updatePriority(_currentBook.id!, priority);
+
+      if (updatedBook != null) {
+        _currentBook = updatedBook;
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      setError('우선순위 업데이트에 실패했습니다: $e');
+      return false;
+    }
+  }
+
+  Future<bool> updatePlannedStartDate(DateTime? date) async {
+    try {
+      final updatedBook =
+          await _bookService.updatePlannedStartDate(_currentBook.id!, date);
+
+      if (updatedBook != null) {
+        _currentBook = updatedBook;
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      setError('시작 예정일 업데이트에 실패했습니다: $e');
+      return false;
+    }
+  }
+
+  Future<bool> updatePlannedBookInfo(
+      int? priority, DateTime? plannedStartDate) async {
+    try {
+      bool success = true;
+
+      if (priority != _currentBook.priority) {
+        final priorityResult =
+            await _bookService.updatePriority(_currentBook.id!, priority);
+        if (priorityResult == null) success = false;
+      }
+
+      if (plannedStartDate != _currentBook.plannedStartDate) {
+        final dateResult = await _bookService.updatePlannedStartDate(
+            _currentBook.id!, plannedStartDate);
+        if (dateResult == null) success = false;
+      }
+
+      if (success) {
+        await refreshBook();
+      }
+
+      return success;
+    } catch (e) {
+      setError('독서 계획 업데이트에 실패했습니다: $e');
+      return false;
     }
   }
 }
