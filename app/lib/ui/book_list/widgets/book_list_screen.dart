@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/book_list/view_model/book_list_view_model.dart';
 import 'package:book_golas/ui/book_list/widgets/book_list_card.dart';
 import 'package:book_golas/ui/book_list/widgets/book_list_skeleton.dart';
+import 'package:book_golas/ui/book_list/widgets/planned_book_card.dart';
+import 'package:book_golas/ui/book_list/widgets/paused_book_card.dart';
+import 'package:book_golas/ui/book_list/widgets/completed_book_card.dart';
 
 class BookListScreen extends StatefulWidget {
   const BookListScreen({super.key});
@@ -23,7 +27,7 @@ class _BookListScreenState extends State<BookListScreen>
     super.initState();
     final vm = context.read<BookListViewModel>();
     _tabController = TabController(
-        length: 4, vsync: this, initialIndex: vm.selectedTabIndex);
+        length: 5, vsync: this, initialIndex: vm.selectedTabIndex);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         vm.setSelectedTabIndex(_tabController.index);
@@ -98,10 +102,12 @@ class _BookListScreenState extends State<BookListScreen>
                   children: [
                     _buildScrollableTabItem('전체', 0, selectedTabIndex, isDark),
                     _buildScrollableTabItem(
-                        '독서 중', 1, selectedTabIndex, isDark),
-                    _buildScrollableTabItem('완독', 2, selectedTabIndex, isDark),
+                        '읽을 예정', 1, selectedTabIndex, isDark),
                     _buildScrollableTabItem(
-                        '다시 읽을 책', 3, selectedTabIndex, isDark),
+                        '독서 중', 2, selectedTabIndex, isDark),
+                    _buildScrollableTabItem('완독', 3, selectedTabIndex, isDark),
+                    _buildScrollableTabItem(
+                        '다시 읽을 책', 4, selectedTabIndex, isDark),
                   ],
                 ),
               ),
@@ -140,9 +146,10 @@ class _BookListScreenState extends State<BookListScreen>
       controller: _tabController,
       children: [
         _buildAllBooksTab(vm, isDark),
+        _buildPlannedBooksTab(vm, isDark),
         _buildReadingBooksTab(vm, isDark),
         _buildCompletedBooksTab(vm, isDark),
-        _buildRereadBooksTab(vm, isDark),
+        _buildPausedBooksTab(vm, isDark),
       ],
     );
   }
@@ -220,34 +227,50 @@ class _BookListScreenState extends State<BookListScreen>
     );
   }
 
-  Widget _buildRereadBooksTab(BookListViewModel vm, bool isDark) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.auto_stories,
-            size: 80,
-            color: isDark ? Colors.grey[600] : Colors.grey[400],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            '다시 읽을 책',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-              color: isDark ? Colors.grey[400] : Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '준비 중입니다',
-            style: TextStyle(
-              fontSize: 14,
-              color: isDark ? Colors.grey[600] : Colors.grey[400],
-            ),
-          ),
-        ],
+  Widget _buildPlannedBooksTab(BookListViewModel vm, bool isDark) {
+    final plannedBooks = vm.plannedBooks;
+
+    if (plannedBooks.isEmpty) {
+      return _buildEmptyState('읽을 예정인 책이 없습니다');
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => _onRefresh(vm),
+      color: const Color(0xFF5B7FFF),
+      backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
+        children: plannedBooks
+            .map((book) => PlannedBookCard(
+                  book: book,
+                  onTap: () => _navigateToBookDetail(book),
+                ))
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildPausedBooksTab(BookListViewModel vm, bool isDark) {
+    final pausedBooks = vm.pausedBooks;
+
+    if (pausedBooks.isEmpty) {
+      return _buildEmptyState('잠시 쉬어가는 책이 없습니다');
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => _onRefresh(vm),
+      color: const Color(0xFF5B7FFF),
+      backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
+        children: pausedBooks
+            .map((book) => PausedBookCard(
+                  book: book,
+                  onTap: () => _navigateToBookDetail(book),
+                ))
+            .toList(),
       ),
     );
   }
@@ -384,7 +407,7 @@ class _BookListScreenState extends State<BookListScreen>
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
         children: completedBooks
-            .map((book) => BookListCard(
+            .map((book) => CompletedBookCard(
                   book: book,
                   onTap: () => _navigateToBookDetail(book),
                 ))
@@ -393,7 +416,7 @@ class _BookListScreenState extends State<BookListScreen>
     );
   }
 
-  void _navigateToBookDetail(book) async {
+  void _navigateToBookDetail(Book book) async {
     await Navigator.push(
       context,
       MaterialPageRoute(

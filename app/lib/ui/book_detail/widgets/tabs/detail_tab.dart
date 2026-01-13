@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/ui/book_detail/widgets/sheets/reading_management_sheet.dart';
 
 class DetailTab extends StatelessWidget {
   final Book book;
@@ -9,6 +10,8 @@ class DetailTab extends StatelessWidget {
   final String attemptEncouragement;
   final Map<String, bool> dailyAchievements;
   final VoidCallback onTargetDateChange;
+  final VoidCallback? onPauseReading;
+  final VoidCallback? onDelete;
 
   const DetailTab({
     super.key,
@@ -17,7 +20,13 @@ class DetailTab extends StatelessWidget {
     required this.attemptEncouragement,
     required this.dailyAchievements,
     required this.onTargetDateChange,
+    this.onPauseReading,
+    this.onDelete,
   });
+
+  bool get _isReading =>
+      book.status == BookStatus.reading.value &&
+      book.currentPage < book.totalPages;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +40,136 @@ class DetailTab extends StatelessWidget {
           _buildReadingScheduleCard(isDark),
           const SizedBox(height: 16),
           _buildTodayGoalCardWithStamps(isDark),
+          if (_isReading && (onPauseReading != null || onDelete != null)) ...[
+            const SizedBox(height: 16),
+            _buildReadingActionsButton(context, isDark),
+          ] else if (!_isReading && onDelete != null) ...[
+            const SizedBox(height: 16),
+            _buildDeleteButton(isDark),
+          ],
         ],
+      ),
+    );
+  }
+
+  Future<void> _showReadingActionsSheet(BuildContext context) async {
+    final result = await showReadingManagementSheet(
+      context: context,
+      currentPage: book.currentPage,
+      totalPages: book.totalPages,
+    );
+
+    if (result == null) return;
+
+    switch (result) {
+      case ReadingManagementAction.pause:
+        onPauseReading?.call();
+        break;
+      case ReadingManagementAction.delete:
+        onDelete?.call();
+        break;
+      case ReadingManagementAction.cancel:
+        break;
+    }
+  }
+
+  Widget _buildReadingActionsButton(BuildContext context, bool isDark) {
+    return GestureDetector(
+      onTap: () => _showReadingActionsSheet(context),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                CupertinoIcons.slider_horizontal_3,
+                color: Color(0xFF5B7FFF),
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '독서 관리',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '쉬어가기, 삭제 등',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? Colors.grey[500] : Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              CupertinoIcons.chevron_right,
+              color: isDark ? Colors.grey[600] : Colors.grey[400],
+              size: 16,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeleteButton(bool isDark) {
+    return GestureDetector(
+      onTap: onDelete,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: const Color(0xFFEF4444).withValues(alpha: 0.3),
+            width: 1,
+          ),
+        ),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              CupertinoIcons.trash,
+              color: Color(0xFFEF4444),
+              size: 18,
+            ),
+            SizedBox(width: 8),
+            Text(
+              '독서 삭제',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFFEF4444),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -44,7 +182,7 @@ class DetailTab extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -58,7 +196,7 @@ class DetailTab extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF5B7FFF).withOpacity(0.1),
+                  color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
@@ -122,7 +260,8 @@ class DetailTab extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF6B35).withOpacity(0.12),
+                          color:
+                              const Color(0xFFFF6B35).withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(

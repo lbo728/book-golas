@@ -66,6 +66,10 @@ class Book {
   final String? status;
   final int attemptCount;
   final int? dailyTargetPages;
+  final int? priority;
+  final DateTime? pausedAt;
+  final DateTime? plannedStartDate;
+  final DateTime? deletedAt;
 
   Book({
     this.id,
@@ -81,6 +85,10 @@ class Book {
     this.status,
     this.attemptCount = 1,
     this.dailyTargetPages,
+    this.priority,
+    this.pausedAt,
+    this.plannedStartDate,
+    this.deletedAt,
   });
 
   Book copyWith({
@@ -97,6 +105,10 @@ class Book {
     String? status,
     int? attemptCount,
     int? dailyTargetPages,
+    int? priority,
+    DateTime? pausedAt,
+    DateTime? plannedStartDate,
+    DateTime? deletedAt,
   }) {
     return Book(
       id: id ?? this.id,
@@ -112,6 +124,10 @@ class Book {
       status: status ?? this.status,
       attemptCount: attemptCount ?? this.attemptCount,
       dailyTargetPages: dailyTargetPages ?? this.dailyTargetPages,
+      priority: priority ?? this.priority,
+      pausedAt: pausedAt ?? this.pausedAt,
+      plannedStartDate: plannedStartDate ?? this.plannedStartDate,
+      deletedAt: deletedAt ?? this.deletedAt,
     );
   }
 
@@ -130,6 +146,11 @@ class Book {
       if (status != null) 'status': status,
       'attempt_count': attemptCount,
       if (dailyTargetPages != null) 'daily_target_pages': dailyTargetPages,
+      if (priority != null) 'priority': priority,
+      if (pausedAt != null) 'paused_at': pausedAt!.toIso8601String(),
+      if (plannedStartDate != null)
+        'planned_start_date': plannedStartDate!.toIso8601String(),
+      if (deletedAt != null) 'deleted_at': deletedAt!.toIso8601String(),
     };
   }
 
@@ -152,6 +173,15 @@ class Book {
       status: json['status'] as String?,
       attemptCount: json['attempt_count'] as int? ?? 1,
       dailyTargetPages: json['daily_target_pages'] as int?,
+      priority: json['priority'] as int?,
+      pausedAt:
+          json['paused_at'] != null ? DateTime.parse(json['paused_at']) : null,
+      plannedStartDate: json['planned_start_date'] != null
+          ? DateTime.parse(json['planned_start_date'])
+          : null,
+      deletedAt: json['deleted_at'] != null
+          ? DateTime.parse(json['deleted_at'])
+          : null,
     );
   }
 }

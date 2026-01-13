@@ -10,10 +10,11 @@ import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/reading_start/view_model/reading_start_view_model.dart';
+import 'package:book_golas/ui/reading_start/widgets/priority_selector_widget.dart';
 import 'package:book_golas/ui/reading_start/widgets/schedule_change_modal.dart';
 import 'package:book_golas/ui/reading_start/widgets/schedule_preview_widget.dart';
 import 'package:book_golas/ui/reading_start/widgets/status_selector_widget.dart';
-import 'package:book_golas/ui/book_detail/widgets/dialogs/update_target_date_dialog.dart';
+import 'package:book_golas/ui/core/widgets/korean_date_picker.dart';
 
 class ReadingStartScreen extends StatelessWidget {
   final String? title;
@@ -413,7 +414,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF5B7FFF) : Colors.transparent,
+                  color:
+                      isSelected ? const Color(0xFF5B7FFF) : Colors.transparent,
                   shape: BoxShape.circle,
                 ),
                 child: isSelected
@@ -564,7 +566,9 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                           padding: const EdgeInsets.only(left: 16),
                           child: Icon(
                             CupertinoIcons.search,
-                            color: isDark ? Colors.white : Colors.black.withValues(alpha: 0.5),
+                            color: isDark
+                                ? Colors.white
+                                : Colors.black.withValues(alpha: 0.5),
                             size: 20,
                           ),
                         ),
@@ -729,7 +733,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.12 + 0.08 * pressValue),
+                    color: Colors.black
+                        .withValues(alpha: 0.12 + 0.08 * pressValue),
                     blurRadius: 16 + 8 * pressValue,
                     offset: Offset(0, 4 + 4 * pressValue),
                     spreadRadius: -2,
@@ -778,7 +783,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
             return Container(
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(24)),
               ),
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -798,7 +804,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                      color:
+                          isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Center(
@@ -817,7 +824,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                   Container(
                     height: 180,
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                      color:
+                          isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: KoreanDatePicker(
@@ -880,69 +888,154 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
         }
       },
       child: SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 책 정보
-            Center(
-              child: Container(
-                width: 120,
-                height: 160,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 책 정보
+              Center(
+                child: Container(
+                  width: 120,
+                  height: 160,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: BookImageWidget(
-                    imageUrl: vm.selectedBook?.imageUrl ?? widget.imageUrl,
-                    iconSize: 50,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: BookImageWidget(
+                      imageUrl: vm.selectedBook?.imageUrl ?? widget.imageUrl,
+                      iconSize: 50,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Center(
-              child: Text(
-                vm.selectedBook?.title ?? _titleController.text,
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : Colors.black,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            if (totalPages > 0) ...[
-              const SizedBox(height: 4),
+              const SizedBox(height: 12),
               Center(
                 child: Text(
-                  '$totalPages 페이지',
+                  vm.selectedBook?.title ?? _titleController.text,
                   style: TextStyle(
-                    fontSize: 14,
-                    color: isDark ? Colors.white54 : Colors.grey[600],
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black,
                   ),
+                  textAlign: TextAlign.center,
                 ),
               ),
-            ],
-            const SizedBox(height: 24),
+              if (totalPages > 0) ...[
+                const SizedBox(height: 4),
+                Center(
+                  child: Text(
+                    '$totalPages 페이지',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? Colors.white54 : Colors.grey[600],
+                    ),
+                  ),
+                ),
+              ],
+              const SizedBox(height: 24),
 
-            // 독서 상태 선택
-            StatusSelectorWidget(
-              selectedStatus: vm.readingStatus,
-              onStatusChanged: vm.setReadingStatus,
-              isDark: isDark,
-            ),
-            const SizedBox(height: 20),
+              StatusSelectorWidget(
+                selectedStatus: vm.readingStatus,
+                onStatusChanged: vm.setReadingStatus,
+                isDark: isDark,
+              ),
+              const SizedBox(height: 20),
 
-            // 시작일 선택 (읽을 예정일 때만 표시)
-            if (vm.readingStatus == BookStatus.planned) ...[
+              if (vm.readingStatus == BookStatus.planned) ...[
+                PrioritySelectorWidget(
+                  selectedPriority: vm.priority,
+                  onPriorityChanged: vm.setPriority,
+                  isDark: isDark,
+                ),
+                const SizedBox(height: 20),
+              ],
+
+              if (vm.readingStatus == BookStatus.planned) ...[
+                Text(
+                  '독서 시작 예정일',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white70 : Colors.black54,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () => _showDatePickerModal(
+                    context: context,
+                    isDark: isDark,
+                    selectedDate: vm.plannedStartDate,
+                    minimumDate: DateTime.now(),
+                    onDateChanged: vm.setPlannedStartDate,
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? const Color(0xFF2A2A2A)
+                          : const Color(0xFFF5F5F5),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${vm.plannedStartDate.year}년 ${vm.plannedStartDate.month}월 ${vm.plannedStartDate.day}일',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                        Icon(
+                          Icons.calendar_today,
+                          size: 18,
+                          color: isDark ? Colors.white54 : Colors.black45,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ] else ...[
+                // 바로 시작 선택 시 오늘 시작 안내
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Icons.check_circle_outline,
+                        color: Color(0xFF10B981),
+                        size: 18,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        '오늘부터 시작합니다',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF10B981),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+
               Text(
-                '독서 시작 예정일',
+                '목표 마감일',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -954,9 +1047,9 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                 onTap: () => _showDatePickerModal(
                   context: context,
                   isDark: isDark,
-                  selectedDate: vm.plannedStartDate,
-                  minimumDate: DateTime.now(),
-                  onDateChanged: vm.setPlannedStartDate,
+                  selectedDate: vm.targetDate,
+                  minimumDate: vm.effectiveStartDate,
+                  onDateChanged: vm.setTargetDate,
                 ),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
@@ -969,198 +1062,133 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                         : const Color(0xFFF5F5F5),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
                     children: [
-                      Text(
-                        '${vm.plannedStartDate.year}년 ${vm.plannedStartDate.month}월 ${vm.plannedStartDate.day}일',
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: isDark ? Colors.white : Colors.black87,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '${vm.targetDate.year}년 ${vm.targetDate.month}월 ${vm.targetDate.day}일',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: isDark ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                          Icon(
+                            Icons.calendar_today,
+                            size: 18,
+                            color: isDark ? Colors.white54 : Colors.black45,
+                          ),
+                        ],
                       ),
-                      Icon(
-                        Icons.calendar_today,
-                        size: 18,
-                        color: isDark ? Colors.white54 : Colors.black45,
+                      const SizedBox(height: 8),
+                      Text(
+                        '독서 시작 후에도 목표일을 변경할 수 있습니다',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark ? Colors.grey[500] : Colors.grey[500],
+                          fontStyle: FontStyle.italic,
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-            ] else ...[
-              // 바로 시작 선택 시 오늘 시작 안내
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(
-                      Icons.check_circle_outline,
-                      color: Color(0xFF10B981),
-                      size: 18,
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      '오늘부터 시작합니다',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF10B981),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
+              const SizedBox(height: 20),
 
-            // 목표 마감일
-            Text(
-              '목표 마감일',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: isDark ? Colors.white70 : Colors.black54,
-              ),
-            ),
-            const SizedBox(height: 8),
-            GestureDetector(
-              onTap: () => _showDatePickerModal(
-                context: context,
-                isDark: isDark,
-                selectedDate: vm.targetDate,
-                minimumDate: vm.effectiveStartDate,
-                onDateChanged: vm.setTargetDate,
-              ),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
+              // 스케줄 미리보기
+              if (totalPages > 0)
+                SchedulePreviewWidget(
+                  totalPages: totalPages,
+                  startDate: vm.effectiveStartDate,
+                  targetDate: vm.targetDate,
+                  dailyTargetPages: vm.dailyTargetPages,
+                  isDark: isDark,
+                  onChangeSchedule: () async {
+                    final newTarget = await ScheduleChangeModal.show(
+                      context: context,
+                      totalPages: totalPages,
+                      startDate: vm.effectiveStartDate,
+                      targetDate: vm.targetDate,
+                      currentDailyTarget: vm.dailyTargetPages,
+                    );
+                    if (newTarget != null) {
+                      vm.setDailyTargetPages(newTarget);
+                    }
+                  },
                 ),
-                decoration: BoxDecoration(
-                  color:
-                      isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF5F5F5),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '${vm.targetDate.year}년 ${vm.targetDate.month}월 ${vm.targetDate.day}일',
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: isDark ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                    Icon(
-                      Icons.calendar_today,
-                      size: 18,
-                      color: isDark ? Colors.white54 : Colors.black45,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
 
-            // 스케줄 미리보기
-            if (totalPages > 0)
-              SchedulePreviewWidget(
-                totalPages: totalPages,
-                startDate: vm.effectiveStartDate,
-                targetDate: vm.targetDate,
-                dailyTargetPages: vm.dailyTargetPages,
-                isDark: isDark,
-                onChangeSchedule: () async {
-                  final newTarget = await ScheduleChangeModal.show(
-                    context: context,
-                    totalPages: totalPages,
-                    startDate: vm.effectiveStartDate,
-                    targetDate: vm.targetDate,
-                    currentDailyTarget: vm.dailyTargetPages,
-                  );
-                  if (newTarget != null) {
-                    vm.setDailyTargetPages(newTarget);
-                  }
-                },
-              ),
+              const SizedBox(height: 24),
 
-            const SizedBox(height: 24),
-
-            // 독서 시작 버튼
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                onPressed: vm.isSaving
-                    ? null
-                    : () async {
-                        final success = await vm.startReading(
-                          fallbackTitle: _titleController.text,
-                          fallbackImageUrl: widget.imageUrl,
-                          fallbackTotalPages: widget.totalPages,
-                        );
-
-                        if (mounted && success && vm.createdBook != null) {
-                          // BookDetailScreen으로 이동 (축하 애니메이션 포함)
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => BookDetailScreen(
-                                book: vm.createdBook!,
-                                showCelebration: true,
-                              ),
-                            ),
+              // 독서 시작 버튼
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: vm.isSaving
+                      ? null
+                      : () async {
+                          final success = await vm.startReading(
+                            fallbackTitle: _titleController.text,
+                            fallbackImageUrl: widget.imageUrl,
+                            fallbackTotalPages: widget.totalPages,
                           );
-                        } else if (mounted && !success) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                vm.errorMessage ?? '독서 정보 저장에 실패했습니다.',
+
+                          if (mounted && success && vm.createdBook != null) {
+                            // BookDetailScreen으로 이동 (축하 애니메이션 포함)
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => BookDetailScreen(
+                                  book: vm.createdBook!,
+                                  showCelebration: true,
+                                ),
                               ),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF5B7FFF),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                            );
+                          } else if (mounted && !success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  vm.errorMessage ?? '독서 정보 저장에 실패했습니다.',
+                                ),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF5B7FFF),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: 0,
                   ),
-                  elevation: 0,
+                  child: vm.isSaving
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Text(
+                          vm.readingStatus == BookStatus.planned
+                              ? '독서 예약하기'
+                              : '독서 시작',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
-                child: vm.isSaving
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : Text(
-                        vm.readingStatus == BookStatus.planned
-                            ? '독서 예약하기'
-                            : '독서 시작',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
               ),
-            ),
-            const SizedBox(height: 32),
-          ],
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 }
