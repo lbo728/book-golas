@@ -63,9 +63,30 @@ class BookListViewModel extends BaseViewModel {
   }
 
   void cycleToNextTab() {
-    _selectedTabIndex = (_selectedTabIndex + 1) % 4;
+    _selectedTabIndex = (_selectedTabIndex + 1) % 5;
     notifyListeners();
   }
+
+  List<Book> get plannedBooks =>
+      _books.where((book) => book.status == BookStatus.planned.value).toList()
+        ..sort((a, b) {
+          if (a.priority != null && b.priority != null) {
+            return a.priority!.compareTo(b.priority!);
+          } else if (a.priority != null) {
+            return -1;
+          } else if (b.priority != null) {
+            return 1;
+          }
+          if (a.plannedStartDate != null && b.plannedStartDate != null) {
+            return a.plannedStartDate!.compareTo(b.plannedStartDate!);
+          }
+          return b.createdAt?.compareTo(a.createdAt ?? DateTime.now()) ?? 0;
+        });
+
+  List<Book> get pausedBooks =>
+      _books.where((book) => book.status == BookStatus.willRetry.value).toList()
+        ..sort((a, b) => (b.pausedAt ?? b.updatedAt ?? DateTime.now())
+            .compareTo(a.pausedAt ?? a.updatedAt ?? DateTime.now()));
 
   Future<void> _init() async {
     final userId = Supabase.instance.client.auth.currentUser?.id;
@@ -78,6 +99,7 @@ class BookListViewModel extends BaseViewModel {
           .from('books')
           .select()
           .eq('user_id', userId)
+          .isFilter('deleted_at', null)
           .order('created_at', ascending: false);
 
       _books = (response as List).map((e) => Book.fromJson(e)).toList();
@@ -97,7 +119,10 @@ class BookListViewModel extends BaseViewModel {
         .order('created_at', ascending: false)
         .listen(
           (rows) {
-            _books = rows.map((e) => Book.fromJson(e)).toList();
+            _books = rows
+                .where((e) => e['deleted_at'] == null)
+                .map((e) => Book.fromJson(e))
+                .toList();
             notifyListeners();
           },
           onError: (error) {
@@ -127,6 +152,7 @@ class BookListViewModel extends BaseViewModel {
           .from('books')
           .select()
           .eq('user_id', userId)
+          .isFilter('deleted_at', null)
           .order('created_at', ascending: false);
 
       _books = (response as List).map((e) => Book.fromJson(e)).toList();
