@@ -8,7 +8,9 @@ import 'package:provider/provider.dart';
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
+import 'package:book_golas/ui/barcode_scanner/barcode_scanner_screen.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
+import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/reading_start/view_model/reading_start_view_model.dart';
 import 'package:book_golas/ui/reading_start/widgets/priority_selector_widget.dart';
 import 'package:book_golas/ui/reading_start/widgets/schedule_change_modal.dart';
@@ -124,6 +126,34 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
   void _clearSearchText() {
     _titleController.clear();
     _searchFocusNode.requestFocus();
+  }
+
+  Future<void> _openBarcodeScanner() async {
+    final vm = context.read<ReadingStartViewModel>();
+
+    final String? isbn = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (context) => const BarcodeScannerScreen(),
+        fullscreenDialog: true,
+      ),
+    );
+
+    if (isbn != null && mounted) {
+      await vm.searchByISBN(isbn);
+
+      if (vm.scanError != null) {
+        if (mounted) {
+          CustomSnackbar.show(
+            context,
+            message: vm.scanError!,
+            rootOverlay: true,
+          );
+        }
+        vm.clearScanError();
+      } else if (vm.selectedBook != null) {
+        _nextPage(vm);
+      }
+    }
   }
 
   @override
@@ -606,7 +636,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                           GestureDetector(
                             onTap: _clearSearchText,
                             child: Padding(
-                              padding: const EdgeInsets.only(right: 14),
+                              padding: const EdgeInsets.only(right: 8),
                               child: Container(
                                 width: 20,
                                 height: 20,
@@ -626,6 +656,19 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                               ),
                             ),
                           ),
+                        GestureDetector(
+                          onTap: _openBarcodeScanner,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 14),
+                            child: Icon(
+                              CupertinoIcons.barcode_viewfinder,
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.7)
+                                  : Colors.black.withValues(alpha: 0.5),
+                              size: 22,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),

@@ -4,6 +4,7 @@ import 'package:book_golas/ui/core/view_model/base_view_model.dart';
 import 'package:book_golas/data/services/aladin_api_service.dart';
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/ui/core/utils/isbn_validator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ReadingStartViewModel extends BaseViewModel {
@@ -24,6 +25,7 @@ class ReadingStartViewModel extends BaseViewModel {
   int? _dailyTargetPages;
   Book? _createdBook;
   int? _priority;
+  String? _scanError;
 
   List<BookSearchResult> get searchResults => _searchResults;
   bool get isSearching => _isSearching;
@@ -38,6 +40,7 @@ class ReadingStartViewModel extends BaseViewModel {
   int? get dailyTargetPages => _dailyTargetPages;
   Book? get createdBook => _createdBook;
   int? get priority => _priority;
+  String? get scanError => _scanError;
 
   /// 실제 사용할 시작일 (상태에 따라 다름)
   DateTime get effectiveStartDate =>
@@ -88,6 +91,41 @@ class ReadingStartViewModel extends BaseViewModel {
 
   void clearSelection() {
     _selectedBook = null;
+    notifyListeners();
+  }
+
+  Future<void> searchByISBN(String isbn13) async {
+    _isSearching = true;
+    _scanError = null;
+    notifyListeners();
+
+    try {
+      if (!IsbnValidator.isValidISBN13(isbn13)) {
+        _scanError = 'ISBN 형식이 올바르지 않습니다';
+        _searchResults = [];
+        return;
+      }
+
+      final result = await AladinApiService.lookupByISBN(isbn13);
+
+      if (result != null) {
+        _searchResults = [result];
+        _selectedBook = result;
+      } else {
+        _scanError = '책 정보를 찾을 수 없습니다 ($isbn13)';
+        _searchResults = [];
+      }
+    } catch (e) {
+      _scanError = '책 검색에 실패했습니다';
+      _searchResults = [];
+    } finally {
+      _isSearching = false;
+      notifyListeners();
+    }
+  }
+
+  void clearScanError() {
+    _scanError = null;
     notifyListeners();
   }
 
