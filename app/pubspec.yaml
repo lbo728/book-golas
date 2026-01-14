@@ -36,6 +36,7 @@ dependencies:
   permission_handler: ^12.0.1
   image: ^4.0.17
   path: ^1.8.3
+  mobile_scanner: ^7.1.4
 
   # Firebase & FCM
   firebase_core: ^3.6.0
