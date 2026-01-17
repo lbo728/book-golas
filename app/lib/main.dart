@@ -30,6 +30,7 @@ import 'data/services/fcm_service.dart';
 import 'data/services/notification_settings_service.dart';
 import 'data/services/reading_progress_service.dart';
 import 'ui/auth/widgets/login_screen.dart';
+import 'ui/calendar/view_model/calendar_view_model.dart';
 import 'ui/auth/widgets/my_page_screen.dart';
 import 'domain/models/book.dart';
 import 'ui/book_detail/book_detail_screen.dart';
@@ -240,6 +241,11 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<BookListViewModel>(
           create: (_) => BookListViewModel(),
+        ),
+        ChangeNotifierProvider<CalendarViewModel>(
+          create: (context) => CalendarViewModel(
+            context.read<ReadingProgressService>(),
+          ),
         ),
         ChangeNotifierProvider(create: (_) => ThemeViewModel()),
       ],
