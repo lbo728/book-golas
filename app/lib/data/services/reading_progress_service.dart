@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/domain/models/reading_progress_record.dart';
@@ -24,12 +25,16 @@ class ReadingProgressService {
         return null;
       }
 
-      final response = await _supabase.from(_tableName).insert({
-        'user_id': userId,
-        'book_id': bookId,
-        'page': currentPage,
-        'previous_page': previousPage,
-      }).select().single();
+      final response = await _supabase
+          .from(_tableName)
+          .insert({
+            'user_id': userId,
+            'book_id': bookId,
+            'page': currentPage,
+            'previous_page': previousPage,
+          })
+          .select()
+          .single();
 
       return ReadingProgressRecord.fromJson(response);
     } catch (e) {
@@ -112,8 +117,7 @@ class ReadingProgressService {
       }
 
       while (true) {
-        final dateKey =
-            '${checkDate.year}-${checkDate.month}-${checkDate.day}';
+        final dateKey = '${checkDate.year}-${checkDate.month}-${checkDate.day}';
         if (readingDates.contains(dateKey)) {
           streak++;
           checkDate = checkDate.subtract(const Duration(days: 1));
@@ -156,7 +160,8 @@ class ReadingProgressService {
         if (targetDateStr == null || currentPage >= totalPages) continue;
 
         final targetDate = DateTime.parse(targetDateStr);
-        final targetDay = DateTime(targetDate.year, targetDate.month, targetDate.day);
+        final targetDay =
+            DateTime(targetDate.year, targetDate.month, targetDate.day);
         final daysLeft = targetDay.difference(startOfToday).inDays;
 
         if (daysLeft <= 0) continue;
@@ -219,10 +224,12 @@ class ReadingProgressService {
       final totalPages = dailyValues.fold(0, (sum, v) => sum + v);
       final averageDaily =
           dailyValues.isNotEmpty ? totalPages / dailyValues.length : 0.0;
-      final maxDaily =
-          dailyValues.isNotEmpty ? dailyValues.reduce((a, b) => a > b ? a : b) : 0;
-      final minDaily =
-          dailyValues.isNotEmpty ? dailyValues.reduce((a, b) => a < b ? a : b) : 0;
+      final maxDaily = dailyValues.isNotEmpty
+          ? dailyValues.reduce((a, b) => a > b ? a : b)
+          : 0;
+      final minDaily = dailyValues.isNotEmpty
+          ? dailyValues.reduce((a, b) => a < b ? a : b)
+          : 0;
 
       final streak = await calculateReadingStreak();
       final goalRate = await calculateGoalAchievementRate();
@@ -245,6 +252,56 @@ class ReadingProgressService {
         'streak': 0,
         'goalRate': 0.0,
       };
+    }
+  }
+
+  Future<Map<DateTime, List<Map<String, dynamic>>>> fetchReadingDataForPeriod({
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return {};
+
+      final response = await _supabase
+          .from(_tableName)
+          .select('''
+            id,
+            book_id,
+            page,
+            previous_page,
+            created_at,
+            books!inner (
+              id,
+              title,
+              author,
+              image_url,
+              status,
+              start_date,
+              target_date,
+              updated_at
+            )
+          ''')
+          .eq('user_id', userId)
+          .gte('created_at', startDate.toIso8601String())
+          .lte('created_at', endDate.toIso8601String())
+          .order('created_at', ascending: false);
+
+      final Map<DateTime, List<Map<String, dynamic>>> result = {};
+
+      for (final record in response as List) {
+        final createdAt = DateTime.parse(record['created_at'] as String);
+        final dateKey =
+            DateTime(createdAt.year, createdAt.month, createdAt.day);
+
+        result.putIfAbsent(dateKey, () => []);
+        result[dateKey]!.add(record);
+      }
+
+      return result;
+    } catch (e) {
+      debugPrint('기간별 독서 데이터 조회 실패: $e');
+      return {};
     }
   }
 }
