@@ -5,8 +5,8 @@ import 'package:provider/provider.dart';
 
 import 'package:book_golas/domain/models/recall_models.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
-import 'package:book_golas/ui/core/widgets/full_text_view_modal.dart';
 import 'package:book_golas/ui/recall/view_model/recall_view_model.dart';
+import 'package:book_golas/ui/recall/widgets/source_detail_modal.dart';
 
 Future<void> showRecallSearchSheet({
   required BuildContext context,
@@ -17,6 +17,8 @@ Future<void> showRecallSearchSheet({
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
+    isDismissible: false,
+    enableDrag: false,
     builder: (sheetContext) {
       if (existingViewModel != null) {
         return ChangeNotifierProvider.value(
@@ -46,10 +48,12 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
   final _sheetController = DraggableScrollableController();
+  bool _isHalfMode = false;
 
   @override
   void initState() {
     super.initState();
+    _sheetController.addListener(_onSheetChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final viewModel = context.read<RecallViewModel>();
       if (viewModel.searchResult == null) {
@@ -58,8 +62,18 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
     });
   }
 
+  void _onSheetChanged() {
+    final size = _sheetController.size;
+    if (size <= 0.5 && !_isHalfMode) {
+      setState(() => _isHalfMode = true);
+    } else if (size > 0.5 && _isHalfMode) {
+      setState(() => _isHalfMode = false);
+    }
+  }
+
   @override
   void dispose() {
+    _sheetController.removeListener(_onSheetChanged);
     _controller.dispose();
     _focusNode.dispose();
     _sheetController.dispose();
@@ -82,31 +96,22 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
     );
   }
 
-  void _showSourceDetail(RecallSource source, bool isDark) {
-    String title;
-    switch (source.type) {
-      case 'highlight':
-        title = '하이라이트';
-        break;
-      case 'note':
-        title = '메모';
-        break;
-      case 'photo_ocr':
-        title = '사진 기록';
-        break;
-      default:
-        title = '기록';
-    }
-    if (source.pageNumber != null) {
-      title = '$title (${source.pageNumber}p)';
-    }
+  void _goToHome() {
+    _controller.clear();
+    context.read<RecallViewModel>().clearResult();
+    _focusNode.requestFocus();
+  }
 
-    showFullTextViewModal(
-      context: context,
-      initialText: source.content,
-      title: title,
-      isEditable: false,
-    );
+  void _closeSheet() {
+    if (_sheetController.size > 0.6) {
+      _sheetController.animateTo(
+        0.5,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+      );
+    } else {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -114,109 +119,181 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final viewModel = context.watch<RecallViewModel>();
 
-    return DraggableScrollableSheet(
-      controller: _sheetController,
-      initialChildSize: 0.9,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
-      snap: true,
-      snapSizes: const [0.5, 0.9],
-      builder: (_, scrollController) => Container(
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: isDark ? Colors.grey[700] : Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.auto_awesome,
-                      color: Color(0xFF5B7FFF),
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    '내 기록 검색',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    icon: Icon(
-                      CupertinoIcons.xmark,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
-              child: TextField(
-                controller: _controller,
-                focusNode: _focusNode,
-                decoration: InputDecoration(
-                  hintText: '예: "저자가 습관에 대해 뭐라고 했지?"',
-                  hintStyle: TextStyle(
-                    color: isDark ? Colors.grey[500] : Colors.grey[400],
-                  ),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color: isDark ? Colors.grey[400] : Colors.grey[600],
-                  ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      Icons.send,
-                      color: _controller.text.isEmpty
-                          ? (isDark ? Colors.grey[600] : Colors.grey[400])
-                          : const Color(0xFF5B7FFF),
-                    ),
-                    onPressed: () => _search(_controller.text),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                  fillColor:
-                      isDark ? const Color(0xFF2C2C2E) : Colors.grey[100],
+    return PopScope(
+      canPop: _isHalfMode,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          _closeSheet();
+        }
+      },
+      child: GestureDetector(
+        onTap: () {
+          if (_isHalfMode) {
+            Navigator.pop(context);
+          }
+        },
+        child: Container(
+          color: Colors.transparent,
+          child: GestureDetector(
+            onTap: () {},
+            child: DraggableScrollableSheet(
+              controller: _sheetController,
+              initialChildSize: 0.9,
+              minChildSize: 0.5,
+              maxChildSize: 0.95,
+              snap: true,
+              snapSizes: const [0.5, 0.9],
+              builder: (_, scrollController) => Container(
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(20)),
                 ),
-                onSubmitted: _search,
-                onChanged: (_) => setState(() {}),
+                child: Column(
+                  children: [
+                    GestureDetector(
+                      onVerticalDragUpdate: (details) {
+                        if (details.primaryDelta! > 10) {
+                          _closeSheet();
+                        }
+                      },
+                      child: Container(
+                        color: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Center(
+                          child: Container(
+                            width: 40,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color:
+                                  isDark ? Colors.grey[700] : Colors.grey[300],
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF5B7FFF)
+                                  .withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.auto_awesome,
+                              color: Color(0xFF5B7FFF),
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            '내 기록 검색',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                          ),
+                          const Spacer(),
+                          IconButton(
+                            icon: Icon(
+                              CupertinoIcons.xmark,
+                              color:
+                                  isDark ? Colors.grey[400] : Colors.grey[600],
+                            ),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Divider(),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _controller,
+                              focusNode: _focusNode,
+                              decoration: InputDecoration(
+                                hintText: '예: "저자가 습관에 대해 뭐라고 했지?"',
+                                hintStyle: TextStyle(
+                                  color: isDark
+                                      ? Colors.grey[500]
+                                      : Colors.grey[400],
+                                ),
+                                prefixIcon: Icon(
+                                  Icons.search,
+                                  color: isDark
+                                      ? Colors.grey[400]
+                                      : Colors.grey[600],
+                                ),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    Icons.send,
+                                    color: _controller.text.isEmpty
+                                        ? (isDark
+                                            ? Colors.grey[600]
+                                            : Colors.grey[400])
+                                        : const Color(0xFF5B7FFF),
+                                  ),
+                                  onPressed: () => _search(_controller.text),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
+                                ),
+                                filled: true,
+                                fillColor: isDark
+                                    ? const Color(0xFF2C2C2E)
+                                    : Colors.grey[100],
+                              ),
+                              onSubmitted: _search,
+                              onChanged: (_) => setState(() {}),
+                            ),
+                          ),
+                          if (viewModel.searchResult != null) ...[
+                            const SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: _goToHome,
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? const Color(0xFF2C2C2E)
+                                      : Colors.grey[100],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  CupertinoIcons.house,
+                                  size: 20,
+                                  color: isDark
+                                      ? Colors.grey[400]
+                                      : Colors.grey[600],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    if (viewModel.contentSuggestions.isNotEmpty &&
+                        viewModel.searchResult == null &&
+                        !viewModel.isSearching)
+                      _buildContentSuggestions(viewModel, isDark),
+                    Expanded(
+                      child: _buildContent(viewModel, scrollController, isDark),
+                    ),
+                  ],
+                ),
               ),
             ),
-            if (viewModel.contentSuggestions.isNotEmpty &&
-                viewModel.searchResult == null &&
-                !viewModel.isSearching)
-              _buildContentSuggestions(viewModel, isDark),
-            Expanded(
-              child: _buildContent(viewModel, scrollController, isDark),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -641,7 +718,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
     }
 
     return GestureDetector(
-      onTap: () => _showSourceDetail(source, isDark),
+      onTap: () => showSourceDetailModal(context: context, source: source),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),

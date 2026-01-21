@@ -174,12 +174,40 @@ class RecallService {
 
       return (response as List).map((row) {
         final text = row['content_text'] as String;
-        final words = text.split(RegExp(r'\s+')).take(5).join(' ');
-        return words.length > 30 ? '${words.substring(0, 30)}...' : words;
+        return _extractKeyword(text);
       }).toList();
     } catch (e) {
       debugPrint('🔴 Failed to get content suggestions: $e');
       return [];
+    }
+  }
+
+  String _extractKeyword(String text) {
+    final cleaned = text
+        .replaceAll(RegExp(r'["\'\.,\-:;!?\(\)\[\]{}]'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+
+    final words = cleaned.split(' ').where((w) => w.length > 1).toList();
+
+    if (words.isEmpty) return text.substring(0, text.length.clamp(0, 10));
+
+    final keyword = words.take(2).join(' ');
+    return keyword.length > 15 ? '${keyword.substring(0, 15)}' : keyword;
+  }
+
+  Future<String?> getImageUrlBySourceId(String sourceId) async {
+    try {
+      final response = await _supabase
+          .from('book_images')
+          .select('image_url')
+          .eq('id', sourceId)
+          .maybeSingle();
+
+      return response?['image_url'] as String?;
+    } catch (e) {
+      debugPrint('🔴 Failed to get image URL: $e');
+      return null;
     }
   }
 }
