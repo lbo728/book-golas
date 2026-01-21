@@ -1215,6 +1215,20 @@ class _BookDetailContentState extends State<_BookDetailContent>
       context: context,
       bookId: bookVm.currentBook.id!,
       existingViewModel: recallVm,
+      onSourceTap: (source) async {
+        if (source.type == 'photo_ocr' && source.sourceId != null) {
+          final imageUrl =
+              await RecallService().getImageUrlBySourceId(source.sourceId!);
+          if (mounted) {
+            _showExistingImageModal(
+              source.sourceId!,
+              imageUrl,
+              source.content,
+              pageNumber: source.pageNumber,
+            );
+          }
+        }
+      },
     );
   }
 }
