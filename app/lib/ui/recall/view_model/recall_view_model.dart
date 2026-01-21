@@ -34,7 +34,7 @@ class RecallViewModel extends ChangeNotifier {
     try {
       final results = await Future.wait([
         _recallService.getRecentSearches(bookId: bookId),
-        _recallService.getRecentContentSuggestions(bookId: bookId),
+        _recallService.getKeywordSuggestions(bookId: bookId),
       ]);
       _recentSearches = results[0] as List<RecallSearchHistory>;
       _contentSuggestions = results[1] as List<String>;

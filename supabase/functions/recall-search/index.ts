@@ -38,19 +38,45 @@ async function generateEmbedding(text: string): Promise<number[]> {
   return data.data[0].embedding;
 }
 
+// ============================================================
+// AI 응답 스타일 설정 (TONE CONFIGURATION)
+// 말투를 조정하려면 이 상수들을 수정하세요.
+// ============================================================
+const TONE_CONFIG = {
+  // 사용자 호칭: "회원님", "" (생략), "독자님" 등
+  userAddress: "",
+  
+  // 말투 스타일 가이드
+  styleGuide: `
+- 친근하고 부드러운 ~요 체를 사용해요 (예: "기록하셨어요", "인상깊으셨나봐요")
+- "당신"이라는 표현은 사용하지 않아요
+- 공감하는 느낌으로 답변해요 (예: "이 부분이 특히 와닿으셨군요!")
+- 너무 길게 설명하지 않고 핵심만 전달해요`,
+  
+  // 예시 표현들 (AI가 참고할 표현)
+  examplePhrases: [
+    "하이라이트하신 부분을 보면~",
+    "메모하신 내용 중에~",
+    "이런 부분을 기록해두셨어요",
+    "~라고 적어두셨네요",
+    "이 부분이 인상깊으셨나봐요!",
+  ],
+};
+
 async function generateAnswer(
   query: string,
   context: string
 ): Promise<string> {
-  const systemPrompt = `당신은 독자의 독서 기록을 검색하는 AI입니다.
-사용자가 직접 하이라이트하거나 메모한 내용만을 기반으로 답변하세요.
-책의 일반적인 내용이 아닌, '사용자가 중요하게 본 부분'을 강조하세요.
+  const systemPrompt = `독서 기록을 검색해주는 AI 도우미예요.
+사용자가 직접 하이라이트하거나 메모한 내용만을 기반으로 답변해요.
+책의 일반적인 내용이 아닌, '사용자가 중요하게 본 부분'을 알려줘요.
+
+${TONE_CONFIG.styleGuide}
 
 답변 형식:
-- 자연스러운 대화체
-- 페이지 번호 명시 (알 수 있는 경우)
-- "당신이 하이라이트한...", "당신이 메모한..." 등 개인화된 표현 사용
-- 관련 기록이 없으면 솔직하게 "관련 기록을 찾지 못했습니다"라고 답변`;
+- 페이지 번호가 있으면 자연스럽게 언급해요 (예: "23페이지에서~")
+- 참고할 표현들: ${TONE_CONFIG.examplePhrases.join(", ")}
+- 관련 기록이 없으면 "관련 기록을 찾지 못했어요. 더 많은 기록을 남겨보세요!"라고 답변해요`;
 
   const userPrompt = `질문: ${query}
 
@@ -225,7 +251,7 @@ serve(async (req: Request) => {
     );
   } catch (error) {
     console.error("Error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: (error as Error).message }), {
       status: 500,
       headers: {
         "Content-Type": "application/json",

@@ -156,44 +156,33 @@ class RecallService {
     }
   }
 
-  Future<List<String>> getRecentContentSuggestions({
+  Future<List<String>> getKeywordSuggestions({
     required String bookId,
-    int limit = 5,
+    int limit = 8,
   }) async {
     try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) return [];
+      final response = await _supabase.functions.invoke(
+        'extract-keywords',
+        body: {
+          'bookId': bookId,
+          'limit': limit,
+        },
+      );
 
-      final response = await _supabase
-          .from('reading_content_embeddings')
-          .select('content_text')
-          .eq('user_id', userId)
-          .eq('book_id', bookId)
-          .order('created_at', ascending: false)
-          .limit(limit);
+      if (response.status != 200) {
+        debugPrint('🔴 Extract keywords failed: ${response.status}');
+        return [];
+      }
 
-      return (response as List).map((row) {
-        final text = row['content_text'] as String;
-        return _extractKeyword(text);
-      }).toList();
+      final data = response.data as Map<String, dynamic>;
+      final keywords = data['keywords'] as List<dynamic>?;
+
+      if (keywords == null) return [];
+      return keywords.map((k) => k.toString()).toList();
     } catch (e) {
-      debugPrint('🔴 Failed to get content suggestions: $e');
+      debugPrint('🔴 Failed to get keyword suggestions: $e');
       return [];
     }
-  }
-
-  String _extractKeyword(String text) {
-    final cleaned = text
-        .replaceAll(RegExp(r'''[\"\'.,\-:;!?()\[\]{}]'''), ' ')
-        .replaceAll(RegExp(r'\s+'), ' ')
-        .trim();
-
-    final words = cleaned.split(' ').where((w) => w.length > 1).toList();
-
-    if (words.isEmpty) return text.substring(0, text.length.clamp(0, 10));
-
-    final keyword = words.take(2).join(' ');
-    return keyword.length > 15 ? keyword.substring(0, 15) : keyword;
   }
 
   Future<String?> getImageUrlBySourceId(String sourceId) async {
