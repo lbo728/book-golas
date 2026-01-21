@@ -6,11 +6,13 @@ import 'package:flutter/material.dart';
 class FloatingActionBar extends StatelessWidget {
   final VoidCallback onUpdatePageTap;
   final VoidCallback onAddMemorablePageTap;
+  final VoidCallback? onRecallSearchTap;
 
   const FloatingActionBar({
     super.key,
     required this.onUpdatePageTap,
     required this.onAddMemorablePageTap,
+    this.onRecallSearchTap,
   });
 
   @override
@@ -24,12 +26,53 @@ class FloatingActionBar extends StatelessWidget {
       bottom: 22,
       child: Row(
         children: [
+          if (onRecallSearchTap != null) ...[
+            _buildRecallSearchButton(isDark),
+            const SizedBox(width: 12),
+          ],
           Expanded(
             child: _buildUpdatePageButton(isDark),
           ),
           const SizedBox(width: 12),
           _buildAddButton(isDark),
         ],
+      ),
+    );
+  }
+
+  Widget _buildRecallSearchButton(bool isDark) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(100),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onRecallSearchTap,
+            borderRadius: BorderRadius.circular(100),
+            child: Container(
+              width: 62,
+              height: 62,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? const Color(0xFF5B7FFF).withValues(alpha: 0.3)
+                    : const Color(0xFF5B7FFF).withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isDark
+                      ? const Color(0xFF5B7FFF).withValues(alpha: 0.5)
+                      : const Color(0xFF5B7FFF).withValues(alpha: 0.3),
+                  width: 0.5,
+                ),
+              ),
+              child: const Icon(
+                Icons.auto_awesome,
+                size: 22,
+                color: Color(0xFF5B7FFF),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
