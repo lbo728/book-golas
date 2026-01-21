@@ -36,6 +36,9 @@ import 'widgets/sheets/full_title_sheet.dart';
 import 'widgets/sheets/pause_reading_confirmation_sheet.dart';
 import 'widgets/dialogs/edit_planned_book_dialog.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
+import 'package:book_golas/ui/recall/widgets/recall_search_sheet.dart';
+import 'package:book_golas/ui/recall/view_model/recall_view_model.dart';
+import 'package:book_golas/data/services/recall_service.dart';
 
 class BookDetailScreen extends StatelessWidget {
   final Book book;
@@ -67,6 +70,9 @@ class BookDetailScreen extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => ReadingProgressViewModel(bookId: book.id!),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => RecallViewModel()..loadRecentSearches(book.id!),
         ),
       ],
       child: _BookDetailContent(
@@ -370,11 +376,15 @@ class _BookDetailContentState extends State<_BookDetailContent>
               ),
               if (isKeyboardOpen)
                 const KeyboardDoneButton()
-              else if (!_isBookCompleted(bookVm.currentBook) &&
+              else if (!_isBookPlanned(bookVm.currentBook) &&
                   !widget.isEmbedded)
                 FloatingActionBar(
-                  onUpdatePageTap: () => _showUpdatePageDialog(bookVm),
+                  onUpdatePageTap: _isBookReading(bookVm.currentBook)
+                      ? () => _showUpdatePageDialog(bookVm)
+                      : null,
                   onAddMemorablePageTap: _showAddMemorablePageModal,
+                  onRecallSearchTap: () => _showRecallSearchSheet(bookVm),
+                  isReadingMode: _isBookReading(bookVm.currentBook),
                 ),
               // 컨페티 애니메이션
               if (_confettiController != null)
@@ -612,18 +622,32 @@ class _BookDetailContentState extends State<_BookDetailContent>
       }
 
       final userId = Supabase.instance.client.auth.currentUser?.id;
-      await Supabase.instance.client.from('book_images').insert({
-        'book_id': bookVm.currentBook.id,
-        'user_id': userId,
-        'image_url': publicUrl,
-        'caption': '',
-        'extracted_text': extractedText.isEmpty ? null : extractedText,
-        'page_number': pageNumber,
-        'created_at': DateTime.now().toIso8601String(),
-      });
+      final insertResult = await Supabase.instance.client
+          .from('book_images')
+          .insert({
+            'book_id': bookVm.currentBook.id,
+            'user_id': userId,
+            'image_url': publicUrl,
+            'caption': '',
+            'extracted_text': extractedText.isEmpty ? null : extractedText,
+            'page_number': pageNumber,
+            'created_at': DateTime.now().toIso8601String(),
+          })
+          .select('id')
+          .single();
 
       await memorableVm.fetchBookImages();
       memorableVm.clearPendingImage();
+
+      if (extractedText.isNotEmpty && userId != null) {
+        RecallService().generateEmbeddingForPhotoOcr(
+          userId: userId,
+          bookId: bookVm.currentBook.id!,
+          photoId: insertResult['id'] as String,
+          ocrText: extractedText,
+          pageNumber: pageNumber,
+        );
+      }
 
       if (mounted) {
         _tabController.animateTo(0);
@@ -1183,5 +1207,28 @@ class _BookDetailContentState extends State<_BookDetailContent>
         Navigator.pop(context);
       }
     }
+  }
+
+  void _showRecallSearchSheet(BookDetailViewModel bookVm) {
+    final recallVm = context.read<RecallViewModel>();
+    showRecallSearchSheet(
+      context: context,
+      bookId: bookVm.currentBook.id!,
+      existingViewModel: recallVm,
+      onSourceTap: (source) async {
+        if (source.type == 'photo_ocr' && source.sourceId != null) {
+          final imageUrl =
+              await RecallService().getImageUrlBySourceId(source.sourceId!);
+          if (mounted) {
+            _showExistingImageModal(
+              source.sourceId!,
+              imageUrl,
+              source.content,
+              pageNumber: source.pageNumber,
+            );
+          }
+        }
+      },
+    );
   }
 }

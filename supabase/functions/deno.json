@@ -5,6 +5,7 @@
     "strict": true
   },
   "imports": {
-    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2"
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2",
+    "openai": "https://esm.sh/openai@4.28.0"
   }
 }

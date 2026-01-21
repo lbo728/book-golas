@@ -4,32 +4,162 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class FloatingActionBar extends StatelessWidget {
-  final VoidCallback onUpdatePageTap;
+  final VoidCallback? onUpdatePageTap;
   final VoidCallback onAddMemorablePageTap;
+  final VoidCallback? onRecallSearchTap;
+  final bool isReadingMode;
 
   const FloatingActionBar({
     super.key,
-    required this.onUpdatePageTap,
+    this.onUpdatePageTap,
     required this.onAddMemorablePageTap,
+    this.onRecallSearchTap,
+    this.isReadingMode = true,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // 홈 LiquidGlassBottomBar와 동일한 포지션 (bottom: 22, SafeArea 미적용)
     return Positioned(
       left: 16,
       right: 16,
       bottom: 22,
-      child: Row(
-        children: [
+      child: isReadingMode
+          ? _buildReadingModeLayout(isDark)
+          : _buildCompletedModeLayout(isDark),
+    );
+  }
+
+  Widget _buildReadingModeLayout(bool isDark) {
+    return Row(
+      children: [
+        if (onRecallSearchTap != null) ...[
+          _buildRecallSearchButtonCircle(isDark),
+          const SizedBox(width: 12),
+        ],
+        if (onUpdatePageTap != null)
           Expanded(
             child: _buildUpdatePageButton(isDark),
           ),
-          const SizedBox(width: 12),
-          _buildAddButton(isDark),
-        ],
+        const SizedBox(width: 12),
+        _buildAddButton(isDark),
+      ],
+    );
+  }
+
+  Widget _buildCompletedModeLayout(bool isDark) {
+    return Row(
+      children: [
+        if (onRecallSearchTap != null)
+          Expanded(
+            child: _buildRecallSearchButtonBar(isDark),
+          ),
+        const SizedBox(width: 12),
+        _buildAddButton(isDark),
+      ],
+    );
+  }
+
+  Widget _buildRecallSearchButtonCircle(bool isDark) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(100),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onRecallSearchTap,
+            borderRadius: BorderRadius.circular(100),
+            child: Container(
+              width: 62,
+              height: 62,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? const Color(0xFF5B7FFF).withValues(alpha: 0.3)
+                    : const Color(0xFF5B7FFF).withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isDark
+                      ? const Color(0xFF5B7FFF).withValues(alpha: 0.5)
+                      : const Color(0xFF5B7FFF).withValues(alpha: 0.3),
+                  width: 0.5,
+                ),
+              ),
+              child: const Stack(
+                alignment: Alignment.center,
+                children: [
+                  Positioned(
+                    left: 14,
+                    child: Icon(
+                      Icons.auto_awesome,
+                      size: 18,
+                      color: Color(0xFF5B7FFF),
+                    ),
+                  ),
+                  Positioned(
+                    right: 14,
+                    child: Icon(
+                      Icons.search,
+                      size: 18,
+                      color: Color(0xFF5B7FFF),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecallSearchButtonBar(bool isDark) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(100),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onRecallSearchTap,
+            borderRadius: BorderRadius.circular(100),
+            child: Container(
+              height: 62,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? const Color(0xFF5B7FFF).withValues(alpha: 0.3)
+                    : const Color(0xFF5B7FFF).withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(100),
+                border: Border.all(
+                  color: isDark
+                      ? const Color(0xFF5B7FFF).withValues(alpha: 0.5)
+                      : const Color(0xFF5B7FFF).withValues(alpha: 0.3),
+                  width: 0.5,
+                ),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.auto_awesome,
+                    size: 18,
+                    color: Color(0xFF5B7FFF),
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    '기록 검색',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF5B7FFF),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

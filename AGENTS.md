@@ -288,3 +288,72 @@ PR 생성 시 아래 템플릿을 사용해. (인용문은 지우고 해당 내�
 - `app/lib/data/services/` - API services
 - `app/lib/data/repositories/` - Data layer
 - `app/lib/ui/*/view_model/` - State management
+
+## Supabase Environment Rules (CRITICAL)
+
+### Two Supabase Projects
+
+| Project | Project Ref | Purpose | When to Use |
+|---------|-------------|---------|-------------|
+| **supabase-dev** | `reoiqefoymdsqzpbouxi` | Development & Testing | 로컬 개발, TestFlight |
+| **supabase** (prod) | `enyxrgxixrnoazzgqyyd` | Production | main 브랜치 배포 CI만 |
+
+### MCP Configuration (`.opencode.json`)
+
+```json
+{
+  "mcp": {
+    "supabase": {
+      "enabled": false  // Production - OFF by default
+    },
+    "supabase-dev": {
+      "enabled": true   // Development - ON by default
+    }
+  }
+}
+```
+
+**CRITICAL**: 개발 중에는 반드시 `supabase-dev` MCP만 사용해라. Production MCP는 절대 활성화하지 마라.
+
+### Environment Variables (`app/.env`)
+
+```bash
+# Development (default) - supabase-dev project
+SUPABASE_URL=https://reoiqefoymdsqzpbouxi.supabase.co
+SUPABASE_ANON_KEY=<dev-anon-key>
+
+# Production - ONLY used in main branch CI deployment
+# SUPABASE_URL=https://enyxrgxixrnoazzgqyyd.supabase.co
+# SUPABASE_ANON_KEY=<prod-anon-key>
+```
+
+**Rules:**
+1. `.env` 파일에는 항상 **dev 환경변수**가 기본값으로 설정되어야 함
+2. Production 환경변수는 **GitHub Actions CI에서만** 주입됨 (main 브랜치 배포 시)
+3. 로컬에서 prod 환경변수 사용 금지
+
+### Supabase CLI Usage
+
+```bash
+# Dev project에 연결 (기본)
+supabase link --project-ref reoiqefoymdsqzpbouxi
+
+# Migration 실행 (dev)
+supabase db push
+
+# Edge Function 배포 (dev)
+supabase functions deploy <function-name>
+
+# Secret 설정 (dev)
+supabase secrets set OPENAI_API_KEY=sk-...
+```
+
+### Deployment Flow
+
+```
+1. 로컬 개발 → supabase-dev 프로젝트
+2. feature → daily → dev 머지 → TestFlight (supabase-dev)
+3. dev → main 머지 → Production (supabase prod) ← CI가 prod 환경변수 주입
+```
+
+**WARNING**: Production Supabase에 직접 migration이나 function 배포하지 마라. main 브랜치 CI를 통해서만 배포해라.
