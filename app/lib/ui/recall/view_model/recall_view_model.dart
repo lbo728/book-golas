@@ -24,12 +24,20 @@ class RecallViewModel extends ChangeNotifier {
   List<RecallSearchHistory> _recentSearches = [];
   List<RecallSearchHistory> get recentSearches => _recentSearches;
 
+  List<String> _contentSuggestions = [];
+  List<String> get contentSuggestions => _contentSuggestions;
+
   Future<void> loadRecentSearches(String bookId) async {
     _isLoadingHistory = true;
     notifyListeners();
 
     try {
-      _recentSearches = await _recallService.getRecentSearches(bookId: bookId);
+      final results = await Future.wait([
+        _recallService.getRecentSearches(bookId: bookId),
+        _recallService.getRecentContentSuggestions(bookId: bookId),
+      ]);
+      _recentSearches = results[0] as List<RecallSearchHistory>;
+      _contentSuggestions = results[1] as List<String>;
     } catch (e) {
       debugPrint('Failed to load recent searches: $e');
     } finally {

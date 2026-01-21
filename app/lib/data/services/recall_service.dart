@@ -155,4 +155,31 @@ class RecallService {
       return false;
     }
   }
+
+  Future<List<String>> getRecentContentSuggestions({
+    required String bookId,
+    int limit = 5,
+  }) async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return [];
+
+      final response = await _supabase
+          .from('reading_content_embeddings')
+          .select('content_text')
+          .eq('user_id', userId)
+          .eq('book_id', bookId)
+          .order('created_at', ascending: false)
+          .limit(limit);
+
+      return (response as List).map((row) {
+        final text = row['content_text'] as String;
+        final words = text.split(RegExp(r'\s+')).take(5).join(' ');
+        return words.length > 30 ? '${words.substring(0, 30)}...' : words;
+      }).toList();
+    } catch (e) {
+      debugPrint('🔴 Failed to get content suggestions: $e');
+      return [];
+    }
+  }
 }

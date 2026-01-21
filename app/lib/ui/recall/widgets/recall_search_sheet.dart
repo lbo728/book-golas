@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import 'package:book_golas/domain/models/recall_models.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
+import 'package:book_golas/ui/core/widgets/full_text_view_modal.dart';
 import 'package:book_golas/ui/recall/view_model/recall_view_model.dart';
 
 Future<void> showRecallSearchSheet({
@@ -44,15 +45,13 @@ class _RecallSearchSheetContent extends StatefulWidget {
 class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
+  final _sheetController = DraggableScrollableController();
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final viewModel = context.read<RecallViewModel>();
-      if (viewModel.currentQuery != null) {
-        _controller.text = viewModel.currentQuery!;
-      }
       if (viewModel.searchResult == null) {
         _focusNode.requestFocus();
       }
@@ -63,6 +62,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
   void dispose() {
     _controller.dispose();
     _focusNode.dispose();
+    _sheetController.dispose();
     super.dispose();
   }
 
@@ -82,15 +82,45 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
     );
   }
 
+  void _showSourceDetail(RecallSource source, bool isDark) {
+    String title;
+    switch (source.type) {
+      case 'highlight':
+        title = '하이라이트';
+        break;
+      case 'note':
+        title = '메모';
+        break;
+      case 'photo_ocr':
+        title = '사진 기록';
+        break;
+      default:
+        title = '기록';
+    }
+    if (source.pageNumber != null) {
+      title = '$title (${source.pageNumber}p)';
+    }
+
+    showFullTextViewModal(
+      context: context,
+      initialText: source.content,
+      title: title,
+      isEditable: false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final viewModel = context.watch<RecallViewModel>();
 
     return DraggableScrollableSheet(
+      controller: _sheetController,
       initialChildSize: 0.9,
       minChildSize: 0.5,
       maxChildSize: 0.95,
+      snap: true,
+      snapSizes: const [0.5, 0.9],
       builder: (_, scrollController) => Container(
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
@@ -145,7 +175,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
             ),
             const Divider(),
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
               child: TextField(
                 controller: _controller,
                 focusNode: _focusNode,
@@ -179,10 +209,54 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                 onChanged: (_) => setState(() {}),
               ),
             ),
+            if (viewModel.contentSuggestions.isNotEmpty &&
+                viewModel.searchResult == null &&
+                !viewModel.isSearching)
+              _buildContentSuggestions(viewModel, isDark),
             Expanded(
               child: _buildContent(viewModel, scrollController, isDark),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContentSuggestions(RecallViewModel viewModel, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+      child: SizedBox(
+        height: 32,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: viewModel.contentSuggestions.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          itemBuilder: (_, index) {
+            final suggestion = viewModel.contentSuggestions[index];
+            return GestureDetector(
+              onTap: () {
+                _controller.text = suggestion;
+                _search(suggestion);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.grey[800] : Colors.grey[200],
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  suggestion,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.grey[300] : Colors.grey[700],
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -311,7 +385,6 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
       onDismissed: (_) => viewModel.deleteHistory(history.id, widget.bookId),
       child: GestureDetector(
         onTap: () {
-          _controller.text = history.query;
           viewModel.loadFromHistory(history);
         },
         child: Container(
@@ -517,7 +590,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                 ],
               ),
               const SizedBox(height: 12),
-              Text(
+              SelectableText(
                 result.answer,
                 style: TextStyle(
                   fontSize: 16,
@@ -567,71 +640,80 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
         color = Colors.blue;
     }
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+    return GestureDetector(
+      onTap: () => _showSourceDetail(source, isDark),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+          ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: color, size: 16),
                 ),
-                child: Icon(icon, color: color, size: 16),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                source.typeLabel,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-              const Spacer(),
-              if (source.pageNumber != null)
+                const SizedBox(width: 8),
                 Text(
-                  '${source.pageNumber}페이지',
+                  source.typeLabel,
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark ? Colors.grey[500] : Colors.grey[600],
+                    fontWeight: FontWeight.bold,
+                    color: color,
                   ),
                 ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            source.content,
-            style: TextStyle(
-              fontSize: 14,
-              height: 1.5,
-              color: isDark ? Colors.grey[300] : Colors.grey[800],
+                const Spacer(),
+                if (source.pageNumber != null)
+                  Text(
+                    '${source.pageNumber}페이지',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? Colors.grey[500] : Colors.grey[600],
+                    ),
+                  ),
+                const SizedBox(width: 8),
+                Icon(
+                  CupertinoIcons.chevron_right,
+                  size: 14,
+                  color: isDark ? Colors.grey[600] : Colors.grey[400],
+                ),
+              ],
             ),
-            maxLines: 5,
-            overflow: TextOverflow.ellipsis,
-          ),
-          if (source.createdAt != null) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Text(
-              '${source.createdAt!.year}.${source.createdAt!.month.toString().padLeft(2, '0')}.${source.createdAt!.day.toString().padLeft(2, '0')}',
+              source.content,
               style: TextStyle(
-                fontSize: 12,
-                color: isDark ? Colors.grey[600] : Colors.grey[400],
+                fontSize: 14,
+                height: 1.5,
+                color: isDark ? Colors.grey[300] : Colors.grey[800],
               ),
+              maxLines: 5,
+              overflow: TextOverflow.ellipsis,
             ),
+            if (source.createdAt != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                '${source.createdAt!.year}.${source.createdAt!.month.toString().padLeft(2, '0')}.${source.createdAt!.day.toString().padLeft(2, '0')}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? Colors.grey[600] : Colors.grey[400],
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
