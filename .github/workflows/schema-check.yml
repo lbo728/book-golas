@@ -1,0 +1,195 @@
+name: Schema Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/functions/**'
+
+jobs:
+  check-migrations:
+    name: Validate Database Migrations
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Check migration file naming
+        run: |
+          echo "Checking migration file naming conventions..."
+          
+          MIGRATION_DIR="supabase/migrations"
+          ERRORS=0
+          
+          if [ -d "$MIGRATION_DIR" ]; then
+            for file in "$MIGRATION_DIR"/*.sql; do
+              if [ -f "$file" ]; then
+                filename=$(basename "$file")
+                
+                if ! [[ $filename =~ ^[0-9]{8}_[a-z_]+\.sql$ ]]; then
+                  echo "::error file=$file::Invalid migration filename: $filename"
+                  echo "  Expected format: YYYYMMDD_description.sql (lowercase, underscores)"
+                  ERRORS=$((ERRORS + 1))
+                fi
+              fi
+            done
+          fi
+          
+          if [ $ERRORS -gt 0 ]; then
+            echo ""
+            echo "::error::Found $ERRORS migration file(s) with invalid naming"
+            exit 1
+          fi
+          
+          echo "All migration files follow naming conventions"
+
+      - name: Check for new migrations in PR
+        id: check-new-migrations
+        run: |
+          echo "Checking for new migration files in this PR..."
+          
+          git fetch origin main
+          NEW_MIGRATIONS=$(git diff --name-only origin/main...HEAD -- 'supabase/migrations/*.sql' || true)
+          
+          if [ -n "$NEW_MIGRATIONS" ]; then
+            echo "new_migrations=true" >> $GITHUB_OUTPUT
+            echo "::notice::New migrations detected:"
+            echo "$NEW_MIGRATIONS"
+            
+            echo "### New Migrations" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "$NEW_MIGRATIONS" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "new_migrations=false" >> $GITHUB_OUTPUT
+            echo "No new migrations in this PR"
+          fi
+
+      - name: Migration safety warning
+        if: steps.check-new-migrations.outputs.new_migrations == 'true'
+        run: |
+          echo "::warning::This PR contains database migrations!"
+          echo ""
+          echo "IMPORTANT: Before merging to main, ensure:"
+          echo "1. Migrations have been applied to PRODUCTION Supabase (enyxrgxixrnoazzgqyyd)"
+          echo "2. The PR checklist in the description is complete"
+          echo "3. Rollback SQL is prepared if needed"
+          echo ""
+          
+          cat << 'EOF' >> $GITHUB_STEP_SUMMARY
+          
+          ## ⚠️ Database Migration Warning
+          
+          This PR contains database schema changes. **Before merging:**
+          
+          | Check | Status |
+          |-------|--------|
+          | Migrations applied to **Dev DB** | ☐ |
+          | Migrations applied to **Prod DB** | ☐ |
+          | Rollback SQL prepared | ☐ |
+          | Data migration plan (if needed) | ☐ |
+          
+          ### Supabase Project References
+          - **Dev**: `reoiqefoymdsqzpbouxi`
+          - **Prod**: `enyxrgxixrnoazzgqyyd`
+          
+          EOF
+
+      - name: Validate SQL syntax
+        if: steps.check-new-migrations.outputs.new_migrations == 'true'
+        run: |
+          echo "Validating SQL syntax of new migrations..."
+          
+          git fetch origin main
+          NEW_MIGRATIONS=$(git diff --name-only origin/main...HEAD -- 'supabase/migrations/*.sql' || true)
+          
+          SYNTAX_ERRORS=0
+          
+          for file in $NEW_MIGRATIONS; do
+            if [ -f "$file" ]; then
+              echo "Checking $file..."
+              
+              if grep -q "DROP TABLE" "$file"; then
+                echo "::warning file=$file::Contains DROP TABLE - verify this is intentional"
+              fi
+              
+              if grep -q "DROP COLUMN" "$file"; then
+                echo "::warning file=$file::Contains DROP COLUMN - verify data migration is handled"
+              fi
+              
+              if grep -q "ALTER.*TYPE" "$file"; then
+                echo "::warning file=$file::Contains column type change - verify data compatibility"
+              fi
+              
+              if grep -q "TRUNCATE" "$file"; then
+                echo "::error file=$file::Contains TRUNCATE - this will delete all data!"
+                SYNTAX_ERRORS=$((SYNTAX_ERRORS + 1))
+              fi
+            fi
+          done
+          
+          if [ $SYNTAX_ERRORS -gt 0 ]; then
+            exit 1
+          fi
+          
+          echo "SQL syntax validation complete"
+
+  check-edge-functions:
+    name: Validate Edge Functions
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for new Edge Functions in PR
+        id: check-functions
+        run: |
+          git fetch origin main
+          NEW_FUNCTIONS=$(git diff --name-only origin/main...HEAD -- 'supabase/functions/**' || true)
+          
+          if [ -n "$NEW_FUNCTIONS" ]; then
+            echo "new_functions=true" >> $GITHUB_OUTPUT
+            echo "::notice::Edge Function changes detected:"
+            echo "$NEW_FUNCTIONS"
+            
+            echo "### Edge Function Changes" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "$NEW_FUNCTIONS" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "new_functions=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Edge Function deployment warning
+        if: steps.check-functions.outputs.new_functions == 'true'
+        run: |
+          echo "::warning::This PR contains Edge Function changes!"
+          echo ""
+          echo "Ensure Edge Functions are deployed to PRODUCTION before merging."
+          echo ""
+          
+          cat << 'EOF' >> $GITHUB_STEP_SUMMARY
+          
+          ## ⚠️ Edge Function Changes
+          
+          Ensure functions are deployed to production:
+          
+          ```bash
+          supabase link --project-ref enyxrgxixrnoazzgqyyd
+          supabase functions deploy <function-name>
+          ```
+          
+          EOF
