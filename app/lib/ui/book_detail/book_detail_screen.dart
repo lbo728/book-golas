@@ -372,12 +372,15 @@ class _BookDetailContentState extends State<_BookDetailContent>
               ),
               if (isKeyboardOpen)
                 const KeyboardDoneButton()
-              else if (!_isBookCompleted(bookVm.currentBook) &&
+              else if (!_isBookPlanned(bookVm.currentBook) &&
                   !widget.isEmbedded)
                 FloatingActionBar(
-                  onUpdatePageTap: () => _showUpdatePageDialog(bookVm),
+                  onUpdatePageTap: _isBookReading(bookVm.currentBook)
+                      ? () => _showUpdatePageDialog(bookVm)
+                      : null,
                   onAddMemorablePageTap: _showAddMemorablePageModal,
                   onRecallSearchTap: () => _showRecallSearchSheet(bookVm),
+                  isReadingMode: _isBookReading(bookVm.currentBook),
                 ),
               // 컨페티 애니메이션
               if (_confettiController != null)

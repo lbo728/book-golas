@@ -581,6 +581,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                     ocrText,
                     ocrPageNumber,
                   ) {
+                    if (!mounted) return;
                     setState(() {
                       _fullImageBytes = imageBytes;
                       if (ocrText.isNotEmpty) {
@@ -633,6 +634,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
         ocrText,
         ocrPageNumber,
       ) {
+        if (!mounted) return;
         setState(() {
           _fullImageBytes = imageBytes;
           if (ocrText.isNotEmpty) {
@@ -925,33 +927,30 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                 color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
               ),
             ),
-            child: Scrollbar(
-              thumbVisibility: true,
-              child: TextField(
-                controller: _textController,
-                focusNode: _textFocusNode,
-                maxLines: null,
-                expands: true,
-                keyboardType: TextInputType.multiline,
-                textInputAction: TextInputAction.newline,
-                textAlignVertical: TextAlignVertical.top,
-                onChanged: (value) {
-                  _saveTextToHistory();
-                  _notifyStateChanged();
-                },
-                style: TextStyle(
-                  fontSize: 15,
-                  height: 1.6,
-                  color: isDark ? Colors.white : Colors.black,
+            child: TextField(
+              controller: _textController,
+              focusNode: _textFocusNode,
+              maxLines: null,
+              expands: true,
+              keyboardType: TextInputType.multiline,
+              textInputAction: TextInputAction.newline,
+              textAlignVertical: TextAlignVertical.top,
+              onChanged: (value) {
+                _saveTextToHistory();
+                _notifyStateChanged();
+              },
+              style: TextStyle(
+                fontSize: 15,
+                height: 1.6,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+              decoration: InputDecoration(
+                hintText: '인상 깊은 대목을 기록해보세요.',
+                hintStyle: TextStyle(
+                  color: isDark ? Colors.grey[600] : Colors.grey[400],
                 ),
-                decoration: InputDecoration(
-                  hintText: '인상 깊은 대목을 기록해보세요.',
-                  hintStyle: TextStyle(
-                    color: isDark ? Colors.grey[600] : Colors.grey[400],
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.all(16),
-                ),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.all(16),
               ),
             ),
           ),

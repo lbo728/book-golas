@@ -90,6 +90,7 @@ class RecallService {
     required String query,
   }) async {
     try {
+      debugPrint('🔍 Recall search: bookId=$bookId, query=$query');
       final response = await _supabase.functions.invoke(
         'recall-search',
         body: {
@@ -98,15 +99,20 @@ class RecallService {
         },
       );
 
+      debugPrint('🔍 Recall search response: status=${response.status}');
+      debugPrint('🔍 Recall search response data: ${response.data}');
+
       if (response.status != 200) {
-        debugPrint('Recall search failed: ${response.status}');
+        debugPrint(
+            '🔴 Recall search failed: ${response.status} - ${response.data}');
         return null;
       }
 
       final data = response.data as Map<String, dynamic>;
       return RecallSearchResult.fromJson(data);
-    } catch (e) {
-      debugPrint('Recall search error: $e');
+    } catch (e, stackTrace) {
+      debugPrint('🔴 Recall search error: $e');
+      debugPrint('🔴 Stack trace: $stackTrace');
       return null;
     }
   }
