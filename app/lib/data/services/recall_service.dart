@@ -184,7 +184,7 @@ class RecallService {
 
   String _extractKeyword(String text) {
     final cleaned = text
-        .replaceAll(RegExp(r'["\'\.,\-:;!?\(\)\[\]{}]'), ' ')
+        .replaceAll(RegExp(r'''[\"\'.,\-:;!?()\[\]{}]'''), ' ')
         .replaceAll(RegExp(r'\s+'), ' ')
         .trim();
 
@@ -193,7 +193,7 @@ class RecallService {
     if (words.isEmpty) return text.substring(0, text.length.clamp(0, 10));
 
     final keyword = words.take(2).join(' ');
-    return keyword.length > 15 ? '${keyword.substring(0, 15)}' : keyword;
+    return keyword.length > 15 ? keyword.substring(0, 15) : keyword;
   }
 
   Future<String?> getImageUrlBySourceId(String sourceId) async {
