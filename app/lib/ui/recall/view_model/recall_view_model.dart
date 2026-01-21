@@ -9,16 +9,40 @@ class RecallViewModel extends ChangeNotifier {
   bool _isSearching = false;
   bool get isSearching => _isSearching;
 
+  bool _isLoadingHistory = false;
+  bool get isLoadingHistory => _isLoadingHistory;
+
   RecallSearchResult? _searchResult;
   RecallSearchResult? get searchResult => _searchResult;
 
+  String? _currentQuery;
+  String? get currentQuery => _currentQuery;
+
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
+
+  List<RecallSearchHistory> _recentSearches = [];
+  List<RecallSearchHistory> get recentSearches => _recentSearches;
+
+  Future<void> loadRecentSearches(String bookId) async {
+    _isLoadingHistory = true;
+    notifyListeners();
+
+    try {
+      _recentSearches = await _recallService.getRecentSearches(bookId: bookId);
+    } catch (e) {
+      debugPrint('Failed to load recent searches: $e');
+    } finally {
+      _isLoadingHistory = false;
+      notifyListeners();
+    }
+  }
 
   Future<void> search(String bookId, String query) async {
     _isSearching = true;
     _searchResult = null;
     _errorMessage = null;
+    _currentQuery = query;
     notifyListeners();
 
     try {
@@ -29,6 +53,7 @@ class RecallViewModel extends ChangeNotifier {
 
       if (result != null) {
         _searchResult = result;
+        await loadRecentSearches(bookId);
       } else {
         _errorMessage = '검색 중 오류가 발생했습니다';
       }
@@ -41,8 +66,24 @@ class RecallViewModel extends ChangeNotifier {
     }
   }
 
+  void loadFromHistory(RecallSearchHistory history) {
+    _currentQuery = history.query;
+    _searchResult = history.toSearchResult();
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  Future<void> deleteHistory(String historyId, String bookId) async {
+    final success = await _recallService.deleteSearchHistory(historyId);
+    if (success) {
+      _recentSearches.removeWhere((h) => h.id == historyId);
+      notifyListeners();
+    }
+  }
+
   void clearResult() {
     _searchResult = null;
+    _currentQuery = null;
     _errorMessage = null;
     notifyListeners();
   }

@@ -1,22 +1,33 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_golas/domain/models/recall_models.dart';
+import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/recall/view_model/recall_view_model.dart';
 
 Future<void> showRecallSearchSheet({
   required BuildContext context,
   required String bookId,
+  RecallViewModel? existingViewModel,
 }) async {
   await showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (sheetContext) => ChangeNotifierProvider(
-      create: (_) => RecallViewModel(),
-      child: _RecallSearchSheetContent(bookId: bookId),
-    ),
+    builder: (sheetContext) {
+      if (existingViewModel != null) {
+        return ChangeNotifierProvider.value(
+          value: existingViewModel,
+          child: _RecallSearchSheetContent(bookId: bookId),
+        );
+      }
+      return ChangeNotifierProvider(
+        create: (_) => RecallViewModel()..loadRecentSearches(bookId),
+        child: _RecallSearchSheetContent(bookId: bookId),
+      );
+    },
   );
 }
 
@@ -38,7 +49,13 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNode.requestFocus();
+      final viewModel = context.read<RecallViewModel>();
+      if (viewModel.currentQuery != null) {
+        _controller.text = viewModel.currentQuery!;
+      }
+      if (viewModel.searchResult == null) {
+        _focusNode.requestFocus();
+      }
     });
   }
 
@@ -53,6 +70,16 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
     if (query.trim().isEmpty) return;
     FocusScope.of(context).unfocus();
     context.read<RecallViewModel>().search(widget.bookId, query.trim());
+  }
+
+  void _copyAnswer(String answer) {
+    Clipboard.setData(ClipboardData(text: answer));
+    CustomSnackbar.show(
+      context,
+      message: '답변이 복사되었습니다',
+      type: SnackbarType.success,
+      bottomOffset: 32,
+    );
   }
 
   @override
@@ -152,63 +179,11 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                 onChanged: (_) => setState(() {}),
               ),
             ),
-            if (!viewModel.isSearching && viewModel.searchResult == null)
-              _buildSuggestedQuestions(isDark),
             Expanded(
               child: _buildContent(viewModel, scrollController, isDark),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildSuggestedQuestions(bool isDark) {
-    final suggestions = [
-      '내가 가장 인상 깊게 본 부분은?',
-      '실천하려고 메모한 내용은?',
-      '저자의 핵심 메시지는?',
-      '내가 공감한 부분은?',
-    ];
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '추천 질문',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: isDark ? Colors.grey[300] : Colors.grey[700],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: suggestions.map((text) {
-              return ActionChip(
-                label: Text(
-                  text,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: isDark ? Colors.blue[200] : Colors.blue[700],
-                  ),
-                ),
-                backgroundColor: isDark
-                    ? Colors.blue.withValues(alpha: 0.2)
-                    : Colors.blue[50],
-                side: BorderSide.none,
-                onPressed: () {
-                  _controller.text = text;
-                  _search(text);
-                },
-              );
-            }).toList(),
-          ),
-        ],
       ),
     );
   }
@@ -260,13 +235,196 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
           viewModel.searchResult!, scrollController, isDark);
     }
 
-    return _buildEmptyState(isDark);
+    return _buildInitialContent(viewModel, scrollController, isDark);
+  }
+
+  Widget _buildInitialContent(RecallViewModel viewModel,
+      ScrollController scrollController, bool isDark) {
+    final hasRecentSearches = viewModel.recentSearches.isNotEmpty;
+
+    return ListView(
+      controller: scrollController,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      children: [
+        if (hasRecentSearches) ...[
+          _buildRecentSearchesSection(viewModel, isDark),
+          const SizedBox(height: 24),
+        ],
+        _buildSuggestedQuestions(isDark),
+        if (!hasRecentSearches) ...[
+          const SizedBox(height: 40),
+          _buildEmptyState(isDark),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildRecentSearchesSection(RecallViewModel viewModel, bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '최근 검색',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.grey[300] : Colors.grey[700],
+              ),
+            ),
+            if (viewModel.isLoadingHistory)
+              SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: isDark ? Colors.grey[500] : Colors.grey[400],
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        ...viewModel.recentSearches.take(5).map(
+              (history) => _buildRecentSearchItem(history, viewModel, isDark),
+            ),
+      ],
+    );
+  }
+
+  Widget _buildRecentSearchItem(
+      RecallSearchHistory history, RecallViewModel viewModel, bool isDark) {
+    return Dismissible(
+      key: Key(history.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 16),
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          color: Colors.red[400],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Icon(Icons.delete_outline, color: Colors.white),
+      ),
+      onDismissed: (_) => viewModel.deleteHistory(history.id, widget.bookId),
+      child: GestureDetector(
+        onTap: () {
+          _controller.text = history.query;
+          viewModel.loadFromHistory(history);
+        },
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF2C2C2E) : Colors.grey[100],
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.history,
+                size: 18,
+                color: isDark ? Colors.grey[500] : Colors.grey[400],
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      history.query,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _formatDate(history.createdAt),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? Colors.grey[600] : Colors.grey[400],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                CupertinoIcons.chevron_right,
+                size: 16,
+                color: isDark ? Colors.grey[600] : Colors.grey[400],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date);
+
+    if (diff.inMinutes < 1) return '방금 전';
+    if (diff.inHours < 1) return '${diff.inMinutes}분 전';
+    if (diff.inDays < 1) return '${diff.inHours}시간 전';
+    if (diff.inDays < 7) return '${diff.inDays}일 전';
+    return '${date.month}/${date.day}';
+  }
+
+  Widget _buildSuggestedQuestions(bool isDark) {
+    final suggestions = [
+      '내가 가장 인상 깊게 본 부분은?',
+      '실천하려고 메모한 내용은?',
+      '저자의 핵심 메시지는?',
+      '내가 공감한 부분은?',
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '추천 질문',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: isDark ? Colors.grey[300] : Colors.grey[700],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: suggestions.map((text) {
+            return ActionChip(
+              label: Text(
+                text,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isDark ? Colors.blue[200] : Colors.blue[700],
+                ),
+              ),
+              backgroundColor:
+                  isDark ? Colors.blue.withValues(alpha: 0.2) : Colors.blue[50],
+              side: BorderSide.none,
+              onPressed: () {
+                _controller.text = text;
+                _search(text);
+              },
+            );
+          }).toList(),
+        ),
+      ],
+    );
   }
 
   Widget _buildEmptyState(bool isDark) {
     return Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             Icons.search,
@@ -321,6 +479,39 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => _copyAnswer(result.answer),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.1)
+                            : Colors.black.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.copy_outlined,
+                            size: 14,
+                            color: isDark ? Colors.grey[300] : Colors.grey[600],
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '복사',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color:
+                                  isDark ? Colors.grey[300] : Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

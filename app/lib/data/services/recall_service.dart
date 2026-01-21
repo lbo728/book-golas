@@ -116,4 +116,43 @@ class RecallService {
       return null;
     }
   }
+
+  Future<List<RecallSearchHistory>> getRecentSearches({
+    required String bookId,
+    int limit = 10,
+  }) async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return [];
+
+      final response = await _supabase
+          .from('recall_search_history')
+          .select()
+          .eq('user_id', userId)
+          .eq('book_id', bookId)
+          .order('created_at', ascending: false)
+          .limit(limit);
+
+      return (response as List)
+          .map((json) =>
+              RecallSearchHistory.fromJson(json as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      debugPrint('🔴 Failed to get recent searches: $e');
+      return [];
+    }
+  }
+
+  Future<bool> deleteSearchHistory(String historyId) async {
+    try {
+      await _supabase
+          .from('recall_search_history')
+          .delete()
+          .eq('id', historyId);
+      return true;
+    } catch (e) {
+      debugPrint('🔴 Failed to delete search history: $e');
+      return false;
+    }
+  }
 }

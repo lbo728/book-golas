@@ -37,6 +37,7 @@ import 'widgets/sheets/pause_reading_confirmation_sheet.dart';
 import 'widgets/dialogs/edit_planned_book_dialog.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 import 'package:book_golas/ui/recall/widgets/recall_search_sheet.dart';
+import 'package:book_golas/ui/recall/view_model/recall_view_model.dart';
 import 'package:book_golas/data/services/recall_service.dart';
 
 class BookDetailScreen extends StatelessWidget {
@@ -69,6 +70,9 @@ class BookDetailScreen extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => ReadingProgressViewModel(bookId: book.id!),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => RecallViewModel()..loadRecentSearches(book.id!),
         ),
       ],
       child: _BookDetailContent(
@@ -1206,9 +1210,11 @@ class _BookDetailContentState extends State<_BookDetailContent>
   }
 
   void _showRecallSearchSheet(BookDetailViewModel bookVm) {
+    final recallVm = context.read<RecallViewModel>();
     showRecallSearchSheet(
       context: context,
       bookId: bookVm.currentBook.id!,
+      existingViewModel: recallVm,
     );
   }
 }
