@@ -9,6 +9,7 @@ import 'package:book_golas/ui/reading_chart/widgets/cards/monthly_books_chart.da
 import 'package:book_golas/ui/reading_chart/widgets/cards/annual_goal_card.dart';
 import 'package:book_golas/ui/reading_chart/widgets/cards/reading_streak_heatmap.dart';
 import 'package:book_golas/ui/reading_chart/widgets/sheets/reading_goal_sheet.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_tab_bar.dart';
 
 enum TimeFilter { daily, weekly, monthly }
 
@@ -294,21 +295,9 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
           fontWeight: FontWeight.w600,
           color: isDark ? Colors.white : Colors.black,
         ),
-        bottom: TabBar(
+        bottom: LiquidGlassTabBar(
           controller: _tabController,
-          labelColor: isDark ? Colors.white : Colors.black,
-          unselectedLabelColor: isDark ? Colors.grey[600] : Colors.grey[400],
-          indicatorColor: const Color(0xFF5B7FFF),
-          indicatorWeight: 3,
-          labelStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
-          ),
-          tabs: const [
-            Tab(text: '개요'),
-            Tab(text: '분석'),
-            Tab(text: '활동'),
-          ],
+          tabs: const ['개요', '분석', '활동'],
         ),
       ),
       body: SafeArea(

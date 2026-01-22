@@ -9,6 +9,7 @@ import 'package:book_golas/ui/book_list/widgets/book_list_skeleton.dart';
 import 'package:book_golas/ui/book_list/widgets/planned_book_card.dart';
 import 'package:book_golas/ui/book_list/widgets/paused_book_card.dart';
 import 'package:book_golas/ui/book_list/widgets/completed_book_card.dart';
+import 'package:book_golas/ui/core/widgets/scrollable_tab_bar.dart';
 
 class BookListScreen extends StatefulWidget {
   const BookListScreen({super.key});
@@ -109,51 +110,12 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   Widget _buildTabBar(BookListViewModel vm, bool isDark) {
-    final selectedTabIndex = vm.selectedTabIndex;
-    return Container(
-      color: isDark ? const Color(0xFF121212) : Colors.white,
-      child: SizedBox(
-        height: 50,
-        child: SingleChildScrollView(
-          controller: _tabScrollController,
-          scrollDirection: Axis.horizontal,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: 48,
-                child: Row(
-                  children: [
-                    _buildScrollableTabItem(
-                        '독서 중', 0, selectedTabIndex, isDark),
-                    _buildScrollableTabItem(
-                        '읽을 예정', 1, selectedTabIndex, isDark),
-                    _buildScrollableTabItem('완독', 2, selectedTabIndex, isDark),
-                    _buildScrollableTabItem(
-                        '다시 읽을 책', 3, selectedTabIndex, isDark),
-                    _buildScrollableTabItem('전체', 4, selectedTabIndex, isDark),
-                  ],
-                ),
-              ),
-              AnimatedBuilder(
-                animation: _tabController.animation!,
-                builder: (context, child) {
-                  const tabWidth = 100.0;
-                  final animationValue = _tabController.animation!.value;
-                  return Transform.translate(
-                    offset: Offset(tabWidth * animationValue, 0),
-                    child: Container(
-                      width: tabWidth,
-                      height: 2,
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
+    return ScrollableTabBar(
+      controller: _tabController,
+      scrollController: _tabScrollController,
+      selectedIndex: vm.selectedTabIndex,
+      tabs: const ['독서 중', '읽을 예정', '완독', '다시 읽을 책', '전체'],
+      onTabSelected: (index) => _scrollToSelectedTab(index),
     );
   }
 
@@ -175,34 +137,6 @@ class _BookListScreenState extends State<BookListScreen>
         _buildPausedBooksTab(vm, isDark),
         _buildAllBooksTab(vm, isDark),
       ],
-    );
-  }
-
-  Widget _buildScrollableTabItem(
-      String title, int index, int selectedTabIndex, bool isDark) {
-    final isSelected = selectedTabIndex == index;
-    return GestureDetector(
-      onTap: () {
-        _tabController.animateTo(index);
-        _scrollToSelectedTab(index);
-      },
-      child: SizedBox(
-        width: 100,
-        height: 48,
-        child: Center(
-          child: Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              color: isSelected
-                  ? (isDark ? Colors.white : Colors.black)
-                  : (isDark ? Colors.grey[400] : Colors.grey[600]),
-            ),
-          ),
-        ),
-      ),
     );
   }
 
