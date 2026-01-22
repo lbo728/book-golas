@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 enum BookStatus {
   planned('planned'),
   reading('reading'),
@@ -17,6 +19,9 @@ class BookSearchResult {
   final String? imageUrl;
   final int? totalPages;
   final String? isbn;
+  final String? genre;
+  final String? publisher;
+  final String? aladinUrl;
 
   BookSearchResult({
     required this.title,
@@ -24,6 +29,9 @@ class BookSearchResult {
     this.imageUrl,
     this.totalPages,
     this.isbn,
+    this.genre,
+    this.publisher,
+    this.aladinUrl,
   });
 
   factory BookSearchResult.fromJson(Map<String, dynamic> json) {
@@ -40,14 +48,25 @@ class BookSearchResult {
       }
     }
 
-    print('📖 책 파싱 완료 - 제목: ${json['title']}, 페이지: $parsedPages');
+    String? parsedGenre;
+    final categoryName = json['categoryName'] as String?;
+    if (categoryName != null && categoryName.isNotEmpty) {
+      final parts = categoryName.split('>');
+      parsedGenre = parts.length > 1 ? parts[1].trim() : parts.last.trim();
+    }
+
+    debugPrint(
+        '📖 책 파싱 완료 - 제목: ${json['title']}, 페이지: $parsedPages, 장르: $parsedGenre');
 
     return BookSearchResult(
       title: json['title'] ?? '',
       author: json['author'] ?? '',
       imageUrl: json['cover'],
       totalPages: parsedPages,
-      isbn: json['isbn'],
+      isbn: json['isbn13'] ?? json['isbn'],
+      genre: parsedGenre,
+      publisher: json['publisher'] as String?,
+      aladinUrl: json['link'] as String?,
     );
   }
 }
@@ -70,6 +89,13 @@ class Book {
   final DateTime? pausedAt;
   final DateTime? plannedStartDate;
   final DateTime? deletedAt;
+  final String? genre;
+  final String? publisher;
+  final String? isbn;
+  final int? rating;
+  final String? review;
+  final String? reviewLink;
+  final String? aladinUrl;
 
   Book({
     this.id,
@@ -89,6 +115,13 @@ class Book {
     this.pausedAt,
     this.plannedStartDate,
     this.deletedAt,
+    this.genre,
+    this.publisher,
+    this.isbn,
+    this.rating,
+    this.review,
+    this.reviewLink,
+    this.aladinUrl,
   });
 
   Book copyWith({
@@ -109,6 +142,13 @@ class Book {
     DateTime? pausedAt,
     DateTime? plannedStartDate,
     DateTime? deletedAt,
+    String? genre,
+    String? publisher,
+    String? isbn,
+    int? rating,
+    String? review,
+    String? reviewLink,
+    String? aladinUrl,
   }) {
     return Book(
       id: id ?? this.id,
@@ -128,6 +168,13 @@ class Book {
       pausedAt: pausedAt ?? this.pausedAt,
       plannedStartDate: plannedStartDate ?? this.plannedStartDate,
       deletedAt: deletedAt ?? this.deletedAt,
+      genre: genre ?? this.genre,
+      publisher: publisher ?? this.publisher,
+      isbn: isbn ?? this.isbn,
+      rating: rating ?? this.rating,
+      review: review ?? this.review,
+      reviewLink: reviewLink ?? this.reviewLink,
+      aladinUrl: aladinUrl ?? this.aladinUrl,
     );
   }
 
@@ -151,6 +198,13 @@ class Book {
       if (plannedStartDate != null)
         'planned_start_date': plannedStartDate!.toIso8601String(),
       if (deletedAt != null) 'deleted_at': deletedAt!.toIso8601String(),
+      if (genre != null) 'genre': genre,
+      if (publisher != null) 'publisher': publisher,
+      if (isbn != null) 'isbn': isbn,
+      if (rating != null) 'rating': rating,
+      if (review != null) 'review': review,
+      if (reviewLink != null) 'review_link': reviewLink,
+      if (aladinUrl != null) 'aladin_url': aladinUrl,
     };
   }
 
@@ -182,6 +236,13 @@ class Book {
       deletedAt: json['deleted_at'] != null
           ? DateTime.parse(json['deleted_at'])
           : null,
+      genre: json['genre'] as String?,
+      publisher: json['publisher'] as String?,
+      isbn: json['isbn'] as String?,
+      rating: json['rating'] as int?,
+      review: json['review'] as String?,
+      reviewLink: json['review_link'] as String?,
+      aladinUrl: json['aladin_url'] as String?,
     );
   }
 }
