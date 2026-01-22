@@ -1,0 +1,1 @@
+ALTER TABLE fcm_tokens ADD COLUMN IF NOT EXISTS preferred_minute INTEGER DEFAULT 0;

@@ -27,7 +27,6 @@ CREATE INDEX idx_books_paused_at ON books(paused_at)
 CREATE INDEX idx_books_deleted_at ON books(deleted_at) 
   WHERE deleted_at IS NOT NULL;
 
--- 쿼리 성능을 위한 복합 인덱스
 CREATE INDEX idx_books_user_status_deleted ON books(user_id, status, deleted_at);
 
 COMMENT ON COLUMN books.priority IS '우선순위 (1=긴급, 2=높음, 3=보통, 4=낮음)';
