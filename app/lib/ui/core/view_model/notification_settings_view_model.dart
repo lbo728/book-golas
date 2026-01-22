@@ -7,6 +7,7 @@ class NotificationSettingsViewModel extends BaseViewModel {
 
   NotificationSettings _settings = NotificationSettings(
     preferredHour: 9,
+    preferredMinute: 0,
     notificationEnabled: true,
   );
 
@@ -30,17 +31,26 @@ class NotificationSettingsViewModel extends BaseViewModel {
   }
 
   Future<bool> updatePreferredHour(int hour) async {
+    return updatePreferredTime(hour, _settings.preferredMinute);
+  }
+
+  Future<bool> updatePreferredTime(int hour, int minute) async {
     if (hour < 0 || hour > 23) {
       setError('Invalid hour: must be 0-23');
+      return false;
+    }
+    if (minute < 0 || minute > 59) {
+      setError('Invalid minute: must be 0-59');
       return false;
     }
 
     setLoading(true);
     clearError();
     try {
-      final success = await _repository.updatePreferredHour(hour);
+      final success = await _repository.updatePreferredTime(hour, minute);
       if (success) {
-        _settings = _settings.copyWith(preferredHour: hour);
+        _settings =
+            _settings.copyWith(preferredHour: hour, preferredMinute: minute);
         notifyListeners();
       }
       return success;
@@ -72,9 +82,22 @@ class NotificationSettingsViewModel extends BaseViewModel {
 
   String getFormattedTime() {
     final hour = _settings.preferredHour;
-    if (hour == 0) return '오전 12시';
-    if (hour < 12) return '오전 $hour시';
-    if (hour == 12) return '오후 12시';
-    return '오후 ${hour - 12}시';
+    final minute = _settings.preferredMinute;
+
+    String hourStr;
+    if (hour == 0) {
+      hourStr = '오전 12시';
+    } else if (hour < 12) {
+      hourStr = '오전 $hour시';
+    } else if (hour == 12) {
+      hourStr = '오후 12시';
+    } else {
+      hourStr = '오후 ${hour - 12}시';
+    }
+
+    if (minute == 0) {
+      return hourStr;
+    }
+    return '$hourStr $minute분';
   }
 }
