@@ -496,14 +496,19 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   Widget _buildBookCardByStatus(Book book, bool isDark) {
+    final isCompleted = book.status == 'completed' ||
+        (book.currentPage >= book.totalPages && book.totalPages > 0);
+
+    if (isCompleted) {
+      return CompletedBookCard(
+        book: book,
+        onTap: () => _navigateToBookDetail(book),
+      );
+    }
+
     switch (book.status) {
       case 'planned':
         return PlannedBookCard(
-          book: book,
-          onTap: () => _navigateToBookDetail(book),
-        );
-      case 'completed':
-        return CompletedBookCard(
           book: book,
           onTap: () => _navigateToBookDetail(book),
         );
