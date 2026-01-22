@@ -161,21 +161,34 @@ class AuthService {
   }
 
   Future<void> uploadAvatar(File file) async {
-    final userId = _currentUser?.id;
-    if (userId == null) return;
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) {
+      throw Exception('User not logged in');
+    }
+
     final filePath = '$userId/avatar.png';
+    debugPrint('🖼️ [Avatar] Uploading to: $filePath');
+
     await _supabase.storage.from('avatars').upload(
           filePath,
           file,
           fileOptions: const FileOptions(upsert: true),
         );
+    debugPrint('🖼️ [Avatar] Upload complete');
 
     final baseUrl = _supabase.storage.from('avatars').getPublicUrl(filePath);
     final urlWithBust = '$baseUrl?ts=${DateTime.now().millisecondsSinceEpoch}';
+    debugPrint('🖼️ [Avatar] URL: $urlWithBust');
 
     await _supabase
         .from('users')
         .update({'avatar_url': urlWithBust}).eq('id', userId);
+    debugPrint('🖼️ [Avatar] Updated users table');
+
+    await _supabase.auth.updateUser(
+      UserAttributes(data: {'avatar_url': urlWithBust}),
+    );
+    debugPrint('🖼️ [Avatar] Updated auth metadata');
 
     await fetchCurrentUser();
   }
