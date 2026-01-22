@@ -400,7 +400,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
               crossAxisCount: 2,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
-              childAspectRatio: 1.5,
+              childAspectRatio: 1.3,
               children: [
                 _buildStatCard(
                   '총 읽은 페이지',
@@ -494,12 +494,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     int streak,
     int currentYear,
   ) {
-    final spots = aggregated.asMap().entries.map((entry) {
-      final idx = entry.key;
-      final cumulativePage = entry.value['cumulative_page'] as int;
-      return FlSpot(idx.toDouble(), cumulativePage.toDouble());
-    }).toList();
-
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -563,7 +557,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
-              '누적 페이지 차트',
+              '독서 진행 차트',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
@@ -571,126 +565,52 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10B981),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  '일별 페이지',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Container(
+                  width: 12,
+                  height: 3,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF5B7FFF),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  '누적 페이지',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
           if (aggregated.isEmpty)
             _buildEmptyChartState(isDark)
           else
-            Container(
-              height: 300,
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
-                ),
-              ),
-              child: LineChart(
-                LineChartData(
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: spots,
-                      isCurved: true,
-                      color: Colors.blue,
-                      barWidth: 3,
-                      dotData: FlDotData(
-                        show: true,
-                        getDotPainter: (spot, percent, barData, index) {
-                          return FlDotCirclePainter(
-                            radius: 4,
-                            color: Colors.blue,
-                            strokeWidth: 2,
-                            strokeColor: Colors.white,
-                          );
-                        },
-                      ),
-                      belowBarData: BarAreaData(
-                        show: true,
-                        color: Colors.blue.withValues(alpha: 0.1),
-                      ),
-                    ),
-                  ],
-                  titlesData: FlTitlesData(
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 50,
-                        getTitlesWidget: (value, meta) {
-                          return Text(
-                            value.toInt().toString(),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color:
-                                  isDark ? Colors.grey[400] : Colors.grey[600],
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 32,
-                        getTitlesWidget: (value, meta) {
-                          final idx = value.toInt();
-                          if (idx < 0 || idx >= aggregated.length) {
-                            return const SizedBox();
-                          }
-                          final date = aggregated[idx]['date'] as DateTime;
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Text(
-                              _formatDate(date, _selectedFilter),
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: isDark
-                                    ? Colors.grey[400]
-                                    : Colors.grey[600],
-                              ),
-                            ),
-                          );
-                        },
-                        interval: (aggregated.length / 5)
-                            .ceilToDouble()
-                            .clamp(1, 999),
-                      ),
-                    ),
-                  ),
-                  gridData: FlGridData(
-                    show: true,
-                    drawVerticalLine: false,
-                    horizontalInterval: null,
-                    getDrawingHorizontalLine: (value) {
-                      return FlLine(
-                        color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
-                        strokeWidth: 1,
-                      );
-                    },
-                  ),
-                  borderData: FlBorderData(
-                    show: true,
-                    border: Border(
-                      bottom: BorderSide(
-                        color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
-                        width: 1,
-                      ),
-                      left: BorderSide(
-                        color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
-                        width: 1,
-                      ),
-                    ),
-                  ),
-                  minY: 0,
-                ),
-              ),
-            ),
+            _buildCombinationChart(isDark, aggregated),
           const SizedBox(height: 32),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -887,6 +807,197 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildCombinationChart(
+      bool isDark, List<Map<String, dynamic>> aggregated) {
+    final maxDaily = aggregated
+        .map((e) => e['daily_page'] as int)
+        .reduce((a, b) => a > b ? a : b);
+    final maxCumulative = aggregated.last['cumulative_page'] as int;
+
+    final barGroups = aggregated.asMap().entries.map((entry) {
+      final idx = entry.key;
+      final dailyPage = entry.value['daily_page'] as int;
+      final normalizedDaily = maxCumulative > 0
+          ? (dailyPage / maxDaily) * maxCumulative * 0.3
+          : 0.0;
+      return BarChartGroupData(
+        x: idx,
+        barRods: [
+          BarChartRodData(
+            toY: normalizedDaily,
+            color: const Color(0xFF10B981).withValues(alpha: 0.7),
+            width: aggregated.length > 30 ? 4 : 8,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(2),
+              topRight: Radius.circular(2),
+            ),
+          ),
+        ],
+      );
+    }).toList();
+
+    final lineSpots = aggregated.asMap().entries.map((entry) {
+      final idx = entry.key;
+      final cumulativePage = entry.value['cumulative_page'] as int;
+      return FlSpot(idx.toDouble(), cumulativePage.toDouble());
+    }).toList();
+
+    return Container(
+      height: 300,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+        ),
+      ),
+      child: Stack(
+        children: [
+          BarChart(
+            BarChartData(
+              barGroups: barGroups,
+              titlesData: FlTitlesData(
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 50,
+                    getTitlesWidget: (value, meta) {
+                      return Text(
+                        value.toInt().toString(),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 32,
+                    getTitlesWidget: (value, meta) {
+                      final idx = value.toInt();
+                      if (idx < 0 || idx >= aggregated.length) {
+                        return const SizedBox();
+                      }
+                      final date = aggregated[idx]['date'] as DateTime;
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          _formatDate(date, _selectedFilter),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          ),
+                        ),
+                      );
+                    },
+                    interval:
+                        (aggregated.length / 5).ceilToDouble().clamp(1, 999),
+                  ),
+                ),
+              ),
+              gridData: FlGridData(
+                show: true,
+                drawVerticalLine: false,
+                getDrawingHorizontalLine: (value) {
+                  return FlLine(
+                    color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                    strokeWidth: 1,
+                  );
+                },
+              ),
+              borderData: FlBorderData(
+                show: true,
+                border: Border(
+                  bottom: BorderSide(
+                    color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                    width: 1,
+                  ),
+                  left: BorderSide(
+                    color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                    width: 1,
+                  ),
+                ),
+              ),
+              maxY: maxCumulative.toDouble() * 1.1,
+              minY: 0,
+              barTouchData: BarTouchData(enabled: false),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 50, bottom: 32),
+            child: LineChart(
+              LineChartData(
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: lineSpots,
+                    isCurved: true,
+                    color: const Color(0xFF5B7FFF),
+                    barWidth: 3,
+                    dotData: FlDotData(
+                      show: aggregated.length <= 30,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 3,
+                          color: const Color(0xFF5B7FFF),
+                          strokeWidth: 2,
+                          strokeColor: Colors.white,
+                        );
+                      },
+                    ),
+                    belowBarData: BarAreaData(show: false),
+                  ),
+                ],
+                titlesData: const FlTitlesData(show: false),
+                gridData: const FlGridData(show: false),
+                borderData: FlBorderData(show: false),
+                maxY: maxCumulative.toDouble() * 1.1,
+                minY: 0,
+                minX: 0,
+                maxX: (aggregated.length - 1).toDouble(),
+                lineTouchData: LineTouchData(
+                  enabled: true,
+                  touchTooltipData: LineTouchTooltipData(
+                    getTooltipItems: (touchedSpots) {
+                      return touchedSpots.map((spot) {
+                        final idx = spot.x.toInt();
+                        if (idx >= 0 && idx < aggregated.length) {
+                          final dailyPage =
+                              aggregated[idx]['daily_page'] as int;
+                          final cumulativePage =
+                              aggregated[idx]['cumulative_page'] as int;
+                          return LineTooltipItem(
+                            '일별: ${dailyPage}p\n누적: ${cumulativePage}p',
+                            const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          );
+                        }
+                        return null;
+                      }).toList();
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

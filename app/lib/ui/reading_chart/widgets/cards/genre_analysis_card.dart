@@ -122,92 +122,79 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
             ),
             const SizedBox(height: 24),
             SizedBox(
-              height: 200,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: PieChart(
-                      PieChartData(
-                        pieTouchData: PieTouchData(
-                          touchCallback: (event, pieTouchResponse) {
-                            setState(() {
-                              if (!event.isInterestedForInteractions ||
-                                  pieTouchResponse == null ||
-                                  pieTouchResponse.touchedSection == null) {
-                                touchedIndex = -1;
-                                return;
-                              }
-                              touchedIndex = pieTouchResponse
-                                  .touchedSection!.touchedSectionIndex;
-                            });
-                          },
-                        ),
-                        borderData: FlBorderData(show: false),
-                        sectionsSpace: 2,
-                        centerSpaceRadius: 40,
-                        sections: _generateSections(sortedEntries, total),
+              height: 180,
+              child: Center(
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: PieChart(
+                    PieChartData(
+                      pieTouchData: PieTouchData(
+                        touchCallback: (event, pieTouchResponse) {
+                          setState(() {
+                            if (!event.isInterestedForInteractions ||
+                                pieTouchResponse == null ||
+                                pieTouchResponse.touchedSection == null) {
+                              touchedIndex = -1;
+                              return;
+                            }
+                            touchedIndex = pieTouchResponse
+                                .touchedSection!.touchedSectionIndex;
+                          });
+                        },
                       ),
+                      borderData: FlBorderData(show: false),
+                      sectionsSpace: 2,
+                      centerSpaceRadius: 35,
+                      sections: _generateSections(sortedEntries, total),
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: sortedEntries
-                        .take(5)
-                        .toList()
-                        .asMap()
-                        .entries
-                        .map((entry) {
-                      final index = entry.key;
-                      final genre = entry.value.key;
-                      final count = entry.value.value;
-                      final percentage =
-                          ((count / total) * 100).toStringAsFixed(0);
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 16,
+                runSpacing: 8,
+                children:
+                    sortedEntries.take(5).toList().asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final genre = entry.value.key;
+                  final count = entry.value.value;
+                  final percentage = ((count / total) * 100).toStringAsFixed(0);
 
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 12,
-                              height: 12,
-                              decoration: BoxDecoration(
-                                color:
-                                    _chartColors[index % _chartColors.length],
-                                borderRadius: BorderRadius.circular(3),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            SizedBox(
-                              width: 80,
-                              child: Text(
-                                genre.length > 8
-                                    ? '${genre.substring(0, 8)}...'
-                                    : genre,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: isDark
-                                      ? Colors.grey[400]
-                                      : Colors.grey[700],
-                                ),
-                              ),
-                            ),
-                            Text(
-                              '$percentage%',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: isDark ? Colors.white : Colors.black87,
-                              ),
-                            ),
-                          ],
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: _chartColors[index % _chartColors.length],
+                          borderRadius: BorderRadius.circular(2),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                ],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        genre.length > 6 ? '${genre.substring(0, 6)}..' : genre,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: isDark ? Colors.grey[400] : Colors.grey[700],
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      Text(
+                        '$percentage%',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white70 : Colors.black54,
+                        ),
+                      ),
+                    ],
+                  );
+                }).toList(),
               ),
             ),
             const SizedBox(height: 16),
