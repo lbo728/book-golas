@@ -7,6 +7,8 @@ abstract class NotificationSettingsRepository {
 
   Future<bool> updatePreferredHour(int hour);
 
+  Future<bool> updatePreferredTime(int hour, int minute);
+
   Future<bool> updateNotificationEnabled(bool enabled);
 }
 
@@ -25,6 +27,10 @@ class NotificationSettingsRepositoryImpl
   @override
   Future<bool> updatePreferredHour(int hour) =>
       _service.updatePreferredHour(hour);
+
+  @override
+  Future<bool> updatePreferredTime(int hour, int minute) =>
+      _service.updatePreferredTime(hour, minute);
 
   @override
   Future<bool> updateNotificationEnabled(bool enabled) =>
