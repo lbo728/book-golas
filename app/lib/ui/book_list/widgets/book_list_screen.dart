@@ -20,11 +20,13 @@ class BookListScreen extends StatefulWidget {
 class _BookListScreenState extends State<BookListScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late ScrollController _tabScrollController;
   bool _isRefreshing = false;
 
   @override
   void initState() {
     super.initState();
+    _tabScrollController = ScrollController();
     final vm = context.read<BookListViewModel>();
     _tabController = TabController(
         length: 5, vsync: this, initialIndex: vm.selectedTabIndex);
@@ -41,13 +43,34 @@ class _BookListScreenState extends State<BookListScreen>
     final vm = context.read<BookListViewModel>();
     if (_tabController.index != vm.selectedTabIndex) {
       _tabController.animateTo(vm.selectedTabIndex);
+      _scrollToSelectedTab(vm.selectedTabIndex);
     }
+  }
+
+  void _scrollToSelectedTab(int index) {
+    if (!_tabScrollController.hasClients) return;
+
+    const tabWidth = 100.0;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final targetOffset =
+        (index * tabWidth) - (screenWidth / 2) + (tabWidth / 2);
+    final clampedOffset = targetOffset.clamp(
+      0.0,
+      _tabScrollController.position.maxScrollExtent,
+    );
+
+    _tabScrollController.animateTo(
+      clampedOffset,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   @override
   void dispose() {
     context.read<BookListViewModel>().removeListener(_syncTabController);
     _tabController.dispose();
+    _tabScrollController.dispose();
     super.dispose();
   }
 
@@ -92,6 +115,7 @@ class _BookListScreenState extends State<BookListScreen>
       child: SizedBox(
         height: 50,
         child: SingleChildScrollView(
+          controller: _tabScrollController,
           scrollDirection: Axis.horizontal,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,14 +124,14 @@ class _BookListScreenState extends State<BookListScreen>
                 height: 48,
                 child: Row(
                   children: [
-                    _buildScrollableTabItem('전체', 0, selectedTabIndex, isDark),
+                    _buildScrollableTabItem(
+                        '독서 중', 0, selectedTabIndex, isDark),
                     _buildScrollableTabItem(
                         '읽을 예정', 1, selectedTabIndex, isDark),
+                    _buildScrollableTabItem('완독', 2, selectedTabIndex, isDark),
                     _buildScrollableTabItem(
-                        '독서 중', 2, selectedTabIndex, isDark),
-                    _buildScrollableTabItem('완독', 3, selectedTabIndex, isDark),
-                    _buildScrollableTabItem(
-                        '다시 읽을 책', 4, selectedTabIndex, isDark),
+                        '다시 읽을 책', 3, selectedTabIndex, isDark),
+                    _buildScrollableTabItem('전체', 4, selectedTabIndex, isDark),
                   ],
                 ),
               ),
@@ -145,11 +169,11 @@ class _BookListScreenState extends State<BookListScreen>
     return TabBarView(
       controller: _tabController,
       children: [
-        _buildAllBooksTab(vm, isDark),
-        _buildPlannedBooksTab(vm, isDark),
         _buildReadingBooksTab(vm, isDark),
+        _buildPlannedBooksTab(vm, isDark),
         _buildCompletedBooksTab(vm, isDark),
         _buildPausedBooksTab(vm, isDark),
+        _buildAllBooksTab(vm, isDark),
       ],
     );
   }
@@ -158,7 +182,10 @@ class _BookListScreenState extends State<BookListScreen>
       String title, int index, int selectedTabIndex, bool isDark) {
     final isSelected = selectedTabIndex == index;
     return GestureDetector(
-      onTap: () => _tabController.animateTo(index),
+      onTap: () {
+        _tabController.animateTo(index);
+        _scrollToSelectedTab(index);
+      },
       child: SizedBox(
         width: 100,
         height: 48,
