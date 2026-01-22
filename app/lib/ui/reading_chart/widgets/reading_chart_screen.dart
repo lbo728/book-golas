@@ -15,6 +15,13 @@ enum TimeFilter { daily, weekly, monthly }
 class ReadingChartScreen extends StatefulWidget {
   const ReadingChartScreen({super.key});
 
+  static final GlobalKey<_ReadingChartScreenState> globalKey =
+      GlobalKey<_ReadingChartScreenState>();
+
+  static void cycleToNextTab() {
+    globalKey.currentState?.cycleToNextTab();
+  }
+
   @override
   State<ReadingChartScreen> createState() => _ReadingChartScreenState();
 }
@@ -46,6 +53,11 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  void cycleToNextTab() {
+    final nextIndex = (_tabController.index + 1) % 3;
+    _tabController.animateTo(nextIndex);
   }
 
   Future<void> _loadData() async {
@@ -352,18 +364,13 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     final streak = _calculateStreak(aggregated);
     final currentYear = DateTime.now().year;
 
-    return AnimatedBuilder(
-      animation: _tabController,
-      builder: (context, _) {
-        return IndexedStack(
-          index: _tabController.index,
-          children: [
-            _buildOverviewTab(isDark, stats, streak, currentYear),
-            _buildAnalysisTab(isDark, currentYear, stats, streak),
-            _buildActivityTab(isDark, aggregated, streak, currentYear),
-          ],
-        );
-      },
+    return TabBarView(
+      controller: _tabController,
+      children: [
+        _buildOverviewTab(isDark, stats, streak, currentYear),
+        _buildAnalysisTab(isDark, currentYear, stats, streak),
+        _buildActivityTab(isDark, aggregated, streak, currentYear),
+      ],
     );
   }
 
@@ -415,6 +422,11 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          GenreAnalysisCard(
+            genreDistribution: _genreDistribution,
+            topGenreMessage: genreMessage,
+          ),
+          const SizedBox(height: 16),
           Text(
             '독서 통계',
             style: TextStyle(
@@ -481,11 +493,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 },
               ),
             ],
-          ),
-          const SizedBox(height: 24),
-          GenreAnalysisCard(
-            genreDistribution: _genreDistribution,
-            topGenreMessage: genreMessage,
           ),
         ],
       ),

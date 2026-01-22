@@ -46,7 +46,6 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
     }
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -289,7 +288,6 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
 
   Widget _buildEmptyState(bool isDark) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,

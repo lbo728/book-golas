@@ -574,7 +574,7 @@ class _MainScreenState extends State<MainScreen>
             _addMemorablePageCallback = addMemorable;
           },
         ),
-        const ReadingChartScreen(),
+        ReadingChartScreen(key: ReadingChartScreen.globalKey),
         const CalendarScreen(),
         const MyPageScreen(),
       ];
@@ -583,6 +583,9 @@ class _MainScreenState extends State<MainScreen>
     if (index == 0 && _selectedIndex == 0) {
       HapticFeedback.lightImpact();
       context.read<BookListViewModel>().cycleToNextTab();
+    } else if (index == 1 && _selectedIndex == 1) {
+      HapticFeedback.lightImpact();
+      ReadingChartScreen.cycleToNextTab();
     } else {
       setState(() {
         _selectedIndex = index;

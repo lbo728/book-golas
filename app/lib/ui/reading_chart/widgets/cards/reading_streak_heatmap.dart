@@ -25,7 +25,6 @@ class ReadingStreakHeatmap extends StatelessWidget {
     final totalPages = dailyPages.values.fold(0, (a, b) => a + b);
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(20),

@@ -39,7 +39,6 @@ class AnnualGoalCard extends StatelessWidget {
     final isAhead = completedBooks >= expectedBooks;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         gradient: isAchieved
             ? LinearGradient(
@@ -229,7 +228,6 @@ class AnnualGoalCard extends StatelessWidget {
 
   Widget _buildNoGoalState(BuildContext context, bool isDark) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,

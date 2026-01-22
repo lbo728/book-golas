@@ -37,7 +37,6 @@ class MonthlyBooksChart extends StatelessWidget {
         : (monthlyData.values.reduce((a, b) => a > b ? a : b) + 2).toDouble();
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(20),
