@@ -315,8 +315,7 @@ class ReadingProgressService {
           .select('genre')
           .eq('user_id', userId)
           .eq('status', 'completed')
-          .isFilter('deleted_at', null)
-          .not('genre', 'is', null);
+          .isFilter('deleted_at', null);
 
       if (year != null) {
         final startOfYear = DateTime(year, 1, 1);
@@ -334,6 +333,8 @@ class ReadingProgressService {
         if (genre != null && genre.isNotEmpty) {
           final mainGenre = _extractMainGenre(genre);
           genreCount[mainGenre] = (genreCount[mainGenre] ?? 0) + 1;
+        } else {
+          genreCount['미분류'] = (genreCount['미분류'] ?? 0) + 1;
         }
       }
 
@@ -354,6 +355,10 @@ class ReadingProgressService {
   String getTopGenreMessage(Map<String, int> genreDistribution) {
     if (genreDistribution.isEmpty) {
       return '아직 완독한 책이 없어요. 첫 책을 완독해보세요!';
+    }
+
+    if (genreDistribution.length == 1 && genreDistribution.containsKey('미분류')) {
+      return '다양한 책을 읽고 계시네요! 장르가 등록되면 더 정확한 분석이 가능해요.';
     }
 
     final sortedGenres = genreDistribution.entries.toList()
@@ -419,6 +424,11 @@ class ReadingProgressService {
         '재미와 감동을 동시에 즐기는 분',
         '그림으로 이야기를 읽는 독자',
         '만화의 매력을 아는 분',
+      ],
+      '미분류': [
+        '다양한 분야를 섭렵하는 중!',
+        '장르를 가리지 않는 독서가',
+        '책이라면 다 좋아하시는 분',
       ],
     };
 
