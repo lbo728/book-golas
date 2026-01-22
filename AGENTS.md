@@ -357,3 +357,67 @@ supabase secrets set OPENAI_API_KEY=sk-...
 ```
 
 **WARNING**: Production Supabase에 직접 migration이나 function 배포하지 마라. main 브랜치 CI를 통해서만 배포해라.
+
+### Database Migration Guidelines (CRITICAL)
+
+#### Migration File Naming
+```
+supabase/migrations/YYYYMMDD_description.sql
+```
+- 날짜 형식: `YYYYMMDD` (예: `20260122`)
+- 설명: `snake_case`, 소문자 (예: `create_users_table`, `add_email_to_profiles`)
+
+#### Migration Workflow
+
+```
+1. 로컬에서 마이그레이션 파일 생성
+   └── supabase/migrations/20260122_add_new_column.sql
+
+2. Dev DB에 적용
+   └── supabase link --project-ref reoiqefoymdsqzpbouxi
+   └── supabase db push
+
+3. 코드 작성 및 테스트
+
+4. feature → daily → dev 머지
+   └── CI가 자동으로 Dev DB에 마이그레이션 적용
+
+5. dev → main 머지 (Production 배포)
+   └── CI가 자동으로 Prod DB에 마이그레이션 적용
+```
+
+#### CI/CD Migration Automation
+
+| Branch | Target DB | Action |
+|--------|-----------|--------|
+| `dev` | supabase-dev (`reoiqefoymdsqzpbouxi`) | `supabase db push` 자동 실행 |
+| `main` | supabase-prod (`enyxrgxixrnoazzgqyyd`) | `supabase db push` 자동 실행 |
+
+**Required GitHub Secrets:**
+- `SUPABASE_ACCESS_TOKEN` - Supabase Personal Access Token
+- `SUPABASE_PROJECT_REF_DEV` - Dev project ref (`reoiqefoymdsqzpbouxi`)
+- `SUPABASE_PROJECT_REF_PROD` - Prod project ref (`enyxrgxixrnoazzgqyyd`)
+
+#### Dangerous Operations Warning
+
+다음 SQL 명령어는 CI에서 경고 또는 차단됩니다:
+
+| Command | Level | 설명 |
+|---------|-------|------|
+| `DROP TABLE` | ⚠️ Warning | 테이블 삭제 - 의도 확인 필요 |
+| `DROP COLUMN` | ⚠️ Warning | 컬럼 삭제 - 데이터 마이그레이션 확인 필요 |
+| `ALTER...TYPE` | ⚠️ Warning | 타입 변경 - 데이터 호환성 확인 필요 |
+| `TRUNCATE` | ❌ Error | 데이터 전체 삭제 - CI 차단 |
+
+#### Rollback Strategy
+
+마이그레이션 롤백이 필요한 경우:
+
+```sql
+-- 롤백 SQL 예시 (별도 파일로 보관 권장)
+-- rollback/20260122_add_new_column.sql
+
+ALTER TABLE books DROP COLUMN IF EXISTS new_column;
+```
+
+**주의**: Supabase는 자동 롤백을 지원하지 않음. 문제 발생 시 수동으로 롤백 SQL 실행 필요.
