@@ -10,6 +10,11 @@ jobs:
   migrate-database:
     name: Apply Database Migrations (Production)
     runs-on: ubuntu-latest
+    environment:
+      name: production
+      # GitHub Settings → Environments → production에서:
+      # - Required reviewers 설정 (배포 전 수동 승인)
+      # - Deployment branches: main only
 
     steps:
       - name: Checkout repository
