@@ -304,4 +304,231 @@ class ReadingProgressService {
       return {};
     }
   }
+
+  Future<Map<String, int>> getGenreDistribution({int? year}) async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return {};
+
+      var query = _supabase
+          .from('books')
+          .select('genre')
+          .eq('user_id', userId)
+          .eq('status', 'completed')
+          .isFilter('deleted_at', null);
+
+      if (year != null) {
+        final startOfYear = DateTime(year, 1, 1);
+        final endOfYear = DateTime(year, 12, 31, 23, 59, 59);
+        query = query
+            .gte('updated_at', startOfYear.toIso8601String())
+            .lte('updated_at', endOfYear.toIso8601String());
+      }
+
+      final response = await query;
+
+      final Map<String, int> genreCount = {};
+      for (final book in response as List) {
+        final genre = book['genre'] as String?;
+        if (genre != null && genre.isNotEmpty) {
+          final mainGenre = _extractMainGenre(genre);
+          genreCount[mainGenre] = (genreCount[mainGenre] ?? 0) + 1;
+        } else {
+          genreCount['미분류'] = (genreCount['미분류'] ?? 0) + 1;
+        }
+      }
+
+      return genreCount;
+    } catch (e) {
+      debugPrint('장르 분포 조회 실패: $e');
+      return {};
+    }
+  }
+
+  String _extractMainGenre(String genre) {
+    if (genre.contains('>')) {
+      return genre.split('>').first.trim();
+    }
+    return genre.trim();
+  }
+
+  String getTopGenreMessage(Map<String, int> genreDistribution) {
+    if (genreDistribution.isEmpty) {
+      return '아직 완독한 책이 없어요. 첫 책을 완독해보세요!';
+    }
+
+    if (genreDistribution.length == 1 && genreDistribution.containsKey('미분류')) {
+      return '다양한 책을 읽고 계시네요! 장르가 등록되면 더 정확한 분석이 가능해요.';
+    }
+
+    final sortedGenres = genreDistribution.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    final topGenre = sortedGenres.first.key;
+    final topCount = sortedGenres.first.value;
+
+    final messages = _getGenreMessages(topGenre);
+    final messageIndex = topCount % messages.length;
+
+    return messages[messageIndex];
+  }
+
+  List<String> _getGenreMessages(String genre) {
+    final genreMessages = {
+      '소설': [
+        '당신은 문학 소년이군요!',
+        '이야기 속에서 살고 있는 당신',
+        '소설의 세계에 푹 빠진 독서가',
+      ],
+      '문학': [
+        '당신은 문학 소년이군요!',
+        '문학의 깊이를 아는 독자',
+        '글의 아름다움을 즐기는 분',
+      ],
+      '자기계발': [
+        '끊임없이 성장하는 당신!',
+        '발전을 멈추지 않는 독서가',
+        '더 나은 내일을 준비하는 중',
+      ],
+      '경제경영': [
+        '비즈니스 마인드가 뛰어나시네요!',
+        '성공을 향해 달려가는 중',
+        '미래의 CEO 감이에요',
+      ],
+      '인문학': [
+        '깊이 있는 사색을 즐기시는군요',
+        '철학적 사유를 즐기는 독자',
+        '인간과 세상을 탐구하는 분',
+      ],
+      '과학': [
+        '호기심 많은 탐험가시네요!',
+        '세상의 원리를 파헤치는 중',
+        '과학적 사고의 소유자',
+      ],
+      '역사': [
+        '역사에서 지혜를 찾는 분이시네요',
+        '과거를 통해 미래를 보는 눈',
+        '역사 덕후의 기질이 보여요',
+      ],
+      '에세이': [
+        '삶의 이야기에 공감하시는 분',
+        '일상 속 의미를 찾는 독자',
+        '따뜻한 감성의 소유자',
+      ],
+      '시': [
+        '감성이 풍부한 시인의 영혼',
+        '언어의 아름다움을 아는 분',
+        '시적 감수성이 뛰어나시네요',
+      ],
+      '만화': [
+        '재미와 감동을 동시에 즐기는 분',
+        '그림으로 이야기를 읽는 독자',
+        '만화의 매력을 아는 분',
+      ],
+      '미분류': [
+        '다양한 분야를 섭렵하는 중!',
+        '장르를 가리지 않는 독서가',
+        '책이라면 다 좋아하시는 분',
+      ],
+    };
+
+    return genreMessages[genre] ??
+        [
+          '$genre 분야의 전문가시네요!',
+          '$genre에 깊은 관심을 가지신 분',
+          '$genre 마니아의 기질이 보여요',
+        ];
+  }
+
+  Future<Map<int, int>> getMonthlyBookCount({int? year}) async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return {};
+
+      final targetYear = year ?? DateTime.now().year;
+      final startOfYear = DateTime(targetYear, 1, 1);
+      final endOfYear = DateTime(targetYear, 12, 31, 23, 59, 59);
+
+      final response = await _supabase
+          .from('books')
+          .select('updated_at')
+          .eq('user_id', userId)
+          .eq('status', 'completed')
+          .isFilter('deleted_at', null)
+          .gte('updated_at', startOfYear.toIso8601String())
+          .lte('updated_at', endOfYear.toIso8601String());
+
+      final Map<int, int> monthlyCount = {};
+      for (int i = 1; i <= 12; i++) {
+        monthlyCount[i] = 0;
+      }
+
+      for (final book in response as List) {
+        final updatedAt = DateTime.parse(book['updated_at'] as String);
+        final month = updatedAt.month;
+        monthlyCount[month] = (monthlyCount[month] ?? 0) + 1;
+      }
+
+      return monthlyCount;
+    } catch (e) {
+      debugPrint('월별 독서량 조회 실패: $e');
+      return {};
+    }
+  }
+
+  Future<Map<DateTime, int>> getDailyReadingHeatmap({
+    int? year,
+    int weeksToShow = 52,
+  }) async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return {};
+
+      final now = DateTime.now();
+      final targetYear = year ?? now.year;
+
+      DateTime startDate;
+      DateTime endDate;
+
+      if (year != null) {
+        startDate = DateTime(targetYear, 1, 1);
+        endDate = DateTime(targetYear, 12, 31);
+      } else {
+        endDate = DateTime(now.year, now.month, now.day);
+        startDate = endDate.subtract(Duration(days: weeksToShow * 7));
+      }
+
+      final response = await _supabase
+          .from(_tableName)
+          .select('created_at, page, previous_page')
+          .eq('user_id', userId)
+          .gte('created_at', startDate.toIso8601String())
+          .lte('created_at', endDate.toIso8601String());
+
+      final Map<DateTime, int> heatmapData = {};
+
+      for (final record in response as List) {
+        final createdAt = DateTime.parse(record['created_at'] as String);
+        final dateKey =
+            DateTime(createdAt.year, createdAt.month, createdAt.day);
+        final pagesRead =
+            (record['page'] as int) - (record['previous_page'] as int? ?? 0);
+
+        heatmapData[dateKey] = (heatmapData[dateKey] ?? 0) + pagesRead;
+      }
+
+      return heatmapData;
+    } catch (e) {
+      debugPrint('히트맵 데이터 조회 실패: $e');
+      return {};
+    }
+  }
+
+  int getHeatmapIntensity(int pagesRead) {
+    if (pagesRead == 0) return 0;
+    if (pagesRead < 10) return 1;
+    if (pagesRead < 30) return 2;
+    if (pagesRead < 50) return 3;
+    return 4;
+  }
 }

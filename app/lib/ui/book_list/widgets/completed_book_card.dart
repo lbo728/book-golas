@@ -150,81 +150,85 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF10B981).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          CupertinoIcons.checkmark_seal_fill,
-                          size: 14,
-                          color: Color(0xFF10B981),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        const SizedBox(width: 6),
-                        Text(
-                          daysToComplete > 0
-                              ? '$daysToComplete일만에 완독'
-                              : '당일 완독',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF10B981),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              CupertinoIcons.checkmark_seal_fill,
+                              size: 14,
+                              color: Color(0xFF10B981),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              daysToComplete > 0
+                                  ? '$daysToComplete일만에 완독'
+                                  : '당일 완독',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF10B981),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (_achievementRate != null) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: _achievementRate! >= 80
+                                ? const Color(0xFFD1FAE5)
+                                : _achievementRate! >= 50
+                                    ? const Color(0xFFFEF3C7)
+                                    : const Color(0xFFFEE2E2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                _achievementRate! >= 80
+                                    ? CupertinoIcons.star_fill
+                                    : _achievementRate! >= 50
+                                        ? CupertinoIcons.hand_thumbsup_fill
+                                        : CupertinoIcons.flame_fill,
+                                size: 12,
+                                color: _achievementRate! >= 80
+                                    ? const Color(0xFF059669)
+                                    : _achievementRate! >= 50
+                                        ? const Color(0xFFD97706)
+                                        : const Color(0xFFDC2626),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '달성률 $_achievementRate%',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: _achievementRate! >= 80
+                                      ? const Color(0xFF059669)
+                                      : _achievementRate! >= 50
+                                          ? const Color(0xFFD97706)
+                                          : const Color(0xFFDC2626),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
-                    ),
+                    ],
                   ),
-                  if (_achievementRate != null) ...[
-                    const SizedBox(height: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: _achievementRate! >= 80
-                            ? const Color(0xFFD1FAE5)
-                            : _achievementRate! >= 50
-                                ? const Color(0xFFFEF3C7)
-                                : const Color(0xFFFEE2E2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            _achievementRate! >= 80
-                                ? CupertinoIcons.star_fill
-                                : _achievementRate! >= 50
-                                    ? CupertinoIcons.hand_thumbsup_fill
-                                    : CupertinoIcons.flame_fill,
-                            size: 12,
-                            color: _achievementRate! >= 80
-                                ? const Color(0xFF059669)
-                                : _achievementRate! >= 50
-                                    ? const Color(0xFFD97706)
-                                    : const Color(0xFFDC2626),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '목표 달성률 $_achievementRate%',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: _achievementRate! >= 80
-                                  ? const Color(0xFF059669)
-                                  : _achievementRate! >= 50
-                                      ? const Color(0xFFD97706)
-                                      : const Color(0xFFDC2626),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
                   const SizedBox(height: 6),
                   Row(
                     children: [

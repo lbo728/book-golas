@@ -15,4 +15,5 @@ firebase-debug.log
 # Claude Code
 .claude/settings.local.json
 AGENTS.local.md
+.sisyphus/
 .claude/linear-simple.json

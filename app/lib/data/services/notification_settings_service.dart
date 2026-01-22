@@ -3,16 +3,19 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class NotificationSettings {
   final int preferredHour;
+  final int preferredMinute;
   final bool notificationEnabled;
 
   NotificationSettings({
     required this.preferredHour,
+    this.preferredMinute = 0,
     required this.notificationEnabled,
   });
 
   factory NotificationSettings.fromJson(Map<String, dynamic> json) {
     return NotificationSettings(
       preferredHour: json['preferred_hour'] ?? 9,
+      preferredMinute: json['preferred_minute'] ?? 0,
       notificationEnabled: json['notification_enabled'] ?? true,
     );
   }
@@ -20,16 +23,19 @@ class NotificationSettings {
   Map<String, dynamic> toJson() {
     return {
       'preferred_hour': preferredHour,
+      'preferred_minute': preferredMinute,
       'notification_enabled': notificationEnabled,
     };
   }
 
   NotificationSettings copyWith({
     int? preferredHour,
+    int? preferredMinute,
     bool? notificationEnabled,
   }) {
     return NotificationSettings(
       preferredHour: preferredHour ?? this.preferredHour,
+      preferredMinute: preferredMinute ?? this.preferredMinute,
       notificationEnabled: notificationEnabled ?? this.notificationEnabled,
     );
   }
@@ -55,7 +61,7 @@ class NotificationSettingsService {
     try {
       final response = await _supabase
           .from('fcm_tokens')
-          .select('preferred_hour, notification_enabled')
+          .select('preferred_hour, preferred_minute, notification_enabled')
           .eq('user_id', userId)
           .limit(1)
           .maybeSingle();
@@ -76,8 +82,15 @@ class NotificationSettingsService {
   }
 
   Future<bool> updatePreferredHour(int hour) async {
+    return updatePreferredTime(hour, _settings.preferredMinute);
+  }
+
+  Future<bool> updatePreferredTime(int hour, int minute) async {
     if (hour < 0 || hour > 23) {
       throw ArgumentError('Invalid hour: must be 0-23');
+    }
+    if (minute < 0 || minute > 59) {
+      throw ArgumentError('Invalid minute: must be 0-59');
     }
 
     final userId = _supabase.auth.currentUser?.id;
@@ -86,15 +99,18 @@ class NotificationSettingsService {
     }
 
     try {
-      await _supabase
-          .from('fcm_tokens')
-          .update({'preferred_hour': hour}).eq('user_id', userId);
+      await _supabase.from('fcm_tokens').update({
+        'preferred_hour': hour,
+        'preferred_minute': minute,
+      }).eq('user_id', userId);
 
-      _settings = _settings.copyWith(preferredHour: hour);
-      debugPrint('🔔 [NotificationSettings] Updated preferred_hour to $hour');
+      _settings =
+          _settings.copyWith(preferredHour: hour, preferredMinute: minute);
+      debugPrint(
+          '🔔 [NotificationSettings] Updated preferred time to $hour:$minute');
       return true;
     } catch (e) {
-      debugPrint('🔔 [NotificationSettings] Error updating hour: $e');
+      debugPrint('🔔 [NotificationSettings] Error updating time: $e');
       rethrow;
     }
   }
