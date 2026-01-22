@@ -3,28 +3,62 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:collection';
 import 'package:book_golas/data/services/reading_progress_service.dart';
+import 'package:book_golas/data/services/reading_goal_service.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/genre_analysis_card.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/monthly_books_chart.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/annual_goal_card.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/reading_streak_heatmap.dart';
+import 'package:book_golas/ui/reading_chart/widgets/sheets/reading_goal_sheet.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_tab_bar.dart';
 
 enum TimeFilter { daily, weekly, monthly }
 
 class ReadingChartScreen extends StatefulWidget {
   const ReadingChartScreen({super.key});
 
+  static final GlobalKey<_ReadingChartScreenState> globalKey =
+      GlobalKey<_ReadingChartScreenState>();
+
+  static void cycleToNextTab() {
+    globalKey.currentState?.cycleToNextTab();
+  }
+
   @override
   State<ReadingChartScreen> createState() => _ReadingChartScreenState();
 }
 
-class _ReadingChartScreenState extends State<ReadingChartScreen> {
+class _ReadingChartScreenState extends State<ReadingChartScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
   TimeFilter _selectedFilter = TimeFilter.daily;
   final ReadingProgressService _progressService = ReadingProgressService();
+  final ReadingGoalService _goalService = ReadingGoalService();
 
   List<Map<String, dynamic>>? _cachedRawData;
   bool _isLoading = true;
   String? _errorMessage;
 
+  Map<String, int> _genreDistribution = {};
+  Map<int, int> _monthlyBookCount = {};
+  Map<String, dynamic> _goalProgress = {};
+  Map<DateTime, int> _heatmapData = {};
+
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 3, vsync: this);
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void cycleToNextTab() {
+    final nextIndex = (_tabController.index + 1) % 3;
+    _tabController.animateTo(nextIndex);
   }
 
   Future<void> _loadData() async {
@@ -34,10 +68,22 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
     });
 
     try {
-      final data = await fetchUserProgressHistory();
+      final currentYear = DateTime.now().year;
+      final results = await Future.wait([
+        fetchUserProgressHistory(),
+        _progressService.getGenreDistribution(year: currentYear),
+        _progressService.getMonthlyBookCount(year: currentYear),
+        _goalService.getYearlyProgress(year: currentYear),
+        _progressService.getDailyReadingHeatmap(weeksToShow: 26),
+      ]);
+
       if (mounted) {
         setState(() {
-          _cachedRawData = data;
+          _cachedRawData = results[0] as List<Map<String, dynamic>>;
+          _genreDistribution = results[1] as Map<String, int>;
+          _monthlyBookCount = results[2] as Map<int, int>;
+          _goalProgress = results[3] as Map<String, dynamic>;
+          _heatmapData = results[4] as Map<DateTime, int>;
           _isLoading = false;
         });
       }
@@ -103,8 +149,9 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
       }
 
       if (bookId != null) {
-        dateData[key]![bookId] =
-            (dateData[key]![bookId] ?? 0) < page ? page : dateData[key]![bookId]!;
+        dateData[key]![bookId] = (dateData[key]![bookId] ?? 0) < page
+            ? page
+            : dateData[key]![bookId]!;
       }
     }
 
@@ -112,7 +159,8 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
     final result = <Map<String, dynamic>>[];
 
     for (final entry in dateData.entries) {
-      final dailyTotal = entry.value.values.fold<int>(0, (sum, page) => sum + page);
+      final dailyTotal =
+          entry.value.values.fold<int>(0, (sum, page) => sum + page);
       cumulativePages += dailyTotal;
 
       result.add({
@@ -192,6 +240,23 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
     return await _progressService.calculateGoalAchievementRate();
   }
 
+  void _showGoalSheet(BuildContext context) async {
+    final currentYear = DateTime.now().year;
+    final result = await ReadingGoalSheet.show(
+      context: context,
+      year: currentYear,
+      currentGoal: _goalProgress['targetBooks'] as int?,
+    );
+
+    if (result != null && mounted) {
+      await _goalService.setYearlyGoal(
+        year: currentYear,
+        targetBooks: result,
+      );
+      _loadData();
+    }
+  }
+
   String _getFilterLabel(TimeFilter filter) {
     switch (filter) {
       case TimeFilter.daily:
@@ -230,15 +295,13 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
           fontWeight: FontWeight.w600,
           color: isDark ? Colors.white : Colors.black,
         ),
-        actions: const [],
+        bottom: LiquidGlassTabBar(
+          controller: _tabController,
+          tabs: const ['개요', '분석', '활동'],
+        ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: _buildContent(isDark),
-          ),
-        ),
+        child: _buildContent(isDark),
       ),
     );
   }
@@ -258,6 +321,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
         child: Padding(
           padding: const EdgeInsets.all(32.0),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(
                 Icons.error_outline,
@@ -284,397 +348,639 @@ class _ReadingChartScreenState extends State<ReadingChartScreen> {
     }
 
     final rawData = _cachedRawData ?? [];
-    if (rawData.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
+    final aggregated = aggregateByDate(rawData, _selectedFilter);
+    final stats = calculateStatistics(aggregated);
+    final streak = _calculateStreak(aggregated);
+    final currentYear = DateTime.now().year;
+
+    return TabBarView(
+      controller: _tabController,
+      children: [
+        _buildOverviewTab(isDark, stats, streak, currentYear),
+        _buildAnalysisTab(isDark, currentYear, stats, streak),
+        _buildActivityTab(isDark, aggregated, streak, currentYear),
+      ],
+    );
+  }
+
+  Widget _buildOverviewTab(
+    bool isDark,
+    Map<String, dynamic> stats,
+    int streak,
+    int currentYear,
+  ) {
+    final monthlyDataForChart = _monthlyBookCount.map(
+      (month, count) => MapEntry(
+        '$currentYear-${month.toString().padLeft(2, '0')}',
+        count,
+      ),
+    );
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AnnualGoalCard(
+            targetBooks: _goalProgress['targetBooks'] as int? ?? 0,
+            completedBooks: _goalProgress['completedBooks'] as int? ?? 0,
+            year: currentYear,
+            onSetGoal: () => _showGoalSheet(context),
+          ),
+          const SizedBox(height: 16),
+          MonthlyBooksChart(
+            monthlyData: monthlyDataForChart,
+            year: currentYear,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnalysisTab(
+    bool isDark,
+    int currentYear,
+    Map<String, dynamic> stats,
+    int streak,
+  ) {
+    final genreMessage =
+        _progressService.getTopGenreMessage(_genreDistribution);
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GenreAnalysisCard(
+            genreDistribution: _genreDistribution,
+            topGenreMessage: genreMessage,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '독서 통계',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: isDark ? Colors.white : Colors.black,
+            ),
+          ),
+          const SizedBox(height: 12),
+          GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 1.3,
             children: [
-              Icon(
-                Icons.menu_book_outlined,
-                size: 64,
-                color: Colors.grey[300],
+              _buildStatCard(
+                '총 읽은 페이지',
+                '${stats['total_pages']}p',
+                Icons.menu_book_rounded,
+                const Color(0xFF5B7FFF),
+                isDark,
               ),
-              const SizedBox(height: 16),
+              _buildStatCard(
+                '일평균',
+                '${(stats['average_daily'] as double).toStringAsFixed(1)}p',
+                Icons.calendar_today_rounded,
+                const Color(0xFF10B981),
+                isDark,
+              ),
+              _buildStatCard(
+                '최고 기록',
+                '${stats['max_daily']}p',
+                Icons.trending_up_rounded,
+                const Color(0xFFF59E0B),
+                isDark,
+              ),
+              _buildStatCard(
+                '연속 독서',
+                '$streak일',
+                Icons.local_fire_department_rounded,
+                const Color(0xFFEF4444),
+                isDark,
+              ),
+              _buildStatCard(
+                '최저 기록',
+                '${stats['min_daily']}p',
+                Icons.trending_down_rounded,
+                const Color(0xFF8B5CF6),
+                isDark,
+              ),
+              FutureBuilder<double>(
+                future: _calculateGoalRate(),
+                builder: (context, snapshot) {
+                  final goalRate = snapshot.data ?? 0.0;
+                  return _buildStatCard(
+                    '오늘 목표',
+                    '${(goalRate * 100).toStringAsFixed(0)}%',
+                    Icons.flag_rounded,
+                    const Color(0xFF06B6D4),
+                    isDark,
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActivityTab(
+    bool isDark,
+    List<Map<String, dynamic>> aggregated,
+    int streak,
+    int currentYear,
+  ) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ReadingStreakHeatmap(
+            dailyPages: _heatmapData,
+            year: currentYear,
+            currentStreak: streak,
+          ),
+          const SizedBox(height: 24),
+          _buildReadingProgressChart(isDark, aggregated),
+          const SizedBox(height: 24),
+          Text(
+            '일별 읽은 페이지',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: isDark ? Colors.white : Colors.black,
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (aggregated.isEmpty)
+            _buildEmptyListState(isDark)
+          else
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: aggregated.length > 10 ? 10 : aggregated.length,
+              itemBuilder: (context, index) {
+                final reversedIndex = aggregated.length - 1 - index;
+                final item = aggregated[reversedIndex];
+                final date = item['date'] as DateTime;
+                final dailyPage = item['daily_page'] as int;
+                final cumulativePage = item['cumulative_page'] as int;
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '${date.day}',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF5B7FFF),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${date.year}년 ${date.month}월 ${date.day}일',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '누적: $cumulativePage 페이지',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isDark
+                                    ? Colors.grey[400]
+                                    : Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.add,
+                                size: 16,
+                                color: dailyPage > 0
+                                    ? const Color(0xFF10B981)
+                                    : Colors.grey,
+                              ),
+                              Text(
+                                '$dailyPage',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: dailyPage > 0
+                                      ? const Color(0xFF10B981)
+                                      : Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            '페이지',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color:
+                                  isDark ? Colors.grey[400] : Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReadingProgressChart(
+      bool isDark, List<Map<String, dynamic>> aggregated) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
               Text(
-                '아직 독서 기록이 없습니다',
+                '독서 진행 차트',
                 style: TextStyle(
+                  fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: Colors.grey[600],
+                  color: isDark ? Colors.white : Colors.black,
                 ),
               ),
-              const SizedBox(height: 8),
+              Row(
+                children: TimeFilter.values.map((filter) {
+                  final isSelected = _selectedFilter == filter;
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedFilter = filter;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? const Color(0xFF5B7FFF)
+                              : (isDark ? Colors.grey[800] : Colors.grey[200]),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          _getFilterLabel(filter),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                            color: isSelected
+                                ? Colors.white
+                                : (isDark
+                                    ? Colors.grey[400]
+                                    : Colors.grey[600]),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: 6),
               Text(
-                '책을 읽고 페이지를 업데이트해보세요!',
+                '일별 페이지',
                 style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[500],
+                  fontSize: 12,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
+              ),
+              const SizedBox(width: 16),
+              Container(
+                width: 12,
+                height: 3,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF5B7FFF),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '누적 페이지',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 16),
+          if (aggregated.isEmpty)
+            SizedBox(
+              height: 200,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.show_chart,
+                      size: 48,
+                      color: Colors.grey[400],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      '아직 데이터가 없어요',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            _buildCombinationChartContent(isDark, aggregated),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyListState(bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
         ),
+      ),
+      child: Center(
+        child: Column(
+          children: [
+            Icon(
+              Icons.list_alt,
+              size: 48,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '읽은 기록이 없어요',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCombinationChartContent(
+      bool isDark, List<Map<String, dynamic>> aggregated) {
+    final maxDaily = aggregated
+        .map((e) => e['daily_page'] as int)
+        .reduce((a, b) => a > b ? a : b);
+    final maxCumulative = aggregated.last['cumulative_page'] as int;
+
+    final barGroups = aggregated.asMap().entries.map((entry) {
+      final idx = entry.key;
+      final dailyPage = entry.value['daily_page'] as int;
+      final normalizedDaily = maxCumulative > 0
+          ? (dailyPage / maxDaily) * maxCumulative * 0.3
+          : 0.0;
+      return BarChartGroupData(
+        x: idx,
+        barRods: [
+          BarChartRodData(
+            toY: normalizedDaily,
+            color: const Color(0xFF10B981).withValues(alpha: 0.7),
+            width: aggregated.length > 30 ? 4 : 8,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(2),
+              topRight: Radius.circular(2),
+            ),
+          ),
+        ],
       );
-    }
+    }).toList();
 
-    final aggregated = aggregateByDate(rawData, _selectedFilter);
-    final stats = calculateStatistics(aggregated);
-    final streak = _calculateStreak(aggregated);
-
-    final spots = aggregated.asMap().entries.map((entry) {
+    final lineSpots = aggregated.asMap().entries.map((entry) {
       final idx = entry.key;
       final cumulativePage = entry.value['cumulative_page'] as int;
       return FlSpot(idx.toDouble(), cumulativePage.toDouble());
     }).toList();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-                    GridView.count(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 12,
-                      crossAxisSpacing: 12,
-                      childAspectRatio: 1.5,
-                      children: [
-                        _buildStatCard(
-                          '총 읽은 페이지',
-                          '${stats['total_pages']}p',
-                          Icons.menu_book_rounded,
-                          const Color(0xFF5B7FFF),
-                          isDark,
+    return SizedBox(
+      height: 250,
+      child: Stack(
+        children: [
+          BarChart(
+            BarChartData(
+              barGroups: barGroups,
+              titlesData: FlTitlesData(
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 50,
+                    getTitlesWidget: (value, meta) {
+                      return Text(
+                        value.toInt().toString(),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
                         ),
-                        _buildStatCard(
-                          '일평균',
-                          '${(stats['average_daily'] as double).toStringAsFixed(1)}p',
-                          Icons.calendar_today_rounded,
-                          const Color(0xFF10B981),
-                          isDark,
-                        ),
-                        _buildStatCard(
-                          '최고 기록',
-                          '${stats['max_daily']}p',
-                          Icons.trending_up_rounded,
-                          const Color(0xFFF59E0B),
-                          isDark,
-                        ),
-                        _buildStatCard(
-                          '연속 독서',
-                          '$streak일',
-                          Icons.local_fire_department_rounded,
-                          const Color(0xFFEF4444),
-                          isDark,
-                        ),
-                        _buildStatCard(
-                          '최저 기록',
-                          '${stats['min_daily']}p',
-                          Icons.trending_down_rounded,
-                          const Color(0xFF8B5CF6),
-                          isDark,
-                        ),
-                        FutureBuilder<double>(
-                          future: _calculateGoalRate(),
-                          builder: (context, snapshot) {
-                            final goalRate = snapshot.data ?? 0.0;
-                            return _buildStatCard(
-                              '오늘 목표',
-                              '${(goalRate * 100).toStringAsFixed(0)}%',
-                              Icons.flag_rounded,
-                              const Color(0xFF06B6D4),
-                              isDark,
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    Row(
-                      children: [
-                        Text(
-                          '기간 선택',
+                      );
+                    },
+                  ),
+                ),
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 32,
+                    getTitlesWidget: (value, meta) {
+                      final idx = value.toInt();
+                      if (idx < 0 || idx >= aggregated.length) {
+                        return const SizedBox();
+                      }
+                      final date = aggregated[idx]['date'] as DateTime;
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          _formatDate(date, _selectedFilter),
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: isDark ? Colors.white : Colors.black,
+                            fontSize: 12,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
                           ),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Row(
-                            children: TimeFilter.values.map((filter) {
-                              final isSelected = _selectedFilter == filter;
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: ChoiceChip(
-                                  label: Text(_getFilterLabel(filter)),
-                                  selected: isSelected,
-                                  onSelected: (selected) {
-                                    if (selected) {
-                                      setState(() {
-                                        _selectedFilter = filter;
-                                      });
-                                    }
-                                  },
-                                  selectedColor: Colors.blue,
-                                  backgroundColor: isDark
-                                      ? Colors.grey[800]
-                                      : Colors.grey[200],
-                                  labelStyle: TextStyle(
-                                    color: isSelected
-                                        ? Colors.white
-                                        : (isDark ? Colors.white70 : Colors.black87),
-                                    fontWeight: isSelected
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    Text(
-                      '누적 페이지 차트',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Container(
-                      height: 300,
-                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
-                        ),
-                      ),
-                      child: LineChart(
-                        LineChartData(
-                          lineBarsData: [
-                            LineChartBarData(
-                              spots: spots,
-                              isCurved: true,
-                              color: Colors.blue,
-                              barWidth: 3,
-                              dotData: FlDotData(
-                                show: true,
-                                getDotPainter: (spot, percent, barData, index) {
-                                  return FlDotCirclePainter(
-                                    radius: 4,
-                                    color: Colors.blue,
-                                    strokeWidth: 2,
-                                    strokeColor: Colors.white,
-                                  );
-                                },
-                              ),
-                              belowBarData: BarAreaData(
-                                show: true,
-                                color: Colors.blue.withValues(alpha: 0.1),
-                              ),
-                            ),
-                          ],
-                          titlesData: FlTitlesData(
-                            leftTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 50,
-                                getTitlesWidget: (value, meta) {
-                                  return Text(
-                                    value.toInt().toString(),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: isDark ? Colors.grey[400] : Colors.grey[600],
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            rightTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            topTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 32,
-                                getTitlesWidget: (value, meta) {
-                                  final idx = value.toInt();
-                                  if (idx < 0 || idx >= aggregated.length) {
-                                    return const SizedBox();
-                                  }
-                                  final date = aggregated[idx]['date'] as DateTime;
-                                  return Padding(
-                                    padding: const EdgeInsets.only(top: 8),
-                                    child: Text(
-                                      _formatDate(date, _selectedFilter),
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: isDark ? Colors.grey[400] : Colors.grey[600],
-                                      ),
-                                    ),
-                                  );
-                                },
-                                interval: (aggregated.length / 5)
-                                    .ceilToDouble()
-                                    .clamp(1, 999),
-                              ),
-                            ),
-                          ),
-                          gridData: FlGridData(
-                            show: true,
-                            drawVerticalLine: false,
-                            horizontalInterval: null,
-                            getDrawingHorizontalLine: (value) {
-                              return FlLine(
-                                color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
-                                strokeWidth: 1,
-                              );
-                            },
-                          ),
-                          borderData: FlBorderData(
-                            show: true,
-                            border: Border(
-                              bottom: BorderSide(
-                                color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
-                                width: 1,
-                              ),
-                              left: BorderSide(
-                                color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
-                                width: 1,
-                              ),
-                            ),
-                          ),
-                          minY: 0,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    Text(
-                      '일별 읽은 페이지',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: aggregated.length > 10 ? 10 : aggregated.length,
-                      itemBuilder: (context, index) {
-                        final reversedIndex = aggregated.length - 1 - index;
-                        final item = aggregated[reversedIndex];
-                        final date = item['date'] as DateTime;
-                        final dailyPage = item['daily_page'] as int;
-                        final cumulativePage = item['cumulative_page'] as int;
-
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  color: Colors.blue.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    '${date.day}',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.blue,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '${date.year}년 ${date.month}월 ${date.day}일',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
-                                        color: isDark ? Colors.white : Colors.black,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      '누적: $cumulativePage 페이지',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: isDark ? Colors.grey[400] : Colors.grey[600],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.add,
-                                        size: 16,
-                                        color: dailyPage > 0 ? Colors.green : Colors.grey,
-                                      ),
-                                      Text(
-                                        '$dailyPage',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          color: dailyPage > 0 ? Colors.green : Colors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Text(
-                                    '페이지',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: isDark ? Colors.grey[400] : Colors.grey[600],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                      );
+                    },
+                    interval:
+                        (aggregated.length / 5).ceilToDouble().clamp(1, 999),
+                  ),
+                ),
+              ),
+              gridData: FlGridData(
+                show: true,
+                drawVerticalLine: false,
+                getDrawingHorizontalLine: (value) {
+                  return FlLine(
+                    color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                    strokeWidth: 1,
+                  );
+                },
+              ),
+              borderData: FlBorderData(
+                show: true,
+                border: Border(
+                  bottom: BorderSide(
+                    color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                    width: 1,
+                  ),
+                  left: BorderSide(
+                    color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                    width: 1,
+                  ),
+                ),
+              ),
+              maxY: maxCumulative.toDouble() * 1.1,
+              minY: 0,
+              barTouchData: BarTouchData(enabled: false),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 50, bottom: 32),
+            child: LineChart(
+              LineChartData(
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: lineSpots,
+                    isCurved: true,
+                    color: const Color(0xFF5B7FFF),
+                    barWidth: 3,
+                    dotData: FlDotData(
+                      show: aggregated.length <= 30,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 3,
+                          color: const Color(0xFF5B7FFF),
+                          strokeWidth: 2,
+                          strokeColor: Colors.white,
                         );
                       },
                     ),
-                  ],
-                );
-              }
+                    belowBarData: BarAreaData(show: false),
+                  ),
+                ],
+                titlesData: const FlTitlesData(show: false),
+                gridData: const FlGridData(show: false),
+                borderData: FlBorderData(show: false),
+                maxY: maxCumulative.toDouble() * 1.1,
+                minY: 0,
+                minX: 0,
+                maxX: (aggregated.length - 1).toDouble(),
+                lineTouchData: LineTouchData(
+                  enabled: true,
+                  touchTooltipData: LineTouchTooltipData(
+                    getTooltipItems: (touchedSpots) {
+                      return touchedSpots.map((spot) {
+                        final idx = spot.x.toInt();
+                        if (idx >= 0 && idx < aggregated.length) {
+                          final dailyPage =
+                              aggregated[idx]['daily_page'] as int;
+                          final cumulativePage =
+                              aggregated[idx]['cumulative_page'] as int;
+                          return LineTooltipItem(
+                            '일별: ${dailyPage}p\n누적: ${cumulativePage}p',
+                            const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          );
+                        }
+                        return null;
+                      }).toList();
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildStatCard(
     String label,

@@ -380,4 +380,89 @@ class BookService {
   }
 
   bool get isLoaded => _isLoaded;
+
+  Future<Book?> updateRatingAndReview(
+    String bookId, {
+    required int rating,
+    String? review,
+  }) async {
+    try {
+      final response = await _supabase
+          .from(_tableName)
+          .update({
+            'rating': rating,
+            'review': review,
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', bookId)
+          .select()
+          .single();
+
+      final updatedBook = Book.fromJson(response);
+
+      final index = _books.indexWhere((b) => b.id == bookId);
+      if (index != -1) {
+        _books[index] = updatedBook;
+      }
+
+      return updatedBook;
+    } catch (e) {
+      debugPrint('별점/한줄평 업데이트 실패: $e');
+      return null;
+    }
+  }
+
+  Future<Book?> updateReviewLink(String bookId, String? reviewLink) async {
+    try {
+      final response = await _supabase
+          .from(_tableName)
+          .update({
+            'review_link': reviewLink,
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', bookId)
+          .select()
+          .single();
+
+      final updatedBook = Book.fromJson(response);
+
+      final index = _books.indexWhere((b) => b.id == bookId);
+      if (index != -1) {
+        _books[index] = updatedBook;
+      }
+
+      return updatedBook;
+    } catch (e) {
+      debugPrint('독후감 링크 업데이트 실패: $e');
+      return null;
+    }
+  }
+
+  Future<int> getCompletedBooksCount({int? year}) async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return 0;
+
+      var query = _supabase
+          .from(_tableName)
+          .select('id')
+          .eq('user_id', userId)
+          .eq('status', BookStatus.completed.value)
+          .isFilter('deleted_at', null);
+
+      if (year != null) {
+        final startOfYear = DateTime(year, 1, 1);
+        final endOfYear = DateTime(year, 12, 31, 23, 59, 59);
+        query = query
+            .gte('updated_at', startOfYear.toIso8601String())
+            .lte('updated_at', endOfYear.toIso8601String());
+      }
+
+      final response = await query;
+      return (response as List).length;
+    } catch (e) {
+      debugPrint('완독 책 개수 조회 실패: $e');
+      return 0;
+    }
+  }
 }
