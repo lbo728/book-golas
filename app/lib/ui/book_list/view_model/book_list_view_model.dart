@@ -6,6 +6,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:book_golas/ui/core/view_model/base_view_model.dart';
 import 'package:book_golas/domain/models/book.dart';
 
+enum AllTabFilter { all, reading, planned, completed, paused }
+
 class BookListViewModel extends BaseViewModel {
   StreamSubscription<List<Map<String, dynamic>>>? _booksSubscription;
   StreamSubscription<AuthState>? _authSubscription;
@@ -14,10 +16,12 @@ class BookListViewModel extends BaseViewModel {
   int _selectedTabIndex = 0;
   bool _showAllCurrentBooks = false;
   bool _isInitialized = false;
+  AllTabFilter _allTabFilter = AllTabFilter.all;
 
   List<Book> get books => _books;
   int get selectedTabIndex => _selectedTabIndex;
   bool get showAllCurrentBooks => _showAllCurrentBooks;
+  AllTabFilter get allTabFilter => _allTabFilter;
 
   @override
   bool get isLoading => !_isInitialized || super.isLoading;
@@ -141,6 +145,13 @@ class BookListViewModel extends BaseViewModel {
   void toggleShowAllCurrentBooks() {
     _showAllCurrentBooks = !_showAllCurrentBooks;
     notifyListeners();
+  }
+
+  void setAllTabFilter(AllTabFilter filter) {
+    if (_allTabFilter != filter) {
+      _allTabFilter = filter;
+      notifyListeners();
+    }
   }
 
   Future<void> refresh() async {
