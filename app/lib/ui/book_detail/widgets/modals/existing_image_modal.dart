@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shimmer/shimmer.dart';
 
+import 'package:book_golas/domain/models/highlight_data.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 import 'package:book_golas/ui/core/widgets/full_text_view_modal.dart';
 import 'package:book_golas/ui/core/utils/text_history_manager.dart';
 import 'package:book_golas/data/services/image_cache_manager.dart';
+import 'package:book_golas/ui/book_detail/widgets/highlight/highlight_overlay.dart';
+import 'package:book_golas/ui/book_detail/widgets/highlight/highlight_toolbar.dart';
 
 class ExistingImageModal extends StatefulWidget {
   final String imageId;
@@ -17,6 +20,7 @@ class ExistingImageModal extends StatefulWidget {
   final int? pageNumber;
   final int totalPages;
   final String? cachedEditedText;
+  final List<HighlightData>? initialHighlights;
   final void Function(String imageId, String? imageUrl) onFullScreenImage;
   final void Function(String imageId, String? imageUrl,
       {bool dismissParentOnDelete}) onDeleteImage;
@@ -33,6 +37,7 @@ class ExistingImageModal extends StatefulWidget {
     required String imageId,
     required String extractedText,
     required int? pageNumber,
+    required List<HighlightData>? highlights,
   }) onSave;
   final void Function(String imageId, String text) onTextEdited;
 
@@ -44,6 +49,7 @@ class ExistingImageModal extends StatefulWidget {
     this.pageNumber,
     required this.totalPages,
     this.cachedEditedText,
+    this.initialHighlights,
     required this.onFullScreenImage,
     required this.onDeleteImage,
     required this.onReExtractText,
@@ -73,6 +79,15 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
   bool _hasShownPageError = false;
   bool _listenerAdded = false;
 
+  bool _isHighlightMode = false;
+  List<HighlightData> _highlights = [];
+  List<HighlightData> _originalHighlights = [];
+  String _selectedHighlightColor = HighlightColor.yellow;
+  bool _isEraserMode = false;
+  final List<List<HighlightData>> _highlightHistory = [];
+  Size? _imageSize;
+  final GlobalKey _imageKey = GlobalKey();
+
   late TextHistoryManager _historyManager;
 
   void _saveTextToHistory() {
@@ -93,6 +108,49 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
 
   bool get _canUndo => _historyManager.canUndo;
   bool get _canRedo => _historyManager.canRedo;
+  bool get _canUndoHighlight => _highlightHistory.isNotEmpty;
+
+  void _addHighlight(HighlightData highlight) {
+    _highlightHistory.add(List.from(_highlights));
+    setState(() {
+      _highlights.add(highlight);
+    });
+  }
+
+  void _removeHighlight(String highlightId) {
+    _highlightHistory.add(List.from(_highlights));
+    setState(() {
+      _highlights.removeWhere((h) => h.id == highlightId);
+    });
+  }
+
+  void _undoHighlight() {
+    if (_highlightHistory.isNotEmpty) {
+      setState(() {
+        _highlights = _highlightHistory.removeLast();
+      });
+    }
+  }
+
+  void _updateImageSize() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final renderBox =
+          _imageKey.currentContext?.findRenderObject() as RenderBox?;
+      if (renderBox != null && mounted) {
+        setState(() {
+          _imageSize = renderBox.size;
+        });
+      }
+    });
+  }
+
+  bool get _hasHighlightChanges {
+    if (_highlights.length != _originalHighlights.length) return true;
+    for (int i = 0; i < _highlights.length; i++) {
+      if (_highlights[i].id != _originalHighlights[i].id) return true;
+    }
+    return false;
+  }
 
   @override
   void initState() {
@@ -113,6 +171,8 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
     );
     _imageUrl = widget.initialImageUrl;
     _editingPageNumber = widget.pageNumber;
+    _highlights = List.from(widget.initialHighlights ?? []);
+    _originalHighlights = List.from(widget.initialHighlights ?? []);
   }
 
   void _onTextChanged() {
@@ -134,7 +194,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
     final hasTextChanges = _textController.text != _originalText;
     final hasPageChanges = _editingPageNumber != widget.pageNumber;
 
-    if (hasTextChanges || hasPageChanges) {
+    if (hasTextChanges || hasPageChanges || _hasHighlightChanges) {
       showModalBottomSheet(
         context: context,
         backgroundColor: Colors.transparent,
@@ -181,6 +241,9 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                           _pageNumberController.text =
                               widget.pageNumber?.toString() ?? '';
                           _isEditing = false;
+                          _isHighlightMode = false;
+                          _highlights = List.from(_originalHighlights);
+                          _highlightHistory.clear();
                         });
                       },
                       child: Container(
@@ -276,6 +339,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
         imageId: widget.imageId,
         extractedText: _textController.text,
         pageNumber: _editingPageNumber,
+        highlights: _highlights.isNotEmpty ? _highlights : null,
       );
       if (success && mounted) {
         Navigator.pop(context);
@@ -606,6 +670,10 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
   }
 
   Widget _buildImagePreview(bool isDark) {
+    if (_isHighlightMode) {
+      return _buildHighlightModeView(isDark);
+    }
+
     return GestureDetector(
       onTap: () => widget.onFullScreenImage(widget.imageId, _imageUrl),
       child: Container(
@@ -645,6 +713,22 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                   ),
                 ),
               ),
+              if (_highlights.isNotEmpty && _imageSize != null)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: CustomPaint(
+                      painter: _HighlightDisplayPainter(
+                        highlights: _highlights,
+                        imageSize: _imageSize!,
+                      ),
+                    ),
+                  ),
+                ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: _buildHighlightModeButton(isDark),
+              ),
               Positioned(
                 bottom: 8,
                 right: 8,
@@ -659,6 +743,156 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildHighlightModeButton(bool isDark) {
+    final hasHighlights = _highlights.isNotEmpty;
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        setState(() {
+          _isHighlightMode = true;
+          _isEditing = true;
+        });
+        _updateImageSize();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: hasHighlights
+              ? const Color(0xFF5B7FFF).withValues(alpha: 0.9)
+              : Colors.black54,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              CupertinoIcons.pencil_outline,
+              size: 14,
+              color: Colors.white,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              hasHighlights ? '하이라이트 ${_highlights.length}' : '하이라이트',
+              style: const TextStyle(fontSize: 12, color: Colors.white),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHighlightModeView(bool isDark) {
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          height: 350,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: const Color(0xFF5B7FFF),
+              width: 2,
+            ),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (_imageSize == null ||
+                      _imageSize!.width != constraints.maxWidth ||
+                      _imageSize!.height != constraints.maxHeight) {
+                    setState(() {
+                      _imageSize =
+                          Size(constraints.maxWidth, constraints.maxHeight);
+                    });
+                  }
+                });
+
+                return Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CachedNetworkImage(
+                      key: _imageKey,
+                      imageUrl: _imageUrl!,
+                      cacheManager: BookImageCacheManager.instance,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        color: isDark ? Colors.grey[800] : Colors.grey[200],
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: isDark ? Colors.grey[800] : Colors.grey[200],
+                        child: const Icon(CupertinoIcons.photo),
+                      ),
+                    ),
+                    if (_imageSize != null)
+                      HighlightOverlay(
+                        imageSize: _imageSize!,
+                        highlights: _highlights,
+                        selectedColor: _selectedHighlightColor,
+                        isEraserMode: _isEraserMode,
+                        onHighlightAdded: _addHighlight,
+                        onHighlightRemoved: _removeHighlight,
+                      ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: HighlightToolbar(
+                selectedColor: _selectedHighlightColor,
+                isEraserMode: _isEraserMode,
+                onUndoTap: _undoHighlight,
+                canUndo: _canUndoHighlight,
+                onColorSelected: (color) {
+                  setState(() {
+                    _selectedHighlightColor = color;
+                    _isEraserMode = false;
+                  });
+                },
+                onEraserModeChanged: (isEraser) {
+                  setState(() {
+                    _isEraserMode = isEraser;
+                  });
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
+            GestureDetector(
+              onTap: () {
+                HapticFeedback.selectionClick();
+                setState(() {
+                  _isHighlightMode = false;
+                });
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF5B7FFF),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  '완료',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -1075,6 +1309,7 @@ void showExistingImageModal({
   int? pageNumber,
   required int totalPages,
   String? cachedEditedText,
+  List<HighlightData>? initialHighlights,
   required void Function(String imageId, String? imageUrl) onFullScreenImage,
   required void Function(String imageId, String? imageUrl,
           {bool dismissParentOnDelete})
@@ -1092,6 +1327,7 @@ void showExistingImageModal({
     required String imageId,
     required String extractedText,
     required int? pageNumber,
+    required List<HighlightData>? highlights,
   }) onSave,
   required void Function(String imageId, String text) onTextEdited,
 }) {
@@ -1108,6 +1344,7 @@ void showExistingImageModal({
       pageNumber: pageNumber,
       totalPages: totalPages,
       cachedEditedText: cachedEditedText,
+      initialHighlights: initialHighlights,
       onFullScreenImage: onFullScreenImage,
       onDeleteImage: onDeleteImage,
       onReExtractText: onReExtractText,
@@ -1116,4 +1353,32 @@ void showExistingImageModal({
       onTextEdited: onTextEdited,
     ),
   );
+}
+
+class _HighlightDisplayPainter extends CustomPainter {
+  final List<HighlightData> highlights;
+  final Size imageSize;
+
+  _HighlightDisplayPainter({
+    required this.highlights,
+    required this.imageSize,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (final highlight in highlights) {
+      final paint = Paint()
+        ..color = highlight.colorValue
+        ..style = PaintingStyle.fill;
+
+      final rect = highlight.rect.toRect(size);
+      canvas.drawRect(rect, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _HighlightDisplayPainter oldDelegate) {
+    return oldDelegate.highlights != highlights ||
+        oldDelegate.imageSize != imageSize;
+  }
 }
