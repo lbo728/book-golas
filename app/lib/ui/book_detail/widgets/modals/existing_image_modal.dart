@@ -11,7 +11,7 @@ import 'package:book_golas/ui/core/widgets/full_text_view_modal.dart';
 import 'package:book_golas/ui/core/utils/text_history_manager.dart';
 import 'package:book_golas/data/services/image_cache_manager.dart';
 import 'package:book_golas/ui/book_detail/widgets/highlight/highlight_overlay.dart';
-import 'package:book_golas/ui/book_detail/widgets/highlight/highlight_toolbar.dart';
+import 'package:book_golas/ui/core/widgets/highlight_edit_view.dart';
 
 class ExistingImageModal extends StatefulWidget {
   final String imageId;
@@ -808,131 +808,56 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
   }
 
   Widget _buildHighlightModeView(bool isDark) {
-    return Column(
-      children: [
-        Expanded(
-          child: Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (_imageSize == null ||
-                        _imageSize!.width != constraints.maxWidth ||
-                        _imageSize!.height != constraints.maxHeight) {
-                      setState(() {
-                        _imageSize =
-                            Size(constraints.maxWidth, constraints.maxHeight);
-                      });
-                    }
-                  });
-
-                  return InteractiveViewer(
-                    minScale: 1.0,
-                    maxScale: 3.0,
-                    panEnabled: false,
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        CachedNetworkImage(
-                          key: _imageKey,
-                          imageUrl: _imageUrl!,
-                          cacheManager: BookImageCacheManager.instance,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Container(
-                            color: isDark ? Colors.grey[800] : Colors.grey[200],
-                          ),
-                          errorWidget: (context, url, error) => Container(
-                            color: isDark ? Colors.grey[800] : Colors.grey[200],
-                            child: const Icon(CupertinoIcons.photo),
-                          ),
-                        ),
-                        if (_imageSize != null)
-                          HighlightOverlay(
-                            imageSize: _imageSize!,
-                            highlights: _highlights,
-                            selectedColor: _selectedHighlightColor,
-                            selectedOpacity: _selectedHighlightOpacity,
-                            strokeWidth: _selectedHighlightStrokeWidth,
-                            isEraserMode: _isEraserMode,
-                            onHighlightAdded: _addHighlight,
-                            onHighlightRemoved: _removeHighlight,
-                          ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
+    return HighlightEditView(
+      imageWidget: CachedNetworkImage(
+        key: _imageKey,
+        imageUrl: _imageUrl!,
+        cacheManager: BookImageCacheManager.instance,
+        fit: BoxFit.cover,
+        placeholder: (context, url) => Container(
+          color: isDark ? Colors.grey[800] : Colors.grey[200],
         ),
-        const SizedBox(height: 12),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Expanded(
-              child: HighlightToolbar(
-                selectedColor: _selectedHighlightColor,
-                selectedOpacity: _selectedHighlightOpacity,
-                selectedStrokeWidth: _selectedHighlightStrokeWidth,
-                isEraserMode: _isEraserMode,
-                onUndoTap: _undoHighlight,
-                canUndo: _canUndoHighlight,
-                onColorSelected: (color) {
-                  setState(() {
-                    _selectedHighlightColor = color;
-                    _isEraserMode = false;
-                  });
-                },
-                onOpacityChanged: (opacity) {
-                  setState(() {
-                    _selectedHighlightOpacity = opacity;
-                  });
-                },
-                onStrokeWidthChanged: (strokeWidth) {
-                  setState(() {
-                    _selectedHighlightStrokeWidth = strokeWidth;
-                  });
-                },
-                onEraserModeChanged: (isEraser) {
-                  setState(() {
-                    _isEraserMode = isEraser;
-                  });
-                },
-              ),
-            ),
-            const SizedBox(width: 12),
-            GestureDetector(
-              onTap: () {
-                HapticFeedback.selectionClick();
-                setState(() {
-                  _isHighlightMode = false;
-                });
-              },
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF5B7FFF),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Text(
-                  '완료',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ],
+        errorWidget: (context, url, error) => Container(
+          color: isDark ? Colors.grey[800] : Colors.grey[200],
+          child: const Icon(CupertinoIcons.photo),
         ),
-      ],
+      ),
+      highlights: _highlights,
+      selectedColor: _selectedHighlightColor,
+      selectedOpacity: _selectedHighlightOpacity,
+      selectedStrokeWidth: _selectedHighlightStrokeWidth,
+      isEraserMode: _isEraserMode,
+      canUndo: _canUndoHighlight,
+      onComplete: () {
+        HapticFeedback.selectionClick();
+        setState(() {
+          _isHighlightMode = false;
+        });
+      },
+      onUndoTap: _undoHighlight,
+      onHighlightAdded: _addHighlight,
+      onHighlightRemoved: _removeHighlight,
+      onColorSelected: (color) {
+        setState(() {
+          _selectedHighlightColor = color;
+          _isEraserMode = false;
+        });
+      },
+      onOpacityChanged: (opacity) {
+        setState(() {
+          _selectedHighlightOpacity = opacity;
+        });
+      },
+      onStrokeWidthChanged: (strokeWidth) {
+        setState(() {
+          _selectedHighlightStrokeWidth = strokeWidth;
+        });
+      },
+      onEraserModeChanged: (isEraser) {
+        setState(() {
+          _isEraserMode = isEraser;
+        });
+      },
     );
   }
 

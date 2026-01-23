@@ -8,9 +8,8 @@ import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 import 'package:book_golas/ui/core/widgets/extracted_text_modal.dart';
 import 'package:book_golas/ui/core/widgets/full_text_view_modal.dart';
 import 'package:book_golas/ui/core/utils/text_history_manager.dart';
-import 'package:book_golas/ui/book_detail/widgets/highlight/highlight_overlay.dart';
-import 'package:book_golas/ui/book_detail/widgets/highlight/highlight_toolbar.dart';
 import 'package:book_golas/ui/book_detail/widgets/highlight/highlight_painter.dart';
+import 'package:book_golas/ui/core/widgets/highlight_edit_view.dart';
 
 class AddMemorablePageModal extends StatefulWidget {
   final Uint8List? initialImageBytes;
@@ -562,134 +561,52 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
   }
 
   Widget _buildHighlightModeView(bool isDark) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '하이라이트 편집',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : Colors.black,
-                ),
-              ),
-              GestureDetector(
-                onTap: _exitHighlightMode,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF5B7FFF),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text(
-                    '완료',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: isDark ? Colors.grey[900] : Colors.grey[100],
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return InteractiveViewer(
-                    minScale: 1.0,
-                    maxScale: 3.0,
-                    panEnabled: false,
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        Image.memory(
-                          _fullImageBytes!,
-                          fit: BoxFit.contain,
-                        ),
-                        Positioned.fill(
-                          child: HighlightOverlay(
-                            imageSize: Size(
-                              constraints.maxWidth,
-                              constraints.maxHeight,
-                            ),
-                            highlights: _highlights,
-                            selectedColor: _selectedHighlightColor,
-                            selectedOpacity: _selectedHighlightOpacity,
-                            strokeWidth: _selectedHighlightStrokeWidth,
-                            isEraserMode: _isEraserMode,
-                            onHighlightAdded: (highlight) {
-                              _saveHighlightState();
-                              setState(() {
-                                _highlights.add(highlight);
-                              });
-                            },
-                            onHighlightRemoved: (highlightId) {
-                              _saveHighlightState();
-                              setState(() {
-                                _highlights
-                                    .removeWhere((h) => h.id == highlightId);
-                              });
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: HighlightToolbar(
-            selectedColor: _selectedHighlightColor,
-            selectedOpacity: _selectedHighlightOpacity,
-            selectedStrokeWidth: _selectedHighlightStrokeWidth,
-            isEraserMode: _isEraserMode,
-            canUndo: _canUndoHighlight,
-            onColorSelected: (color) {
-              setState(() {
-                _selectedHighlightColor = color;
-                _isEraserMode = false;
-              });
-            },
-            onOpacityChanged: (opacity) {
-              setState(() {
-                _selectedHighlightOpacity = opacity;
-              });
-            },
-            onStrokeWidthChanged: (strokeWidth) {
-              setState(() {
-                _selectedHighlightStrokeWidth = strokeWidth;
-              });
-            },
-            onEraserModeChanged: (isEraser) {
-              setState(() {
-                _isEraserMode = isEraser;
-              });
-            },
-            onUndoTap: _undoHighlight,
-          ),
-        ),
-        SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
-      ],
+    return HighlightEditView(
+      imageWidget: Image.memory(
+        _fullImageBytes!,
+        fit: BoxFit.contain,
+      ),
+      highlights: _highlights,
+      selectedColor: _selectedHighlightColor,
+      selectedOpacity: _selectedHighlightOpacity,
+      selectedStrokeWidth: _selectedHighlightStrokeWidth,
+      isEraserMode: _isEraserMode,
+      canUndo: _canUndoHighlight,
+      onComplete: _exitHighlightMode,
+      onUndoTap: _undoHighlight,
+      onHighlightAdded: (highlight) {
+        _saveHighlightState();
+        setState(() {
+          _highlights.add(highlight);
+        });
+      },
+      onHighlightRemoved: (highlightId) {
+        _saveHighlightState();
+        setState(() {
+          _highlights.removeWhere((h) => h.id == highlightId);
+        });
+      },
+      onColorSelected: (color) {
+        setState(() {
+          _selectedHighlightColor = color;
+          _isEraserMode = false;
+        });
+      },
+      onOpacityChanged: (opacity) {
+        setState(() {
+          _selectedHighlightOpacity = opacity;
+        });
+      },
+      onStrokeWidthChanged: (strokeWidth) {
+        setState(() {
+          _selectedHighlightStrokeWidth = strokeWidth;
+        });
+      },
+      onEraserModeChanged: (isEraser) {
+        setState(() {
+          _isEraserMode = isEraser;
+        });
+      },
     );
   }
 
