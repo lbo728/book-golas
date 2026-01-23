@@ -458,7 +458,7 @@ class _HighlightEditViewState extends State<HighlightEditView> {
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
-          CupertinoIcons.clear_circled,
+          Icons.highlight_off,
           size: 20,
           color: widget.isEraserMode
               ? Colors.white

@@ -91,6 +91,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
   final List<List<HighlightData>> _highlightHistory = [];
   Size? _imageSize;
   final GlobalKey _imageKey = GlobalKey();
+  bool _isImageLoaded = false;
 
   late TextHistoryManager _historyManager;
 
@@ -732,6 +733,14 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                       imageUrl: _imageUrl!,
                       cacheManager: BookImageCacheManager.instance,
                       fit: BoxFit.cover,
+                      imageBuilder: (context, imageProvider) {
+                        if (!_isImageLoaded) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (mounted) setState(() => _isImageLoaded = true);
+                          });
+                        }
+                        return Image(image: imageProvider, fit: BoxFit.cover);
+                      },
                       placeholder: (context, url) => Shimmer.fromColors(
                         baseColor:
                             isDark ? Colors.grey[800]! : Colors.grey[300]!,
@@ -750,7 +759,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                       ),
                     ),
                   ),
-                  if (_highlights.isNotEmpty)
+                  if (_isImageLoaded && _highlights.isNotEmpty)
                     Positioned.fill(
                       child: IgnorePointer(
                         child: CustomPaint(

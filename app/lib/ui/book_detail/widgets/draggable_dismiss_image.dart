@@ -127,6 +127,7 @@ class _DraggableDismissNetworkImageState
     extends State<DraggableDismissNetworkImage> {
   double _dragOffset = 0;
   bool _isDragging = false;
+  bool _isImageLoaded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -186,6 +187,20 @@ class _DraggableDismissNetworkImageState
                                 imageUrl: widget.imageUrl,
                                 cacheManager: BookImageCacheManager.instance,
                                 fit: BoxFit.contain,
+                                imageBuilder: (context, imageProvider) {
+                                  if (!_isImageLoaded) {
+                                    WidgetsBinding.instance
+                                        .addPostFrameCallback((_) {
+                                      if (mounted) {
+                                        setState(() => _isImageLoaded = true);
+                                      }
+                                    });
+                                  }
+                                  return Image(
+                                    image: imageProvider,
+                                    fit: BoxFit.contain,
+                                  );
+                                },
                                 placeholder: (context, url) =>
                                     Shimmer.fromColors(
                                   baseColor: Colors.grey[800]!,
@@ -205,7 +220,8 @@ class _DraggableDismissNetworkImageState
                                   ),
                                 ),
                               ),
-                              if (widget.highlights != null &&
+                              if (_isImageLoaded &&
+                                  widget.highlights != null &&
                                   widget.highlights!.isNotEmpty)
                                 Positioned.fill(
                                   child: IgnorePointer(
