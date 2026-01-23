@@ -84,6 +84,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
   List<HighlightData> _originalHighlights = [];
   String _selectedHighlightColor = HighlightColor.yellow;
   double _selectedHighlightOpacity = 0.5;
+  double _selectedHighlightStrokeWidth = 20.0;
   bool _isEraserMode = false;
   final List<List<HighlightData>> _highlightHistory = [];
   Size? _imageSize;
@@ -847,6 +848,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                           highlights: _highlights,
                           selectedColor: _selectedHighlightColor,
                           selectedOpacity: _selectedHighlightOpacity,
+                          strokeWidth: _selectedHighlightStrokeWidth,
                           isEraserMode: _isEraserMode,
                           onHighlightAdded: _addHighlight,
                           onHighlightRemoved: _removeHighlight,
@@ -865,6 +867,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
               child: HighlightToolbar(
                 selectedColor: _selectedHighlightColor,
                 selectedOpacity: _selectedHighlightOpacity,
+                selectedStrokeWidth: _selectedHighlightStrokeWidth,
                 isEraserMode: _isEraserMode,
                 onUndoTap: _undoHighlight,
                 canUndo: _canUndoHighlight,
@@ -877,6 +880,11 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                 onOpacityChanged: (opacity) {
                   setState(() {
                     _selectedHighlightOpacity = opacity;
+                  });
+                },
+                onStrokeWidthChanged: (strokeWidth) {
+                  setState(() {
+                    _selectedHighlightStrokeWidth = strokeWidth;
                   });
                 },
                 onEraserModeChanged: (isEraser) {
@@ -1144,6 +1152,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
             }
           : null,
       child: Container(
+        width: double.infinity,
         constraints: BoxConstraints(minHeight: minHeight, maxHeight: 200),
         decoration: BoxDecoration(
           color: (_isEditing || _textController.text.isNotEmpty)

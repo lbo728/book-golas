@@ -71,6 +71,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
   List<HighlightData> _highlights = [];
   String _selectedHighlightColor = HighlightColor.yellow;
   double _selectedHighlightOpacity = 0.5;
+  double _selectedHighlightStrokeWidth = 20.0;
   bool _isEraserMode = false;
   final List<List<HighlightData>> _highlightHistory = [];
 
@@ -629,6 +630,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                             highlights: _highlights,
                             selectedColor: _selectedHighlightColor,
                             selectedOpacity: _selectedHighlightOpacity,
+                            strokeWidth: _selectedHighlightStrokeWidth,
                             isEraserMode: _isEraserMode,
                             onHighlightAdded: (highlight) {
                               _saveHighlightState();
@@ -659,6 +661,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
           child: HighlightToolbar(
             selectedColor: _selectedHighlightColor,
             selectedOpacity: _selectedHighlightOpacity,
+            selectedStrokeWidth: _selectedHighlightStrokeWidth,
             isEraserMode: _isEraserMode,
             canUndo: _canUndoHighlight,
             onColorSelected: (color) {
@@ -670,6 +673,11 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
             onOpacityChanged: (opacity) {
               setState(() {
                 _selectedHighlightOpacity = opacity;
+              });
+            },
+            onStrokeWidthChanged: (strokeWidth) {
+              setState(() {
+                _selectedHighlightStrokeWidth = strokeWidth;
               });
             },
             onEraserModeChanged: (isEraser) {
@@ -1153,6 +1161,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
             _textFocusNode.requestFocus();
           },
           child: Container(
+            width: double.infinity,
             constraints: const BoxConstraints(minHeight: 150, maxHeight: 180),
             decoration: BoxDecoration(
               color: isDark ? Colors.grey[900] : Colors.grey[100],

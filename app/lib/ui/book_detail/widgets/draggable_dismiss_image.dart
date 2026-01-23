@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:book_golas/data/services/image_cache_manager.dart';
+import 'package:book_golas/domain/models/highlight_data.dart';
 
 class DraggableDismissImage extends StatefulWidget {
   final Animation<double> animation;
@@ -107,12 +108,14 @@ class DraggableDismissNetworkImage extends StatefulWidget {
   final Animation<double> animation;
   final String imageUrl;
   final String imageId;
+  final List<HighlightData>? highlights;
 
   const DraggableDismissNetworkImage({
     super.key,
     required this.animation,
     required this.imageUrl,
     required this.imageId,
+    this.highlights,
   });
 
   @override
@@ -175,26 +178,47 @@ class _DraggableDismissNetworkImageState
                     maxScale: 4.0,
                     child: Hero(
                       tag: 'book_image_${widget.imageId}',
-                      child: CachedNetworkImage(
-                        imageUrl: widget.imageUrl,
-                        cacheManager: BookImageCacheManager.instance,
-                        fit: BoxFit.contain,
-                        placeholder: (context, url) => Shimmer.fromColors(
-                          baseColor: Colors.grey[800]!,
-                          highlightColor: Colors.grey[700]!,
-                          child: Container(
-                            width: 200,
-                            height: 200,
-                            color: Colors.grey[800],
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => const Center(
-                          child: Icon(
-                            CupertinoIcons.photo,
-                            color: Colors.white,
-                            size: 48,
-                          ),
-                        ),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return Stack(
+                            children: [
+                              CachedNetworkImage(
+                                imageUrl: widget.imageUrl,
+                                cacheManager: BookImageCacheManager.instance,
+                                fit: BoxFit.contain,
+                                placeholder: (context, url) =>
+                                    Shimmer.fromColors(
+                                  baseColor: Colors.grey[800]!,
+                                  highlightColor: Colors.grey[700]!,
+                                  child: Container(
+                                    width: 200,
+                                    height: 200,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) =>
+                                    const Center(
+                                  child: Icon(
+                                    CupertinoIcons.photo,
+                                    color: Colors.white,
+                                    size: 48,
+                                  ),
+                                ),
+                              ),
+                              if (widget.highlights != null &&
+                                  widget.highlights!.isNotEmpty)
+                                Positioned.fill(
+                                  child: IgnorePointer(
+                                    child: CustomPaint(
+                                      painter: _HighlightOverlayPainter(
+                                        highlights: widget.highlights!,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -220,5 +244,33 @@ class _DraggableDismissNetworkImageState
         ),
       ),
     );
+  }
+}
+
+class _HighlightOverlayPainter extends CustomPainter {
+  final List<HighlightData> highlights;
+
+  _HighlightOverlayPainter({required this.highlights});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (final highlight in highlights) {
+      if (highlight.points.isEmpty) continue;
+
+      final paint = Paint()
+        ..color = highlight.colorValue
+        ..strokeWidth = highlight.strokeWidth
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..style = PaintingStyle.stroke;
+
+      final path = highlight.toPath(size);
+      canvas.drawPath(path, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _HighlightOverlayPainter oldDelegate) {
+    return oldDelegate.highlights != highlights;
   }
 }

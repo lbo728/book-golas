@@ -528,14 +528,19 @@ class _BookDetailContentState extends State<_BookDetailContent>
     );
   }
 
-  void _showFullScreenImage(String imageId, String imageUrl) {
+  void _showFullScreenImage(String imageId, String imageUrl,
+      {List<HighlightData>? highlights}) {
     Navigator.of(context).push(
       PageRouteBuilder(
         opaque: false,
         barrierColor: Colors.transparent,
         pageBuilder: (context, animation, secondaryAnimation) {
           return DraggableDismissNetworkImage(
-              animation: animation, imageUrl: imageUrl, imageId: imageId);
+            animation: animation,
+            imageUrl: imageUrl,
+            imageId: imageId,
+            highlights: highlights,
+          );
         },
         transitionDuration: const Duration(milliseconds: 200),
       ),
@@ -756,7 +761,9 @@ class _BookDetailContentState extends State<_BookDetailContent>
       cachedEditedText: memorableVm.editedTexts[imageId],
       initialHighlights: initialHighlights,
       onFullScreenImage: (id, url) {
-        if (url != null) _showFullScreenImage(id, url);
+        if (url != null) {
+          _showFullScreenImage(id, url, highlights: initialHighlights);
+        }
       },
       onDeleteImage: (id, url, {bool dismissParentOnDelete = false}) async {
         final confirmed = await showDeleteConfirmationSheet(
