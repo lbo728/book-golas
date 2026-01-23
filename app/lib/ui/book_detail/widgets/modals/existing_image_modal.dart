@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shimmer/shimmer.dart';
 
+import 'package:book_golas/data/services/highlight_settings_service.dart';
 import 'package:book_golas/domain/models/highlight_data.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
@@ -83,8 +84,9 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
   List<HighlightData> _highlights = [];
   List<HighlightData> _originalHighlights = [];
   String _selectedHighlightColor = HighlightColor.yellow;
-  double _selectedHighlightOpacity = 0.5;
-  double _selectedHighlightStrokeWidth = 20.0;
+  double _selectedHighlightOpacity = HighlightSettingsService.defaultOpacity;
+  double _selectedHighlightStrokeWidth =
+      HighlightSettingsService.defaultStrokeWidth;
   bool _isEraserMode = false;
   final List<List<HighlightData>> _highlightHistory = [];
   Size? _imageSize;
@@ -175,6 +177,20 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
     _editingPageNumber = widget.pageNumber;
     _highlights = List.from(widget.initialHighlights ?? []);
     _originalHighlights = List.from(widget.initialHighlights ?? []);
+    _loadHighlightSettings();
+  }
+
+  Future<void> _loadHighlightSettings() async {
+    final settings = await HighlightSettingsService.loadAll();
+    if (mounted) {
+      setState(() {
+        _selectedHighlightColor =
+            HighlightColor.colors.elementAtOrNull(settings.colorIndex) ??
+                HighlightColor.yellow;
+        _selectedHighlightOpacity = settings.opacity;
+        _selectedHighlightStrokeWidth = settings.strokeWidth;
+      });
+    }
   }
 
   void _onTextChanged() {
@@ -838,17 +854,23 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
       onHighlightAdded: _addHighlight,
       onHighlightRemoved: _removeHighlight,
       onColorSelected: (color) {
+        final colorIndex = HighlightColor.colors.indexOf(color);
+        if (colorIndex >= 0) {
+          HighlightSettingsService.setColorIndex(colorIndex);
+        }
         setState(() {
           _selectedHighlightColor = color;
           _isEraserMode = false;
         });
       },
       onOpacityChanged: (opacity) {
+        HighlightSettingsService.setOpacity(opacity);
         setState(() {
           _selectedHighlightOpacity = opacity;
         });
       },
       onStrokeWidthChanged: (strokeWidth) {
+        HighlightSettingsService.setStrokeWidth(strokeWidth);
         setState(() {
           _selectedHighlightStrokeWidth = strokeWidth;
         });
