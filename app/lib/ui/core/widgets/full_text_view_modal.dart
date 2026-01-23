@@ -112,9 +112,11 @@ class _FullTextViewModalState extends State<FullTextViewModal> {
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
+    final topPadding = MediaQuery.of(context).padding.top;
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final isKeyboardOpen = keyboardHeight > 0;
     final isTextFocused = _focusNode.hasFocus;
+    final availableHeight = screenHeight - topPadding;
 
     return GestureDetector(
       onTap: () {
@@ -124,14 +126,15 @@ class _FullTextViewModalState extends State<FullTextViewModal> {
       },
       child: Padding(
         padding: EdgeInsets.only(
-          top: MediaQuery.of(context).padding.top,
+          top: topPadding,
           bottom: keyboardHeight,
         ),
         child: Stack(
           children: [
             Container(
-              height: screenHeight * 0.85,
-              padding: const EdgeInsets.all(20),
+              width: double.infinity,
+              height: availableHeight,
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               decoration: BoxDecoration(
                 color: widget.isDark ? const Color(0xFF1E1E1E) : Colors.white,
                 borderRadius:

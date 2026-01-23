@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/domain/models/highlight_data.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/book_detail/view_model/book_detail_view_model.dart';
 import 'package:book_golas/ui/book_detail/view_model/memorable_page_view_model.dart';
@@ -527,14 +528,19 @@ class _BookDetailContentState extends State<_BookDetailContent>
     );
   }
 
-  void _showFullScreenImage(String imageId, String imageUrl) {
+  void _showFullScreenImage(String imageId, String imageUrl,
+      {List<HighlightData>? highlights}) {
     Navigator.of(context).push(
       PageRouteBuilder(
         opaque: false,
         barrierColor: Colors.transparent,
         pageBuilder: (context, animation, secondaryAnimation) {
           return DraggableDismissNetworkImage(
-              animation: animation, imageUrl: imageUrl, imageId: imageId);
+            animation: animation,
+            imageUrl: imageUrl,
+            imageId: imageId,
+            highlights: highlights,
+          );
         },
         transitionDuration: const Duration(milliseconds: 200),
       ),
@@ -579,11 +585,13 @@ class _BookDetailContentState extends State<_BookDetailContent>
       onUpload: (
           {Uint8List? imageBytes,
           required String extractedText,
-          int? pageNumber}) async {
+          int? pageNumber,
+          List<HighlightData>? highlights}) async {
         return await _uploadAndSaveMemorablePage(
             imageBytes: imageBytes,
             extractedText: extractedText,
-            pageNumber: pageNumber);
+            pageNumber: pageNumber,
+            highlights: highlights);
       },
       onStateChanged: (imageBytes, text, pageNumber) {
         if (imageBytes != null || text.isNotEmpty || pageNumber != null) {
@@ -606,7 +614,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
   Future<bool> _uploadAndSaveMemorablePage(
       {Uint8List? imageBytes,
       required String extractedText,
-      int? pageNumber}) async {
+      int? pageNumber,
+      List<HighlightData>? highlights}) async {
     final memorableVm = context.read<MemorablePageViewModel>();
     final bookVm = context.read<BookDetailViewModel>();
 
@@ -622,17 +631,21 @@ class _BookDetailContentState extends State<_BookDetailContent>
       }
 
       final userId = Supabase.instance.client.auth.currentUser?.id;
+      final insertData = {
+        'book_id': bookVm.currentBook.id,
+        'user_id': userId,
+        'image_url': publicUrl,
+        'caption': '',
+        'extracted_text': extractedText.isEmpty ? null : extractedText,
+        'page_number': pageNumber,
+        'created_at': DateTime.now().toIso8601String(),
+      };
+      if (highlights != null && highlights.isNotEmpty) {
+        insertData['highlights'] = HighlightData.toJsonList(highlights);
+      }
       final insertResult = await Supabase.instance.client
           .from('book_images')
-          .insert({
-            'book_id': bookVm.currentBook.id,
-            'user_id': userId,
-            'image_url': publicUrl,
-            'caption': '',
-            'extracted_text': extractedText.isEmpty ? null : extractedText,
-            'page_number': pageNumber,
-            'created_at': DateTime.now().toIso8601String(),
-          })
+          .insert(insertData)
           .select('id')
           .single();
 
@@ -726,6 +739,18 @@ class _BookDetailContentState extends State<_BookDetailContent>
     final memorableVm = context.read<MemorablePageViewModel>();
     final bookVm = context.read<BookDetailViewModel>();
 
+    // cachedImages에서 해당 이미지의 highlights 데이터 가져오기
+    List<HighlightData>? initialHighlights;
+    if (memorableVm.cachedImages != null) {
+      final imageData = memorableVm.cachedImages!.firstWhere(
+        (img) => img['id'] == imageId,
+        orElse: () => <String, dynamic>{},
+      );
+      if (imageData.isNotEmpty && imageData['highlights'] != null) {
+        initialHighlights = HighlightData.fromJsonList(imageData['highlights']);
+      }
+    }
+
     showExistingImageModal(
       context: context,
       imageId: imageId,
@@ -734,8 +759,11 @@ class _BookDetailContentState extends State<_BookDetailContent>
       pageNumber: pageNumber,
       totalPages: bookVm.currentBook.totalPages,
       cachedEditedText: memorableVm.editedTexts[imageId],
+      initialHighlights: initialHighlights,
       onFullScreenImage: (id, url) {
-        if (url != null) _showFullScreenImage(id, url);
+        if (url != null) {
+          _showFullScreenImage(id, url, highlights: initialHighlights);
+        }
       },
       onDeleteImage: (id, url, {bool dismissParentOnDelete = false}) async {
         final confirmed = await showDeleteConfirmationSheet(
@@ -779,11 +807,13 @@ class _BookDetailContentState extends State<_BookDetailContent>
       onSave: (
           {required String imageId,
           required String extractedText,
-          required int? pageNumber}) async {
+          required int? pageNumber,
+          required List<HighlightData>? highlights}) async {
         final success = await memorableVm.updateImageRecord(
             imageId: imageId,
             extractedText: extractedText,
-            pageNumber: pageNumber);
+            pageNumber: pageNumber,
+            highlights: highlights);
         return success;
       },
       onTextEdited: (id, text) => memorableVm.setEditedText(id, text),
