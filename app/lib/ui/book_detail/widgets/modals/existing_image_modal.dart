@@ -872,6 +872,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
         ),
         const SizedBox(height: 12),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Expanded(
               child: HighlightToolbar(
