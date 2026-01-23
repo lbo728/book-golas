@@ -597,6 +597,19 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
       );
     }
 
+    if (_isHighlightMode) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: _buildHighlightModeView(isDark)),
+            const SizedBox(height: 20),
+          ],
+        ),
+      );
+    }
+
     return Scrollbar(
       thumbVisibility: true,
       child: SingleChildScrollView(
@@ -797,66 +810,67 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
   Widget _buildHighlightModeView(bool isDark) {
     return Column(
       children: [
-        Container(
-          width: double.infinity,
-          height: 350,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: const Color(0xFF5B7FFF),
-              width: 2,
+        Expanded(
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: const Color(0xFF5B7FFF),
+                width: 2,
+              ),
             ),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (_imageSize == null ||
-                      _imageSize!.width != constraints.maxWidth ||
-                      _imageSize!.height != constraints.maxHeight) {
-                    setState(() {
-                      _imageSize =
-                          Size(constraints.maxWidth, constraints.maxHeight);
-                    });
-                  }
-                });
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (_imageSize == null ||
+                        _imageSize!.width != constraints.maxWidth ||
+                        _imageSize!.height != constraints.maxHeight) {
+                      setState(() {
+                        _imageSize =
+                            Size(constraints.maxWidth, constraints.maxHeight);
+                      });
+                    }
+                  });
 
-                return InteractiveViewer(
-                  minScale: 1.0,
-                  maxScale: 3.0,
-                  panEnabled: false,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      CachedNetworkImage(
-                        key: _imageKey,
-                        imageUrl: _imageUrl!,
-                        cacheManager: BookImageCacheManager.instance,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Container(
-                          color: isDark ? Colors.grey[800] : Colors.grey[200],
+                  return InteractiveViewer(
+                    minScale: 1.0,
+                    maxScale: 3.0,
+                    panEnabled: false,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        CachedNetworkImage(
+                          key: _imageKey,
+                          imageUrl: _imageUrl!,
+                          cacheManager: BookImageCacheManager.instance,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
+                            color: isDark ? Colors.grey[800] : Colors.grey[200],
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            color: isDark ? Colors.grey[800] : Colors.grey[200],
+                            child: const Icon(CupertinoIcons.photo),
+                          ),
                         ),
-                        errorWidget: (context, url, error) => Container(
-                          color: isDark ? Colors.grey[800] : Colors.grey[200],
-                          child: const Icon(CupertinoIcons.photo),
-                        ),
-                      ),
-                      if (_imageSize != null)
-                        HighlightOverlay(
-                          imageSize: _imageSize!,
-                          highlights: _highlights,
-                          selectedColor: _selectedHighlightColor,
-                          selectedOpacity: _selectedHighlightOpacity,
-                          strokeWidth: _selectedHighlightStrokeWidth,
-                          isEraserMode: _isEraserMode,
-                          onHighlightAdded: _addHighlight,
-                          onHighlightRemoved: _removeHighlight,
-                        ),
-                    ],
-                  ),
-                );
-              },
+                        if (_imageSize != null)
+                          HighlightOverlay(
+                            imageSize: _imageSize!,
+                            highlights: _highlights,
+                            selectedColor: _selectedHighlightColor,
+                            selectedOpacity: _selectedHighlightOpacity,
+                            strokeWidth: _selectedHighlightStrokeWidth,
+                            isEraserMode: _isEraserMode,
+                            onHighlightAdded: _addHighlight,
+                            onHighlightRemoved: _removeHighlight,
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ),

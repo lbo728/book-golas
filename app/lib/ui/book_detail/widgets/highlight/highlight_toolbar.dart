@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 
 import 'package:book_golas/domain/models/highlight_data.dart';
 
-class HighlightToolbar extends StatelessWidget {
+class HighlightToolbar extends StatefulWidget {
   final String selectedColor;
   final double selectedOpacity;
   final double selectedStrokeWidth;
@@ -29,6 +29,13 @@ class HighlightToolbar extends StatelessWidget {
     required this.onStrokeWidthChanged,
     required this.onEraserModeChanged,
   });
+
+  @override
+  State<HighlightToolbar> createState() => _HighlightToolbarState();
+}
+
+class _HighlightToolbarState extends State<HighlightToolbar> {
+  bool _showSettings = false;
 
   @override
   Widget build(BuildContext context) {
@@ -64,21 +71,53 @@ class HighlightToolbar extends StatelessWidget {
                 const SizedBox(width: 8),
                 _buildDivider(isDark),
                 const SizedBox(width: 8),
+                _buildSettingsButton(isDark),
+                const SizedBox(width: 8),
                 _buildEraserButton(isDark),
               ],
             ),
           ),
-          const SizedBox(height: 8),
-          _buildOpacitySlider(isDark),
-          const SizedBox(height: 4),
-          _buildStrokeWidthSlider(isDark),
+          if (_showSettings) ...[
+            const SizedBox(height: 8),
+            _buildOpacitySlider(isDark),
+            const SizedBox(height: 4),
+            _buildStrokeWidthSlider(isDark),
+          ],
         ],
       ),
     );
   }
 
+  Widget _buildSettingsButton(bool isDark) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        setState(() {
+          _showSettings = !_showSettings;
+        });
+      },
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: _showSettings
+              ? const Color(0xFF5B7FFF)
+              : (isDark ? Colors.grey[800] : Colors.grey[100]),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(
+          CupertinoIcons.slider_horizontal_3,
+          size: 18,
+          color: _showSettings
+              ? Colors.white
+              : (isDark ? Colors.white : Colors.black),
+        ),
+      ),
+    );
+  }
+
   Widget _buildOpacitySlider(bool isDark) {
-    final color = HighlightColor.toColor(selectedColor);
+    final color = HighlightColor.toColor(widget.selectedColor);
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -92,7 +131,7 @@ class HighlightToolbar extends StatelessWidget {
           width: 180,
           child: SliderTheme(
             data: SliderThemeData(
-              activeTrackColor: color.withValues(alpha: selectedOpacity),
+              activeTrackColor: color.withValues(alpha: widget.selectedOpacity),
               inactiveTrackColor: isDark ? Colors.grey[700] : Colors.grey[300],
               thumbColor: color,
               overlayColor: color.withValues(alpha: 0.2),
@@ -100,12 +139,12 @@ class HighlightToolbar extends StatelessWidget {
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
             ),
             child: Slider(
-              value: selectedOpacity,
+              value: widget.selectedOpacity,
               min: 0.1,
               max: 0.8,
               onChanged: (value) {
                 HapticFeedback.selectionClick();
-                onOpacityChanged(value);
+                widget.onOpacityChanged(value);
               },
             ),
           ),
@@ -120,16 +159,16 @@ class HighlightToolbar extends StatelessWidget {
   }
 
   Widget _buildStrokeWidthSlider(bool isDark) {
-    final color = HighlightColor.toColor(selectedColor);
+    final color = HighlightColor.toColor(widget.selectedColor);
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 8,
-          height: 8,
+          width: 4,
+          height: 4,
           decoration: BoxDecoration(
-            color: color.withValues(alpha: selectedOpacity),
+            color: color.withValues(alpha: widget.selectedOpacity),
             shape: BoxShape.circle,
           ),
         ),
@@ -137,7 +176,7 @@ class HighlightToolbar extends StatelessWidget {
           width: 180,
           child: SliderTheme(
             data: SliderThemeData(
-              activeTrackColor: color.withValues(alpha: selectedOpacity),
+              activeTrackColor: color.withValues(alpha: widget.selectedOpacity),
               inactiveTrackColor: isDark ? Colors.grey[700] : Colors.grey[300],
               thumbColor: color,
               overlayColor: color.withValues(alpha: 0.2),
@@ -145,12 +184,12 @@ class HighlightToolbar extends StatelessWidget {
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
             ),
             child: Slider(
-              value: selectedStrokeWidth,
-              min: 10.0,
+              value: widget.selectedStrokeWidth,
+              min: 4.0,
               max: 40.0,
               onChanged: (value) {
                 HapticFeedback.selectionClick();
-                onStrokeWidthChanged(value);
+                widget.onStrokeWidthChanged(value);
               },
             ),
           ),
@@ -159,7 +198,7 @@ class HighlightToolbar extends StatelessWidget {
           width: 16,
           height: 16,
           decoration: BoxDecoration(
-            color: color.withValues(alpha: selectedOpacity),
+            color: color.withValues(alpha: widget.selectedOpacity),
             shape: BoxShape.circle,
           ),
         ),
@@ -169,10 +208,10 @@ class HighlightToolbar extends StatelessWidget {
 
   Widget _buildUndoButton(bool isDark) {
     return GestureDetector(
-      onTap: canUndo
+      onTap: widget.canUndo
           ? () {
               HapticFeedback.lightImpact();
-              onUndoTap();
+              widget.onUndoTap();
             }
           : null,
       child: Container(
@@ -185,7 +224,7 @@ class HighlightToolbar extends StatelessWidget {
         child: Icon(
           CupertinoIcons.arrow_uturn_left,
           size: 18,
-          color: canUndo
+          color: widget.canUndo
               ? (isDark ? Colors.white : Colors.black)
               : (isDark ? Colors.grey[600] : Colors.grey[400]),
         ),
@@ -202,14 +241,14 @@ class HighlightToolbar extends StatelessWidget {
   }
 
   Widget _buildColorButton(String colorHex, bool isDark) {
-    final isSelected = selectedColor == colorHex && !isEraserMode;
+    final isSelected = widget.selectedColor == colorHex && !widget.isEraserMode;
     final color = HighlightColor.toColor(colorHex);
 
     return GestureDetector(
       onTap: () {
         HapticFeedback.selectionClick();
-        onEraserModeChanged(false);
-        onColorSelected(colorHex);
+        widget.onEraserModeChanged(false);
+        widget.onColorSelected(colorHex);
       },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 3),
@@ -243,13 +282,13 @@ class HighlightToolbar extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         HapticFeedback.selectionClick();
-        onEraserModeChanged(!isEraserMode);
+        widget.onEraserModeChanged(!widget.isEraserMode);
       },
       child: Container(
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: isEraserMode
+          color: widget.isEraserMode
               ? const Color(0xFF5B7FFF)
               : (isDark ? Colors.grey[800] : Colors.grey[100]),
           borderRadius: BorderRadius.circular(8),
@@ -257,7 +296,7 @@ class HighlightToolbar extends StatelessWidget {
         child: Icon(
           CupertinoIcons.clear_circled,
           size: 20,
-          color: isEraserMode
+          color: widget.isEraserMode
               ? Colors.white
               : (isDark ? Colors.white : Colors.black),
         ),

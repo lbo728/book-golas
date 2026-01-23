@@ -4,14 +4,13 @@ import 'package:book_golas/domain/models/highlight_data.dart';
 
 class HighlightPainter extends CustomPainter {
   final List<HighlightData> highlights;
-  final Size imageSize;
   final List<Offset>? currentDrawingPoints;
   final Color? currentColor;
   final double? currentStrokeWidth;
 
   HighlightPainter({
     required this.highlights,
-    required this.imageSize,
+    required Size imageSize,
     this.currentDrawingPoints,
     this.currentColor,
     this.currentStrokeWidth,
@@ -29,7 +28,7 @@ class HighlightPainter extends CustomPainter {
         ..strokeJoin = StrokeJoin.round
         ..style = PaintingStyle.stroke;
 
-      final path = highlight.toPath(imageSize);
+      final path = highlight.toPath(size);
       canvas.drawPath(path, paint);
     }
 
