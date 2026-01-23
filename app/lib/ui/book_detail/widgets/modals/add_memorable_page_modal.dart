@@ -2,11 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:book_golas/domain/models/highlight_data.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 import 'package:book_golas/ui/core/widgets/extracted_text_modal.dart';
 import 'package:book_golas/ui/core/widgets/full_text_view_modal.dart';
 import 'package:book_golas/ui/core/utils/text_history_manager.dart';
+import 'package:book_golas/ui/book_detail/widgets/highlight/highlight_overlay.dart';
+import 'package:book_golas/ui/book_detail/widgets/highlight/highlight_toolbar.dart';
+import 'package:book_golas/ui/book_detail/widgets/highlight/highlight_painter.dart';
 
 class AddMemorablePageModal extends StatefulWidget {
   final Uint8List? initialImageBytes;
@@ -25,6 +29,7 @@ class AddMemorablePageModal extends StatefulWidget {
     Uint8List? imageBytes,
     required String extractedText,
     int? pageNumber,
+    List<HighlightData>? highlights,
   }) onUpload;
   final void Function(Uint8List? imageBytes, String text, int? pageNumber)?
       onStateChanged;
@@ -61,6 +66,12 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
   bool _hideKeyboardAccessory = false;
   bool _uploadSuccess = false;
   late TextHistoryManager _historyManager;
+
+  bool _isHighlightMode = false;
+  List<HighlightData> _highlights = [];
+  String _selectedHighlightColor = HighlightColor.yellow;
+  bool _isEraserMode = false;
+  final List<List<HighlightData>> _highlightHistory = [];
 
   @override
   void initState() {
@@ -118,6 +129,41 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
 
   bool get _canUndo => _historyManager.canUndo;
   bool get _canRedo => _historyManager.canRedo;
+
+  void _enterHighlightMode() {
+    _highlightHistory.clear();
+    _highlightHistory.add(List.from(_highlights));
+    setState(() {
+      _isHighlightMode = true;
+      _isEraserMode = false;
+    });
+  }
+
+  void _exitHighlightMode() {
+    setState(() {
+      _isHighlightMode = false;
+      _isEraserMode = false;
+    });
+    _highlightHistory.clear();
+  }
+
+  void _saveHighlightState() {
+    _highlightHistory.add(List.from(_highlights));
+    if (_highlightHistory.length > 50) {
+      _highlightHistory.removeAt(0);
+    }
+  }
+
+  void _undoHighlight() {
+    if (_highlightHistory.length > 1) {
+      _highlightHistory.removeLast();
+      setState(() {
+        _highlights = List.from(_highlightHistory.last);
+      });
+    }
+  }
+
+  bool get _canUndoHighlight => _highlightHistory.length > 1;
 
   void _handleClose() {
     Navigator.pop(context);
@@ -211,6 +257,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
       imageBytes: _fullImageBytes,
       extractedText: _textController.text,
       pageNumber: int.tryParse(_pageController.text),
+      highlights: _highlights.isNotEmpty ? _highlights : null,
     );
     if (success && mounted) {
       _uploadSuccess = true;
@@ -420,6 +467,8 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
       _pageController.clear();
       _pageValidationError = null;
       _hasShownPageError = false;
+      _highlights.clear();
+      _highlightHistory.clear();
     });
     _notifyStateChanged();
   }
@@ -473,8 +522,11 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
   Widget _buildContent(bool isDark) {
     final isTextFocused = _textFocusNode.hasFocus;
 
+    if (_isHighlightMode && _fullImageBytes != null) {
+      return _buildHighlightModeView(isDark);
+    }
+
     if (isTextFocused) {
-      // 풀 모달 모드: 텍스트 필드만 표시
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
@@ -489,7 +541,6 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
       );
     }
 
-    // 일반 모드: 전체 스크롤 가능
     return SingleChildScrollView(
       controller: _scrollController,
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -504,6 +555,119 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
           const SizedBox(height: 100),
         ],
       ),
+    );
+  }
+
+  Widget _buildHighlightModeView(bool isDark) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '하이라이트 편집',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+              GestureDetector(
+                onTap: _exitHighlightMode,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF5B7FFF),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    '완료',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: isDark ? Colors.grey[900] : Colors.grey[100],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.memory(
+                        _fullImageBytes!,
+                        fit: BoxFit.contain,
+                      ),
+                      Positioned.fill(
+                        child: HighlightOverlay(
+                          imageSize: Size(
+                            constraints.maxWidth,
+                            constraints.maxHeight,
+                          ),
+                          highlights: _highlights,
+                          selectedColor: _selectedHighlightColor,
+                          isEraserMode: _isEraserMode,
+                          onHighlightAdded: (highlight) {
+                            _saveHighlightState();
+                            setState(() {
+                              _highlights.add(highlight);
+                            });
+                          },
+                          onHighlightRemoved: (highlightId) {
+                            _saveHighlightState();
+                            setState(() {
+                              _highlights
+                                  .removeWhere((h) => h.id == highlightId);
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: HighlightToolbar(
+            selectedColor: _selectedHighlightColor,
+            isEraserMode: _isEraserMode,
+            canUndo: _canUndoHighlight,
+            onColorSelected: (color) {
+              setState(() {
+                _selectedHighlightColor = color;
+                _isEraserMode = false;
+              });
+            },
+            onEraserModeChanged: (isEraser) {
+              setState(() {
+                _isEraserMode = isEraser;
+              });
+            },
+            onUndoTap: _undoHighlight,
+          ),
+        ),
+        SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
+      ],
     );
   }
 
@@ -532,11 +696,66 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(14),
-            child: Image.memory(
-              _fullImageBytes!,
-              width: double.infinity,
-              height: double.infinity,
-              fit: BoxFit.cover,
+            child: Stack(
+              children: [
+                Image.memory(
+                  _fullImageBytes!,
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+                if (_highlights.isNotEmpty)
+                  Positioned.fill(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return CustomPaint(
+                          painter: HighlightPainter(
+                            highlights: _highlights,
+                            imageSize: Size(
+                              constraints.maxWidth,
+                              constraints.maxHeight,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 8,
+            right: 8,
+            child: GestureDetector(
+              onTap: _enterHighlightMode,
+              behavior: HitTestBehavior.opaque,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: _highlights.isNotEmpty
+                      ? const Color(0xFF5B7FFF).withValues(alpha: 0.9)
+                      : Colors.black54,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      CupertinoIcons.pencil_outline,
+                      size: 14,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      _highlights.isNotEmpty
+                          ? '하이라이트 (${_highlights.length})'
+                          : '하이라이트',
+                      style: const TextStyle(fontSize: 12, color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
           Positioned(
@@ -584,6 +803,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                     if (!mounted) return;
                     setState(() {
                       _fullImageBytes = imageBytes;
+                      _highlights.clear();
                       if (ocrText.isNotEmpty) {
                         _textController.text = ocrText;
                       }
@@ -1098,6 +1318,7 @@ Future<Map<String, dynamic>?> showAddMemorablePageModal({
     Uint8List? imageBytes,
     required String extractedText,
     int? pageNumber,
+    List<HighlightData>? highlights,
   }) onUpload,
   void Function(Uint8List? imageBytes, String text, int? pageNumber)?
       onStateChanged,

@@ -580,11 +580,13 @@ class _BookDetailContentState extends State<_BookDetailContent>
       onUpload: (
           {Uint8List? imageBytes,
           required String extractedText,
-          int? pageNumber}) async {
+          int? pageNumber,
+          List<HighlightData>? highlights}) async {
         return await _uploadAndSaveMemorablePage(
             imageBytes: imageBytes,
             extractedText: extractedText,
-            pageNumber: pageNumber);
+            pageNumber: pageNumber,
+            highlights: highlights);
       },
       onStateChanged: (imageBytes, text, pageNumber) {
         if (imageBytes != null || text.isNotEmpty || pageNumber != null) {
@@ -607,7 +609,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
   Future<bool> _uploadAndSaveMemorablePage(
       {Uint8List? imageBytes,
       required String extractedText,
-      int? pageNumber}) async {
+      int? pageNumber,
+      List<HighlightData>? highlights}) async {
     final memorableVm = context.read<MemorablePageViewModel>();
     final bookVm = context.read<BookDetailViewModel>();
 
@@ -623,17 +626,21 @@ class _BookDetailContentState extends State<_BookDetailContent>
       }
 
       final userId = Supabase.instance.client.auth.currentUser?.id;
+      final insertData = {
+        'book_id': bookVm.currentBook.id,
+        'user_id': userId,
+        'image_url': publicUrl,
+        'caption': '',
+        'extracted_text': extractedText.isEmpty ? null : extractedText,
+        'page_number': pageNumber,
+        'created_at': DateTime.now().toIso8601String(),
+      };
+      if (highlights != null && highlights.isNotEmpty) {
+        insertData['highlights'] = HighlightData.toJsonList(highlights);
+      }
       final insertResult = await Supabase.instance.client
           .from('book_images')
-          .insert({
-            'book_id': bookVm.currentBook.id,
-            'user_id': userId,
-            'image_url': publicUrl,
-            'caption': '',
-            'extracted_text': extractedText.isEmpty ? null : extractedText,
-            'page_number': pageNumber,
-            'created_at': DateTime.now().toIso8601String(),
-          })
+          .insert(insertData)
           .select('id')
           .single();
 
