@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:book_golas/domain/models/highlight_data.dart';
 import 'package:book_golas/ui/core/view_model/base_view_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -56,22 +57,28 @@ class MemorablePageViewModel extends BaseViewModel {
     final sorted = List<Map<String, dynamic>>.from(_cachedImages!);
     switch (_sortMode) {
       case 'page_asc':
-        sorted.sort((a, b) => (a['page_number'] ?? 0).compareTo(b['page_number'] ?? 0));
+        sorted.sort(
+            (a, b) => (a['page_number'] ?? 0).compareTo(b['page_number'] ?? 0));
         break;
       case 'page_desc':
-        sorted.sort((a, b) => (b['page_number'] ?? 0).compareTo(a['page_number'] ?? 0));
+        sorted.sort(
+            (a, b) => (b['page_number'] ?? 0).compareTo(a['page_number'] ?? 0));
         break;
       case 'date_desc':
         sorted.sort((a, b) {
-          final aDate = DateTime.tryParse(a['created_at'] ?? '') ?? DateTime(1900);
-          final bDate = DateTime.tryParse(b['created_at'] ?? '') ?? DateTime(1900);
+          final aDate =
+              DateTime.tryParse(a['created_at'] ?? '') ?? DateTime(1900);
+          final bDate =
+              DateTime.tryParse(b['created_at'] ?? '') ?? DateTime(1900);
           return bDate.compareTo(aDate);
         });
         break;
       case 'date_asc':
         sorted.sort((a, b) {
-          final aDate = DateTime.tryParse(a['created_at'] ?? '') ?? DateTime(1900);
-          final bDate = DateTime.tryParse(b['created_at'] ?? '') ?? DateTime(1900);
+          final aDate =
+              DateTime.tryParse(a['created_at'] ?? '') ?? DateTime(1900);
+          final bDate =
+              DateTime.tryParse(b['created_at'] ?? '') ?? DateTime(1900);
           return aDate.compareTo(bDate);
         });
         break;
@@ -251,8 +258,7 @@ class MemorablePageViewModel extends BaseViewModel {
     try {
       await Supabase.instance.client
           .from('book_images')
-          .update({'extracted_text': newText})
-          .eq('id', imageId);
+          .update({'extracted_text': newText}).eq('id', imageId);
 
       _editedTexts.remove(imageId);
       await fetchBookImages();
@@ -267,12 +273,22 @@ class MemorablePageViewModel extends BaseViewModel {
     required String imageId,
     required String extractedText,
     int? pageNumber,
+    List<HighlightData>? highlights,
   }) async {
     try {
-      await Supabase.instance.client.from('book_images').update({
+      final updateData = <String, dynamic>{
         'extracted_text': extractedText,
         'page_number': pageNumber,
-      }).eq('id', imageId);
+      };
+
+      if (highlights != null) {
+        updateData['highlights'] = HighlightData.toJsonList(highlights);
+      }
+
+      await Supabase.instance.client
+          .from('book_images')
+          .update(updateData)
+          .eq('id', imageId);
 
       _editedTexts.remove(imageId);
       _cachedImages = null;
