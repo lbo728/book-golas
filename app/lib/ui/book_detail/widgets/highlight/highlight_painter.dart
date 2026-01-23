@@ -23,7 +23,7 @@ class HighlightPainter extends CustomPainter {
 
       final paint = Paint()
         ..color = highlight.colorValue
-        ..strokeWidth = highlight.strokeWidth
+        ..strokeWidth = highlight.getScaledStrokeWidth(size)
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round
         ..style = PaintingStyle.stroke;

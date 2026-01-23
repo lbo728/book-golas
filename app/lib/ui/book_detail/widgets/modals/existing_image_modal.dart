@@ -815,13 +815,9 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
             width: double.infinity,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: const Color(0xFF5B7FFF),
-                width: 2,
-              ),
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(16),
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1415,7 +1411,7 @@ class _HighlightDisplayPainter extends CustomPainter {
 
       final paint = Paint()
         ..color = highlight.colorValue
-        ..strokeWidth = highlight.strokeWidth
+        ..strokeWidth = highlight.getScaledStrokeWidth(size)
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round
         ..style = PaintingStyle.stroke;

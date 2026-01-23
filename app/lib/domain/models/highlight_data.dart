@@ -40,7 +40,7 @@ class HighlightData {
     required this.points,
     required this.color,
     this.opacity = 0.5,
-    this.strokeWidth = 20.0,
+    this.strokeWidth = 0.05,
   }) : id = id ?? const Uuid().v4();
 
   factory HighlightData.fromJson(Map<String, dynamic> json) {
@@ -51,7 +51,7 @@ class HighlightData {
           .toList(),
       color: json['color'] as String,
       opacity: (json['opacity'] as num?)?.toDouble() ?? 0.5,
-      strokeWidth: (json['strokeWidth'] as num?)?.toDouble() ?? 20.0,
+      strokeWidth: (json['strokeWidth'] as num?)?.toDouble() ?? 0.05,
     );
   }
 
@@ -69,6 +69,17 @@ class HighlightData {
     final hexColor = color.replaceFirst('#', '');
     return Color(int.parse('FF$hexColor', radix: 16))
         .withValues(alpha: opacity);
+  }
+
+  double getScaledStrokeWidth(Size imageSize) {
+    if (strokeWidth > 1.0) {
+      return strokeWidth / 400.0 * imageSize.width;
+    }
+    return strokeWidth * imageSize.width;
+  }
+
+  static double normalizeStrokeWidth(double pixelWidth, Size imageSize) {
+    return pixelWidth / imageSize.width;
   }
 
   Path toPath(Size imageSize) {

@@ -101,11 +101,16 @@ class _HighlightOverlayState extends State<HighlightOverlay> {
           .map((offset) => HighlightPoint.fromOffset(offset, widget.imageSize))
           .toList();
 
+      final normalizedStrokeWidth = HighlightData.normalizeStrokeWidth(
+        widget.strokeWidth,
+        widget.imageSize,
+      );
+
       final highlight = HighlightData(
         points: points,
         color: widget.selectedColor,
         opacity: widget.selectedOpacity,
-        strokeWidth: widget.strokeWidth,
+        strokeWidth: normalizedStrokeWidth,
       );
 
       widget.onHighlightAdded(highlight);
@@ -139,8 +144,10 @@ class _HighlightOverlayState extends State<HighlightOverlay> {
 
     for (final highlight in widget.highlights.reversed) {
       final path = highlight.toPath(widget.imageSize);
+      final scaledStrokeWidth =
+          highlight.getScaledStrokeWidth(widget.imageSize);
 
-      if (_isPointNearPath(tapPoint, path, highlight.strokeWidth + 20)) {
+      if (_isPointNearPath(tapPoint, path, scaledStrokeWidth + 20)) {
         HapticFeedback.mediumImpact();
         widget.onHighlightRemoved(highlight.id);
         return;
