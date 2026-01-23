@@ -1367,12 +1367,17 @@ class _HighlightDisplayPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     for (final highlight in highlights) {
+      if (highlight.points.isEmpty) continue;
+
       final paint = Paint()
         ..color = highlight.colorValue
-        ..style = PaintingStyle.fill;
+        ..strokeWidth = highlight.strokeWidth
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..style = PaintingStyle.stroke;
 
-      final rect = highlight.rect.toRect(size);
-      canvas.drawRect(rect, paint);
+      final path = highlight.toPath(size);
+      canvas.drawPath(path, paint);
     }
   }
 

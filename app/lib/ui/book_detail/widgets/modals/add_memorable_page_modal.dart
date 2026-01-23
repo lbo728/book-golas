@@ -335,7 +335,8 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                 ),
                 if (!isKeyboardOpen &&
                     !_isUploading &&
-                    !_textFocusNode.hasFocus)
+                    !_textFocusNode.hasFocus &&
+                    !_isHighlightMode)
                   _buildUploadButton(isDark),
                 if (isKeyboardOpen &&
                     (_textFocusNode.hasFocus || _pageFocusNode.hasFocus) &&

@@ -1,84 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
-class HighlightRect {
+class HighlightPoint {
   final double x;
   final double y;
-  final double width;
-  final double height;
 
-  const HighlightRect({
-    required this.x,
-    required this.y,
-    required this.width,
-    required this.height,
-  });
+  const HighlightPoint({required this.x, required this.y});
 
-  factory HighlightRect.fromJson(Map<String, dynamic> json) {
-    return HighlightRect(
+  factory HighlightPoint.fromJson(Map<String, dynamic> json) {
+    return HighlightPoint(
       x: (json['x'] as num).toDouble(),
       y: (json['y'] as num).toDouble(),
-      width: (json['width'] as num).toDouble(),
-      height: (json['height'] as num).toDouble(),
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'x': x,
-      'y': y,
-      'width': width,
-      'height': height,
-    };
+  Map<String, dynamic> toJson() => {'x': x, 'y': y};
+
+  Offset toOffset(Size imageSize) {
+    return Offset(x * imageSize.width, y * imageSize.height);
   }
 
-  Rect toRect(Size imageSize) {
-    return Rect.fromLTWH(
-      x * imageSize.width,
-      y * imageSize.height,
-      width * imageSize.width,
-      height * imageSize.height,
-    );
-  }
-
-  factory HighlightRect.fromRect(Rect rect, Size imageSize) {
-    return HighlightRect(
-      x: rect.left / imageSize.width,
-      y: rect.top / imageSize.height,
-      width: rect.width / imageSize.width,
-      height: rect.height / imageSize.height,
+  factory HighlightPoint.fromOffset(Offset offset, Size imageSize) {
+    return HighlightPoint(
+      x: offset.dx / imageSize.width,
+      y: offset.dy / imageSize.height,
     );
   }
 }
 
 class HighlightData {
   final String id;
-  final HighlightRect rect;
+  final List<HighlightPoint> points;
   final String color;
   final double opacity;
+  final double strokeWidth;
 
   HighlightData({
     String? id,
-    required this.rect,
+    required this.points,
     required this.color,
-    this.opacity = 0.4,
+    this.opacity = 0.5,
+    this.strokeWidth = 20.0,
   }) : id = id ?? const Uuid().v4();
 
   factory HighlightData.fromJson(Map<String, dynamic> json) {
     return HighlightData(
       id: json['id'] as String,
-      rect: HighlightRect.fromJson(json['rect'] as Map<String, dynamic>),
+      points: (json['points'] as List)
+          .map((p) => HighlightPoint.fromJson(p as Map<String, dynamic>))
+          .toList(),
       color: json['color'] as String,
-      opacity: (json['opacity'] as num?)?.toDouble() ?? 0.4,
+      opacity: (json['opacity'] as num?)?.toDouble() ?? 0.5,
+      strokeWidth: (json['strokeWidth'] as num?)?.toDouble() ?? 20.0,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'rect': rect.toJson(),
+      'points': points.map((p) => p.toJson()).toList(),
       'color': color,
       'opacity': opacity,
+      'strokeWidth': strokeWidth,
     };
   }
 
@@ -88,17 +71,34 @@ class HighlightData {
         .withValues(alpha: opacity);
   }
 
+  Path toPath(Size imageSize) {
+    if (points.isEmpty) return Path();
+
+    final path = Path();
+    final firstPoint = points.first.toOffset(imageSize);
+    path.moveTo(firstPoint.dx, firstPoint.dy);
+
+    for (int i = 1; i < points.length; i++) {
+      final point = points[i].toOffset(imageSize);
+      path.lineTo(point.dx, point.dy);
+    }
+
+    return path;
+  }
+
   HighlightData copyWith({
     String? id,
-    HighlightRect? rect,
+    List<HighlightPoint>? points,
     String? color,
     double? opacity,
+    double? strokeWidth,
   }) {
     return HighlightData(
       id: id ?? this.id,
-      rect: rect ?? this.rect,
+      points: points ?? this.points,
       color: color ?? this.color,
       opacity: opacity ?? this.opacity,
+      strokeWidth: strokeWidth ?? this.strokeWidth,
     );
   }
 

@@ -5,45 +5,60 @@ import 'package:book_golas/domain/models/highlight_data.dart';
 class HighlightPainter extends CustomPainter {
   final List<HighlightData> highlights;
   final Size imageSize;
-  final Rect? currentDrawingRect;
+  final List<Offset>? currentDrawingPoints;
   final Color? currentColor;
+  final double? currentStrokeWidth;
 
   HighlightPainter({
     required this.highlights,
     required this.imageSize,
-    this.currentDrawingRect,
+    this.currentDrawingPoints,
     this.currentColor,
+    this.currentStrokeWidth,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     for (final highlight in highlights) {
+      if (highlight.points.isEmpty) continue;
+
       final paint = Paint()
         ..color = highlight.colorValue
-        ..style = PaintingStyle.fill;
+        ..strokeWidth = highlight.strokeWidth
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..style = PaintingStyle.stroke;
 
-      final rect = highlight.rect.toRect(imageSize);
-      canvas.drawRect(rect, paint);
+      final path = highlight.toPath(imageSize);
+      canvas.drawPath(path, paint);
     }
 
-    if (currentDrawingRect != null && currentColor != null) {
+    if (currentDrawingPoints != null &&
+        currentDrawingPoints!.isNotEmpty &&
+        currentColor != null) {
       final paint = Paint()
         ..color = currentColor!
-        ..style = PaintingStyle.fill;
-      canvas.drawRect(currentDrawingRect!, paint);
+        ..strokeWidth = currentStrokeWidth ?? 20.0
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..style = PaintingStyle.stroke;
 
-      final borderPaint = Paint()
-        ..color = currentColor!.withValues(alpha: 1.0)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2;
-      canvas.drawRect(currentDrawingRect!, borderPaint);
+      final path = Path();
+      path.moveTo(
+          currentDrawingPoints!.first.dx, currentDrawingPoints!.first.dy);
+
+      for (int i = 1; i < currentDrawingPoints!.length; i++) {
+        path.lineTo(currentDrawingPoints![i].dx, currentDrawingPoints![i].dy);
+      }
+
+      canvas.drawPath(path, paint);
     }
   }
 
   @override
   bool shouldRepaint(covariant HighlightPainter oldDelegate) {
-    return oldDelegate.highlights != highlights ||
-        oldDelegate.currentDrawingRect != currentDrawingRect ||
-        oldDelegate.imageSize != imageSize;
+    return highlights != oldDelegate.highlights ||
+        currentDrawingPoints != oldDelegate.currentDrawingPoints ||
+        currentColor != oldDelegate.currentColor;
   }
 }

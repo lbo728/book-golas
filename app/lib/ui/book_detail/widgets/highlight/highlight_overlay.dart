@@ -9,6 +9,7 @@ class HighlightOverlay extends StatefulWidget {
   final List<HighlightData> highlights;
   final String selectedColor;
   final double selectedOpacity;
+  final double strokeWidth;
   final bool isEraserMode;
   final void Function(HighlightData highlight) onHighlightAdded;
   final void Function(String highlightId) onHighlightRemoved;
@@ -18,7 +19,8 @@ class HighlightOverlay extends StatefulWidget {
     required this.imageSize,
     required this.highlights,
     required this.selectedColor,
-    this.selectedOpacity = 0.4,
+    this.selectedOpacity = 0.5,
+    this.strokeWidth = 20.0,
     required this.isEraserMode,
     required this.onHighlightAdded,
     required this.onHighlightRemoved,
@@ -29,13 +31,7 @@ class HighlightOverlay extends StatefulWidget {
 }
 
 class _HighlightOverlayState extends State<HighlightOverlay> {
-  Offset? _startPoint;
-  Offset? _currentPoint;
-
-  Rect? get _currentRect {
-    if (_startPoint == null || _currentPoint == null) return null;
-    return Rect.fromPoints(_startPoint!, _currentPoint!);
-  }
+  List<Offset> _currentPoints = [];
 
   Color get _currentColor {
     return HighlightColor.toColor(widget.selectedColor)
@@ -53,8 +49,9 @@ class _HighlightOverlayState extends State<HighlightOverlay> {
         painter: HighlightPainter(
           highlights: widget.highlights,
           imageSize: widget.imageSize,
-          currentDrawingRect: widget.isEraserMode ? null : _currentRect,
+          currentDrawingPoints: widget.isEraserMode ? null : _currentPoints,
           currentColor: _currentColor,
+          currentStrokeWidth: widget.strokeWidth,
         ),
         size: widget.imageSize,
       ),
@@ -65,8 +62,7 @@ class _HighlightOverlayState extends State<HighlightOverlay> {
     if (widget.isEraserMode) return;
 
     setState(() {
-      _startPoint = details.localPosition;
-      _currentPoint = details.localPosition;
+      _currentPoints = [details.localPosition];
     });
   }
 
@@ -74,28 +70,32 @@ class _HighlightOverlayState extends State<HighlightOverlay> {
     if (widget.isEraserMode) return;
 
     setState(() {
-      _currentPoint = details.localPosition;
+      _currentPoints.add(details.localPosition);
     });
   }
 
   void _onPanEnd(DragEndDetails details) {
     if (widget.isEraserMode) return;
 
-    final rect = _currentRect;
-    if (rect != null && rect.width > 10 && rect.height > 10) {
+    if (_currentPoints.length >= 2) {
       HapticFeedback.lightImpact();
-      final normalizedRect = HighlightRect.fromRect(rect, widget.imageSize);
+
+      final points = _currentPoints
+          .map((offset) => HighlightPoint.fromOffset(offset, widget.imageSize))
+          .toList();
+
       final highlight = HighlightData(
-        rect: normalizedRect,
+        points: points,
         color: widget.selectedColor,
         opacity: widget.selectedOpacity,
+        strokeWidth: widget.strokeWidth,
       );
+
       widget.onHighlightAdded(highlight);
     }
 
     setState(() {
-      _startPoint = null;
-      _currentPoint = null;
+      _currentPoints = [];
     });
   }
 
@@ -103,12 +103,33 @@ class _HighlightOverlayState extends State<HighlightOverlay> {
     final tapPoint = details.localPosition;
 
     for (final highlight in widget.highlights.reversed) {
-      final rect = highlight.rect.toRect(widget.imageSize);
-      if (rect.contains(tapPoint)) {
+      final path = highlight.toPath(widget.imageSize);
+
+      final strokePaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = highlight.strokeWidth + 20;
+
+      if (_isPointNearPath(tapPoint, path, highlight.strokeWidth + 20)) {
         HapticFeedback.mediumImpact();
         widget.onHighlightRemoved(highlight.id);
         return;
       }
     }
+  }
+
+  bool _isPointNearPath(Offset point, Path path, double tolerance) {
+    final metrics = path.computeMetrics();
+    for (final metric in metrics) {
+      for (double t = 0; t <= metric.length; t += 5) {
+        final tangent = metric.getTangentForOffset(t);
+        if (tangent != null) {
+          final distance = (tangent.position - point).distance;
+          if (distance <= tolerance) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 }
