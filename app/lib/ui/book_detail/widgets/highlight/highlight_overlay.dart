@@ -32,6 +32,8 @@ class HighlightOverlay extends StatefulWidget {
 
 class _HighlightOverlayState extends State<HighlightOverlay> {
   List<Offset> _currentPoints = [];
+  int? _activePointerId;
+  int _pointerCount = 0;
 
   Color get _currentColor {
     return HighlightColor.toColor(widget.selectedColor)
@@ -40,44 +42,59 @@ class _HighlightOverlayState extends State<HighlightOverlay> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onPanStart: _onPanStart,
-      onPanUpdate: _onPanUpdate,
-      onPanEnd: _onPanEnd,
-      onTapUp: widget.isEraserMode ? _onTapForEraser : null,
-      child: CustomPaint(
-        painter: HighlightPainter(
-          highlights: widget.highlights,
-          imageSize: widget.imageSize,
-          currentDrawingPoints: widget.isEraserMode ? null : _currentPoints,
-          currentColor: _currentColor,
-          currentStrokeWidth: widget.strokeWidth,
+    return Listener(
+      onPointerDown: _onPointerDown,
+      onPointerMove: _onPointerMove,
+      onPointerUp: _onPointerUp,
+      onPointerCancel: _onPointerCancel,
+      child: GestureDetector(
+        onTapUp: widget.isEraserMode ? _onTapForEraser : null,
+        child: CustomPaint(
+          painter: HighlightPainter(
+            highlights: widget.highlights,
+            imageSize: widget.imageSize,
+            currentDrawingPoints: widget.isEraserMode ? null : _currentPoints,
+            currentColor: _currentColor,
+            currentStrokeWidth: widget.strokeWidth,
+          ),
+          size: widget.imageSize,
         ),
-        size: widget.imageSize,
       ),
     );
   }
 
-  void _onPanStart(DragStartDetails details) {
+  void _onPointerDown(PointerDownEvent event) {
+    _pointerCount++;
+
+    if (_pointerCount > 1) {
+      _cancelDrawing();
+      return;
+    }
+
     if (widget.isEraserMode) return;
 
+    _activePointerId = event.pointer;
     setState(() {
-      _currentPoints = [details.localPosition];
+      _currentPoints = [event.localPosition];
     });
   }
 
-  void _onPanUpdate(DragUpdateDetails details) {
+  void _onPointerMove(PointerMoveEvent event) {
+    if (_pointerCount > 1) return;
     if (widget.isEraserMode) return;
+    if (_activePointerId != event.pointer) return;
 
     setState(() {
-      _currentPoints.add(details.localPosition);
+      _currentPoints.add(event.localPosition);
     });
   }
 
-  void _onPanEnd(DragEndDetails details) {
-    if (widget.isEraserMode) return;
+  void _onPointerUp(PointerUpEvent event) {
+    _pointerCount--;
 
-    if (_currentPoints.length >= 2) {
+    if (event.pointer != _activePointerId) return;
+
+    if (!widget.isEraserMode && _currentPoints.length >= 2) {
       HapticFeedback.lightImpact();
 
       final points = _currentPoints
@@ -94,8 +111,26 @@ class _HighlightOverlayState extends State<HighlightOverlay> {
       widget.onHighlightAdded(highlight);
     }
 
+    _resetDrawing();
+  }
+
+  void _onPointerCancel(PointerCancelEvent event) {
+    _pointerCount--;
+    if (event.pointer == _activePointerId) {
+      _resetDrawing();
+    }
+  }
+
+  void _cancelDrawing() {
     setState(() {
       _currentPoints = [];
+    });
+  }
+
+  void _resetDrawing() {
+    setState(() {
+      _currentPoints = [];
+      _activePointerId = null;
     });
   }
 
@@ -104,10 +139,6 @@ class _HighlightOverlayState extends State<HighlightOverlay> {
 
     for (final highlight in widget.highlights.reversed) {
       final path = highlight.toPath(widget.imageSize);
-
-      final strokePaint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = highlight.strokeWidth + 20;
 
       if (_isPointNearPath(tapPoint, path, highlight.strokeWidth + 20)) {
         HapticFeedback.mediumImpact();

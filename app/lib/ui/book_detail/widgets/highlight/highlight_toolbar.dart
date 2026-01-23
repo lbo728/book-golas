@@ -6,19 +6,23 @@ import 'package:book_golas/domain/models/highlight_data.dart';
 
 class HighlightToolbar extends StatelessWidget {
   final String selectedColor;
+  final double selectedOpacity;
   final bool isEraserMode;
   final VoidCallback onUndoTap;
   final bool canUndo;
   final void Function(String color) onColorSelected;
+  final void Function(double opacity) onOpacityChanged;
   final void Function(bool isEraser) onEraserModeChanged;
 
   const HighlightToolbar({
     super.key,
     required this.selectedColor,
+    this.selectedOpacity = 0.5,
     required this.isEraserMode,
     required this.onUndoTap,
     required this.canUndo,
     required this.onColorSelected,
+    required this.onOpacityChanged,
     required this.onEraserModeChanged,
   });
 
@@ -27,7 +31,7 @@ class HighlightToolbar extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -39,21 +43,70 @@ class HighlightToolbar extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildUndoButton(isDark),
-          const SizedBox(width: 8),
-          _buildDivider(isDark),
-          const SizedBox(width: 8),
-          ...HighlightColor.colors
-              .map((color) => _buildColorButton(color, isDark)),
-          const SizedBox(width: 8),
-          _buildDivider(isDark),
-          const SizedBox(width: 8),
-          _buildEraserButton(isDark),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildUndoButton(isDark),
+              const SizedBox(width: 8),
+              _buildDivider(isDark),
+              const SizedBox(width: 8),
+              ...HighlightColor.colors
+                  .map((color) => _buildColorButton(color, isDark)),
+              const SizedBox(width: 8),
+              _buildDivider(isDark),
+              const SizedBox(width: 8),
+              _buildEraserButton(isDark),
+            ],
+          ),
+          const SizedBox(height: 8),
+          _buildOpacitySlider(isDark),
         ],
       ),
+    );
+  }
+
+  Widget _buildOpacitySlider(bool isDark) {
+    final color = HighlightColor.toColor(selectedColor);
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          CupertinoIcons.sun_min,
+          size: 16,
+          color: isDark ? Colors.grey[500] : Colors.grey[400],
+        ),
+        SizedBox(
+          width: 180,
+          child: SliderTheme(
+            data: SliderThemeData(
+              activeTrackColor: color.withValues(alpha: selectedOpacity),
+              inactiveTrackColor: isDark ? Colors.grey[700] : Colors.grey[300],
+              thumbColor: color,
+              overlayColor: color.withValues(alpha: 0.2),
+              trackHeight: 4,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+            ),
+            child: Slider(
+              value: selectedOpacity,
+              min: 0.1,
+              max: 0.8,
+              onChanged: (value) {
+                HapticFeedback.selectionClick();
+                onOpacityChanged(value);
+              },
+            ),
+          ),
+        ),
+        Icon(
+          CupertinoIcons.sun_max_fill,
+          size: 16,
+          color: isDark ? Colors.grey[400] : Colors.grey[600],
+        ),
+      ],
     );
   }
 

@@ -70,6 +70,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
   bool _isHighlightMode = false;
   List<HighlightData> _highlights = [];
   String _selectedHighlightColor = HighlightColor.yellow;
+  double _selectedHighlightOpacity = 0.5;
   bool _isEraserMode = false;
   final List<List<HighlightData>> _highlightHistory = [];
 
@@ -608,38 +609,44 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
               borderRadius: BorderRadius.circular(12),
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  return Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.memory(
-                        _fullImageBytes!,
-                        fit: BoxFit.contain,
-                      ),
-                      Positioned.fill(
-                        child: HighlightOverlay(
-                          imageSize: Size(
-                            constraints.maxWidth,
-                            constraints.maxHeight,
-                          ),
-                          highlights: _highlights,
-                          selectedColor: _selectedHighlightColor,
-                          isEraserMode: _isEraserMode,
-                          onHighlightAdded: (highlight) {
-                            _saveHighlightState();
-                            setState(() {
-                              _highlights.add(highlight);
-                            });
-                          },
-                          onHighlightRemoved: (highlightId) {
-                            _saveHighlightState();
-                            setState(() {
-                              _highlights
-                                  .removeWhere((h) => h.id == highlightId);
-                            });
-                          },
+                  return InteractiveViewer(
+                    minScale: 1.0,
+                    maxScale: 3.0,
+                    panEnabled: false,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Image.memory(
+                          _fullImageBytes!,
+                          fit: BoxFit.contain,
                         ),
-                      ),
-                    ],
+                        Positioned.fill(
+                          child: HighlightOverlay(
+                            imageSize: Size(
+                              constraints.maxWidth,
+                              constraints.maxHeight,
+                            ),
+                            highlights: _highlights,
+                            selectedColor: _selectedHighlightColor,
+                            selectedOpacity: _selectedHighlightOpacity,
+                            isEraserMode: _isEraserMode,
+                            onHighlightAdded: (highlight) {
+                              _saveHighlightState();
+                              setState(() {
+                                _highlights.add(highlight);
+                              });
+                            },
+                            onHighlightRemoved: (highlightId) {
+                              _saveHighlightState();
+                              setState(() {
+                                _highlights
+                                    .removeWhere((h) => h.id == highlightId);
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 },
               ),
@@ -651,12 +658,18 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: HighlightToolbar(
             selectedColor: _selectedHighlightColor,
+            selectedOpacity: _selectedHighlightOpacity,
             isEraserMode: _isEraserMode,
             canUndo: _canUndoHighlight,
             onColorSelected: (color) {
               setState(() {
                 _selectedHighlightColor = color;
                 _isEraserMode = false;
+              });
+            },
+            onOpacityChanged: (opacity) {
+              setState(() {
+                _selectedHighlightOpacity = opacity;
               });
             },
             onEraserModeChanged: (isEraser) {

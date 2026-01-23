@@ -83,6 +83,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
   List<HighlightData> _highlights = [];
   List<HighlightData> _originalHighlights = [];
   String _selectedHighlightColor = HighlightColor.yellow;
+  double _selectedHighlightOpacity = 0.5;
   bool _isEraserMode = false;
   final List<List<HighlightData>> _highlightHistory = [];
   Size? _imageSize;
@@ -687,59 +688,67 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(15),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Hero(
-                tag: 'book_image_${widget.imageId}',
-                child: CachedNetworkImage(
-                  imageUrl: _imageUrl!,
-                  cacheManager: BookImageCacheManager.instance,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Shimmer.fromColors(
-                    baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
-                    highlightColor:
-                        isDark ? Colors.grey[700]! : Colors.grey[100]!,
-                    child: Container(
-                      color: isDark ? Colors.grey[800] : Colors.grey[200],
-                    ),
-                  ),
-                  errorWidget: (context, url, error) => Container(
-                    color: isDark ? Colors.grey[800] : Colors.grey[200],
-                    child: Icon(
-                      CupertinoIcons.photo,
-                      color: isDark ? Colors.grey[600] : Colors.grey[400],
-                    ),
-                  ),
-                ),
-              ),
-              if (_highlights.isNotEmpty && _imageSize != null)
-                Positioned.fill(
-                  child: IgnorePointer(
-                    child: CustomPaint(
-                      painter: _HighlightDisplayPainter(
-                        highlights: _highlights,
-                        imageSize: _imageSize!,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final displaySize =
+                  Size(constraints.maxWidth, constraints.maxHeight);
+
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  Hero(
+                    tag: 'book_image_${widget.imageId}',
+                    child: CachedNetworkImage(
+                      imageUrl: _imageUrl!,
+                      cacheManager: BookImageCacheManager.instance,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor:
+                            isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                        highlightColor:
+                            isDark ? Colors.grey[700]! : Colors.grey[100]!,
+                        child: Container(
+                          color: isDark ? Colors.grey[800] : Colors.grey[200],
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: isDark ? Colors.grey[800] : Colors.grey[200],
+                        child: Icon(
+                          CupertinoIcons.photo,
+                          color: isDark ? Colors.grey[600] : Colors.grey[400],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: _buildHighlightModeButton(isDark),
-              ),
-              Positioned(
-                bottom: 8,
-                right: 8,
-                child: _buildExtractTextButton(),
-              ),
-              Positioned(
-                bottom: 8,
-                left: 8,
-                child: _buildReplaceImageButton(),
-              ),
-            ],
+                  if (_highlights.isNotEmpty)
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: CustomPaint(
+                          painter: _HighlightDisplayPainter(
+                            highlights: _highlights,
+                            imageSize: displaySize,
+                          ),
+                        ),
+                      ),
+                    ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: _buildHighlightModeButton(isDark),
+                  ),
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: _buildExtractTextButton(),
+                  ),
+                  Positioned(
+                    bottom: 8,
+                    left: 8,
+                    child: _buildReplaceImageButton(),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -812,32 +821,38 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                   }
                 });
 
-                return Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    CachedNetworkImage(
-                      key: _imageKey,
-                      imageUrl: _imageUrl!,
-                      cacheManager: BookImageCacheManager.instance,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: isDark ? Colors.grey[800] : Colors.grey[200],
+                return InteractiveViewer(
+                  minScale: 1.0,
+                  maxScale: 3.0,
+                  panEnabled: false,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      CachedNetworkImage(
+                        key: _imageKey,
+                        imageUrl: _imageUrl!,
+                        cacheManager: BookImageCacheManager.instance,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          color: isDark ? Colors.grey[800] : Colors.grey[200],
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          color: isDark ? Colors.grey[800] : Colors.grey[200],
+                          child: const Icon(CupertinoIcons.photo),
+                        ),
                       ),
-                      errorWidget: (context, url, error) => Container(
-                        color: isDark ? Colors.grey[800] : Colors.grey[200],
-                        child: const Icon(CupertinoIcons.photo),
-                      ),
-                    ),
-                    if (_imageSize != null)
-                      HighlightOverlay(
-                        imageSize: _imageSize!,
-                        highlights: _highlights,
-                        selectedColor: _selectedHighlightColor,
-                        isEraserMode: _isEraserMode,
-                        onHighlightAdded: _addHighlight,
-                        onHighlightRemoved: _removeHighlight,
-                      ),
-                  ],
+                      if (_imageSize != null)
+                        HighlightOverlay(
+                          imageSize: _imageSize!,
+                          highlights: _highlights,
+                          selectedColor: _selectedHighlightColor,
+                          selectedOpacity: _selectedHighlightOpacity,
+                          isEraserMode: _isEraserMode,
+                          onHighlightAdded: _addHighlight,
+                          onHighlightRemoved: _removeHighlight,
+                        ),
+                    ],
+                  ),
                 );
               },
             ),
@@ -849,6 +864,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
             Expanded(
               child: HighlightToolbar(
                 selectedColor: _selectedHighlightColor,
+                selectedOpacity: _selectedHighlightOpacity,
                 isEraserMode: _isEraserMode,
                 onUndoTap: _undoHighlight,
                 canUndo: _canUndoHighlight,
@@ -856,6 +872,11 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                   setState(() {
                     _selectedHighlightColor = color;
                     _isEraserMode = false;
+                  });
+                },
+                onOpacityChanged: (opacity) {
+                  setState(() {
+                    _selectedHighlightOpacity = opacity;
                   });
                 },
                 onEraserModeChanged: (isEraser) {
