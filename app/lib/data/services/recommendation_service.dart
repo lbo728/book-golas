@@ -86,6 +86,24 @@ class RecommendationResult {
 class RecommendationService {
   final _supabase = Supabase.instance.client;
 
+  Future<int> getCompletedBooksCount() async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return 0;
+
+      final response = await _supabase
+          .from('books')
+          .select('id')
+          .eq('user_id', userId)
+          .eq('status', 'completed');
+
+      return (response as List).length;
+    } catch (e) {
+      debugPrint('[RecommendationService] getCompletedBooksCount error: $e');
+      return 0;
+    }
+  }
+
   Future<RecommendationResult> getRecommendations() async {
     try {
       final userId = _supabase.auth.currentUser?.id;

@@ -331,6 +331,10 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
   }
 
   Widget _buildRecommendationsSection(ReadingStartViewModel vm, bool isDark) {
+    if (!vm.hasCompletedBooks) {
+      return const SizedBox.shrink();
+    }
+
     if (vm.isLoadingRecommendations) {
       return Padding(
         padding: const EdgeInsets.all(24),

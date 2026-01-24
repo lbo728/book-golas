@@ -36,6 +36,7 @@ class ReadingStartViewModel extends BaseViewModel {
   RecommendationStats? _recommendationStats;
   String? _recommendationError;
   bool _hasLoadedRecommendations = false;
+  bool _hasCompletedBooks = false;
 
   List<BookSearchResult> get searchResults => _searchResults;
   bool get isSearching => _isSearching;
@@ -57,6 +58,10 @@ class ReadingStartViewModel extends BaseViewModel {
   RecommendationStats? get recommendationStats => _recommendationStats;
   String? get recommendationError => _recommendationError;
   bool get hasRecommendations => _recommendations.isNotEmpty;
+  bool get hasCompletedBooks => _hasCompletedBooks;
+  bool get shouldShowRecommendations =>
+      _hasCompletedBooks &&
+      (_isLoadingRecommendations || _recommendations.isNotEmpty);
 
   /// 실제 사용할 시작일 (상태에 따라 다름)
   DateTime get effectiveStartDate =>
@@ -72,10 +77,19 @@ class ReadingStartViewModel extends BaseViewModel {
     if (_hasLoadedRecommendations) return;
     _hasLoadedRecommendations = true;
 
-    _isLoadingRecommendations = true;
-    notifyListeners();
-
     try {
+      final completedCount =
+          await _recommendationService.getCompletedBooksCount();
+      _hasCompletedBooks = completedCount > 0;
+
+      if (!_hasCompletedBooks) {
+        notifyListeners();
+        return;
+      }
+
+      _isLoadingRecommendations = true;
+      notifyListeners();
+
       final cached = await _recommendationService.getCachedRecommendations();
       if (cached != null && cached.recommendations.isNotEmpty) {
         _recommendations = cached.recommendations;
