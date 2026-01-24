@@ -89,6 +89,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
     );
 
     final vm = context.read<ReadingStartViewModel>();
+    vm.setTitleController(_titleController);
 
     if (widget.title != null) {
       _titleController.text = widget.title!;
@@ -102,7 +103,6 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
         vm.goToSchedulePage();
       });
     } else {
-      // 검색 필드에 자동 포커스
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _searchFocusNode.requestFocus();
       });
@@ -298,12 +298,10 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
   }
 
   Widget _buildSearchResultsList(ReadingStartViewModel vm, bool isDark) {
-    // 검색 중
     if (vm.isSearching) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    // 검색 결과 있음
     if (vm.searchResults.isNotEmpty) {
       return ListView.builder(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -317,7 +315,6 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
       );
     }
 
-    // 검색어는 있지만 결과 없음
     if (_titleController.text.trim().isNotEmpty) {
       return Center(
         child: Text(
@@ -330,8 +327,216 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
       );
     }
 
-    // 초기 상태 (검색어 없음)
-    return const SizedBox.shrink();
+    return _buildRecommendationsSection(vm, isDark);
+  }
+
+  Widget _buildRecommendationsSection(ReadingStartViewModel vm, bool isDark) {
+    if (!vm.hasCompletedBooks) {
+      return const SizedBox.shrink();
+    }
+
+    if (vm.isLoadingRecommendations) {
+      return Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 40),
+            SizedBox(
+              width: 32,
+              height: 32,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                color: isDark ? Colors.white54 : Colors.grey[400],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '독서 패턴을 분석하고 있어요...',
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.white54 : Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (vm.recommendationError != null || !vm.hasRecommendations) {
+      return const SizedBox.shrink();
+    }
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: isDark
+                  ? [const Color(0xFF2A2D4A), const Color(0xFF1E2030)]
+                  : [const Color(0xFFF0F4FF), const Color(0xFFE8EEFF)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF5B7FFF).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.auto_awesome,
+                  color: Color(0xFF5B7FFF),
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'AI 맞춤 추천',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '독서 패턴을 분석하여 추천해드려요',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDark ? Colors.white60 : Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        ...vm.recommendations
+            .map((rec) => _buildRecommendationCard(rec, vm, isDark)),
+      ],
+    );
+  }
+
+  Widget _buildRecommendationCard(
+    dynamic recommendation,
+    ReadingStartViewModel vm,
+    bool isDark,
+  ) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        vm.selectRecommendation(recommendation);
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.black.withValues(alpha: 0.06),
+          ),
+          boxShadow: isDark
+              ? null
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 48,
+              height: 64,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF3A3A3A) : Colors.grey[200],
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Icon(
+                Icons.menu_book_rounded,
+                color: isDark ? Colors.white38 : Colors.grey[400],
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    recommendation.title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    recommendation.author,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDark ? Colors.white54 : Colors.grey[600],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      recommendation.reason,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF5B7FFF),
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(
+              CupertinoIcons.search,
+              color: isDark ? Colors.white38 : Colors.grey[400],
+              size: 18,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildSearchResultItem(
