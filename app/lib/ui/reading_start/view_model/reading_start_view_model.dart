@@ -1,14 +1,18 @@
 import 'dart:async';
 
+import 'package:flutter/widgets.dart';
+
 import 'package:book_golas/ui/core/view_model/base_view_model.dart';
 import 'package:book_golas/data/services/aladin_api_service.dart';
 import 'package:book_golas/data/services/book_service.dart';
+import 'package:book_golas/data/services/recommendation_service.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/core/utils/isbn_validator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ReadingStartViewModel extends BaseViewModel {
   final BookService _bookService;
+  final RecommendationService _recommendationService = RecommendationService();
 
   Timer? _debounce;
 
@@ -27,6 +31,12 @@ class ReadingStartViewModel extends BaseViewModel {
   int? _priority;
   String? _scanError;
 
+  List<BookRecommendation> _recommendations = [];
+  bool _isLoadingRecommendations = false;
+  RecommendationStats? _recommendationStats;
+  String? _recommendationError;
+  bool _hasLoadedRecommendations = false;
+
   List<BookSearchResult> get searchResults => _searchResults;
   bool get isSearching => _isSearching;
   BookSearchResult? get selectedBook => _selectedBook;
@@ -42,13 +52,84 @@ class ReadingStartViewModel extends BaseViewModel {
   int? get priority => _priority;
   String? get scanError => _scanError;
 
+  List<BookRecommendation> get recommendations => _recommendations;
+  bool get isLoadingRecommendations => _isLoadingRecommendations;
+  RecommendationStats? get recommendationStats => _recommendationStats;
+  String? get recommendationError => _recommendationError;
+  bool get hasRecommendations => _recommendations.isNotEmpty;
+
   /// 실제 사용할 시작일 (상태에 따라 다름)
   DateTime get effectiveStartDate =>
       _readingStatus == BookStatus.planned ? _plannedStartDate : DateTime.now();
 
   bool get canProceedToSchedule => _selectedBook != null;
 
-  ReadingStartViewModel(this._bookService);
+  ReadingStartViewModel(this._bookService) {
+    _loadRecommendationsIfNeeded();
+  }
+
+  Future<void> _loadRecommendationsIfNeeded() async {
+    if (_hasLoadedRecommendations) return;
+    _hasLoadedRecommendations = true;
+
+    _isLoadingRecommendations = true;
+    notifyListeners();
+
+    try {
+      final cached = await _recommendationService.getCachedRecommendations();
+      if (cached != null && cached.recommendations.isNotEmpty) {
+        _recommendations = cached.recommendations;
+        _recommendationStats = cached.stats;
+        _isLoadingRecommendations = false;
+        notifyListeners();
+        return;
+      }
+
+      final result = await _recommendationService.getRecommendations();
+      if (result.success) {
+        _recommendations = result.recommendations;
+        _recommendationStats = result.stats;
+      } else {
+        _recommendationError = result.error;
+      }
+    } catch (e) {
+      _recommendationError = e.toString();
+    } finally {
+      _isLoadingRecommendations = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> refreshRecommendations() async {
+    _isLoadingRecommendations = true;
+    _recommendationError = null;
+    notifyListeners();
+
+    try {
+      final result = await _recommendationService.getRecommendations();
+      if (result.success) {
+        _recommendations = result.recommendations;
+        _recommendationStats = result.stats;
+      } else {
+        _recommendationError = result.error;
+      }
+    } catch (e) {
+      _recommendationError = e.toString();
+    } finally {
+      _isLoadingRecommendations = false;
+      notifyListeners();
+    }
+  }
+
+  void selectRecommendation(BookRecommendation recommendation) {
+    _titleController?.text = recommendation.title;
+    _searchBooks(recommendation.title);
+  }
+
+  TextEditingController? _titleController;
+  void setTitleController(TextEditingController controller) {
+    _titleController = controller;
+  }
 
   void onSearchQueryChanged(String query) {
     if (_selectedBook != null) {
