@@ -1,5 +1,5 @@
-import { ChatOpenAI } from "https://esm.sh/@langchain/openai@0.0.28";
-import { PromptTemplate } from "https://esm.sh/@langchain/core@0.1.45/prompts";
+import { ChatOpenAI } from "@langchain/openai";
+import { PromptTemplate } from "@langchain/core/prompts";
 import type {
   UserReadingProfile,
   Recommendation,

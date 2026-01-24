@@ -1,7 +1,7 @@
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { SupabaseVectorStore } from "https://esm.sh/@langchain/community@0.0.43/vectorstores/supabase";
-import { OpenAIEmbeddings } from "https://esm.sh/@langchain/openai@0.0.28";
-import { Document } from "https://esm.sh/@langchain/core@0.1.45/documents";
+import { SupabaseClient } from "@supabase/supabase-js";
+import { SupabaseVectorStore } from "@langchain/community/vectorstores/supabase";
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { Document } from "@langchain/core/documents";
 import { config } from "../config.ts";
 import { extractKeywords } from "../utils/keyword-extractor.ts";
 
