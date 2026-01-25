@@ -98,6 +98,17 @@ class RecommendationResult {
 class RecommendationService {
   final _supabase = Supabase.instance.client;
 
+  /// 책 제목 → 이미지 URL 캐시 (앱 인스턴스 유지 동안)
+  static final Map<String, String> _imageCache = {};
+
+  /// 캐시에서 이미지 URL 조회
+  static String? getCachedImageUrl(String title) => _imageCache[title];
+
+  /// 이미지 URL 캐시에 저장
+  static void cacheImageUrl(String title, String imageUrl) {
+    _imageCache[title] = imageUrl;
+  }
+
   Future<int> getCompletedBooksCount() async {
     try {
       final userId = _supabase.auth.currentUser?.id;

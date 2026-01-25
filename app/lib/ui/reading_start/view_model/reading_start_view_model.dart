@@ -116,16 +116,27 @@ class ReadingStartViewModel extends BaseViewModel {
     }
   }
 
-  /// 추천 도서들의 이미지를 백그라운드에서 로드
+  /// 추천 도서들의 이미지를 백그라운드에서 로드 (캐시 사용)
   Future<void> _loadRecommendationImages() async {
     for (int i = 0; i < _recommendations.length; i++) {
       final rec = _recommendations[i];
       if (rec.imageUrl != null) continue;
 
+      // 캐시 확인
+      final cachedUrl = RecommendationService.getCachedImageUrl(rec.title);
+      if (cachedUrl != null) {
+        _recommendations[i] = rec.copyWith(imageUrl: cachedUrl);
+        notifyListeners();
+        continue;
+      }
+
+      // API 호출
       try {
         final results = await AladinApiService.searchBooks(rec.title);
         if (results.isNotEmpty && results.first.imageUrl != null) {
-          _recommendations[i] = rec.copyWith(imageUrl: results.first.imageUrl);
+          final imageUrl = results.first.imageUrl!;
+          RecommendationService.cacheImageUrl(rec.title, imageUrl);
+          _recommendations[i] = rec.copyWith(imageUrl: imageUrl);
           notifyListeners();
         }
       } catch (e) {

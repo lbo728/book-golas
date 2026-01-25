@@ -1,8 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'package:book_golas/ui/core/widgets/bookstore_select_sheet.dart';
 
 /// AI 추천 도서 선택 시 표시되는 액션 바텀시트
-/// - 책 내용 상세보기: 서점에서 책 정보 확인
+/// - 책 내용 상세보기: 서점에서 책 정보 확인 (슬라이드 트랜지션)
 /// - 독서 시작: 해당 책으로 독서 시작
 void showRecommendationActionSheet({
   required BuildContext context,
@@ -11,12 +15,68 @@ void showRecommendationActionSheet({
   required VoidCallback onViewDetail,
   required VoidCallback onStartReading,
 }) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-
   showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,
-    builder: (sheetContext) => Container(
+    isScrollControlled: true,
+    builder: (sheetContext) => _RecommendationActionSheetContent(
+      title: title,
+      author: author,
+      onStartReading: () {
+        Navigator.pop(sheetContext);
+        onStartReading();
+      },
+    ),
+  );
+}
+
+class _RecommendationActionSheetContent extends StatefulWidget {
+  final String title;
+  final String author;
+  final VoidCallback onStartReading;
+
+  const _RecommendationActionSheetContent({
+    required this.title,
+    required this.author,
+    required this.onStartReading,
+  });
+
+  @override
+  State<_RecommendationActionSheetContent> createState() =>
+      _RecommendationActionSheetContentState();
+}
+
+class _RecommendationActionSheetContentState
+    extends State<_RecommendationActionSheetContent> {
+  final PageController _pageController = PageController();
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _goToBookstorePage() {
+    _pageController.animateToPage(
+      1,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  void _goBackToActionPage() {
+    _pageController.animateToPage(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -34,60 +94,162 @@ void showRecommendationActionSheet({
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            SizedBox(
+              height: 320,
+              child: PageView(
+                controller: _pageController,
+                physics: const ClampingScrollPhysics(),
                 children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    author,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  _ActionButton(
-                    isDark: isDark,
-                    icon: CupertinoIcons.book,
-                    label: '책 내용 상세보기',
-                    subtitle: '서점에서 책 정보 확인',
-                    onTap: () {
-                      Navigator.pop(sheetContext);
-                      onViewDetail();
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _ActionButton(
-                    isDark: isDark,
-                    icon: CupertinoIcons.play_fill,
-                    label: '독서 시작',
-                    subtitle: '이 책으로 독서를 시작합니다',
-                    isPrimary: true,
-                    onTap: () {
-                      Navigator.pop(sheetContext);
-                      onStartReading();
-                    },
-                  ),
+                  _buildActionPage(isDark),
+                  _buildBookstorePage(isDark),
                 ],
               ),
             ),
           ],
         ),
       ),
-    ),
-  );
+    );
+  }
+
+  Widget _buildActionPage(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.title,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            widget.author,
+            style: TextStyle(
+              fontSize: 14,
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 24),
+          _ActionButton(
+            isDark: isDark,
+            icon: CupertinoIcons.book,
+            label: '책 내용 상세보기',
+            subtitle: '서점에서 책 정보를 확인해요',
+            onTap: _goToBookstorePage,
+          ),
+          const SizedBox(height: 12),
+          _ActionButton(
+            isDark: isDark,
+            icon: CupertinoIcons.play_fill,
+            label: '독서 시작',
+            subtitle: '이 책으로 독서를 시작합니다',
+            isPrimary: true,
+            onTap: widget.onStartReading,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBookstorePage(bool isDark) {
+    final searchTitle = getSearchTitle(widget.title);
+    final encodedTitle = Uri.encodeComponent(searchTitle);
+
+    return GestureDetector(
+      onHorizontalDragEnd: (details) {
+        if (details.primaryVelocity != null && details.primaryVelocity! > 300) {
+          _goBackToActionPage();
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: _goBackToActionPage,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: Icon(
+                      CupertinoIcons.chevron_back,
+                      size: 22,
+                      color: isDark ? Colors.white70 : Colors.black54,
+                    ),
+                  ),
+                ),
+                Text(
+                  '서점 선택',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '아래 서점에서 "$searchTitle"을 검색합니다',
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 20),
+            _BookstoreButton(
+              isDark: isDark,
+              logoPath: 'assets/images/logo-aladin.png',
+              name: '알라딘',
+              onTap: () async {
+                Navigator.pop(context);
+                final url =
+                    'https://www.aladin.co.kr/search/wsearchresult.aspx?SearchWord=$encodedTitle';
+                await launchUrl(Uri.parse(url),
+                    mode: LaunchMode.externalApplication);
+              },
+            ),
+            const SizedBox(height: 12),
+            _BookstoreButton(
+              isDark: isDark,
+              logoPath: 'assets/images/logo-yes24.png',
+              name: 'Yes24',
+              onTap: () async {
+                Navigator.pop(context);
+                final url =
+                    'https://www.yes24.com/Product/Search?domain=ALL&query=$encodedTitle';
+                await launchUrl(Uri.parse(url),
+                    mode: LaunchMode.externalApplication);
+              },
+            ),
+            const SizedBox(height: 12),
+            _BookstoreButton(
+              isDark: isDark,
+              logoPath: 'assets/images/logo-kyobo.svg',
+              name: '교보문고',
+              isSvg: true,
+              onTap: () async {
+                Navigator.pop(context);
+                final url =
+                    'https://search.kyobobook.co.kr/search?keyword=$encodedTitle';
+                await launchUrl(Uri.parse(url),
+                    mode: LaunchMode.externalApplication);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _ActionButton extends StatelessWidget {
@@ -167,6 +329,71 @@ class _ActionButton extends StatelessWidget {
               color: isPrimary
                   ? Colors.white70
                   : (isDark ? Colors.grey[500] : Colors.grey[400]),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BookstoreButton extends StatelessWidget {
+  final bool isDark;
+  final String logoPath;
+  final String name;
+  final VoidCallback onTap;
+  final bool isSvg;
+
+  const _BookstoreButton({
+    required this.isDark,
+    required this.logoPath,
+    required this.name,
+    required this.onTap,
+    this.isSvg = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[50],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isDark ? Colors.grey[700]! : Colors.grey[200]!,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                color: Colors.white,
+              ),
+              padding: const EdgeInsets.all(4),
+              child: isSvg
+                  ? SvgPicture.asset(logoPath, fit: BoxFit.contain)
+                  : Image.asset(logoPath, fit: BoxFit.contain),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                name,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+            ),
+            Icon(
+              CupertinoIcons.chevron_right,
+              size: 18,
+              color: isDark ? Colors.grey[500] : Colors.grey[400],
             ),
           ],
         ),

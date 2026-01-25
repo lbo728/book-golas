@@ -10,10 +10,10 @@ import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/barcode_scanner/barcode_scanner_screen.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
-import 'package:book_golas/ui/core/widgets/bookstore_select_sheet.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 import 'package:book_golas/ui/core/widgets/recommendation_action_sheet.dart';
+import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
 import 'package:book_golas/ui/reading_start/view_model/reading_start_view_model.dart';
 import 'package:book_golas/ui/reading_start/widgets/priority_selector_widget.dart';
 import 'package:book_golas/ui/reading_start/widgets/schedule_change_modal.dart';
@@ -106,8 +106,13 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
         vm.goToSchedulePage();
       });
     } else {
+      // 화면 진입 시 키보드 자동 표시 (약간의 지연 필요)
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _searchFocusNode.requestFocus();
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (mounted) {
+            _searchFocusNode.requestFocus();
+          }
+        });
       });
     }
 
@@ -187,13 +192,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
       context: context,
       title: recommendation.title,
       author: recommendation.author,
-      onViewDetail: () {
-        showBookstoreSelectSheet(
-          context: context,
-          title: recommendation.title,
-          onBack: () => _showActionSheetForRecommendation(recommendation, vm),
-        );
-      },
+      onViewDetail: () {},
       onStartReading: () async {
         final success =
             await vm.searchAndSelectFirstResult(recommendation.title);
@@ -409,26 +408,42 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
       return const SizedBox.shrink();
     }
 
+    final authVm = context.watch<AuthViewModel>();
+    final userName = authVm.currentUser?.nickname ?? '회원';
+
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
       children: [
-        // 섹션 헤더 (단순 타이틀 스타일)
+        // 섹션 헤더 (타이틀 + 디스크립션)
         Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: Row(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                Icons.auto_awesome,
-                color: const Color(0xFF5B7FFF),
-                size: 18,
+              Row(
+                children: [
+                  Icon(
+                    Icons.auto_awesome,
+                    color: const Color(0xFF5B7FFF),
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'AI 맞춤 추천',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white70 : Colors.black54,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
+              const SizedBox(height: 6),
               Text(
-                'AI 맞춤 추천',
+                '$userName님의 독서 패턴을 분석하여 추천하는 책들이에요',
                 style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white70 : Colors.black54,
+                  fontSize: 13,
+                  color: isDark ? Colors.white38 : Colors.grey[500],
                 ),
               ),
             ],
