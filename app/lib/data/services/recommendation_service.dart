@@ -5,20 +5,24 @@ class BookRecommendation {
   final String title;
   final String author;
   final String reason;
+  final List<String> keywords;
   String? imageUrl;
 
   BookRecommendation({
     required this.title,
     required this.author,
     required this.reason,
+    this.keywords = const [],
     this.imageUrl,
   });
 
   factory BookRecommendation.fromJson(Map<String, dynamic> json) {
+    final keywordsJson = json['keywords'] as List<dynamic>? ?? [];
     return BookRecommendation(
       title: json['title'] as String,
       author: json['author'] as String,
       reason: json['reason'] as String,
+      keywords: keywordsJson.map((k) => k as String).toList(),
       imageUrl: json['imageUrl'] as String?,
     );
   }
@@ -28,6 +32,7 @@ class BookRecommendation {
       title: title,
       author: author,
       reason: reason,
+      keywords: keywords,
       imageUrl: imageUrl ?? this.imageUrl,
     );
   }

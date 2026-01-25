@@ -11,7 +11,6 @@ import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/barcode_scanner/barcode_scanner_screen.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
-import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 import 'package:book_golas/ui/core/widgets/recommendation_action_sheet.dart';
 import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
 import 'package:book_golas/ui/reading_start/view_model/reading_start_view_model.dart';
@@ -192,6 +191,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
       context: context,
       title: recommendation.title,
       author: recommendation.author,
+      reason: recommendation.reason,
       onViewDetail: () {},
       onStartReading: () async {
         final success =
@@ -312,18 +312,6 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
           Positioned.fill(
             child: _buildSearchResultsList(vm, isDark),
           ),
-          // 키보드 접기 버튼 (키보드 열려있을 때만)
-          if (MediaQuery.of(context).viewInsets.bottom > 0)
-            Positioned(
-              left: 16,
-              right: 16,
-              bottom: MediaQuery.of(context).viewInsets.bottom + 64,
-              child: KeyboardAccessoryBar(
-                onDone: () => FocusScope.of(context).unfocus(),
-                isDark: isDark,
-                showNavigation: false,
-              ),
-            ),
           // 하단 바 (플로팅) - 키보드 있을 때 키보드 위 8px, 없을 때 바텀 네비와 동일 위치 (22px)
           Positioned(
             left: 16,
@@ -547,26 +535,45 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
+                  Text(
+                    recommendation.reason,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? Colors.white38 : Colors.grey[500],
+                      height: 1.4,
                     ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      recommendation.reason,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF5B7FFF),
-                        fontWeight: FontWeight.w500,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
+                  if (recommendation.keywords.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: recommendation.keywords
+                          .take(3)
+                          .map((keyword) => Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF5B7FFF)
+                                      .withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  keyword,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Color(0xFF5B7FFF),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ))
+                          .toList(),
+                    ),
+                  ],
                 ],
               ),
             ),

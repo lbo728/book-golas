@@ -12,6 +12,7 @@ void showRecommendationActionSheet({
   required BuildContext context,
   required String title,
   required String author,
+  required String reason,
   required VoidCallback onViewDetail,
   required VoidCallback onStartReading,
 }) {
@@ -22,6 +23,7 @@ void showRecommendationActionSheet({
     builder: (sheetContext) => _RecommendationActionSheetContent(
       title: title,
       author: author,
+      reason: reason,
       onStartReading: () {
         Navigator.pop(sheetContext);
         onStartReading();
@@ -33,11 +35,13 @@ void showRecommendationActionSheet({
 class _RecommendationActionSheetContent extends StatefulWidget {
   final String title;
   final String author;
+  final String reason;
   final VoidCallback onStartReading;
 
   const _RecommendationActionSheetContent({
     required this.title,
     required this.author,
+    required this.reason,
     required this.onStartReading,
   });
 
@@ -98,7 +102,7 @@ class _RecommendationActionSheetContentState
               height: 320,
               child: PageView(
                 controller: _pageController,
-                physics: const ClampingScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 children: [
                   _buildActionPage(isDark),
                   _buildBookstorePage(isDark),
@@ -135,7 +139,24 @@ class _RecommendationActionSheetContentState
               color: isDark ? Colors.grey[400] : Colors.grey[600],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              widget.reason,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Color(0xFF5B7FFF),
+                fontWeight: FontWeight.w500,
+                height: 1.4,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
           _ActionButton(
             isDark: isDark,
             icon: CupertinoIcons.book,

@@ -36,6 +36,7 @@ export interface Recommendation {
   title: string;
   author: string;
   reason: string;
+  keywords: string[];
 }
 
 export interface RecommendationResponse {

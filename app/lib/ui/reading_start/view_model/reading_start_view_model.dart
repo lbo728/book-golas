@@ -130,9 +130,10 @@ class ReadingStartViewModel extends BaseViewModel {
         continue;
       }
 
-      // API 호출
+      // API 호출 (제목 정규화: 콜론/대시 이전 부분만 사용)
       try {
-        final results = await AladinApiService.searchBooks(rec.title);
+        final normalizedTitle = _normalizeBookTitle(rec.title);
+        final results = await AladinApiService.searchBooks(normalizedTitle);
         if (results.isNotEmpty && results.first.imageUrl != null) {
           final imageUrl = results.first.imageUrl!;
           RecommendationService.cacheImageUrl(rec.title, imageUrl);
@@ -144,6 +145,28 @@ class ReadingStartViewModel extends BaseViewModel {
             '[ReadingStartViewModel] Failed to load image for ${rec.title}: $e');
       }
     }
+  }
+
+  /// 책 제목 정규화: 부제목(콜론/대시 이후) 제거
+  /// 예: "그릿: 역경에 굴하지 않는 힘" → "그릿"
+  String _normalizeBookTitle(String title) {
+    // 콜론(:) 또는 대시(-) 이전 부분 추출
+    final colonIndex = title.indexOf(':');
+    final dashIndex = title.indexOf(' - ');
+
+    int cutIndex = -1;
+    if (colonIndex > 0 && dashIndex > 0) {
+      cutIndex = colonIndex < dashIndex ? colonIndex : dashIndex;
+    } else if (colonIndex > 0) {
+      cutIndex = colonIndex;
+    } else if (dashIndex > 0) {
+      cutIndex = dashIndex;
+    }
+
+    if (cutIndex > 0) {
+      return title.substring(0, cutIndex).trim();
+    }
+    return title;
   }
 
   Future<void> refreshRecommendations() async {
