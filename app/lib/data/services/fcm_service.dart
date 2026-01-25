@@ -36,12 +36,12 @@ class FCMService {
 
     // FCM 토큰 가져오기
     _fcmToken = await _firebaseMessaging.getToken();
-    print('FCM Token: $_fcmToken');
+    debugPrint('FCM Token: $_fcmToken');
 
     // 토큰 갱신 리스너
     _firebaseMessaging.onTokenRefresh.listen((newToken) {
       _fcmToken = newToken;
-      print('FCM Token refreshed: $newToken');
+      debugPrint('FCM Token refreshed: $newToken');
       // TODO: 서버에 새 토큰 저장
       saveTokenToSupabase();
     });
@@ -82,7 +82,7 @@ class FCMService {
       provisional: false,
     );
 
-    print('User granted permission: ${settings.authorizationStatus}');
+    debugPrint('User granted permission: ${settings.authorizationStatus}');
   }
 
   // 포그라운드 메시지 처리
@@ -277,7 +277,7 @@ class FCMService {
           UILocalNotificationDateInterpretation.absoluteTime,
     );
 
-    print('테스트 알림 예약 완료: $seconds초 후 ($scheduledTime)');
+    debugPrint('테스트 알림 예약 완료: $seconds초 후 ($scheduledTime)');
   }
 
   // 오후 9시 고정 알림 (독서 현황 업데이트 알림)
@@ -320,7 +320,7 @@ class FCMService {
   // FCM 토큰을 Supabase에 저장
   Future<void> saveTokenToSupabase() async {
     if (_fcmToken == null) {
-      print('FCM token is null');
+      debugPrint('FCM token is null');
       return;
     }
 
@@ -328,7 +328,7 @@ class FCMService {
     final userId = supabase.auth.currentUser?.id;
 
     if (userId == null) {
-      print('User not logged in');
+      debugPrint('User not logged in');
       return;
     }
 
@@ -359,7 +359,7 @@ class FCMService {
           'token': _fcmToken,
           'updated_at': DateTime.now().toIso8601String(),
         }).eq('id', existing['id']);
-        print('FCM token updated');
+        debugPrint('FCM token updated');
       } else {
         // 새 토큰 삽입 (기본 알림 설정 포함)
         await supabase.from('fcm_tokens').insert({
@@ -369,10 +369,10 @@ class FCMService {
           'preferred_hour': 9,
           'notification_enabled': true,
         });
-        print('FCM token saved with default notification settings');
+        debugPrint('FCM token saved with default notification settings');
       }
     } catch (e) {
-      print('Error saving FCM token: $e');
+      debugPrint('Error saving FCM token: $e');
     }
   }
 
@@ -390,7 +390,7 @@ class FCMService {
     if (!hasPermission) {
       // iOS에서는 한 번 거부하면 앱 설정에서 수동으로 켜야 함
       // 사용자에게 안내 다이얼로그 표시
-      print('Please enable notifications in Settings');
+      debugPrint('Please enable notifications in Settings');
     }
   }
 
