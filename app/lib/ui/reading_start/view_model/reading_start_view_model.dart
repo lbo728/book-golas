@@ -96,6 +96,7 @@ class ReadingStartViewModel extends BaseViewModel {
         _recommendationStats = cached.stats;
         _isLoadingRecommendations = false;
         notifyListeners();
+        _loadRecommendationImages();
         return;
       }
 
@@ -103,6 +104,7 @@ class ReadingStartViewModel extends BaseViewModel {
       if (result.success) {
         _recommendations = result.recommendations;
         _recommendationStats = result.stats;
+        _loadRecommendationImages();
       } else {
         _recommendationError = result.error;
       }
@@ -111,6 +113,25 @@ class ReadingStartViewModel extends BaseViewModel {
     } finally {
       _isLoadingRecommendations = false;
       notifyListeners();
+    }
+  }
+
+  /// 추천 도서들의 이미지를 백그라운드에서 로드
+  Future<void> _loadRecommendationImages() async {
+    for (int i = 0; i < _recommendations.length; i++) {
+      final rec = _recommendations[i];
+      if (rec.imageUrl != null) continue;
+
+      try {
+        final results = await AladinApiService.searchBooks(rec.title);
+        if (results.isNotEmpty && results.first.imageUrl != null) {
+          _recommendations[i] = rec.copyWith(imageUrl: results.first.imageUrl);
+          notifyListeners();
+        }
+      } catch (e) {
+        debugPrint(
+            '[ReadingStartViewModel] Failed to load image for ${rec.title}: $e');
+      }
     }
   }
 
@@ -138,6 +159,31 @@ class ReadingStartViewModel extends BaseViewModel {
   void selectRecommendation(BookRecommendation recommendation) {
     _titleController?.text = recommendation.title;
     _searchBooks(recommendation.title);
+  }
+
+  /// 추천 도서 검색 후 첫 번째 결과를 자동 선택
+  /// 검색 완료 후 selectedBook이 설정되면 true 반환
+  Future<bool> searchAndSelectFirstResult(String title) async {
+    _titleController?.text = title;
+    _isSearching = true;
+    notifyListeners();
+
+    try {
+      final results = await AladinApiService.searchBooks(title);
+      _searchResults = results;
+
+      if (results.isNotEmpty) {
+        _selectedBook = results.first;
+        return true;
+      }
+      return false;
+    } catch (e) {
+      _searchResults = [];
+      return false;
+    } finally {
+      _isSearching = false;
+      notifyListeners();
+    }
   }
 
   TextEditingController? _titleController;

@@ -5,11 +5,13 @@ class BookRecommendation {
   final String title;
   final String author;
   final String reason;
+  String? imageUrl;
 
   BookRecommendation({
     required this.title,
     required this.author,
     required this.reason,
+    this.imageUrl,
   });
 
   factory BookRecommendation.fromJson(Map<String, dynamic> json) {
@@ -17,6 +19,16 @@ class BookRecommendation {
       title: json['title'] as String,
       author: json['author'] as String,
       reason: json['reason'] as String,
+      imageUrl: json['imageUrl'] as String?,
+    );
+  }
+
+  BookRecommendation copyWith({String? imageUrl}) {
+    return BookRecommendation(
+      title: title,
+      author: author,
+      reason: reason,
+      imageUrl: imageUrl ?? this.imageUrl,
     );
   }
 }

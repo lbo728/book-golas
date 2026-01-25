@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 void showBookstoreSelectSheet({
   required BuildContext context,
   required String title,
+  VoidCallback? onBack,
 }) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
   final searchTitle = getSearchTitle(title);
@@ -39,13 +40,32 @@ void showBookstoreSelectSheet({
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '서점 선택',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
+                  Row(
+                    children: [
+                      if (onBack != null)
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(sheetContext);
+                            onBack();
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 12),
+                            child: Icon(
+                              CupertinoIcons.chevron_back,
+                              size: 22,
+                              color: isDark ? Colors.white70 : Colors.black54,
+                            ),
+                          ),
+                        ),
+                      Text(
+                        '서점 선택',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   Text(

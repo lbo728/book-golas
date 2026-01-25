@@ -179,6 +179,31 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
     }
   }
 
+  void _showActionSheetForRecommendation(
+    dynamic recommendation,
+    ReadingStartViewModel vm,
+  ) {
+    showRecommendationActionSheet(
+      context: context,
+      title: recommendation.title,
+      author: recommendation.author,
+      onViewDetail: () {
+        showBookstoreSelectSheet(
+          context: context,
+          title: recommendation.title,
+          onBack: () => _showActionSheetForRecommendation(recommendation, vm),
+        );
+      },
+      onStartReading: () async {
+        final success =
+            await vm.searchAndSelectFirstResult(recommendation.title);
+        if (success && mounted) {
+          _nextPage(vm);
+        }
+      },
+    );
+  }
+
   void _previousPage(ReadingStartViewModel vm) {
     if (vm.currentPageIndex > 0) {
       _pageController.previousPage(
@@ -300,11 +325,13 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                 showNavigation: false,
               ),
             ),
-          // 하단 바 (플로팅)
+          // 하단 바 (플로팅) - 키보드 있을 때 키보드 위 8px, 없을 때 바텀 네비와 동일 위치 (22px)
           Positioned(
             left: 16,
             right: 16,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 8,
+            bottom: MediaQuery.of(context).viewInsets.bottom > 0
+                ? MediaQuery.of(context).viewInsets.bottom + 8
+                : 22,
             child: _buildBottomBar(vm, isDark),
           ),
         ],
@@ -385,61 +412,28 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
       children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: isDark
-                  ? [const Color(0xFF2A2D4A), const Color(0xFF1E2030)]
-                  : [const Color(0xFFF0F4FF), const Color(0xFFE8EEFF)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(16),
-          ),
+        // 섹션 헤더 (단순 타이틀 스타일)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
           child: Row(
             children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF5B7FFF).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.auto_awesome,
-                  color: Color(0xFF5B7FFF),
-                  size: 22,
-                ),
+              Icon(
+                Icons.auto_awesome,
+                color: const Color(0xFF5B7FFF),
+                size: 18,
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'AI 맞춤 추천',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '독서 패턴을 분석하여 추천해드려요',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: isDark ? Colors.white60 : Colors.grey[600],
-                      ),
-                    ),
-                  ],
+              const SizedBox(width: 8),
+              Text(
+                'AI 맞춤 추천',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white70 : Colors.black54,
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
         ...vm.recommendations
             .map((rec) => _buildRecommendationCard(rec, vm, isDark)),
       ],
@@ -454,20 +448,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
     return GestureDetector(
       onTap: () {
         HapticFeedback.selectionClick();
-        showRecommendationActionSheet(
-          context: context,
-          title: recommendation.title,
-          author: recommendation.author,
-          onViewDetail: () {
-            showBookstoreSelectSheet(
-              context: context,
-              title: recommendation.title,
-            );
-          },
-          onStartReading: () {
-            vm.selectRecommendation(recommendation);
-          },
-        );
+        _showActionSheetForRecommendation(recommendation, vm);
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
@@ -493,18 +474,37 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 48,
-              height: 64,
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF3A3A3A) : Colors.grey[200],
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Icon(
-                Icons.menu_book_rounded,
-                color: isDark ? Colors.white38 : Colors.grey[400],
-                size: 24,
-              ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: recommendation.imageUrl != null
+                  ? Image.network(
+                      recommendation.imageUrl!,
+                      width: 48,
+                      height: 64,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 48,
+                        height: 64,
+                        color:
+                            isDark ? const Color(0xFF3A3A3A) : Colors.grey[200],
+                        child: Icon(
+                          Icons.menu_book_rounded,
+                          color: isDark ? Colors.white38 : Colors.grey[400],
+                          size: 24,
+                        ),
+                      ),
+                    )
+                  : Container(
+                      width: 48,
+                      height: 64,
+                      color:
+                          isDark ? const Color(0xFF3A3A3A) : Colors.grey[200],
+                      child: Icon(
+                        Icons.menu_book_rounded,
+                        color: isDark ? Colors.white38 : Colors.grey[400],
+                        size: 24,
+                      ),
+                    ),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -554,12 +554,6 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                   ),
                 ],
               ),
-            ),
-            const SizedBox(width: 8),
-            Icon(
-              CupertinoIcons.search,
-              color: isDark ? Colors.white38 : Colors.grey[400],
-              size: 18,
             ),
           ],
         ),
