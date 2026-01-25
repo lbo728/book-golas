@@ -34,6 +34,8 @@ import 'ui/calendar/view_model/calendar_view_model.dart';
 import 'ui/auth/widgets/my_page_screen.dart';
 import 'domain/models/book.dart';
 import 'ui/book_detail/book_detail_screen.dart';
+import 'ui/onboarding/view_model/onboarding_view_model.dart';
+import 'ui/onboarding/widgets/onboarding_screen.dart';
 
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
@@ -110,6 +112,10 @@ class AppBootstrap extends StatelessWidget {
       // HomeViewModel preferences 프리로드
       debugPrint('📚 홈 화면 설정 프리로드 시작');
       await HomeViewModel.preloadPreferences();
+
+      // OnboardingViewModel 프리로드
+      debugPrint('👋 온보딩 설정 프리로드 시작');
+      await OnboardingViewModel.preloadPreferences();
 
       // ThemeViewModel 프리로드
       debugPrint('🎨 테마 설정 프리로드 시작');
@@ -248,6 +254,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
         ChangeNotifierProvider(create: (_) => ThemeViewModel()),
+        ChangeNotifierProvider(create: (_) => OnboardingViewModel()),
       ],
       child: Consumer<ThemeViewModel>(
         builder: (context, themeViewModel, child) {
@@ -394,12 +401,29 @@ class AuthWrapper extends StatefulWidget {
 class _AuthWrapperState extends State<AuthWrapper> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthViewModel>(
-      builder: (context, authViewModel, _) {
-        if (authViewModel.isAuthenticated) {
-          return const MainScreen();
+    return Consumer2<AuthViewModel, OnboardingViewModel>(
+      builder: (context, authViewModel, onboardingViewModel, _) {
+        if (!authViewModel.isAuthenticated) {
+          return const LoginScreen();
         }
-        return const LoginScreen();
+
+        if (onboardingViewModel.isLoading) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (onboardingViewModel.shouldShowOnboarding) {
+          return OnboardingScreen(
+            onComplete: () {
+              onboardingViewModel.completeOnboarding();
+            },
+          );
+        }
+
+        return const MainScreen();
       },
     );
   }
