@@ -360,31 +360,69 @@ supabase secrets set OPENAI_API_KEY=sk-...
 
 ### Database Migration Guidelines (CRITICAL)
 
-#### Migration File Naming
+#### ⚠️ MCP apply_migration 사용 금지
+
+**절대 MCP `apply_migration`을 사용하지 마라.**
+
+| 방법 | 타임스탬프 | CI 호환성 |
+|------|-----------|-----------|
+| MCP `apply_migration` | 자동 생성 (서버 시간) | ❌ 로컬 파일과 불일치 |
+| `supabase migration new` | 자동 생성 (로컬 시간) | ✅ 일치 |
+
+MCP로 마이그레이션 적용 시 타임스탬프가 `20260124150149` 형식으로 생성되지만,
+로컬 파일은 다른 이름이므로 CI에서 "Remote migration versions not found" 에러 발생.
+
+#### Migration File Creation (MANDATORY)
+
+**반드시 Supabase CLI로 마이그레이션 파일 생성:**
+
+```bash
+# 1. 프로젝트 루트에서 실행
+supabase migration new <description>
+
+# 예시
+supabase migration new add_user_preferences
+# 결과: supabase/migrations/20260125123456_add_user_preferences.sql (타임스탬프 자동)
 ```
-supabase/migrations/YYYYMMDD_description.sql
-```
-- 날짜 형식: `YYYYMMDD` (예: `20260122`)
-- 설명: `snake_case`, 소문자 (예: `create_users_table`, `add_email_to_profiles`)
+
+- 파일명 형식: `YYYYMMDDHHMMSS_description.sql` (CLI가 자동 생성)
+- description: `snake_case`, 소문자 (예: `create_users_table`, `add_email_to_profiles`)
 
 #### Migration Workflow
 
 ```
-1. 로컬에서 마이그레이션 파일 생성
-   └── supabase/migrations/20260122_add_new_column.sql
+1. 마이그레이션 파일 생성 (CLI 필수!)
+   └── supabase migration new add_new_column
+   └── 생성된 파일: supabase/migrations/20260125123456_add_new_column.sql
 
-2. Dev DB에 적용
+2. SQL 작성
+   └── 생성된 파일에 SQL 작성
+
+3. Dev DB에 적용 (로컬에서)
    └── supabase link --project-ref reoiqefoymdsqzpbouxi
    └── supabase db push
 
-3. 코드 작성 및 테스트
+4. 코드 작성 및 테스트
 
-4. feature → daily → dev 머지
-   └── CI가 자동으로 Dev DB에 마이그레이션 적용
+5. feature → daily → dev 머지
+   └── CI가 자동으로 Dev DB에 마이그레이션 적용 (이미 적용된 경우 스킵)
 
-5. dev → main 머지 (Production 배포)
+6. dev → main 머지 (Production 배포)
    └── CI가 자동으로 Prod DB에 마이그레이션 적용
 ```
+
+#### MCP 대안: 읽기 전용 사용
+
+MCP Supabase 도구는 **읽기 전용**으로만 사용:
+
+| MCP 도구 | 허용 여부 |
+|----------|----------|
+| `list_tables` | ✅ 허용 |
+| `list_migrations` | ✅ 허용 |
+| `execute_sql` (SELECT) | ✅ 허용 |
+| `execute_sql` (INSERT/UPDATE/DELETE) | ⚠️ 주의 |
+| `apply_migration` | ❌ **금지** |
+| `deploy_edge_function` | ✅ 허용 |
 
 #### CI/CD Migration Automation
 
