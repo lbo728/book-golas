@@ -10,7 +10,10 @@ import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/barcode_scanner/barcode_scanner_screen.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
+import 'package:book_golas/ui/core/widgets/bookstore_select_sheet.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
+import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
+import 'package:book_golas/ui/core/widgets/recommendation_action_sheet.dart';
 import 'package:book_golas/ui/reading_start/view_model/reading_start_view_model.dart';
 import 'package:book_golas/ui/reading_start/widgets/priority_selector_widget.dart';
 import 'package:book_golas/ui/reading_start/widgets/schedule_change_modal.dart';
@@ -285,11 +288,23 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
           Positioned.fill(
             child: _buildSearchResultsList(vm, isDark),
           ),
+          // 키보드 접기 버튼 (키보드 열려있을 때만)
+          if (MediaQuery.of(context).viewInsets.bottom > 0)
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 64,
+              child: KeyboardAccessoryBar(
+                onDone: () => FocusScope.of(context).unfocus(),
+                isDark: isDark,
+                showNavigation: false,
+              ),
+            ),
           // 하단 바 (플로팅)
           Positioned(
             left: 16,
             right: 16,
-            bottom: 28,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 8,
             child: _buildBottomBar(vm, isDark),
           ),
         ],
@@ -439,7 +454,20 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
     return GestureDetector(
       onTap: () {
         HapticFeedback.selectionClick();
-        vm.selectRecommendation(recommendation);
+        showRecommendationActionSheet(
+          context: context,
+          title: recommendation.title,
+          author: recommendation.author,
+          onViewDetail: () {
+            showBookstoreSelectSheet(
+              context: context,
+              title: recommendation.title,
+            );
+          },
+          onStartReading: () {
+            vm.selectRecommendation(recommendation);
+          },
+        );
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
