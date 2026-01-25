@@ -52,28 +52,14 @@ class _RecommendationActionSheetContent extends StatefulWidget {
 
 class _RecommendationActionSheetContentState
     extends State<_RecommendationActionSheetContent> {
-  final PageController _pageController = PageController();
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
+  int _currentPage = 0;
 
   void _goToBookstorePage() {
-    _pageController.animateToPage(
-      1,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutCubic,
-    );
+    setState(() => _currentPage = 1);
   }
 
   void _goBackToActionPage() {
-    _pageController.animateToPage(
-      0,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutCubic,
-    );
+    setState(() => _currentPage = 0);
   }
 
   @override
@@ -98,16 +84,24 @@ class _RecommendationActionSheetContentState
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            SizedBox(
-              height: 320,
-              child: PageView(
-                controller: _pageController,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  _buildActionPage(isDark),
-                  _buildBookstorePage(isDark),
-                ],
-              ),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              transitionBuilder: (child, animation) {
+                final slideIn = _currentPage == 1;
+                return SlideTransition(
+                  position: Tween<Offset>(
+                    begin: Offset(slideIn ? 1.0 : -1.0, 0),
+                    end: Offset.zero,
+                  ).animate(CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutCubic,
+                  )),
+                  child: child,
+                );
+              },
+              child: _currentPage == 0
+                  ? _buildActionPage(isDark)
+                  : _buildBookstorePage(isDark),
             ),
           ],
         ),
@@ -117,8 +111,10 @@ class _RecommendationActionSheetContentState
 
   Widget _buildActionPage(bool isDark) {
     return Padding(
+      key: const ValueKey('action'),
       padding: const EdgeInsets.all(24),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -183,6 +179,7 @@ class _RecommendationActionSheetContentState
     final encodedTitle = Uri.encodeComponent(searchTitle);
 
     return GestureDetector(
+      key: const ValueKey('bookstore'),
       onHorizontalDragEnd: (details) {
         if (details.primaryVelocity != null && details.primaryVelocity! > 300) {
           _goBackToActionPage();
@@ -191,6 +188,7 @@ class _RecommendationActionSheetContentState
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(

@@ -11,6 +11,7 @@ import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/barcode_scanner/barcode_scanner_screen.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
+import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 import 'package:book_golas/ui/core/widgets/recommendation_action_sheet.dart';
 import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
 import 'package:book_golas/ui/reading_start/view_model/reading_start_view_model.dart';
@@ -312,6 +313,18 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
           Positioned.fill(
             child: _buildSearchResultsList(vm, isDark),
           ),
+          // 키보드 접기 버튼 (키보드 열려있을 때만)
+          if (MediaQuery.of(context).viewInsets.bottom > 0)
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 64,
+              child: KeyboardAccessoryBar(
+                onDone: () => FocusScope.of(context).unfocus(),
+                isDark: isDark,
+                showNavigation: false,
+              ),
+            ),
           // 하단 바 (플로팅) - 키보드 있을 때 키보드 위 8px, 없을 때 바텀 네비와 동일 위치 (22px)
           Positioned(
             left: 16,
