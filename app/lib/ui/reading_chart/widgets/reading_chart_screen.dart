@@ -11,6 +11,11 @@ import 'package:book_golas/ui/reading_chart/widgets/cards/reading_streak_heatmap
 import 'package:book_golas/ui/reading_chart/widgets/sheets/reading_goal_sheet.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_tab_bar.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/ai_insight_card.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/completion_rate_card.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/highlight_stats_card.dart';
+import 'package:book_golas/ui/reading_chart/view_model/reading_insights_view_model.dart';
+import 'package:provider/provider.dart';
 
 enum TimeFilter { daily, weekly, monthly }
 
@@ -414,6 +419,49 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // NEW: AI Insight Card
+          Consumer<ReadingInsightsViewModel>(
+            builder: (context, viewModel, _) {
+              return AiInsightCard(
+                isLoading: viewModel.isLoading,
+                insights: viewModel.insights,
+                error: viewModel.error,
+                canGenerate: viewModel.canGenerate,
+                bookCount: viewModel.bookCount,
+                onGenerate: viewModel.generateInsight,
+                onRetry: viewModel.generateInsight,
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+
+          // NEW: Completion Rate Card
+          CompletionRateCard(
+            totalStarted: 10,
+            completed: 7,
+            abandoned: 2,
+            inProgress: 1,
+            completionRate: 70.0,
+            abandonRate: 20.0,
+            retrySuccessRate: 50.0,
+          ),
+          const SizedBox(height: 16),
+
+          // NEW: Highlight Stats Card
+          HighlightStatsCard(
+            totalHighlights: 45,
+            totalNotes: 12,
+            totalPhotos: 3,
+            genreDistribution: {
+              '자기계발': 20,
+              '소설': 15,
+              '에세이': 10,
+            },
+            topKeywords: ['성장', '습관', '목표', '동기부여', '실천'],
+          ),
+          const SizedBox(height: 16),
+
+          // EXISTING: Genre Analysis Card
           GenreAnalysisCard(
             genreDistribution: _genreDistribution,
             topGenreMessage: genreMessage,
