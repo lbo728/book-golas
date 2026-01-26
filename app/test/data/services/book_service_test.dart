@@ -1,17 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/domain/models/book.dart';
-
-class MockSupabaseClient extends Mock implements SupabaseClient {}
-
-class MockPostgrestFilterBuilder extends Mock
-    implements PostgrestFilterBuilder {}
-
-class MockGoTrueClient extends Mock implements GoTrueClient {}
-
-class MockUser extends Mock implements User {}
 
 void main() {
   group('BookService', () {
