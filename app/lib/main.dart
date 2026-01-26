@@ -37,6 +37,8 @@ import 'domain/models/book.dart';
 import 'ui/book_detail/book_detail_screen.dart';
 import 'ui/onboarding/view_model/onboarding_view_model.dart';
 import 'ui/onboarding/widgets/onboarding_screen.dart';
+import 'ui/my_library/view_model/my_library_view_model.dart';
+import 'ui/my_library/widgets/my_library_screen.dart';
 
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
@@ -96,7 +98,8 @@ class AppBootstrap extends StatelessWidget {
       // 백그라운드 메시지 핸들러 등록
       debugPrint('📱 FCM 백그라운드 핸들러 등록');
       FirebaseMessaging.onBackgroundMessage(
-          _firebaseMessagingBackgroundHandler);
+        _firebaseMessagingBackgroundHandler,
+      );
       debugPrint('✅ FCM 백그라운드 핸들러 등록 완료');
 
       // Supabase 초기화
@@ -146,13 +149,18 @@ class AppBootstrap extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.error_outline,
-                          size: 48, color: Colors.red),
+                      const Icon(
+                        Icons.error_outline,
+                        size: 48,
+                        color: Colors.red,
+                      ),
                       const SizedBox(height: 16),
                       const Text(
                         '초기화 중 오류가 발생했습니다',
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -202,12 +210,8 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         // === Services (Pure) ===
-        Provider<BookService>(
-          create: (_) => BookService(),
-        ),
-        Provider<AuthService>(
-          create: (_) => AuthService(),
-        ),
+        Provider<BookService>(create: (_) => BookService()),
+        Provider<AuthService>(create: (_) => AuthService()),
         Provider<NotificationSettingsService>(
           create: (_) => NotificationSettingsService(),
         ),
@@ -216,14 +220,10 @@ class MyApp extends StatelessWidget {
         ),
         // === Repositories ===
         Provider<BookRepository>(
-          create: (context) => BookRepositoryImpl(
-            context.read<BookService>(),
-          ),
+          create: (context) => BookRepositoryImpl(context.read<BookService>()),
         ),
         Provider<AuthRepository>(
-          create: (context) => AuthRepositoryImpl(
-            context.read<AuthService>(),
-          ),
+          create: (context) => AuthRepositoryImpl(context.read<AuthService>()),
         ),
         Provider<NotificationSettingsRepository>(
           create: (context) => NotificationSettingsRepositoryImpl(
@@ -232,14 +232,10 @@ class MyApp extends StatelessWidget {
         ),
         // === ViewModels ===
         ChangeNotifierProvider<HomeViewModel>(
-          create: (context) => HomeViewModel(
-            context.read<BookRepository>(),
-          ),
+          create: (context) => HomeViewModel(context.read<BookRepository>()),
         ),
         ChangeNotifierProvider<AuthViewModel>(
-          create: (context) => AuthViewModel(
-            context.read<AuthRepository>(),
-          ),
+          create: (context) => AuthViewModel(context.read<AuthRepository>()),
         ),
         ChangeNotifierProvider<NotificationSettingsViewModel>(
           create: (context) => NotificationSettingsViewModel(
@@ -250,12 +246,12 @@ class MyApp extends StatelessWidget {
           create: (_) => BookListViewModel(),
         ),
         ChangeNotifierProvider<CalendarViewModel>(
-          create: (context) => CalendarViewModel(
-            context.read<ReadingProgressService>(),
-          ),
+          create: (context) =>
+              CalendarViewModel(context.read<ReadingProgressService>()),
         ),
         ChangeNotifierProvider(create: (_) => ThemeViewModel()),
         ChangeNotifierProvider(create: (_) => OnboardingViewModel()),
+        ChangeNotifierProvider(create: (_) => MyLibraryViewModel()),
       ],
       child: Consumer<ThemeViewModel>(
         builder: (context, themeViewModel, child) {
@@ -292,9 +288,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
         if (onboardingViewModel.isLoading) {
           return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
+            body: Center(child: CircularProgressIndicator()),
           );
         }
 
@@ -360,21 +354,21 @@ class _MainScreenState extends State<MainScreen>
       vsync: this,
     );
 
-    _readingDetailBarSlide = Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(-1.0, 0.0),
-    ).animate(CurvedAnimation(
-      parent: _barSwitchController,
-      curve: Curves.easeOutCubic,
-    ));
+    _readingDetailBarSlide =
+        Tween<Offset>(begin: Offset.zero, end: const Offset(-1.0, 0.0)).animate(
+          CurvedAnimation(
+            parent: _barSwitchController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
 
-    _regularBarSlide = Tween<Offset>(
-      begin: const Offset(1.0, 0.0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _barSwitchController,
-      curve: Curves.easeOutCubic,
-    ));
+    _regularBarSlide =
+        Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _barSwitchController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
 
     // 인증 완료 후 BookListViewModel 초기화 및 FCM 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -433,9 +427,11 @@ class _MainScreenState extends State<MainScreen>
 
             // 완독하지 않은 책 찾기
             final unfinishedBooks = (response as List)
-                .where((bookData) =>
-                    (bookData['current_page'] as int) <
-                    (bookData['total_pages'] as int))
+                .where(
+                  (bookData) =>
+                      (bookData['current_page'] as int) <
+                      (bookData['total_pages'] as int),
+                )
                 .toList();
 
             if (unfinishedBooks.isEmpty) {
@@ -475,22 +471,23 @@ class _MainScreenState extends State<MainScreen>
   }
 
   List<Widget> get _pages => [
-        HomeScreen(
-          onCallbacksReady: (updatePage, addMemorable) {
-            _updatePageCallback = updatePage;
-            _addMemorablePageCallback = addMemorable;
-          },
-        ),
-        ReadingChartScreen(key: ReadingChartScreen.globalKey),
-        const CalendarScreen(),
-        const MyPageScreen(),
-      ];
+    HomeScreen(
+      onCallbacksReady: (updatePage, addMemorable) {
+        _updatePageCallback = updatePage;
+        _addMemorablePageCallback = addMemorable;
+      },
+    ),
+    const MyLibraryScreen(),
+    ReadingChartScreen(key: ReadingChartScreen.globalKey),
+    const CalendarScreen(),
+    const MyPageScreen(),
+  ];
 
   void _onItemTapped(int index) {
     if (index == 0 && _selectedIndex == 0) {
       HapticFeedback.lightImpact();
       context.read<BookListViewModel>().cycleToNextTab();
-    } else if (index == 1 && _selectedIndex == 1) {
+    } else if (index == 2 && _selectedIndex == 2) {
       HapticFeedback.lightImpact();
       ReadingChartScreen.cycleToNextTab();
     } else {
@@ -507,10 +504,7 @@ class _MainScreenState extends State<MainScreen>
         pageBuilder: (context, animation, secondaryAnimation) =>
             const ReadingStartScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: animation,
-            child: child,
-          );
+          return FadeTransition(opacity: animation, child: child);
         },
         transitionDuration: const Duration(milliseconds: 200),
       ),
@@ -564,8 +558,9 @@ class _MainScreenState extends State<MainScreen>
 
     return Scaffold(
       body: body,
-      backgroundColor:
-          isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+      backgroundColor: isDark
+          ? AppColors.scaffoldDark
+          : AppColors.scaffoldLight,
       extendBody: true,
       bottomNavigationBar: _buildAnimatedBottomBar(isInReadingDetailContext),
     );

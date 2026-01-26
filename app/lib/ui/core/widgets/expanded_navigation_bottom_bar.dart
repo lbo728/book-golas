@@ -18,19 +18,24 @@ class ExpandedNavigationBottomBar extends StatelessWidget {
       label: '홈',
     ),
     _MenuItemData(
+      icon: CupertinoIcons.square_stack_3d_up,
+      activeIcon: CupertinoIcons.square_stack_3d_up_fill,
+      label: '서재',
+    ),
+    _MenuItemData(
       icon: CupertinoIcons.book,
       activeIcon: CupertinoIcons.book_fill,
-      label: '독서 상태',
+      label: '상태',
     ),
     _MenuItemData(
       icon: CupertinoIcons.calendar,
       activeIcon: CupertinoIcons.calendar,
-      label: '독서 캘린더',
+      label: '캘린더',
     ),
     _MenuItemData(
       icon: CupertinoIcons.person_crop_circle,
       activeIcon: CupertinoIcons.person_crop_circle_fill,
-      label: '마이페이지',
+      label: 'MY',
     ),
   ];
 
@@ -78,10 +83,7 @@ class ExpandedNavigationBottomBar extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: glassColor,
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: borderColor,
-                    width: 0.5,
-                  ),
+                  border: Border.all(color: borderColor, width: 0.5),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -194,11 +196,7 @@ class ExpandedNavigationBottomBar extends StatelessWidget {
     );
   }
 
-  Widget _buildSearchButton(
-    bool isDark,
-    Color glassColor,
-    Color borderColor,
-  ) {
+  Widget _buildSearchButton(bool isDark, Color glassColor, Color borderColor) {
     final iconColor = isDark
         ? Colors.white.withValues(alpha: 0.9)
         : Colors.black.withValues(alpha: 0.7);
@@ -226,16 +224,9 @@ class ExpandedNavigationBottomBar extends StatelessWidget {
             decoration: BoxDecoration(
               color: glassColor,
               borderRadius: BorderRadius.circular(100),
-              border: Border.all(
-                color: borderColor,
-                width: 0.5,
-              ),
+              border: Border.all(color: borderColor, width: 0.5),
             ),
-            child: Icon(
-              CupertinoIcons.search,
-              color: iconColor,
-              size: 22,
-            ),
+            child: Icon(CupertinoIcons.search, color: iconColor, size: 22),
           ),
         ),
       ),
