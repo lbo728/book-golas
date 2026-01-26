@@ -6,7 +6,9 @@ import 'package:book_golas/data/services/ai_content_service.dart';
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/core/widgets/confirmation_bottom_sheet.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
+import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 
 class BookReviewScreen extends StatefulWidget {
   final Book book;
@@ -23,34 +25,101 @@ class BookReviewScreen extends StatefulWidget {
 class _BookReviewScreenState extends State<BookReviewScreen> {
   late TextEditingController _reviewController;
   late FocusNode _focusNode;
+  late ScrollController _scrollController;
   bool _isSaving = false;
   bool _hasChanges = false;
   bool _isGeneratingAI = false;
+  bool _isKeyboardVisible = false;
+
+  final List<String> _undoStack = [];
+  final List<String> _redoStack = [];
+  String _lastSavedText = '';
+  bool _isUndoRedoAction = false;
 
   @override
   void initState() {
     super.initState();
-    _reviewController =
-        TextEditingController(text: widget.book.longReview ?? '');
+    final initialText = widget.book.longReview ?? '';
+    _reviewController = TextEditingController(text: initialText);
     _focusNode = FocusNode();
+    _scrollController = ScrollController();
+    _lastSavedText = initialText;
     _reviewController.addListener(_onTextChanged);
+    _focusNode.addListener(_onFocusChanged);
   }
 
   @override
   void dispose() {
     _reviewController.removeListener(_onTextChanged);
+    _focusNode.removeListener(_onFocusChanged);
     _reviewController.dispose();
     _focusNode.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
+  void _onFocusChanged() {
+    setState(() {
+      _isKeyboardVisible = _focusNode.hasFocus;
+    });
+  }
+
   void _onTextChanged() {
-    final hasChanges = _reviewController.text != (widget.book.longReview ?? '');
+    final currentText = _reviewController.text;
+    final hasChanges = currentText != (widget.book.longReview ?? '');
+
+    if (!_isUndoRedoAction && currentText != _lastSavedText) {
+      if (_lastSavedText.isNotEmpty || _undoStack.isNotEmpty) {
+        _undoStack.add(_lastSavedText);
+        if (_undoStack.length > 50) {
+          _undoStack.removeAt(0);
+        }
+      }
+      _redoStack.clear();
+      _lastSavedText = currentText;
+    }
+
     if (hasChanges != _hasChanges) {
       setState(() {
         _hasChanges = hasChanges;
       });
+    } else {
+      setState(() {});
     }
+  }
+
+  void _undo() {
+    if (_undoStack.isEmpty) return;
+
+    _isUndoRedoAction = true;
+    _redoStack.add(_reviewController.text);
+    final previousText = _undoStack.removeLast();
+    _reviewController.text = previousText;
+    _reviewController.selection = TextSelection.collapsed(
+      offset: previousText.length,
+    );
+    _lastSavedText = previousText;
+    _isUndoRedoAction = false;
+    setState(() {});
+  }
+
+  void _redo() {
+    if (_redoStack.isEmpty) return;
+
+    _isUndoRedoAction = true;
+    _undoStack.add(_reviewController.text);
+    final nextText = _redoStack.removeLast();
+    _reviewController.text = nextText;
+    _reviewController.selection = TextSelection.collapsed(
+      offset: nextText.length,
+    );
+    _lastSavedText = nextText;
+    _isUndoRedoAction = false;
+    setState(() {});
+  }
+
+  void _dismissKeyboard() {
+    _focusNode.unfocus();
   }
 
   Future<void> _saveReview() async {
@@ -127,23 +196,11 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
     }
 
     if (_reviewController.text.trim().isNotEmpty) {
-      final shouldReplace = await showCupertinoDialog<bool>(
+      final shouldReplace = await showConfirmationBottomSheet(
         context: context,
-        builder: (context) => CupertinoAlertDialog(
-          title: const Text('AI 초안 생성'),
-          content: const Text('현재 작성 중인 내용이 있습니다.\nAI 초안으로 대체하시겠습니까?'),
-          actions: [
-            CupertinoDialogAction(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('취소'),
-            ),
-            CupertinoDialogAction(
-              isDestructiveAction: true,
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('대체하기'),
-            ),
-          ],
-        ),
+        title: '현재 작성 중인 내용이 있습니다.\nAI 초안으로 대체하시겠습니까?',
+        confirmText: '대체하기',
+        isDestructive: true,
       );
 
       if (shouldReplace != true) return;
@@ -195,23 +252,11 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
   Future<bool> _onWillPop() async {
     if (!_hasChanges) return true;
 
-    final shouldDiscard = await showCupertinoDialog<bool>(
+    final shouldDiscard = await showConfirmationBottomSheet(
       context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: const Text('변경 사항 삭제'),
-        content: const Text('저장하지 않은 내용이 있습니다.\n정말 나가시겠습니까?'),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('취소'),
-          ),
-          CupertinoDialogAction(
-            isDestructiveAction: true,
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('나가기'),
-          ),
-        ],
-      ),
+      title: '저장하지 않은 내용이 있습니다.\n정말 나가시겠습니까?',
+      confirmText: '나가기',
+      isDestructive: true,
     );
 
     return shouldDiscard ?? false;
@@ -233,13 +278,14 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
       child: Scaffold(
         backgroundColor:
             isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+        resizeToAvoidBottomInset: true,
         appBar: AppBar(
           backgroundColor:
               isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
           elevation: 0,
           leading: IconButton(
             icon: Icon(
-              CupertinoIcons.xmark,
+              CupertinoIcons.chevron_left,
               color: isDark ? Colors.white : Colors.black,
             ),
             onPressed: () async {
@@ -287,22 +333,45 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
             ),
           ],
         ),
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildBookInfo(isDark),
-                const SizedBox(height: 16),
-                _buildAIButton(isDark),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: _buildReviewTextField(isDark),
+        body: Stack(
+          children: [
+            SafeArea(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: 20,
+                  right: 20,
+                  top: 20,
+                  bottom: _isKeyboardVisible ? 70 : 20,
                 ),
-              ],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildBookInfo(isDark),
+                    const SizedBox(height: 16),
+                    _buildAIButton(isDark),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: _buildReviewTextField(isDark),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
+            if (_isKeyboardVisible)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                child: KeyboardAccessoryBar(
+                  isDark: isDark,
+                  onDone: _dismissKeyboard,
+                  onUndo: _undo,
+                  onRedo: _redo,
+                  canUndo: _undoStack.isNotEmpty,
+                  canRedo: _redoStack.isNotEmpty,
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -443,26 +512,34 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
           ),
         ],
       ),
-      child: TextField(
-        controller: _reviewController,
-        focusNode: _focusNode,
-        maxLines: null,
-        expands: true,
-        textAlignVertical: TextAlignVertical.top,
-        style: TextStyle(
-          fontSize: 16,
-          height: 1.6,
-          color: isDark ? Colors.white : Colors.black,
-        ),
-        decoration: InputDecoration(
-          hintText: '이 책을 읽고 느낀 점, 인상 깊었던 부분, 나에게 준 영감 등을 자유롭게 적어보세요.',
-          hintStyle: TextStyle(
-            fontSize: 15,
-            color: isDark ? Colors.grey[600] : Colors.grey[400],
-            height: 1.6,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Scrollbar(
+          controller: _scrollController,
+          thumbVisibility: true,
+          child: TextField(
+            controller: _reviewController,
+            focusNode: _focusNode,
+            scrollController: _scrollController,
+            maxLines: null,
+            expands: true,
+            textAlignVertical: TextAlignVertical.top,
+            style: TextStyle(
+              fontSize: 16,
+              height: 1.6,
+              color: isDark ? Colors.white : Colors.black,
+            ),
+            decoration: InputDecoration(
+              hintText: '이 책을 읽고 느낀 점, 인상 깊었던 부분, 나에게 준 영감 등을 자유롭게 적어보세요.',
+              hintStyle: TextStyle(
+                fontSize: 15,
+                color: isDark ? Colors.grey[600] : Colors.grey[400],
+                height: 1.6,
+              ),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.all(16),
+            ),
           ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(16),
         ),
       ),
     );
