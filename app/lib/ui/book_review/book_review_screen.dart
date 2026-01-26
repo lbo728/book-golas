@@ -162,18 +162,20 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
     _focusNode.unfocus();
   }
 
-  void _copyAll() {
+  Future<void> _copyAll() async {
     final text = _reviewController.text;
     if (text.isEmpty) return;
 
-    Clipboard.setData(ClipboardData(text: text));
+    await Clipboard.setData(ClipboardData(text: text));
     HapticFeedback.lightImpact();
-    CustomSnackbar.show(
-      context,
-      message: '독후감이 복사되었습니다.',
-      type: SnackbarType.success,
-      icon: CupertinoIcons.doc_on_doc,
-    );
+    if (mounted) {
+      CustomSnackbar.show(
+        context,
+        message: '독후감이 복사되었습니다.',
+        type: SnackbarType.success,
+        icon: CupertinoIcons.doc_on_doc,
+      );
+    }
   }
 
   void _clearAll() {
