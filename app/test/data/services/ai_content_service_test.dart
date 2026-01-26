@@ -1,5 +1,17 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:book_golas/data/services/ai_content_service.dart';
+
+class MockSupabaseClient extends Mock implements SupabaseClient {}
+
+class MockFunctionsClient extends Mock implements FunctionsClient {}
+
+class MockGoTrueClient extends Mock implements GoTrueClient {}
+
+class MockUser extends Mock implements User {}
+
+class MockSession extends Mock implements Session {}
 
 void main() {
   group('AIContentService', () {
