@@ -489,7 +489,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
               Positioned(
                 left: 0,
                 right: 0,
-                bottom: keyboardHeight,
+                bottom: 0,
                 child: KeyboardAccessoryBar(
                   isDark: isDark,
                   onDone: _dismissKeyboard,
