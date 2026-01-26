@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 
@@ -312,7 +313,7 @@ class _LoginScreenState extends State<LoginScreen> {
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w700,
-            color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+            color: isDark ? Colors.white : AppColors.textPrimaryLight,
             letterSpacing: -0.5,
           ),
         ),
@@ -629,13 +630,11 @@ class _LoginScreenState extends State<LoginScreen> {
               borderRadius: BorderRadius.circular(6),
               border: Border.all(
                 color: _saveEmail
-                    ? const Color(0xFF5B7FFF)
+                    ? AppColors.primary
                     : (isDark ? Colors.grey[600]! : Colors.grey[400]!),
                 width: 1.5,
               ),
-              color: _saveEmail
-                  ? const Color(0xFF5B7FFF)
-                  : Colors.transparent,
+              color: _saveEmail ? AppColors.primary : Colors.transparent,
             ),
             child: _saveEmail
                 ? const Icon(
@@ -670,18 +669,18 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Container(
           height: 52,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0xFF6B8AFF),
-                Color(0xFF5B7FFF),
+                AppColors.primaryLight,
+                AppColors.primary,
               ],
             ),
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF5B7FFF).withValues(alpha: 0.4),
+                color: AppColors.primary.withValues(alpha: 0.4),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -704,7 +703,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        foregroundColor: const Color(0xFF5B7FFF),
+        foregroundColor: AppColors.primary,
         padding: const EdgeInsets.symmetric(vertical: 8),
       ),
       child: Text(
@@ -712,7 +711,7 @@ class _LoginScreenState extends State<LoginScreen> {
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          color: isDark ? Colors.grey[300] : const Color(0xFF5B7FFF),
+          color: isDark ? Colors.grey[300] : AppColors.primary,
         ),
       ),
     );
@@ -800,12 +799,16 @@ class _GlassTextFieldContainerState extends State<_GlassTextFieldContainer> {
                   end: Alignment.bottomRight,
                   colors: widget.isDark
                       ? [
-                          Colors.white.withValues(alpha: _isFocused ? 0.20 : 0.08),
-                          Colors.white.withValues(alpha: _isFocused ? 0.12 : 0.04),
+                          Colors.white
+                              .withValues(alpha: _isFocused ? 0.20 : 0.08),
+                          Colors.white
+                              .withValues(alpha: _isFocused ? 0.12 : 0.04),
                         ]
                       : [
-                          Colors.white.withValues(alpha: _isFocused ? 1.0 : 0.85),
-                          Colors.white.withValues(alpha: _isFocused ? 0.95 : 0.65),
+                          Colors.white
+                              .withValues(alpha: _isFocused ? 1.0 : 0.85),
+                          Colors.white
+                              .withValues(alpha: _isFocused ? 0.95 : 0.65),
                         ],
                 ),
                 borderRadius: BorderRadius.circular(14),
@@ -813,7 +816,7 @@ class _GlassTextFieldContainerState extends State<_GlassTextFieldContainer> {
                   color: widget.isDark
                       ? Colors.white.withValues(alpha: _isFocused ? 0.30 : 0.1)
                       : (_isFocused
-                          ? const Color(0xFF5B7FFF).withValues(alpha: 0.5)
+                          ? AppColors.primary.withValues(alpha: 0.5)
                           : Colors.grey.withValues(alpha: 0.15)),
                   width: _isFocused ? 1.5 : 1,
                 ),

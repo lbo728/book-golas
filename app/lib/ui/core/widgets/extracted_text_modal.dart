@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 import 'package:book_golas/ui/core/utils/text_history_manager.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class ExtractedTextModal extends StatefulWidget {
   final String initialText;
@@ -93,7 +94,7 @@ class _ExtractedTextModalState extends State<ExtractedTextModal> {
               constraints: BoxConstraints(maxHeight: maxModalHeight),
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: widget.isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                color: widget.isDark ? AppColors.surfaceDark : Colors.white,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -241,7 +242,7 @@ class _ExtractedTextModalState extends State<ExtractedTextModal> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF5B7FFF),
+                                color: AppColors.primary,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Center(

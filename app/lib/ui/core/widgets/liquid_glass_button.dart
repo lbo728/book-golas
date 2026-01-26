@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'pressable_wrapper.dart';
 
 enum LiquidGlassButtonVariant {
@@ -38,11 +39,11 @@ class LiquidGlassButton extends StatelessWidget {
 
     switch (variant) {
       case LiquidGlassButtonVariant.primary:
-        backgroundColor = const Color(0xFF5B7FFF);
+        backgroundColor = AppColors.primary;
         textColor = Colors.white;
         break;
       case LiquidGlassButtonVariant.destructive:
-        backgroundColor = const Color(0xFFFF3B30);
+        backgroundColor = AppColors.error;
         textColor = Colors.white;
         break;
       case LiquidGlassButtonVariant.secondary:

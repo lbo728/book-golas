@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 import 'package:book_golas/domain/models/highlight_data.dart';
 import 'package:book_golas/ui/book_detail/widgets/highlight/highlight_overlay.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class HighlightEditView extends StatefulWidget {
   final Widget imageWidget;
@@ -107,7 +108,7 @@ class _HighlightEditViewState extends State<HighlightEditView> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFF5B7FFF),
+                color: AppColors.primary,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text(
@@ -183,7 +184,7 @@ class _HighlightEditViewState extends State<HighlightEditView> {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+            color: isDark ? AppColors.subtleDark : Colors.white,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
@@ -309,7 +310,7 @@ class _HighlightEditViewState extends State<HighlightEditView> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+        color: isDark ? AppColors.subtleDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -427,7 +428,7 @@ class _HighlightEditViewState extends State<HighlightEditView> {
         height: 36,
         decoration: BoxDecoration(
           color: _showSettings
-              ? const Color(0xFF5B7FFF)
+              ? AppColors.primary
               : (isDark ? Colors.grey[800] : Colors.grey[100]),
           borderRadius: BorderRadius.circular(8),
         ),
@@ -453,7 +454,7 @@ class _HighlightEditViewState extends State<HighlightEditView> {
         height: 36,
         decoration: BoxDecoration(
           color: widget.isEraserMode
-              ? const Color(0xFF5B7FFF)
+              ? AppColors.primary
               : (isDark ? Colors.grey[800] : Colors.grey[100]),
           borderRadius: BorderRadius.circular(8),
         ),

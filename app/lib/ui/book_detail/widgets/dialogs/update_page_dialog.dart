@@ -1,3 +1,4 @@
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:flutter/material.dart';
 
 /// 현재 페이지 업데이트 다이얼로그
@@ -50,7 +51,7 @@ class UpdatePageDialog {
           builder: (context, setModalState) {
             return Container(
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                color: isDark ? AppColors.surfaceDark : Colors.white,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -80,7 +81,7 @@ class UpdatePageDialog {
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF5B7FFF),
+                          color: AppColors.primary,
                         ),
                       ),
                       Text(
@@ -115,7 +116,7 @@ class UpdatePageDialog {
                         borderSide: BorderSide(
                           color: errorText != null
                               ? Colors.red
-                              : const Color(0xFF5B7FFF),
+                              : AppColors.primary,
                           width: 2,
                         ),
                       ),
@@ -159,7 +160,7 @@ class UpdatePageDialog {
                                 }
                               : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF5B7FFF),
+                            backgroundColor: AppColors.primary,
                             disabledBackgroundColor:
                                 isDark ? Colors.grey[700] : Colors.grey[300],
                             padding: const EdgeInsets.symmetric(vertical: 16),

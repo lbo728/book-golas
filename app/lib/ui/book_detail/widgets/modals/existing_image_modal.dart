@@ -13,6 +13,7 @@ import 'package:book_golas/ui/core/utils/text_history_manager.dart';
 import 'package:book_golas/data/services/image_cache_manager.dart';
 import 'package:book_golas/ui/book_detail/widgets/highlight/highlight_overlay.dart';
 import 'package:book_golas/ui/core/widgets/highlight_edit_view.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class ExistingImageModal extends StatefulWidget {
   final String imageId;
@@ -220,7 +221,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
         builder: (bottomSheetContext) => Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            color: isDark ? AppColors.surfaceDark : Colors.white,
             borderRadius: const BorderRadius.vertical(
               top: Radius.circular(20),
             ),
@@ -292,7 +293,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF5B7FFF),
+                          color: AppColors.primary,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Center(
@@ -415,7 +416,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
               Container(
                 height: modalHeight,
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  color: isDark ? AppColors.surfaceDark : Colors.white,
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(24),
                   ),
@@ -512,7 +513,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: _isSaving ? Colors.grey : const Color(0xFF5B7FFF),
+                  color: _isSaving ? Colors.grey : AppColors.primary,
                 ),
               ),
             )
@@ -585,7 +586,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(
                   color:
-                      _pageNumberError ? Colors.red : const Color(0xFF5B7FFF),
+                      _pageNumberError ? Colors.red : AppColors.primary,
                 ),
               ),
             ),
@@ -809,7 +810,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: hasHighlights
-              ? const Color(0xFF5B7FFF).withValues(alpha: 0.9)
+              ? AppColors.primary.withValues(alpha: 0.9)
               : Colors.black54,
           borderRadius: BorderRadius.circular(8),
         ),
@@ -1074,14 +1075,14 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
           },
           child: const Row(
             children: [
-              Icon(CupertinoIcons.pencil, size: 14, color: Color(0xFF5B7FFF)),
+              Icon(CupertinoIcons.pencil, size: 14, color: AppColors.primary),
               SizedBox(width: 4),
               Text(
                 '수정하기',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF5B7FFF),
+                  color: AppColors.primary,
                 ),
               ),
             ],

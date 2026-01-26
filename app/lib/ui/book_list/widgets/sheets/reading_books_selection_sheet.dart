@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/book_list/widgets/reading_book_card.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class ReadingBooksSelectionSheet extends StatelessWidget {
   final List<Book> books;
@@ -32,7 +33,7 @@ class ReadingBooksSelectionSheet extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
@@ -80,7 +81,7 @@ class ReadingBooksSelectionSheet extends StatelessWidget {
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+            color: isDark ? AppColors.surfaceDark : Colors.white,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(20),
               topRight: Radius.circular(20),

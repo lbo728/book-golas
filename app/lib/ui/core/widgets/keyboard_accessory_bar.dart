@@ -13,11 +13,15 @@ class KeyboardAccessoryBar extends StatefulWidget {
   final VoidCallback? onDown;
   final VoidCallback? onUndo;
   final VoidCallback? onRedo;
+  final VoidCallback? onCopy;
+  final VoidCallback? onClearAll;
   final bool showNavigation;
   final bool canGoUp;
   final bool canGoDown;
   final bool canUndo;
   final bool canRedo;
+  final bool canCopy;
+  final bool canClearAll;
 
   const KeyboardAccessoryBar({
     super.key,
@@ -28,11 +32,15 @@ class KeyboardAccessoryBar extends StatefulWidget {
     this.onDown,
     this.onUndo,
     this.onRedo,
+    this.onCopy,
+    this.onClearAll,
     this.showNavigation = false,
     this.canGoUp = true,
     this.canGoDown = true,
     this.canUndo = false,
     this.canRedo = false,
+    this.canCopy = false,
+    this.canClearAll = false,
   });
 
   @override
@@ -151,6 +159,21 @@ class _KeyboardAccessoryBarState extends State<KeyboardAccessoryBar> {
                     onTap: widget.onDown,
                     iconData: CupertinoIcons.chevron_down,
                     enabled: widget.canGoDown && widget.onDown != null,
+                  ),
+                ],
+                if (widget.onCopy != null) ...[
+                  _buildIconButton(
+                    onTap: widget.onCopy,
+                    iconData: CupertinoIcons.doc_on_doc,
+                    enabled: widget.canCopy,
+                  ),
+                  _buildDivider(),
+                ],
+                if (widget.onClearAll != null) ...[
+                  _buildIconButton(
+                    onTap: widget.onClearAll,
+                    iconData: CupertinoIcons.trash,
+                    enabled: widget.canClearAll,
                   ),
                 ],
                 const Spacer(),

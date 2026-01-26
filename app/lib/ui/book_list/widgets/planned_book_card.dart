@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class PlannedBookCard extends StatelessWidget {
   final Book book;
@@ -26,7 +27,7 @@ class PlannedBookCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          color: isDark ? AppColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -115,13 +116,13 @@ class PlannedBookCard extends StatelessWidget {
   Color _getPriorityColor(int priority) {
     switch (priority) {
       case 1:
-        return const Color(0xFFFF3B30);
+        return AppColors.error;
       case 2:
-        return const Color(0xFFFF9500);
+        return AppColors.warning;
       case 3:
-        return const Color(0xFF5B7FFF);
+        return AppColors.primary;
       case 4:
-        return const Color(0xFF34C759);
+        return AppColors.successAlt;
       default:
         return Colors.grey;
     }

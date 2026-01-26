@@ -11,6 +11,7 @@ import 'package:book_golas/ui/core/widgets/full_text_view_modal.dart';
 import 'package:book_golas/ui/core/utils/text_history_manager.dart';
 import 'package:book_golas/ui/book_detail/widgets/highlight/highlight_painter.dart';
 import 'package:book_golas/ui/core/widgets/highlight_edit_view.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class AddMemorablePageModal extends StatefulWidget {
   final Uint8List? initialImageBytes;
@@ -336,7 +337,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                   height: MediaQuery.of(context).size.height * 0.85 -
                       MediaQuery.of(context).padding.top,
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                    color: isDark ? AppColors.surfaceDark : Colors.white,
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(24),
                     ),
@@ -391,7 +392,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
       builder: (bottomSheetContext) => Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          color: isDark ? AppColors.surfaceDark : Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
@@ -695,7 +696,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: _highlights.isNotEmpty
-                      ? const Color(0xFF5B7FFF).withValues(alpha: 0.9)
+                      ? AppColors.primary.withValues(alpha: 0.9)
                       : Colors.black54,
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -936,7 +937,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                     borderSide: BorderSide(
                       color: _pageValidationError != null
                           ? Colors.red[400]!
-                          : const Color(0xFF5B7FFF),
+                          : AppColors.primary,
                     ),
                   ),
                 ),
@@ -1152,13 +1153,13 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
             color: _canUpload
-                ? const Color(0xFF5B7FFF)
+                ? AppColors.primary
                 : (isDark ? Colors.grey[700] : Colors.grey[300]),
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
                 color: _canUpload
-                    ? const Color(0xFF5B7FFF).withValues(alpha: 0.3)
+                    ? AppColors.primary.withValues(alpha: 0.3)
                     : Colors.transparent,
                 blurRadius: 12,
                 offset: const Offset(0, 4),
@@ -1243,7 +1244,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(color: Color(0xFF5B7FFF)),
+              CircularProgressIndicator(color: AppColors.primary),
               SizedBox(height: 16),
               Text(
                 '업로드 중...',

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/book_detail/widgets/sheets/reading_management_sheet.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class DetailTab extends StatelessWidget {
   final Book book;
@@ -12,6 +13,7 @@ class DetailTab extends StatelessWidget {
   final VoidCallback onTargetDateChange;
   final VoidCallback? onPauseReading;
   final VoidCallback? onDelete;
+  final VoidCallback? onReviewTap;
 
   const DetailTab({
     super.key,
@@ -22,11 +24,15 @@ class DetailTab extends StatelessWidget {
     required this.onTargetDateChange,
     this.onPauseReading,
     this.onDelete,
+    this.onReviewTap,
   });
 
   bool get _isReading =>
       book.status == BookStatus.reading.value &&
       book.currentPage < book.totalPages;
+
+  bool get _isCompleted =>
+      book.currentPage >= book.totalPages && book.totalPages > 0;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +43,10 @@ class DetailTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (_isCompleted && onReviewTap != null) ...[
+            _buildReviewPreviewCard(isDark),
+            const SizedBox(height: 16),
+          ],
           _buildReadingScheduleCard(isDark),
           const SizedBox(height: 16),
           _buildTodayGoalCardWithStamps(isDark),
@@ -79,7 +89,7 @@ class DetailTab extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          color: isDark ? AppColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -94,12 +104,12 @@ class DetailTab extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(
                 CupertinoIcons.slider_horizontal_3,
-                color: Color(0xFF5B7FFF),
+                color: AppColors.primary,
                 size: 20,
               ),
             ),
@@ -144,10 +154,10 @@ class DetailTab extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          color: isDark ? AppColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFFEF4444).withValues(alpha: 0.3),
+            color: AppColors.errorAlt.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -156,7 +166,7 @@ class DetailTab extends StatelessWidget {
           children: [
             Icon(
               CupertinoIcons.trash,
-              color: Color(0xFFEF4444),
+              color: AppColors.errorAlt,
               size: 18,
             ),
             SizedBox(width: 8),
@@ -165,9 +175,116 @@ class DetailTab extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFFEF4444),
+                color: AppColors.errorAlt,
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReviewPreviewCard(bool isDark) {
+    final hasReview = book.longReview != null && book.longReview!.isNotEmpty;
+
+    return GestureDetector(
+      onTap: onReviewTap,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surfaceDark : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.doc_text_fill,
+                    size: 20,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '독후감',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.white : AppColors.scaffoldDark,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        hasReview ? '작성됨' : '아직 작성되지 않음',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: hasReview
+                              ? AppColors.success
+                              : (isDark ? Colors.grey[500] : Colors.grey[600]),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  CupertinoIcons.chevron_right,
+                  color: isDark ? Colors.grey[600] : Colors.grey[400],
+                  size: 16,
+                ),
+              ],
+            ),
+            if (hasReview) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : Colors.grey[50],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  book.longReview!.length > 150
+                      ? '${book.longReview!.substring(0, 150)}...'
+                      : book.longReview!,
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.5,
+                    color: isDark ? Colors.grey[300] : Colors.grey[700],
+                  ),
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ] else ...[
+              const SizedBox(height: 12),
+              Text(
+                '책을 읽고 느낀 점을 기록해보세요',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isDark ? Colors.grey[500] : Colors.grey[600],
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -178,7 +295,7 @@ class DetailTab extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -196,13 +313,13 @@ class DetailTab extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
                   CupertinoIcons.calendar,
                   size: 20,
-                  color: Color(0xFF5B7FFF),
+                  color: AppColors.primary,
                 ),
               ),
               const SizedBox(width: 12),
@@ -260,8 +377,7 @@ class DetailTab extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color:
-                              const Color(0xFFFF6B35).withValues(alpha: 0.12),
+                          color: AppColors.warning.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -269,7 +385,7 @@ class DetailTab extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFFFF6B35),
+                            color: AppColors.warning,
                           ),
                         ),
                       ),
@@ -354,7 +470,7 @@ class DetailTab extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -385,7 +501,7 @@ class DetailTab extends StatelessWidget {
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFF10B981), Color(0xFF059669)],
+              colors: [AppColors.success, AppColors.success],
             ),
             borderRadius: BorderRadius.circular(12),
           ),
@@ -405,7 +521,7 @@ class DetailTab extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                  color: isDark ? Colors.white : AppColors.scaffoldDark,
                 ),
               ),
               const SizedBox(height: 2),
@@ -415,7 +531,7 @@ class DetailTab extends StatelessWidget {
                   fontSize: 12,
                   color: isDark
                       ? Colors.white.withValues(alpha: 0.6)
-                      : const Color(0xFF888888),
+                      : Colors.grey[500]!,
                 ),
               ),
             ],
@@ -431,10 +547,10 @@ class DetailTab extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: achievementRate >= 80
-            ? const Color(0xFFD1FAE5)
+            ? AppColors.successBg
             : achievementRate >= 50
-                ? const Color(0xFFFEF3C7)
-                : const Color(0xFFFEE2E2),
+                ? AppColors.amber
+                : AppColors.errorBg,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -448,10 +564,10 @@ class DetailTab extends StatelessWidget {
                     : CupertinoIcons.flame_fill,
             size: 14,
             color: achievementRate >= 80
-                ? const Color(0xFF059669)
+                ? AppColors.success
                 : achievementRate >= 50
-                    ? const Color(0xFFD97706)
-                    : const Color(0xFFDC2626),
+                    ? AppColors.dangerAlt
+                    : AppColors.danger,
           ),
           const SizedBox(width: 4),
           Text(
@@ -460,10 +576,10 @@ class DetailTab extends StatelessWidget {
               fontSize: 13,
               fontWeight: FontWeight.w700,
               color: achievementRate >= 80
-                  ? const Color(0xFF059669)
+                  ? AppColors.success
                   : achievementRate >= 50
-                      ? const Color(0xFFD97706)
-                      : const Color(0xFFDC2626),
+                      ? AppColors.dangerAlt
+                      : AppColors.danger,
             ),
           ),
         ],
@@ -495,15 +611,15 @@ class DetailTab extends StatelessWidget {
             if (isFuture) {
               cellColor = isDark
                   ? Colors.white.withValues(alpha: 0.05)
-                  : const Color(0xFFF3F4F6);
+                  : AppColors.grey100Light;
             } else if (isAchieved == true) {
-              cellColor = const Color(0xFF10B981);
+              cellColor = AppColors.success;
             } else if (isAchieved == false) {
-              cellColor = const Color(0xFFFCA5A5);
+              cellColor = AppColors.errorLight;
             } else {
               cellColor = isDark
                   ? Colors.white.withValues(alpha: 0.1)
-                  : const Color(0xFFE5E7EB);
+                  : AppColors.grey200Light;
             }
 
             return Tooltip(
@@ -517,7 +633,7 @@ class DetailTab extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                   border: isToday
                       ? Border.all(
-                          color: const Color(0xFF5B7FFF),
+                          color: AppColors.primary,
                           width: 2,
                         )
                       : null,
@@ -528,7 +644,7 @@ class DetailTab extends StatelessWidget {
                           width: 6,
                           height: 6,
                           decoration: const BoxDecoration(
-                            color: Color(0xFF5B7FFF),
+                            color: AppColors.primary,
                             shape: BoxShape.circle,
                           ),
                         )
@@ -546,15 +662,15 @@ class DetailTab extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildLegendItem('달성', const Color(0xFF10B981), isDark),
+        _buildLegendItem('달성', AppColors.success, isDark),
         const SizedBox(width: 16),
-        _buildLegendItem('미달성', const Color(0xFFFCA5A5), isDark),
+        _buildLegendItem('미달성', AppColors.errorLight, isDark),
         const SizedBox(width: 16),
         _buildLegendItem(
             '예정',
             isDark
                 ? Colors.white.withValues(alpha: 0.1)
-                : const Color(0xFFF3F4F6),
+                : AppColors.grey100Light,
             isDark),
       ],
     );

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 
 /// 하루 목표 페이지 변경 모달 (독서 시작하기 화면용)
@@ -142,7 +143,7 @@ class ScheduleChangeModal {
                       return Container(
                         decoration: BoxDecoration(
                           color:
-                              isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                              isDark ? AppColors.surfaceDark : Colors.white,
                           borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(24)),
                         ),
@@ -304,12 +305,12 @@ class ScheduleChangeModal {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+            color: AppColors.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(
             CupertinoIcons.book,
-            color: Color(0xFF5B7FFF),
+            color: AppColors.primary,
             size: 24,
           ),
         ),
@@ -364,7 +365,7 @@ class ScheduleChangeModal {
     return Container(
       height: 120,
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+        color: isDark ? AppColors.subtleDark : Colors.grey[100],
         borderRadius: BorderRadius.circular(16),
       ),
       child: Stack(
@@ -374,7 +375,7 @@ class ScheduleChangeModal {
               width: 100,
               height: 90,
               decoration: BoxDecoration(
-                color: const Color(0xFF5B7FFF).withValues(alpha: 0.12),
+                color: AppColors.primary.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
@@ -417,7 +418,7 @@ class ScheduleChangeModal {
                                     ? FontWeight.w700
                                     : FontWeight.w400,
                                 color: isSelected
-                                    ? const Color(0xFF5B7FFF)
+                                    ? AppColors.primary
                                     : (isDark
                                         ? Colors.grey[500]
                                         : Colors.grey[400]),
@@ -479,7 +480,7 @@ class ScheduleChangeModal {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Color(0xFF5B7FFF)),
+              borderSide: const BorderSide(color: AppColors.primary),
             ),
             suffixText: 'p',
             suffixStyle: TextStyle(
@@ -520,8 +521,8 @@ class ScheduleChangeModal {
       ),
       decoration: BoxDecoration(
         color: isToday
-            ? const Color(0xFF5B7FFF).withValues(alpha: 0.1)
-            : (isDark ? const Color(0xFF2A2A2A) : Colors.grey[50]),
+            ? AppColors.primary.withValues(alpha: 0.1)
+            : (isDark ? AppColors.subtleDark : Colors.grey[50]),
         borderRadius: index == 0
             ? const BorderRadius.vertical(top: Radius.circular(12))
             : (index == totalCount - 1
@@ -538,7 +539,7 @@ class ScheduleChangeModal {
                 fontSize: 14,
                 fontWeight: isToday ? FontWeight.bold : FontWeight.w400,
                 color: isToday
-                    ? const Color(0xFF5B7FFF)
+                    ? AppColors.primary
                     : (isDark ? Colors.grey[300] : Colors.grey[700]),
               ),
             ),
@@ -556,7 +557,7 @@ class ScheduleChangeModal {
                 widthFactor: pages / maxPages,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFF5B7FFF),
+                    color: AppColors.primary,
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ),
@@ -607,7 +608,7 @@ class ScheduleChangeModal {
                 Navigator.pop(context, newDailyTarget);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5B7FFF),
+                backgroundColor: AppColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

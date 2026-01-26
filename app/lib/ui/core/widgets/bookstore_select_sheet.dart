@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:book_golas/ui/core/theme/design_system.dart';
+
 /// 서점 선택 바텀시트를 표시합니다.
 /// 알라딘, Yes24, 교보문고에서 책을 검색할 수 있습니다.
 void showBookstoreSelectSheet({
@@ -19,7 +21,7 @@ void showBookstoreSelectSheet({
     backgroundColor: Colors.transparent,
     builder: (sheetContext) => Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SafeArea(
@@ -164,7 +166,7 @@ class BookstoreButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[50],
+          color: isDark ? AppColors.subtleDark : Colors.grey[50],
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isDark ? Colors.grey[700]! : Colors.grey[200]!,

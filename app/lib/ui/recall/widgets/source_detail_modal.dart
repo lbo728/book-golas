@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:book_golas/domain/models/recall_models.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/data/services/recall_service.dart';
 
@@ -88,7 +89,7 @@ class _SourceDetailModalState extends State<SourceDetailModal> {
             maxChildSize: 0.9,
             builder: (_, scrollController) => Container(
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                color: isDark ? AppColors.surfaceDark : Colors.white,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(20)),
               ),

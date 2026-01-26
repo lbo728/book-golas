@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/calendar/view_model/calendar_view_model.dart';
 import 'package:book_golas/ui/calendar/widgets/calendar_header.dart';
 import 'package:book_golas/ui/calendar/widgets/calendar_filter_tabs.dart';
@@ -72,7 +73,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
+      backgroundColor:
+          isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
       body: SafeArea(
         child: Consumer<CalendarViewModel>(
           builder: (context, viewModel, child) {

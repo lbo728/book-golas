@@ -3,13 +3,17 @@ import 'package:provider/provider.dart';
 
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/domain/models/home_display_mode.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/home/view_model/home_view_model.dart';
 import 'package:book_golas/ui/home/widgets/home_mode_toggle_button.dart';
+import 'package:book_golas/ui/home/widgets/ai_feature_banner.dart';
 import 'package:book_golas/ui/book_list/view_model/book_list_view_model.dart';
 import 'package:book_golas/ui/book_list/widgets/book_list_screen.dart';
 import 'package:book_golas/ui/book_list/widgets/sheets/reading_books_selection_sheet.dart';
 import 'package:book_golas/ui/reading_progress/widgets/reading_progress_screen.dart';
+import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
+import 'package:book_golas/ui/recall/widgets/recall_search_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
   final void Function(VoidCallback updatePage, VoidCallback addMemorable)?
@@ -26,6 +30,55 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<HomeModeToggleButtonState> _toggleButtonKey = GlobalKey();
+
+  void _navigateToRecommendation() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const ReadingStartScreen(),
+      ),
+    );
+  }
+
+  void _showRecallBookSelection() {
+    final bookListVm = context.read<BookListViewModel>();
+    final readingBooks = bookListVm.readingBooks;
+
+    if (readingBooks.isEmpty) {
+      CustomSnackbar.show(
+        context,
+        message: '진행 중인 독서가 없습니다. 먼저 책을 등록해주세요.',
+        type: SnackbarType.info,
+        bottomOffset: 100,
+      );
+      return;
+    }
+
+    if (readingBooks.length == 1) {
+      _openRecallSheet(readingBooks.first);
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => ReadingBooksSelectionSheet(
+        books: readingBooks,
+        onBookSelected: (book) {
+          Navigator.pop(context);
+          _openRecallSheet(book);
+        },
+      ),
+    );
+  }
+
+  void _openRecallSheet(Book book) {
+    showRecallSearchSheet(
+      context: context,
+      bookId: book.id!,
+    );
+  }
 
   void _toggleDisplayMode(HomeViewModel vm) {
     if (vm.displayMode == HomeDisplayMode.allBooks) {
@@ -105,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (!vm.isPreferencesLoaded) {
           return Scaffold(
             backgroundColor:
-                isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FA),
+                isDark ? AppColors.scaffoldDark : AppColors.elevatedLight,
             body: const SizedBox.shrink(),
           );
         }
@@ -121,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
             bookListVm.isLoading) {
           return Scaffold(
             backgroundColor:
-                isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FA),
+                isDark ? AppColors.scaffoldDark : AppColors.elevatedLight,
             body: const SizedBox.shrink(),
           );
         }
@@ -145,9 +198,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
         return Scaffold(
           backgroundColor:
-              isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FA),
+              isDark ? AppColors.scaffoldDark : AppColors.elevatedLight,
           appBar: _buildAppBar(vm, isDark),
-          body: const BookListScreen(),
+          body: Column(
+            children: [
+              AiFeatureBanner(
+                onRecallTap: _showRecallBookSelection,
+                onRecommendTap: _navigateToRecommendation,
+              ),
+              const Expanded(
+                child: BookListScreen(),
+              ),
+            ],
+          ),
         );
       },
     );

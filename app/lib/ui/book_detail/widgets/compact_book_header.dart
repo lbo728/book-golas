@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class CompactBookHeader extends StatelessWidget {
   final String? imageUrl;
@@ -38,7 +39,7 @@ class CompactBookHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -186,17 +187,17 @@ class CompactBookHeader extends StatelessWidget {
 
   ({String label, Color color}) _getStatusInfo() {
     if (isCompleted) {
-      return (label: '완독', color: const Color(0xFF10B981));
+      return (label: '완독', color: AppColors.success);
     }
 
     switch (status) {
       case 'planned':
-        return (label: '읽을 예정', color: const Color(0xFF8B5CF6));
+        return (label: '읽을 예정', color: AppColors.purple);
       case 'will_retry':
-        return (label: '다시 읽을 책', color: const Color(0xFFFF9500));
+        return (label: '다시 읽을 책', color: AppColors.warning);
       case 'reading':
       default:
-        return (label: '독서 중', color: const Color(0xFF5B7FFF));
+        return (label: '독서 중', color: AppColors.primary);
     }
   }
 }

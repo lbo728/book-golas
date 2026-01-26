@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class ReadingProgressScreen extends StatelessWidget {
   final String bookId;
@@ -22,14 +23,17 @@ class ReadingProgressScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
         title: const Text('진행률 히스토리'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor:
+            isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+        foregroundColor: isDark ? Colors.white : Colors.black,
         elevation: 0,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor:
+          isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: FutureBuilder<List<Map<String, dynamic>>>(
@@ -58,7 +62,7 @@ class ReadingProgressScreen extends StatelessWidget {
                     LineChartBarData(
                       spots: spots,
                       isCurved: true,
-                      color: Colors.blue,
+                      color: AppColors.primary,
                       barWidth: 3,
                       dotData: const FlDotData(show: true),
                     ),
