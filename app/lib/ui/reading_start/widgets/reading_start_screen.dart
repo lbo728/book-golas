@@ -339,11 +339,11 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
               ),
             ),
           ),
-          // 하단 바 (플로팅) - 원본 방식: bottom 고정, resizeToAvoidBottomInset이 키보드 처리
+          // 하단 바 (플로팅) - 키보드 위 10px (resizeToAvoidBottomInset이 키보드 처리)
           Positioned(
             left: 16,
             right: 16,
-            bottom: 28,
+            bottom: 10,
             child:
                 Selector<ReadingStartViewModel, (int, BookSearchResult?, bool)>(
               selector: (_, vm) =>
