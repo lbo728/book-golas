@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:book_golas/data/services/ai_content_service.dart';
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
@@ -24,6 +25,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
   late FocusNode _focusNode;
   bool _isSaving = false;
   bool _hasChanges = false;
+  bool _isGeneratingAI = false;
 
   @override
   void initState() {
@@ -106,6 +108,85 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
       if (mounted) {
         setState(() {
           _isSaving = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _generateAIDraft() async {
+    if (_isGeneratingAI) return;
+
+    final bookId = widget.book.id;
+    if (bookId == null) {
+      CustomSnackbar.show(
+        context,
+        message: '책 정보를 찾을 수 없습니다.',
+        type: SnackbarType.error,
+      );
+      return;
+    }
+
+    if (_reviewController.text.trim().isNotEmpty) {
+      final shouldReplace = await showCupertinoDialog<bool>(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+          title: const Text('AI 초안 생성'),
+          content: const Text('현재 작성 중인 내용이 있습니다.\nAI 초안으로 대체하시겠습니까?'),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('취소'),
+            ),
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('대체하기'),
+            ),
+          ],
+        ),
+      );
+
+      if (shouldReplace != true) return;
+    }
+
+    setState(() {
+      _isGeneratingAI = true;
+    });
+
+    try {
+      final aiService = AIContentService();
+      final draft = await aiService.generateBookReviewDraft(bookId: bookId);
+
+      if (!mounted) return;
+
+      if (draft != null && draft.isNotEmpty) {
+        _reviewController.text = draft;
+        CustomSnackbar.show(
+          context,
+          message: 'AI 초안이 생성되었습니다. 자유롭게 수정해주세요!',
+          type: SnackbarType.success,
+          icon: CupertinoIcons.sparkles,
+        );
+      } else {
+        CustomSnackbar.show(
+          context,
+          message: 'AI 초안 생성에 실패했습니다. 다시 시도해주세요.',
+          type: SnackbarType.error,
+        );
+      }
+    } catch (e) {
+      debugPrint('Failed to generate AI draft: $e');
+      if (mounted) {
+        CustomSnackbar.show(
+          context,
+          message: 'AI 초안 생성 중 오류가 발생했습니다.',
+          type: SnackbarType.error,
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isGeneratingAI = false;
         });
       }
     }
@@ -213,7 +294,9 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildBookInfo(isDark),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
+                _buildAIButton(isDark),
+                const SizedBox(height: 16),
                 Expanded(
                   child: _buildReviewTextField(isDark),
                 ),
@@ -281,6 +364,69 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildAIButton(bool isDark) {
+    return GestureDetector(
+      onTap: _isGeneratingAI ? null : _generateAIDraft,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surfaceDark : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppColors.primary.withValues(alpha: 0.3),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (_isGeneratingAI) ...[
+              SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                'AI가 초안을 작성하고 있어요...',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.primary,
+                ),
+              ),
+            ] else ...[
+              Icon(
+                CupertinoIcons.sparkles,
+                size: 18,
+                color: AppColors.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'AI로 독후감 초안 작성하기',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.primary,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 
