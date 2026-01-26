@@ -1,4 +1,7 @@
 {
+  "tasks": {
+    "test": "deno test --allow-env --allow-net test.ts"
+  },
   "imports": {
     "@supabase/supabase-js": "npm:@supabase/supabase-js@2",
     "@langchain/openai": "npm:@langchain/openai@0.3.0",
