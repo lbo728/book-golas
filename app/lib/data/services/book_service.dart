@@ -438,6 +438,32 @@ class BookService {
     }
   }
 
+  Future<Book?> updateLongReview(String bookId, String? longReview) async {
+    try {
+      final response = await _supabase
+          .from(_tableName)
+          .update({
+            'long_review': longReview,
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', bookId)
+          .select()
+          .single();
+
+      final updatedBook = Book.fromJson(response);
+
+      final index = _books.indexWhere((b) => b.id == bookId);
+      if (index != -1) {
+        _books[index] = updatedBook;
+      }
+
+      return updatedBook;
+    } catch (e) {
+      debugPrint('독후감 업데이트 실패: $e');
+      return null;
+    }
+  }
+
   Future<int> getCompletedBooksCount({int? year}) async {
     try {
       final userId = _supabase.auth.currentUser?.id;

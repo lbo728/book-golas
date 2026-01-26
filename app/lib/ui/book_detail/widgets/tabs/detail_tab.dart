@@ -13,6 +13,7 @@ class DetailTab extends StatelessWidget {
   final VoidCallback onTargetDateChange;
   final VoidCallback? onPauseReading;
   final VoidCallback? onDelete;
+  final VoidCallback? onReviewTap;
 
   const DetailTab({
     super.key,
@@ -23,11 +24,15 @@ class DetailTab extends StatelessWidget {
     required this.onTargetDateChange,
     this.onPauseReading,
     this.onDelete,
+    this.onReviewTap,
   });
 
   bool get _isReading =>
       book.status == BookStatus.reading.value &&
       book.currentPage < book.totalPages;
+
+  bool get _isCompleted =>
+      book.currentPage >= book.totalPages && book.totalPages > 0;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +43,10 @@ class DetailTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (_isCompleted && onReviewTap != null) ...[
+            _buildReviewPreviewCard(isDark),
+            const SizedBox(height: 16),
+          ],
           _buildReadingScheduleCard(isDark),
           const SizedBox(height: 16),
           _buildTodayGoalCardWithStamps(isDark),
@@ -175,6 +184,113 @@ class DetailTab extends StatelessWidget {
     );
   }
 
+  Widget _buildReviewPreviewCard(bool isDark) {
+    final hasReview = book.longReview != null && book.longReview!.isNotEmpty;
+
+    return GestureDetector(
+      onTap: onReviewTap,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surfaceDark : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.doc_text_fill,
+                    size: 20,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '독후감',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.white : AppColors.scaffoldDark,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        hasReview ? '작성됨' : '아직 작성되지 않음',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: hasReview
+                              ? AppColors.success
+                              : (isDark ? Colors.grey[500] : Colors.grey[600]),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  CupertinoIcons.chevron_right,
+                  color: isDark ? Colors.grey[600] : Colors.grey[400],
+                  size: 16,
+                ),
+              ],
+            ),
+            if (hasReview) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : Colors.grey[50],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  book.longReview!.length > 150
+                      ? '${book.longReview!.substring(0, 150)}...'
+                      : book.longReview!,
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.5,
+                    color: isDark ? Colors.grey[300] : Colors.grey[700],
+                  ),
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ] else ...[
+              const SizedBox(height: 12),
+              Text(
+                '책을 읽고 느낀 점을 기록해보세요',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isDark ? Colors.grey[500] : Colors.grey[600],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildReadingScheduleCard(bool isDark) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -261,8 +377,7 @@ class DetailTab extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color:
-                              AppColors.warning.withValues(alpha: 0.12),
+                          color: AppColors.warning.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(

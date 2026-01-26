@@ -41,6 +41,8 @@ import 'package:book_golas/ui/recall/widgets/recall_search_sheet.dart';
 import 'package:book_golas/ui/recall/view_model/recall_view_model.dart';
 import 'package:book_golas/data/services/recall_service.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/book_review/book_review_screen.dart';
+import 'widgets/tabs/book_review_tab.dart';
 
 class BookDetailScreen extends StatelessWidget {
   final Book book;
@@ -104,7 +106,8 @@ class _BookDetailContent extends StatefulWidget {
 
 class _BookDetailContentState extends State<_BookDetailContent>
     with TickerProviderStateMixin {
-  late TabController _tabController;
+  TabController? _tabController;
+  int _currentTabLength = 3;
   late AnimationController _progressAnimController;
   late Animation<double> _progressAnimation;
   double _animatedProgress = 0.0;
@@ -113,11 +116,34 @@ class _BookDetailContentState extends State<_BookDetailContent>
   // Confetti 컨트롤러
   ConfettiController? _confettiController;
 
+  void _initTabController(int length) {
+    _tabController?.removeListener(_onTabChanged);
+    _tabController?.dispose();
+    _currentTabLength = length;
+    _tabController = TabController(length: length, vsync: this);
+    _tabController!.addListener(_onTabChanged);
+  }
+
+  void _onTabChanged() {
+    if (mounted) setState(() {});
+  }
+
+  void _updateTabControllerIfNeeded(Book book) {
+    final shouldHaveReviewTab = _isBookCompleted(book);
+    final targetLength = shouldHaveReviewTab ? 4 : 3;
+    if (_currentTabLength != targetLength) {
+      final currentIndex = _tabController?.index ?? 0;
+      _initTabController(targetLength);
+      if (currentIndex < targetLength) {
+        _tabController!.index = currentIndex;
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-    _tabController.addListener(() => setState(() {}));
+    _initTabController(3);
 
     _progressAnimController = AnimationController(
       vsync: this,
@@ -148,9 +174,12 @@ class _BookDetailContentState extends State<_BookDetailContent>
       memorableVm.fetchBookImages();
       progressVm.fetchProgressHistory();
 
+      // 탭 컨트롤러 업데이트 (완독 상태면 4탭)
+      _updateTabControllerIfNeeded(bookVm.currentBook);
+
       // 완독 상태면 히스토리 탭으로 이동
       if (_isBookCompleted(bookVm.currentBook)) {
-        _tabController.animateTo(1);
+        _tabController?.animateTo(1);
       }
 
       // 축하 애니메이션 표시
@@ -191,7 +220,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
 
   @override
   void dispose() {
-    _tabController.dispose();
+    _tabController?.removeListener(_onTabChanged);
+    _tabController?.dispose();
     _progressAnimController.dispose();
     _scrollController.dispose();
     _confettiController?.dispose();
@@ -293,6 +323,11 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                     context, book, bookVm),
                               ],
                               if (_isBookCompleted(book)) ...[
+                                if (book.longReview == null ||
+                                    book.longReview!.isEmpty) ...[
+                                  const SizedBox(height: 12),
+                                  _buildBookReviewButton(context, book),
+                                ],
                                 const SizedBox(height: 12),
                                 _buildRestartReadingButton(context, book),
                               ],
@@ -304,7 +339,12 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       SliverPersistentHeader(
                         pinned: true,
                         delegate: StickyTabBarDelegate(
-                          child: CustomTabBar(tabController: _tabController),
+                          child: CustomTabBar(
+                            tabController: _tabController!,
+                            tabLabels: _isBookCompleted(book)
+                                ? const ['기록', '히스토리', '독후감', '상세']
+                                : const ['기록', '히스토리', '상세'],
+                          ),
                           backgroundColor: isDark
                               ? AppColors.scaffoldDark
                               : AppColors.elevatedLight,
@@ -358,6 +398,12 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 );
                               },
                             ),
+                            if (_isBookCompleted(book))
+                              BookReviewTab(
+                                book: book,
+                                onEditTap: () =>
+                                    _navigateToBookReview(context, book),
+                              ),
                             DetailTab(
                               book: book,
                               attemptCount: bookVm.attemptCount,
@@ -368,6 +414,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
                               onPauseReading: () =>
                                   _showPauseReadingConfirmation(bookVm),
                               onDelete: () => _showDeleteConfirmation(bookVm),
+                              onReviewTap: () =>
+                                  _navigateToBookReview(context, book),
                             ),
                           ],
                         );
@@ -447,6 +495,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
     final oldProgress = oldPage / totalPages;
     final newProgress = newPage / totalPages;
     final wasGoalAchieved = bookVm.isTodayGoalAchieved;
+    final wasCompleted = oldPage >= totalPages;
+    final isNowCompleted = newPage >= totalPages;
 
     final success = await bookVm.updateCurrentPage(newPage);
     if (success && mounted) {
@@ -454,6 +504,12 @@ class _BookDetailContentState extends State<_BookDetailContent>
       _scrollController.animateTo(0,
           duration: const Duration(milliseconds: 500),
           curve: Curves.easeOutCubic);
+
+      // 완독 달성 시 축하 애니메이션 + 독후감 작성 유도
+      if (!wasCompleted && isNowCompleted) {
+        _showBookCompletionCelebration(bookVm);
+        return;
+      }
 
       final pagesRead = newPage - oldPage;
       if (bookVm.isTodayGoalAchieved) {
@@ -493,6 +549,147 @@ class _BookDetailContentState extends State<_BookDetailContent>
     );
     _confettiController!.play();
     setState(() {});
+  }
+
+  /// 완독 축하 애니메이션 + 독후감 작성 유도
+  void _showBookCompletionCelebration(BookDetailViewModel bookVm) {
+    _confettiController?.dispose();
+    _confettiController = ConfettiController(
+      duration: const Duration(seconds: 3),
+    );
+    _confettiController!.play();
+    setState(() {});
+
+    context.read<ReadingProgressViewModel>().fetchProgressHistory();
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      _showBookReviewPromptSheet(bookVm);
+    });
+  }
+
+  /// 독후감 작성 유도 바텀시트
+  void _showBookReviewPromptSheet(BookDetailViewModel bookVm) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final book = bookVm.currentBook;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isDismissible: true,
+      builder: (bottomSheetContext) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surfaceDark : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: Colors.grey[400],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const Text(
+              '🎉',
+              style: TextStyle(fontSize: 48),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '완독을 축하합니다!',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              book.title,
+              style: TextStyle(
+                fontSize: 15,
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              '독서의 여운이 남아있을 때\n독후감을 작성해보시겠어요?',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                color: isDark ? Colors.grey[300] : Colors.grey[700],
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(bottomSheetContext),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.grey[800] : Colors.grey[200],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '나중에',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.grey[300] : Colors.grey[700],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 2,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(bottomSheetContext);
+                      _navigateToBookReview(context, book);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          '독후감 쓰러가기',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: MediaQuery.of(bottomSheetContext).padding.bottom + 8,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showDailyTargetChangeDialog(BookDetailViewModel bookVm) async {
@@ -664,7 +861,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
       }
 
       if (mounted) {
-        _tabController.animateTo(0);
+        _tabController?.animateTo(0);
         _scrollController.animateTo(0,
             duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
         CustomSnackbar.show(context,
@@ -1124,6 +1321,94 @@ class _BookDetailContentState extends State<_BookDetailContent>
           );
         },
         transitionDuration: const Duration(milliseconds: 200),
+      ),
+    );
+  }
+
+  Future<void> _navigateToBookReview(BuildContext context, Book book) async {
+    final result = await Navigator.push<bool>(
+      context,
+      CupertinoPageRoute(
+        builder: (context) => BookReviewScreen(book: book),
+      ),
+    );
+
+    if (result == true && mounted) {
+      final bookVm = context.read<BookDetailViewModel>();
+      await bookVm.refreshBook();
+    }
+  }
+
+  Widget _buildBookReviewButton(BuildContext context, Book book) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final hasReview = book.longReview != null && book.longReview!.isNotEmpty;
+
+    return GestureDetector(
+      onTap: () => _navigateToBookReview(context, book),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surfaceDark : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.pencil_outline,
+                    color: AppColors.primary,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      hasReview ? '독후감 수정하기' : '독후감 작성하기',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      hasReview
+                          ? '작성한 독후감을 다시 확인하고 수정해보세요'
+                          : '책을 읽고 느낀 점을 기록해보세요',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            Icon(
+              CupertinoIcons.chevron_right,
+              color: isDark ? Colors.grey[400] : Colors.grey[500],
+              size: 20,
+            ),
+          ],
+        ),
       ),
     );
   }
