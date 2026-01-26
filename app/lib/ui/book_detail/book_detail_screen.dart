@@ -43,6 +43,9 @@ import 'package:book_golas/data/services/recall_service.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/book_review/book_review_screen.dart';
 import 'widgets/tabs/book_review_tab.dart';
+import 'package:book_golas/ui/book_detail/view_model/note_structure_view_model.dart';
+import 'package:book_golas/data/services/note_structure_service.dart';
+import 'package:book_golas/ui/book_detail/widgets/note_structure_mindmap.dart';
 
 class BookDetailScreen extends StatelessWidget {
   final Book book;
@@ -77,6 +80,11 @@ class BookDetailScreen extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => RecallViewModel()..loadRecentSearches(book.id!),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => NoteStructureViewModel(
+            service: NoteStructureService(),
+          ),
         ),
       ],
       child: _BookDetailContent(
@@ -330,6 +338,10 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 ],
                                 const SizedBox(height: 12),
                                 _buildRestartReadingButton(context, book),
+                              ],
+                              if (!_isBookPlanned(book)) ...[
+                                const SizedBox(height: 12),
+                                _buildNoteStructureButton(context, book),
                               ],
                               const SizedBox(height: 20),
                             ],
@@ -1545,6 +1557,144 @@ class _BookDetailContentState extends State<_BookDetailContent>
           }
         }
       },
+    );
+  }
+
+  Widget _buildNoteStructureButton(BuildContext context, Book book) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return GestureDetector(
+      onTap: () => _showNoteStructureMindmap(book.id!),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surfaceDark : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.grey.shade200,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.account_tree_outlined,
+              size: 18,
+              color: AppColors.primary,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '노트 구조화',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showNoteStructureMindmap(String bookId) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final noteStructureVm = context.read<NoteStructureViewModel>();
+
+    noteStructureVm.loadStructure(bookId);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (bottomSheetContext) => Container(
+        height: MediaQuery.of(context).size.height * 0.85,
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surfaceDark : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(top: 12, bottom: 16),
+              decoration: BoxDecoration(
+                color: Colors.grey[400],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '노트 구조화',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.close,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                    onPressed: () => Navigator.pop(bottomSheetContext),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: Consumer<NoteStructureViewModel>(
+                builder: (context, vm, _) {
+                  if (vm.isLoading) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  if (vm.errorMessage != null) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              size: 48,
+                              color: Colors.grey[400],
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              vm.errorMessage!,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: isDark
+                                    ? Colors.grey[400]
+                                    : Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+
+                  return NoteStructureMindmap(structure: vm.structure);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
