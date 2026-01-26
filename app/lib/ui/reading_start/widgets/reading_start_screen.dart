@@ -258,50 +258,57 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
   }
 
   Widget _buildHeader(ReadingStartViewModel vm, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 뒤로가기 버튼
-          GestureDetector(
-            onTap: () {
-              if (vm.currentPageIndex > 0) {
-                _previousPage(vm);
-              } else {
-                Navigator.pop(context);
-              }
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Icon(
-                CupertinoIcons.back,
-                color: isDark ? Colors.white : Colors.black,
-                size: 24,
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        // 헤더 영역 터치 시 키보드 닫기
+        FocusScope.of(context).unfocus();
+      },
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 뒤로가기 버튼
+            GestureDetector(
+              onTap: () {
+                if (vm.currentPageIndex > 0) {
+                  _previousPage(vm);
+                } else {
+                  Navigator.pop(context);
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Icon(
+                  CupertinoIcons.back,
+                  color: isDark ? Colors.white : Colors.black,
+                  size: 24,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 8),
-          // 제목
-          Text(
-            '독서 시작하기',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white : Colors.black,
-            ),
-          ),
-          const SizedBox(height: 4),
-          // 부제목 (검색 페이지일 때만)
-          if (vm.currentPageIndex == 0)
+            const SizedBox(height: 8),
+            // 제목
             Text(
-              '독서를 시작할 책을 검색해보세요.',
+              '독서 시작하기',
               style: TextStyle(
-                fontSize: 14,
-                color: isDark ? Colors.white54 : Colors.grey[600],
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black,
               ),
             ),
-        ],
+            const SizedBox(height: 4),
+            // 부제목 (검색 페이지일 때만)
+            if (vm.currentPageIndex == 0)
+              Text(
+                '독서를 시작할 책을 검색해보세요.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark ? Colors.white54 : Colors.grey[600],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -332,14 +339,11 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
               ),
             ),
           ),
-          // 하단 바 (TextField 포함): Consumer 밖에 위치하여 키보드 유지
-          // Selector로 필요한 속성만 구독
+          // 하단 바 (플로팅) - 원본 방식: bottom 고정, resizeToAvoidBottomInset이 키보드 처리
           Positioned(
             left: 16,
             right: 16,
-            bottom: MediaQuery.of(context).viewInsets.bottom > 0
-                ? MediaQuery.of(context).viewInsets.bottom + 8
-                : 22,
+            bottom: 28,
             child:
                 Selector<ReadingStartViewModel, (int, BookSearchResult?, bool)>(
               selector: (_, vm) =>
