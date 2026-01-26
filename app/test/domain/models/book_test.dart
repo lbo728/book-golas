@@ -86,7 +86,9 @@ void main() {
         expect(book.priority, 1);
         expect(book.pausedAt, DateTime.parse('2026-01-10T00:00:00.000Z'));
         expect(
-            book.plannedStartDate, DateTime.parse('2026-01-05T00:00:00.000Z'));
+          book.plannedStartDate,
+          DateTime.parse('2026-01-05T00:00:00.000Z'),
+        );
         expect(book.deletedAt, isNull);
         expect(book.genre, 'Fiction');
         expect(book.publisher, 'Test Publisher');
@@ -223,10 +225,7 @@ void main() {
       });
 
       test('should not mutate original book', () {
-        final _ = originalBook.copyWith(
-          currentPage: 150,
-          status: 'completed',
-        );
+        final _ = originalBook.copyWith(currentPage: 150, status: 'completed');
 
         expect(originalBook.currentPage, 50);
         expect(originalBook.status, 'reading');
@@ -278,15 +277,14 @@ void main() {
       expect(result.isbn, '978-1234567890');
       expect(result.genre, 'Fiction');
       expect(result.publisher, 'Test Publisher');
-      expect(result.aladinUrl,
-          'https://aladin.co.kr/shop/wproduct.aspx?ItemId=123');
+      expect(
+        result.aladinUrl,
+        'https://aladin.co.kr/shop/wproduct.aspx?ItemId=123',
+      );
     });
 
     test('fromJson should handle missing optional fields', () {
-      final json = {
-        'title': 'Minimal Book',
-        'author': 'Author',
-      };
+      final json = {'title': 'Minimal Book', 'author': 'Author'};
 
       final result = BookSearchResult.fromJson(json);
 
@@ -342,6 +340,194 @@ void main() {
       final result = BookSearchResult.fromJson(json);
 
       expect(result.isbn, '1234567890');
+    });
+  });
+
+  group('Book longReview field', () {
+    group('fromJson', () {
+      test('should parse long_review correctly when present', () {
+        final json = {
+          'id': 'test-id',
+          'title': 'Test Book',
+          'author': 'Test Author',
+          'start_date': '2026-01-01T00:00:00.000Z',
+          'target_date': '2026-02-01T00:00:00.000Z',
+          'long_review': 'This is a detailed long review of the book...',
+        };
+
+        final book = Book.fromJson(json);
+
+        expect(
+          book.longReview,
+          'This is a detailed long review of the book...',
+        );
+      });
+
+      test('should handle null long_review', () {
+        final json = {
+          'id': 'test-id',
+          'title': 'Test Book',
+          'author': 'Test Author',
+          'start_date': '2026-01-01T00:00:00.000Z',
+          'target_date': '2026-02-01T00:00:00.000Z',
+          'long_review': null,
+        };
+
+        final book = Book.fromJson(json);
+
+        expect(book.longReview, isNull);
+      });
+
+      test('should handle missing long_review field', () {
+        final json = {
+          'id': 'test-id',
+          'title': 'Test Book',
+          'author': 'Test Author',
+          'start_date': '2026-01-01T00:00:00.000Z',
+          'target_date': '2026-02-01T00:00:00.000Z',
+        };
+
+        final book = Book.fromJson(json);
+
+        expect(book.longReview, isNull);
+      });
+    });
+
+    group('toJson', () {
+      test('should include long_review when present', () {
+        final book = Book(
+          id: 'test-id',
+          title: 'Test Book',
+          author: 'Test Author',
+          startDate: DateTime.parse('2026-01-01T00:00:00.000Z'),
+          targetDate: DateTime.parse('2026-02-01T00:00:00.000Z'),
+          longReview: 'Detailed review text here...',
+        );
+
+        final json = book.toJson();
+
+        expect(json.containsKey('long_review'), true);
+        expect(json['long_review'], 'Detailed review text here...');
+      });
+
+      test('should exclude long_review when null', () {
+        final book = Book(
+          id: 'test-id',
+          title: 'Test Book',
+          author: 'Test Author',
+          startDate: DateTime.parse('2026-01-01T00:00:00.000Z'),
+          targetDate: DateTime.parse('2026-02-01T00:00:00.000Z'),
+          longReview: null,
+        );
+
+        final json = book.toJson();
+
+        expect(json.containsKey('long_review'), false);
+      });
+
+      test('should handle empty string long_review', () {
+        final book = Book(
+          id: 'test-id',
+          title: 'Test Book',
+          author: 'Test Author',
+          startDate: DateTime.parse('2026-01-01T00:00:00.000Z'),
+          targetDate: DateTime.parse('2026-02-01T00:00:00.000Z'),
+          longReview: '',
+        );
+
+        final json = book.toJson();
+
+        expect(json.containsKey('long_review'), true);
+        expect(json['long_review'], '');
+      });
+    });
+
+    group('copyWith', () {
+      test('should update longReview field', () {
+        final originalBook = Book(
+          id: 'test-id',
+          title: 'Test Book',
+          author: 'Test Author',
+          startDate: DateTime.parse('2026-01-01T00:00:00.000Z'),
+          targetDate: DateTime.parse('2026-02-01T00:00:00.000Z'),
+          longReview: 'Original review',
+        );
+
+        final updatedBook = originalBook.copyWith(longReview: 'Updated review');
+
+        expect(updatedBook.longReview, 'Updated review');
+        expect(originalBook.longReview, 'Original review');
+      });
+
+      test('should preserve longReview when copyWith called without it', () {
+        final originalBook = Book(
+          id: 'test-id',
+          title: 'Test Book',
+          author: 'Test Author',
+          startDate: DateTime.parse('2026-01-01T00:00:00.000Z'),
+          targetDate: DateTime.parse('2026-02-01T00:00:00.000Z'),
+          longReview: 'Original review',
+        );
+
+        final updatedBook = originalBook.copyWith(
+          title: 'Updated Title',
+        );
+
+        expect(updatedBook.longReview, 'Original review');
+        expect(updatedBook.title, 'Updated Title');
+      });
+
+      test('should preserve longReview when not specified in copyWith', () {
+        final originalBook = Book(
+          id: 'test-id',
+          title: 'Test Book',
+          author: 'Test Author',
+          startDate: DateTime.parse('2026-01-01T00:00:00.000Z'),
+          targetDate: DateTime.parse('2026-02-01T00:00:00.000Z'),
+          longReview: 'Original review',
+        );
+
+        final updatedBook = originalBook.copyWith(title: 'Updated Title');
+
+        expect(updatedBook.longReview, 'Original review');
+        expect(updatedBook.title, 'Updated Title');
+      });
+    });
+
+    group('roundtrip serialization', () {
+      test('should roundtrip with longReview', () {
+        final original = Book(
+          id: 'test-id',
+          title: 'Test Book',
+          author: 'Test Author',
+          startDate: DateTime.parse('2026-01-01T00:00:00.000Z'),
+          targetDate: DateTime.parse('2026-02-01T00:00:00.000Z'),
+          longReview: 'This is a comprehensive review...',
+        );
+
+        final json = original.toJson();
+        final restored = Book.fromJson(json);
+
+        expect(restored.longReview, original.longReview);
+        expect(restored.id, original.id);
+        expect(restored.title, original.title);
+      });
+
+      test('should roundtrip with null longReview', () {
+        final original = Book(
+          id: 'test-id',
+          title: 'Test Book',
+          author: 'Test Author',
+          startDate: DateTime.parse('2026-01-01T00:00:00.000Z'),
+          targetDate: DateTime.parse('2026-02-01T00:00:00.000Z'),
+          longReview: null,
+        );
+
+        final json = original.toJson();
+        final restored = Book.fromJson(json);
+
+        expect(restored.longReview, isNull);
+      });
     });
   });
 }
