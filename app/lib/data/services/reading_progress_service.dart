@@ -21,7 +21,7 @@ class ReadingProgressService {
     try {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) {
-        print('사용자가 로그인되어 있지 않습니다.');
+        debugPrint('사용자가 로그인되어 있지 않습니다.');
         return null;
       }
 
@@ -38,7 +38,7 @@ class ReadingProgressService {
 
       return ReadingProgressRecord.fromJson(response);
     } catch (e) {
-      print('진행 기록 추가 실패: $e');
+      debugPrint('진행 기록 추가 실패: $e');
       return null;
     }
   }
@@ -57,7 +57,7 @@ class ReadingProgressService {
           .map((json) => ReadingProgressRecord.fromJson(json))
           .toList();
     } catch (e) {
-      print('책 진행 히스토리 조회 실패: $e');
+      debugPrint('책 진행 히스토리 조회 실패: $e');
       return [];
     }
   }
@@ -78,7 +78,7 @@ class ReadingProgressService {
           .map((json) => ReadingProgressRecord.fromJson(json))
           .toList();
     } catch (e) {
-      print('사용자 진행 히스토리 조회 실패: $e');
+      debugPrint('사용자 진행 히스토리 조회 실패: $e');
       return [];
     }
   }
@@ -128,7 +128,7 @@ class ReadingProgressService {
 
       return streak;
     } catch (e) {
-      print('스트릭 계산 실패: $e');
+      debugPrint('스트릭 계산 실패: $e');
       return 0;
     }
   }
@@ -191,7 +191,7 @@ class ReadingProgressService {
       final rate = todayPagesRead / totalDailyTarget;
       return rate > 1.0 ? 1.0 : rate;
     } catch (e) {
-      print('목표 달성률 계산 실패: $e');
+      debugPrint('목표 달성률 계산 실패: $e');
       return 0.0;
     }
   }
@@ -243,7 +243,7 @@ class ReadingProgressService {
         'goalRate': goalRate,
       };
     } catch (e) {
-      print('통계 계산 실패: $e');
+      debugPrint('통계 계산 실패: $e');
       return {
         'totalPages': 0,
         'averageDaily': 0.0,
