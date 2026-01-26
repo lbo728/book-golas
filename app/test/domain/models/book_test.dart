@@ -98,6 +98,31 @@ void main() {
         expect(book.reviewLink, 'https://blog.example.com/review');
         expect(book.aladinUrl, 'https://aladin.co.kr/book/123');
       });
+
+      test('should parse longReview field from JSON', () {
+        final json = {
+          'title': 'Test Book',
+          'start_date': '2026-01-01T00:00:00.000Z',
+          'target_date': '2026-02-01T00:00:00.000Z',
+          'long_review': 'This is a comprehensive review of the book.',
+        };
+
+        final book = Book.fromJson(json);
+
+        expect(book.longReview, 'This is a comprehensive review of the book.');
+      });
+
+      test('should handle null longReview field', () {
+        final json = {
+          'title': 'Test Book',
+          'start_date': '2026-01-01T00:00:00.000Z',
+          'target_date': '2026-02-01T00:00:00.000Z',
+        };
+
+        final book = Book.fromJson(json);
+
+        expect(book.longReview, isNull);
+      });
     });
 
     group('toJson', () {
@@ -127,6 +152,20 @@ void main() {
         expect(json['status'], 'reading');
         expect(json['rating'], 4);
         expect(json['review'], 'Good read');
+      });
+
+      test('should include longReview when present', () {
+        final book = Book(
+          title: 'Test Book',
+          startDate: DateTime.parse('2026-01-01T00:00:00.000Z'),
+          targetDate: DateTime.parse('2026-02-01T00:00:00.000Z'),
+          longReview: 'This is a detailed review with multiple paragraphs.',
+        );
+
+        final json = book.toJson();
+
+        expect(json['long_review'],
+            'This is a detailed review with multiple paragraphs.');
       });
 
       test('should exclude null optional fields', () {
@@ -222,6 +261,17 @@ void main() {
         expect(updated.rating, 5);
         expect(updated.review, 'Excellent book!');
         expect(updated.title, originalBook.title);
+      });
+
+      test('should update longReview field', () {
+        final updated = originalBook.copyWith(
+          longReview: 'This is a comprehensive review of the book.',
+        );
+
+        expect(
+            updated.longReview, 'This is a comprehensive review of the book.');
+        expect(updated.title, originalBook.title);
+        expect(updated.id, originalBook.id);
       });
 
       test('should not mutate original book', () {
