@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/utils/text_history_manager.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class FullTextViewModal extends StatefulWidget {
   final String initialText;
@@ -136,7 +137,7 @@ class _FullTextViewModalState extends State<FullTextViewModal> {
               height: availableHeight,
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               decoration: BoxDecoration(
-                color: widget.isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                color: widget.isDark ? AppColors.surfaceDark : Colors.white,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -216,12 +217,12 @@ class _FullTextViewModalState extends State<FullTextViewModal> {
         if (_isEditing)
           GestureDetector(
             onTap: _handleSave,
-            child: const Text(
+            child: Text(
               '저장',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF5B7FFF),
+                color: AppColors.primary,
               ),
             ),
           )
@@ -290,20 +291,20 @@ class _FullTextViewModalState extends State<FullTextViewModal> {
             const SizedBox(width: 16),
             GestureDetector(
               onTap: _startEditing,
-              child: const Row(
+              child: Row(
                 children: [
                   Icon(
                     CupertinoIcons.pencil,
                     size: 14,
-                    color: Color(0xFF5B7FFF),
+                    color: AppColors.primary,
                   ),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   Text(
                     '수정하기',
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF5B7FFF),
+                      color: AppColors.primary,
                     ),
                   ),
                 ],

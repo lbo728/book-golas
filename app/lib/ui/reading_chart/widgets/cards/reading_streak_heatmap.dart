@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 /// 독서 스트릭 히트맵
 ///
@@ -26,7 +27,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -49,13 +50,13 @@ class ReadingStreakHeatmap extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFF6B6B).withOpacity(0.1),
+                        color: AppColors.destructive.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
                         Icons.local_fire_department_rounded,
                         size: 24,
-                        color: Color(0xFFFF6B6B),
+                        color: AppColors.destructive,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -76,7 +77,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFF6B6B).withOpacity(0.1),
+                      color: AppColors.destructive.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -92,7 +93,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFFFF6B6B),
+                            color: AppColors.destructive,
                           ),
                         ),
                       ],
@@ -258,15 +259,15 @@ class ReadingStreakHeatmap extends StatelessWidget {
       return isDark ? Colors.grey[850]! : Colors.grey[200]!;
     }
     if (pages <= 10) {
-      return const Color(0xFF4ECDC4).withOpacity(0.3);
+      return AppColors.info.withOpacity(0.3);
     }
     if (pages <= 30) {
-      return const Color(0xFF4ECDC4).withOpacity(0.5);
+      return AppColors.info.withOpacity(0.5);
     }
     if (pages <= 50) {
-      return const Color(0xFF4ECDC4).withOpacity(0.7);
+      return AppColors.info.withOpacity(0.7);
     }
-    return const Color(0xFF4ECDC4);
+    return AppColors.info;
   }
 
   Widget _buildLegend(bool isDark) {

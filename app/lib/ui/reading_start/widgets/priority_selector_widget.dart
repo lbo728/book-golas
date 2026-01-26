@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class PrioritySelectorWidget extends StatelessWidget {
   final int? selectedPriority;
@@ -28,13 +29,13 @@ class PrioritySelectorWidget extends StatelessWidget {
         const SizedBox(height: 12),
         Row(
           children: [
-            _buildPriorityButton(1, '긴급', const Color(0xFFFF3B30)),
+            _buildPriorityButton(1, '긴급', AppColors.error),
             const SizedBox(width: 8),
-            _buildPriorityButton(2, '높음', const Color(0xFFFF9500)),
+            _buildPriorityButton(2, '높음', AppColors.warning),
             const SizedBox(width: 8),
-            _buildPriorityButton(3, '보통', const Color(0xFF5B7FFF)),
+            _buildPriorityButton(3, '보통', AppColors.primary),
             const SizedBox(width: 8),
-            _buildPriorityButton(4, '낮음', const Color(0xFF34C759)),
+            _buildPriorityButton(4, '낮음', AppColors.successAlt),
           ],
         ),
       ],

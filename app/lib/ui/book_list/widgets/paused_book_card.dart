@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class PausedBookCard extends StatelessWidget {
   final Book book;
@@ -25,7 +26,7 @@ class PausedBookCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          color: isDark ? AppColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -104,7 +105,7 @@ class PausedBookCard extends StatelessWidget {
                 value: progress,
                 backgroundColor: isDark ? Colors.grey[700] : Colors.grey[200],
                 valueColor:
-                    const AlwaysStoppedAnimation<Color>(Color(0xFF5B7FFF)),
+                    const AlwaysStoppedAnimation<Color>(AppColors.primary),
                 minHeight: 6,
               ),
             ),

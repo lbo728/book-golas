@@ -1,3 +1,4 @@
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +15,7 @@ Future<ReadingManagementAction?> showReadingManagementSheet({
 
   return showModalBottomSheet<ReadingManagementAction>(
     context: context,
-    backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+    backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -28,13 +29,13 @@ Future<ReadingManagementAction?> showReadingManagementSheet({
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 CupertinoIcons.book_fill,
                 size: 32,
-                color: Color(0xFF5B7FFF),
+                color: AppColors.primary,
               ),
             ),
             const SizedBox(height: 16),
@@ -61,7 +62,7 @@ Future<ReadingManagementAction?> showReadingManagementSheet({
               icon: CupertinoIcons.pause_circle,
               label: '잠시 쉬어가기',
               description: '나중에 다시 읽을 수 있어요',
-              color: const Color(0xFFFF9500),
+              color: AppColors.warning,
               isDark: isDark,
               onTap: () =>
                   Navigator.pop(sheetContext, ReadingManagementAction.pause),
@@ -72,7 +73,7 @@ Future<ReadingManagementAction?> showReadingManagementSheet({
               icon: CupertinoIcons.trash,
               label: '삭제하기',
               description: '독서 기록이 삭제됩니다',
-              color: const Color(0xFFEF4444),
+              color: AppColors.errorAlt,
               isDark: isDark,
               onTap: () =>
                   Navigator.pop(sheetContext, ReadingManagementAction.delete),
@@ -170,7 +171,7 @@ Widget _buildCancelButton({
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2C2C2C) : const Color(0xFFF3F4F6),
+        color: isDark ? AppColors.elevatedDark : AppColors.grey100Light,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Center(

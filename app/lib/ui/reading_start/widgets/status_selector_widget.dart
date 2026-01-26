@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 /// 독서 상태 선택 위젯 (읽을 예정 / 바로 시작)
 class StatusSelectorWidget extends StatelessWidget {
@@ -31,7 +32,7 @@ class StatusSelectorWidget extends StatelessWidget {
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF5F5F5),
+            color: isDark ? AppColors.subtleDark : AppColors.elevatedLight,
             borderRadius: BorderRadius.circular(12),
           ),
           padding: const EdgeInsets.all(4),
@@ -71,13 +72,13 @@ class StatusSelectorWidget extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
             color: isSelected
-                ? (isDark ? const Color(0xFF5B7FFF) : const Color(0xFF5B7FFF))
+                ? (isDark ? AppColors.primary : AppColors.primary)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: const Color(0xFF5B7FFF).withOpacity(0.3),
+                      color: AppColors.primary.withOpacity(0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),

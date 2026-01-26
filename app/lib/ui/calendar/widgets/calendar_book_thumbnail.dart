@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 
 class CalendarBookThumbnail extends StatelessWidget {
@@ -18,7 +19,8 @@ class CalendarBookThumbnail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final scaffoldBg = isDark ? const Color(0xFF121212) : Colors.grey[50]!;
+    final scaffoldBg =
+        isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight;
 
     const thumbnailWidth = 36.0;
     const thumbnailHeight = 48.0;
@@ -48,7 +50,7 @@ class CalendarBookThumbnail extends StatelessWidget {
                 width: 16,
                 height: 16,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF5B7FFF),
+                  color: AppColors.primary,
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: scaffoldBg,
@@ -75,7 +77,7 @@ class CalendarBookThumbnail extends StatelessWidget {
                 width: 14,
                 height: 14,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF34C759),
+                  color: AppColors.successAlt,
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: scaffoldBg,

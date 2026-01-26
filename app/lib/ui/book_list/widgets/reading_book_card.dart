@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class ReadingBookCard extends StatefulWidget {
   final Book book;
@@ -72,14 +73,14 @@ class _ReadingBookCardState extends State<ReadingBookCard>
     final Color badgeColor;
     final Color badgeBgColor;
     if (daysLeft < 0) {
-      badgeColor = const Color(0xFFFF3B30);
-      badgeBgColor = const Color(0xFFFF3B30).withValues(alpha: 0.12);
+      badgeColor = AppColors.error;
+      badgeBgColor = AppColors.error.withValues(alpha: 0.12);
     } else if (daysLeft == 0) {
-      badgeColor = const Color(0xFFFF9500);
-      badgeBgColor = const Color(0xFFFF9500).withValues(alpha: 0.12);
+      badgeColor = AppColors.warning;
+      badgeBgColor = AppColors.warning.withValues(alpha: 0.12);
     } else {
-      badgeColor = const Color(0xFF5B7FFF);
-      badgeBgColor = const Color(0xFF5B7FFF).withValues(alpha: 0.12);
+      badgeColor = AppColors.primary;
+      badgeBgColor = AppColors.primary.withValues(alpha: 0.12);
     }
 
     return GestureDetector(
@@ -94,7 +95,7 @@ class _ReadingBookCardState extends State<ReadingBookCard>
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                color: isDark ? AppColors.surfaceDark : Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(

@@ -1,3 +1,4 @@
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -151,7 +152,7 @@ class DailyTargetDialog {
                       return Container(
                         decoration: BoxDecoration(
                           color:
-                              isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                              isDark ? AppColors.surfaceDark : Colors.white,
                           borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(24)),
                         ),
@@ -316,12 +317,12 @@ class DailyTargetDialog {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: const Color(0xFF10B981).withValues(alpha: 0.1),
+            color: AppColors.success.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(
             CupertinoIcons.book,
-            color: Color(0xFF10B981),
+            color: AppColors.success,
             size: 24,
           ),
         ),
@@ -376,7 +377,7 @@ class DailyTargetDialog {
     return Container(
       height: 120,
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+        color: isDark ? AppColors.subtleDark : Colors.grey[100],
         borderRadius: BorderRadius.circular(16),
       ),
       child: Stack(
@@ -386,7 +387,7 @@ class DailyTargetDialog {
               width: 100,
               height: 90,
               decoration: BoxDecoration(
-                color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                color: AppColors.success.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
@@ -429,7 +430,7 @@ class DailyTargetDialog {
                                     ? FontWeight.w700
                                     : FontWeight.w400,
                                 color: isSelected
-                                    ? const Color(0xFF10B981)
+                                    ? AppColors.success
                                     : (isDark
                                         ? Colors.grey[500]
                                         : Colors.grey[400]),
@@ -491,7 +492,7 @@ class DailyTargetDialog {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Color(0xFF10B981)),
+              borderSide: const BorderSide(color: AppColors.success),
             ),
             suffixText: 'p',
             suffixStyle: TextStyle(
@@ -532,8 +533,8 @@ class DailyTargetDialog {
       ),
       decoration: BoxDecoration(
         color: isToday
-            ? const Color(0xFF5B7FFF).withValues(alpha: 0.1)
-            : (isDark ? const Color(0xFF2A2A2A) : Colors.grey[50]),
+            ? AppColors.primary.withValues(alpha: 0.1)
+            : (isDark ? AppColors.subtleDark : Colors.grey[50]),
         borderRadius: index == 0
             ? const BorderRadius.vertical(top: Radius.circular(12))
             : (index == totalCount - 1
@@ -550,7 +551,7 @@ class DailyTargetDialog {
                 fontSize: 14,
                 fontWeight: isToday ? FontWeight.bold : FontWeight.w400,
                 color: isToday
-                    ? const Color(0xFF5B7FFF)
+                    ? AppColors.primary
                     : (isDark ? Colors.grey[300] : Colors.grey[700]),
               ),
             ),
@@ -568,7 +569,7 @@ class DailyTargetDialog {
                 widthFactor: pages / maxPages,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFF10B981),
+                    color: AppColors.success,
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ),
@@ -662,7 +663,7 @@ class DailyTargetDialog {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF10B981),
+                backgroundColor: AppColors.success,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 /// 연간 독서 목표 설정 바텀시트
 ///
@@ -32,7 +33,7 @@ class ReadingGoalSheet {
           builder: (context, setModalState) {
             return Container(
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -103,14 +104,14 @@ class ReadingGoalSheet {
                               ),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? const Color(0xFF5B7FFF)
+                                    ? AppColors.primary
                                     : (isDark
                                         ? Colors.grey[800]
                                         : Colors.grey[100]),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
                                   color: isSelected
-                                      ? const Color(0xFF5B7FFF)
+                                      ? AppColors.primary
                                       : (isDark
                                           ? Colors.grey[700]!
                                           : Colors.grey[300]!),
@@ -196,7 +197,7 @@ class ReadingGoalSheet {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(
-                          color: Color(0xFF5B7FFF),
+                          color: AppColors.primary,
                           width: 2,
                         ),
                       ),
@@ -207,8 +208,8 @@ class ReadingGoalSheet {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: isDark
-                          ? const Color(0xFF2A2A2A)
-                          : const Color(0xFFF5F7FF),
+                          ? AppColors.subtleDark
+                          : AppColors.subtleBlueLight,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -216,7 +217,7 @@ class ReadingGoalSheet {
                         Icon(
                           Icons.lightbulb_outline_rounded,
                           size: 20,
-                          color: const Color(0xFF5B7FFF),
+                          color: AppColors.primary,
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -258,7 +259,7 @@ class ReadingGoalSheet {
                               ? () => Navigator.pop(context, selectedGoal)
                               : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF5B7FFF),
+                            backgroundColor: AppColors.primary,
                             disabledBackgroundColor:
                                 isDark ? Colors.grey[700] : Colors.grey[300],
                             padding: const EdgeInsets.symmetric(vertical: 16),

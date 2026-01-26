@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:book_golas/ui/core/theme/design_system.dart';
+
 class ScrollableTabBar extends StatelessWidget {
   final TabController controller;
   final List<String> tabs;
@@ -32,7 +34,7 @@ class ScrollableTabBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor =
-        backgroundColor ?? (isDark ? const Color(0xFF121212) : Colors.white);
+        backgroundColor ?? (isDark ? AppColors.scaffoldDark : Colors.white);
     final indicator = indicatorColor ?? (isDark ? Colors.white : Colors.black);
 
     return Container(

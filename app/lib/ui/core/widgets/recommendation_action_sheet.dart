@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:book_golas/ui/core/widgets/bookstore_select_sheet.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 /// AI 추천 도서 선택 시 표시되는 액션 바텀시트
 /// - 책 내용 상세보기: 서점에서 책 정보 확인 (슬라이드 트랜지션)
@@ -68,7 +69,7 @@ class _RecommendationActionSheetContentState
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SafeArea(
@@ -139,14 +140,14 @@ class _RecommendationActionSheetContentState
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
               widget.reason,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: Color(0xFF5B7FFF),
+                color: AppColors.primary,
                 fontWeight: FontWeight.w500,
                 height: 1.4,
               ),
@@ -296,8 +297,8 @@ class _ActionButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: isPrimary
-              ? const Color(0xFF5B7FFF)
-              : (isDark ? const Color(0xFF2A2A2A) : Colors.grey[50]),
+              ? AppColors.primary
+              : (isDark ? AppColors.subtleDark : Colors.grey[50]),
           borderRadius: BorderRadius.circular(12),
           border: isPrimary
               ? null
@@ -378,7 +379,7 @@ class _BookstoreButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[50],
+          color: isDark ? AppColors.subtleDark : Colors.grey[50],
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isDark ? Colors.grey[700]! : Colors.grey[200]!,

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class CompactStreakRow extends StatelessWidget {
   final Map<String, bool> dailyAchievements;
@@ -42,7 +43,7 @@ class CompactStreakRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
@@ -83,7 +84,7 @@ class CompactStreakRow extends StatelessWidget {
                   fontSize: 11,
                   fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
                   color: isToday
-                      ? const Color(0xFF5B7FFF)
+                      ? AppColors.primary
                       : (isDark ? Colors.grey[400] : Colors.grey[500]),
                 ),
               ),
@@ -93,14 +94,14 @@ class CompactStreakRow extends StatelessWidget {
                 height: 20,
                 decoration: BoxDecoration(
                   color: isAchieved
-                      ? const Color(0xFF10B981)
+                      ? AppColors.success
                       : (isDark
                           ? Colors.white.withValues(alpha: 0.12)
                           : Colors.grey[200]),
                   shape: BoxShape.circle,
                   border: isToday
                       ? Border.all(
-                          color: const Color(0xFF5B7FFF),
+                          color: AppColors.primary,
                           width: 2,
                         )
                       : null,
@@ -128,7 +129,7 @@ class CompactStreakRow extends StatelessWidget {
           CupertinoIcons.flame_fill,
           size: 16,
           color: streak > 0
-              ? const Color(0xFFF97316)
+              ? AppColors.warning
               : (isDark ? Colors.grey[500] : Colors.grey[400]),
         ),
         const SizedBox(width: 4),

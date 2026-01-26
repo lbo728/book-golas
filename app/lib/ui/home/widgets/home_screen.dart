@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/domain/models/home_display_mode.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/home/view_model/home_view_model.dart';
 import 'package:book_golas/ui/home/widgets/home_mode_toggle_button.dart';
@@ -157,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (!vm.isPreferencesLoaded) {
           return Scaffold(
             backgroundColor:
-                isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FA),
+                isDark ? AppColors.scaffoldDark : AppColors.elevatedLight,
             body: const SizedBox.shrink(),
           );
         }
@@ -173,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
             bookListVm.isLoading) {
           return Scaffold(
             backgroundColor:
-                isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FA),
+                isDark ? AppColors.scaffoldDark : AppColors.elevatedLight,
             body: const SizedBox.shrink(),
           );
         }
@@ -197,7 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         return Scaffold(
           backgroundColor:
-              isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FA),
+              isDark ? AppColors.scaffoldDark : AppColors.elevatedLight,
           appBar: _buildAppBar(vm, isDark),
           body: Column(
             children: [

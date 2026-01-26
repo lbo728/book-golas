@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 /// 연간 목표 진행률 카드
 ///
@@ -43,14 +44,14 @@ class AnnualGoalCard extends StatelessWidget {
         gradient: isAchieved
             ? LinearGradient(
                 colors: [
-                  const Color(0xFF5B7FFF),
-                  const Color(0xFF5B7FFF).withOpacity(0.8),
+                  AppColors.primary,
+                  AppColors.primary.withOpacity(0.8),
                 ],
               )
             : null,
         color: isAchieved
             ? null
-            : (isDark ? const Color(0xFF1E1E1E) : Colors.white),
+            : (isDark ? AppColors.surfaceDark : AppColors.surfaceLight),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -75,7 +76,7 @@ class AnnualGoalCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: isAchieved
                             ? Colors.white.withOpacity(0.2)
-                            : const Color(0xFFFFBE0B).withOpacity(0.1),
+                            : AppColors.warningAlt.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
@@ -83,8 +84,7 @@ class AnnualGoalCard extends StatelessWidget {
                             ? Icons.emoji_events_rounded
                             : Icons.flag_rounded,
                         size: 24,
-                        color:
-                            isAchieved ? Colors.white : const Color(0xFFFFBE0B),
+                        color: isAchieved ? Colors.white : AppColors.warningAlt,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -155,10 +155,10 @@ class AnnualGoalCard extends StatelessWidget {
                   isAchieved
                       ? Colors.white
                       : (progress >= 0.7
-                          ? Colors.green
+                          ? AppColors.success
                           : (progress >= 0.4
-                              ? const Color(0xFFFFBE0B)
-                              : const Color(0xFF5B7FFF))),
+                              ? AppColors.warningAlt
+                              : AppColors.primary)),
                 ),
               ),
             ),
@@ -230,10 +230,10 @@ class AnnualGoalCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFF5B7FFF).withOpacity(0.3),
+          color: AppColors.primary.withOpacity(0.3),
           width: 2,
           strokeAlign: BorderSide.strokeAlignInside,
         ),
@@ -250,13 +250,13 @@ class AnnualGoalCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF5B7FFF).withOpacity(0.1),
+              color: AppColors.primary.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.flag_outlined,
               size: 40,
-              color: Color(0xFF5B7FFF),
+              color: AppColors.primary,
             ),
           ),
           const SizedBox(height: 16),
@@ -282,7 +282,7 @@ class AnnualGoalCard extends StatelessWidget {
             ElevatedButton(
               onPressed: onSetGoal,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5B7FFF),
+                backgroundColor: AppColors.primary,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 32,
                   vertical: 14,

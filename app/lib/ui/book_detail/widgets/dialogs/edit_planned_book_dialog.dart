@@ -1,3 +1,4 @@
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:flutter/material.dart';
 
 import 'package:book_golas/ui/core/widgets/korean_date_picker.dart';
@@ -60,7 +61,7 @@ class _EditPlannedBookDialogState extends State<EditPlannedBookDialog> {
     return Container(
       margin: EdgeInsets.only(bottom: bottomPadding),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: SafeArea(
@@ -114,8 +115,8 @@ class _EditPlannedBookDialogState extends State<EditPlannedBookDialog> {
                   height: 150,
                   decoration: BoxDecoration(
                     color: isDark
-                        ? const Color(0xFF2A2A2A)
-                        : const Color(0xFFF5F5F5),
+                        ? AppColors.subtleDark
+                        : AppColors.grey50Light,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: KoreanDatePicker(
@@ -160,7 +161,7 @@ class _EditPlannedBookDialogState extends State<EditPlannedBookDialog> {
                         onPressed: _isLoading ? null : _onSave,
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          backgroundColor: const Color(0xFF5B7FFF),
+                          backgroundColor: AppColors.primary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),

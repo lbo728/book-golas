@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_golas/domain/models/recall_models.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 import 'package:book_golas/ui/recall/view_model/recall_view_model.dart';
@@ -148,7 +149,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+              color: isDark ? AppColors.surfaceDark : Colors.white,
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(20)),
             ),
@@ -177,13 +178,13 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                               Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF5B7FFF)
+                                  color: AppColors.primary
                                       .withValues(alpha: 0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
                                   Icons.auto_awesome,
-                                  color: Color(0xFF5B7FFF),
+                                  color: AppColors.primary,
                                   size: 20,
                                 ),
                               ),
@@ -240,7 +241,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                                     ? (isDark
                                         ? Colors.grey[600]
                                         : Colors.grey[400])
-                                    : const Color(0xFF5B7FFF),
+                                    : AppColors.primary,
                               ),
                               onPressed: () => _search(_controller.text),
                             ),
@@ -250,7 +251,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                             ),
                             filled: true,
                             fillColor: isDark
-                                ? const Color(0xFF2C2C2E)
+                                ? AppColors.elevatedDark
                                 : Colors.grey[100],
                           ),
                           onSubmitted: _search,
@@ -265,7 +266,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               color: isDark
-                                  ? const Color(0xFF2C2C2E)
+                                  ? AppColors.elevatedDark
                                   : Colors.grey[100],
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -361,7 +362,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const CircularProgressIndicator(color: Color(0xFF5B7FFF)),
+            const CircularProgressIndicator(color: AppColors.primary),
             const SizedBox(height: 16),
             Text(
               '당신의 기록을 검색하는 중...',
@@ -481,7 +482,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
           margin: const EdgeInsets.only(bottom: 8),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF2C2C2E) : Colors.grey[100],
+            color: isDark ? AppColors.elevatedDark : Colors.grey[100],
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -623,8 +624,8 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: isDark
-                ? const Color(0xFF5B7FFF).withValues(alpha: 0.15)
-                : const Color(0xFF5B7FFF).withValues(alpha: 0.08),
+                ? AppColors.primary.withValues(alpha: 0.15)
+                : AppColors.primary.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
@@ -633,7 +634,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
               Row(
                 children: [
                   const Icon(Icons.auto_awesome,
-                      color: Color(0xFF5B7FFF), size: 20),
+                      color: AppColors.primary, size: 20),
                   const SizedBox(width: 8),
                   Text(
                     'AI 답변',
@@ -738,7 +739,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+          color: isDark ? AppColors.elevatedDark : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isDark ? Colors.grey[800]! : Colors.grey[200]!,

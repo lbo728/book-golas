@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 /// 월별 독서량 바 차트
 ///
@@ -38,7 +39,7 @@ class MonthlyBooksChart extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -58,13 +59,13 @@ class MonthlyBooksChart extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF4ECDC4).withOpacity(0.1),
+                    color: AppColors.info.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
                     Icons.bar_chart_rounded,
                     size: 24,
-                    color: Color(0xFF4ECDC4),
+                    color: AppColors.info,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -142,7 +143,7 @@ class MonthlyBooksChart extends StatelessWidget {
                                     ? FontWeight.bold
                                     : FontWeight.normal,
                                 color: isCurrentMonth
-                                    ? const Color(0xFF5B7FFF)
+                                    ? AppColors.primary
                                     : (isDark
                                         ? Colors.grey[500]
                                         : Colors.grey[600]),
@@ -210,10 +211,8 @@ class MonthlyBooksChart extends StatelessWidget {
           BarChartRodData(
             toY: count.toDouble(),
             color: isCurrentMonth
-                ? const Color(0xFF5B7FFF)
-                : (isDark
-                    ? const Color(0xFF4ECDC4).withOpacity(0.7)
-                    : const Color(0xFF4ECDC4)),
+                ? AppColors.primary
+                : (isDark ? AppColors.info.withOpacity(0.7) : AppColors.info),
             width: 16,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
             backDrawRodData: BackgroundBarChartRodData(

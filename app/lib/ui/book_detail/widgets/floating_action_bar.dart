@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class FloatingActionBar extends StatelessWidget {
   final VoidCallback? onUpdatePageTap;
@@ -76,13 +77,13 @@ class FloatingActionBar extends StatelessWidget {
               height: 62,
               decoration: BoxDecoration(
                 color: isDark
-                    ? const Color(0xFF5B7FFF).withValues(alpha: 0.3)
-                    : const Color(0xFF5B7FFF).withValues(alpha: 0.15),
+                    ? AppColors.primary.withValues(alpha: 0.3)
+                    : AppColors.primary.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isDark
-                      ? const Color(0xFF5B7FFF).withValues(alpha: 0.5)
-                      : const Color(0xFF5B7FFF).withValues(alpha: 0.3),
+                      ? AppColors.primary.withValues(alpha: 0.5)
+                      : AppColors.primary.withValues(alpha: 0.3),
                   width: 0.5,
                 ),
               ),
@@ -94,7 +95,7 @@ class FloatingActionBar extends StatelessWidget {
                     child: Icon(
                       Icons.auto_awesome,
                       size: 18,
-                      color: Color(0xFF5B7FFF),
+                      color: AppColors.primary,
                     ),
                   ),
                   Positioned(
@@ -102,7 +103,7 @@ class FloatingActionBar extends StatelessWidget {
                     child: Icon(
                       Icons.search,
                       size: 18,
-                      color: Color(0xFF5B7FFF),
+                      color: AppColors.primary,
                     ),
                   ),
                 ],
@@ -128,13 +129,13 @@ class FloatingActionBar extends StatelessWidget {
               height: 62,
               decoration: BoxDecoration(
                 color: isDark
-                    ? const Color(0xFF5B7FFF).withValues(alpha: 0.3)
-                    : const Color(0xFF5B7FFF).withValues(alpha: 0.15),
+                    ? AppColors.primary.withValues(alpha: 0.3)
+                    : AppColors.primary.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(100),
                 border: Border.all(
                   color: isDark
-                      ? const Color(0xFF5B7FFF).withValues(alpha: 0.5)
-                      : const Color(0xFF5B7FFF).withValues(alpha: 0.3),
+                      ? AppColors.primary.withValues(alpha: 0.5)
+                      : AppColors.primary.withValues(alpha: 0.3),
                   width: 0.5,
                 ),
               ),
@@ -144,7 +145,7 @@ class FloatingActionBar extends StatelessWidget {
                   Icon(
                     Icons.auto_awesome,
                     size: 18,
-                    color: Color(0xFF5B7FFF),
+                    color: AppColors.primary,
                   ),
                   SizedBox(width: 8),
                   Text(
@@ -152,7 +153,7 @@ class FloatingActionBar extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF5B7FFF),
+                      color: AppColors.primary,
                     ),
                   ),
                 ],
@@ -314,7 +315,7 @@ class KeyboardDoneButton extends StatelessWidget {
                       size: 20,
                       color: isDark
                           ? Colors.white.withValues(alpha: 0.9)
-                          : const Color(0xFF5B7FFF),
+                          : AppColors.primary,
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -324,7 +325,7 @@ class KeyboardDoneButton extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                         color: isDark
                             ? Colors.white.withValues(alpha: 0.9)
-                            : const Color(0xFF5B7FFF),
+                            : AppColors.primary,
                       ),
                     ),
                   ],

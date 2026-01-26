@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class ProgressHistoryTab extends StatelessWidget {
   final Future<List<Map<String, dynamic>>> progressFuture;
@@ -124,7 +125,7 @@ class ProgressHistoryTab extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -163,7 +164,7 @@ class ProgressHistoryTab extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF6B35).withValues(alpha: 0.12),
+                  color: AppColors.warning.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -171,7 +172,7 @@ class ProgressHistoryTab extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFFFF6B35),
+                    color: AppColors.warning,
                   ),
                 ),
               ),
@@ -181,7 +182,7 @@ class ProgressHistoryTab extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: const Color(0xFF5B7FFF).withOpacity(0.12),
+            color: AppColors.primary.withOpacity(0.12),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
@@ -189,7 +190,7 @@ class ProgressHistoryTab extends StatelessWidget {
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF5B7FFF),
+              color: AppColors.primary,
             ),
           ),
         ),
@@ -201,9 +202,9 @@ class ProgressHistoryTab extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildLegendItem('누적 페이지', const Color(0xFF5B7FFF), isDark),
+        _buildLegendItem('누적 페이지', AppColors.primary, isDark),
         const SizedBox(width: 24),
-        _buildLegendItem('일일 페이지', const Color(0xFF10B981), isDark),
+        _buildLegendItem('일일 페이지', AppColors.success, isDark),
       ],
     );
   }
@@ -258,7 +259,7 @@ class ProgressHistoryTab extends StatelessWidget {
               lineTouchData: LineTouchData(
                 touchTooltipData: LineTouchTooltipData(
                   tooltipBgColor:
-                      isDark ? const Color(0xFF2D2D2D) : Colors.white,
+                      isDark ? AppColors.elevatedDark : Colors.white,
                   tooltipBorder: BorderSide(
                     color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
                     width: 1,
@@ -290,7 +291,7 @@ class ProgressHistoryTab extends StatelessWidget {
                             TextSpan(
                               text: '누적: $cumulativePage p\n',
                               style: const TextStyle(
-                                color: Color(0xFF5B7FFF),
+                                color: AppColors.primary,
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -298,7 +299,7 @@ class ProgressHistoryTab extends StatelessWidget {
                             TextSpan(
                               text: '일일: +$dailyPage p',
                               style: const TextStyle(
-                                color: Color(0xFF10B981),
+                                color: AppColors.success,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -321,7 +322,7 @@ class ProgressHistoryTab extends StatelessWidget {
                       FlSpot(spot.x, scaledY.clamp(0, scaledMaxY * 0.35)),
                     ],
                     isCurved: false,
-                    color: const Color(0xFF10B981),
+                    color: AppColors.success,
                     barWidth: barWidth,
                     dotData: const FlDotData(show: false),
                   );
@@ -330,7 +331,7 @@ class ProgressHistoryTab extends StatelessWidget {
                   spots: spots,
                   isCurved: true,
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF5B7FFF), Color(0xFF4A6FE8)],
+                    colors: [AppColors.primary, AppColors.primary],
                   ),
                   barWidth: 3,
                   dotData: FlDotData(
@@ -338,9 +339,9 @@ class ProgressHistoryTab extends StatelessWidget {
                     getDotPainter: (spot, percent, barData, index) {
                       return FlDotCirclePainter(
                         radius: 4,
-                        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                        color: isDark ? AppColors.surfaceDark : Colors.white,
                         strokeWidth: 2,
-                        strokeColor: const Color(0xFF5B7FFF),
+                        strokeColor: AppColors.primary,
                       );
                     },
                   ),
@@ -348,8 +349,8 @@ class ProgressHistoryTab extends StatelessWidget {
                     show: true,
                     gradient: LinearGradient(
                       colors: [
-                        const Color(0xFF5B7FFF).withValues(alpha: 0.15),
-                        const Color(0xFF5B7FFF).withValues(alpha: 0.0),
+                        AppColors.primary.withValues(alpha: 0.15),
+                        AppColors.primary.withValues(alpha: 0.0),
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -488,7 +489,7 @@ class ProgressHistoryTab extends StatelessWidget {
                             horizontal: 5, vertical: 1),
                         decoration: BoxDecoration(
                           color:
-                              const Color(0xFFFF6B35).withValues(alpha: 0.15),
+                              AppColors.warning.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -496,7 +497,7 @@ class ProgressHistoryTab extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFFFF6B35),
+                            color: AppColors.warning,
                           ),
                         ),
                       ),
@@ -535,14 +536,14 @@ class ProgressHistoryTab extends StatelessWidget {
           'emoji': '🏆',
           'title': '드디어 완독!',
           'message': '$attemptCount번의 도전 끝에 완독에 성공했어요. 포기하지 않은 당신이 멋져요!',
-          'color': const Color(0xFF10B981),
+          'color': AppColors.success,
         };
       }
       return {
         'emoji': '🎉',
         'title': '완독 축하해요!',
         'message': '목표를 달성했어요. 다음 책도 함께 읽어볼까요?',
-        'color': const Color(0xFF10B981),
+        'color': AppColors.success,
       };
     }
 
@@ -552,14 +553,14 @@ class ProgressHistoryTab extends StatelessWidget {
           'emoji': '💪',
           'title': '이번엔 완주해봐요',
           'message': '$attemptCount번째 도전이에요. 목표일을 재설정하고 끝까지 읽어볼까요?',
-          'color': const Color(0xFFFF6B6B),
+          'color': AppColors.destructive,
         };
       }
       return {
         'emoji': '⏰',
         'title': '목표일이 지났어요',
         'message': '괜찮아요, 새 목표일을 설정하고 다시 시작해봐요!',
-        'color': const Color(0xFFFF6B6B),
+        'color': AppColors.destructive,
       };
     }
 
@@ -568,7 +569,7 @@ class ProgressHistoryTab extends StatelessWidget {
         'emoji': '🚀',
         'title': '놀라운 속도예요!',
         'message': '예상보다 훨씬 빠르게 읽고 있어요. 이 페이스면 일찍 완독할 수 있겠어요!',
-        'color': const Color(0xFF5B7FFF),
+        'color': AppColors.primary,
       };
     }
 
@@ -577,7 +578,7 @@ class ProgressHistoryTab extends StatelessWidget {
         'emoji': '✨',
         'title': '순조롭게 진행 중!',
         'message': '계획보다 앞서가고 있어요. 이대로만 하면 목표 달성 확실해요!',
-        'color': const Color(0xFF10B981),
+        'color': AppColors.success,
       };
     }
 
@@ -586,7 +587,7 @@ class ProgressHistoryTab extends StatelessWidget {
         'emoji': '📖',
         'title': '계획대로 진행 중',
         'message': '꾸준히 읽고 있어요. 오늘도 조금씩 읽어볼까요?',
-        'color': const Color(0xFF5B7FFF),
+        'color': AppColors.primary,
       };
     }
 
@@ -596,14 +597,14 @@ class ProgressHistoryTab extends StatelessWidget {
           'emoji': '🔥',
           'title': '조금 더 속도를 내볼까요?',
           'message': '이번에는 꼭 완독해봐요. 매일 조금씩 더 읽으면 따라잡을 수 있어요!',
-          'color': const Color(0xFFF59E0B),
+          'color': AppColors.warning,
         };
       }
       return {
         'emoji': '📚',
         'title': '조금 더 읽어볼까요?',
         'message': '계획보다 살짝 뒤처졌어요. 오늘 조금 더 읽으면 따라잡을 수 있어요!',
-        'color': const Color(0xFFF59E0B),
+        'color': AppColors.warning,
       };
     }
 
@@ -612,14 +613,14 @@ class ProgressHistoryTab extends StatelessWidget {
         'emoji': '💫',
         'title': '포기하지 마세요!',
         'message': '$attemptCount번째 도전 중이에요. 목표일을 조정하거나 더 집중해서 읽어봐요!',
-        'color': const Color(0xFFFF6B6B),
+        'color': AppColors.destructive,
       };
     }
     return {
       'emoji': '📅',
       'title': '목표 재설정이 필요할 수도',
       'message': '현재 페이스로는 목표 달성이 어려워요. 목표일을 조정해볼까요?',
-      'color': const Color(0xFFFF6B6B),
+      'color': AppColors.destructive,
     };
   }
 
@@ -655,7 +656,7 @@ class ProgressHistoryTab extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -667,7 +668,7 @@ class ProgressHistoryTab extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: const Color(0xFF5B7FFF).withOpacity(0.1),
+              color: AppColors.primary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Center(
@@ -676,7 +677,7 @@ class ProgressHistoryTab extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF5B7FFF),
+                  color: AppColors.primary,
                 ),
               ),
             ),
@@ -713,7 +714,7 @@ class ProgressHistoryTab extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF10B981),
+                  color: AppColors.success,
                 ),
               ),
               Text(
@@ -775,7 +776,7 @@ class ProgressHistoryTab extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                color: isDark ? AppColors.surfaceDark : Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isDark ? Colors.grey[800]! : Colors.grey[200]!,

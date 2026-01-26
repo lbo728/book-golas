@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:book_golas/domain/models/highlight_data.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class HighlightToolbar extends StatefulWidget {
   final String selectedColor;
@@ -51,7 +52,7 @@ class _HighlightToolbarState extends State<HighlightToolbar> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+            color: isDark ? AppColors.subtleDark : Colors.white,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
@@ -97,7 +98,7 @@ class _HighlightToolbarState extends State<HighlightToolbar> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+        color: isDark ? AppColors.subtleDark : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -224,7 +225,7 @@ class _HighlightToolbarState extends State<HighlightToolbar> {
         height: 36,
         decoration: BoxDecoration(
           color: _showSettings
-              ? const Color(0xFF5B7FFF)
+              ? AppColors.primary
               : (isDark ? Colors.grey[800] : Colors.grey[100]),
           borderRadius: BorderRadius.circular(8),
         ),
@@ -322,7 +323,7 @@ class _HighlightToolbarState extends State<HighlightToolbar> {
         height: 36,
         decoration: BoxDecoration(
           color: widget.isEraserMode
-              ? const Color(0xFF5B7FFF)
+              ? AppColors.primary
               : (isDark ? Colors.grey[800] : Colors.grey[100]),
           borderRadius: BorderRadius.circular(8),
         ),
