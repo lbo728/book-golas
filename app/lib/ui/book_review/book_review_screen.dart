@@ -174,6 +174,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
         message: '독후감이 복사되었습니다.',
         type: SnackbarType.success,
         icon: CupertinoIcons.doc_on_doc,
+        aboveKeyboard: true,
       );
     }
   }
