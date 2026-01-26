@@ -96,6 +96,7 @@ class Book {
   final String? review;
   final String? reviewLink;
   final String? aladinUrl;
+  final String? longReview;
 
   Book({
     this.id,
@@ -122,6 +123,7 @@ class Book {
     this.review,
     this.reviewLink,
     this.aladinUrl,
+    this.longReview,
   });
 
   Book copyWith({
@@ -149,6 +151,7 @@ class Book {
     String? review,
     String? reviewLink,
     String? aladinUrl,
+    String? longReview,
   }) {
     return Book(
       id: id ?? this.id,
@@ -175,6 +178,7 @@ class Book {
       review: review ?? this.review,
       reviewLink: reviewLink ?? this.reviewLink,
       aladinUrl: aladinUrl ?? this.aladinUrl,
+      longReview: longReview ?? this.longReview,
     );
   }
 
@@ -205,6 +209,7 @@ class Book {
       if (review != null) 'review': review,
       if (reviewLink != null) 'review_link': reviewLink,
       if (aladinUrl != null) 'aladin_url': aladinUrl,
+      if (longReview != null) 'long_review': longReview,
     };
   }
 
@@ -243,6 +248,7 @@ class Book {
       review: json['review'] as String?,
       reviewLink: json['review_link'] as String?,
       aladinUrl: json['aladin_url'] as String?,
+      longReview: json['long_review'] as String?,
     );
   }
 }
