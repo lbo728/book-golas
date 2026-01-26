@@ -117,7 +117,10 @@ class ReadingStartViewModel extends BaseViewModel {
   }
 
   /// 추천 도서들의 이미지를 백그라운드에서 로드 (캐시 사용)
+  /// 배치 업데이트로 notifyListeners() 호출 최소화 (iOS 키보드 유지)
   Future<void> _loadRecommendationImages() async {
+    bool hasUpdates = false;
+
     for (int i = 0; i < _recommendations.length; i++) {
       final rec = _recommendations[i];
       if (rec.imageUrl != null) continue;
@@ -126,7 +129,7 @@ class ReadingStartViewModel extends BaseViewModel {
       final cachedUrl = RecommendationService.getCachedImageUrl(rec.title);
       if (cachedUrl != null) {
         _recommendations[i] = rec.copyWith(imageUrl: cachedUrl);
-        notifyListeners();
+        hasUpdates = true;
         continue;
       }
 
@@ -138,12 +141,17 @@ class ReadingStartViewModel extends BaseViewModel {
           final imageUrl = results.first.imageUrl!;
           RecommendationService.cacheImageUrl(rec.title, imageUrl);
           _recommendations[i] = rec.copyWith(imageUrl: imageUrl);
-          notifyListeners();
+          hasUpdates = true;
         }
       } catch (e) {
         debugPrint(
             '[ReadingStartViewModel] Failed to load image for ${rec.title}: $e');
       }
+    }
+
+    // 모든 이미지 로드 후 한 번만 notifyListeners() 호출
+    if (hasUpdates) {
+      notifyListeners();
     }
   }
 
