@@ -41,6 +41,7 @@ import 'package:book_golas/ui/recall/widgets/recall_search_sheet.dart';
 import 'package:book_golas/ui/recall/view_model/recall_view_model.dart';
 import 'package:book_golas/data/services/recall_service.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/book_review/book_review_screen.dart';
 
 class BookDetailScreen extends StatelessWidget {
   final Book book;
@@ -293,6 +294,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                     context, book, bookVm),
                               ],
                               if (_isBookCompleted(book)) ...[
+                                const SizedBox(height: 12),
+                                _buildBookReviewButton(context, book),
                                 const SizedBox(height: 12),
                                 _buildRestartReadingButton(context, book),
                               ],
@@ -1124,6 +1127,94 @@ class _BookDetailContentState extends State<_BookDetailContent>
           );
         },
         transitionDuration: const Duration(milliseconds: 200),
+      ),
+    );
+  }
+
+  Future<void> _navigateToBookReview(BuildContext context, Book book) async {
+    final result = await Navigator.push<bool>(
+      context,
+      CupertinoPageRoute(
+        builder: (context) => BookReviewScreen(book: book),
+      ),
+    );
+
+    if (result == true && mounted) {
+      final bookVm = context.read<BookDetailViewModel>();
+      await bookVm.refreshBook();
+    }
+  }
+
+  Widget _buildBookReviewButton(BuildContext context, Book book) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final hasReview = book.longReview != null && book.longReview!.isNotEmpty;
+
+    return GestureDetector(
+      onTap: () => _navigateToBookReview(context, book),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surfaceDark : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.pencil_outline,
+                    color: AppColors.primary,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      hasReview ? '독후감 수정하기' : '독후감 작성하기',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      hasReview
+                          ? '작성한 독후감을 다시 확인하고 수정해보세요'
+                          : '책을 읽고 느낀 점을 기록해보세요',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            Icon(
+              CupertinoIcons.chevron_right,
+              color: isDark ? Colors.grey[400] : Colors.grey[500],
+              size: 20,
+            ),
+          ],
+        ),
       ),
     );
   }
