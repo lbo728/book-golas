@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -159,6 +160,37 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
 
   void _dismissKeyboard() {
     _focusNode.unfocus();
+  }
+
+  void _copyAll() {
+    final text = _reviewController.text;
+    if (text.isEmpty) return;
+
+    Clipboard.setData(ClipboardData(text: text));
+    HapticFeedback.lightImpact();
+    CustomSnackbar.show(
+      context,
+      message: '독후감이 복사되었습니다.',
+      type: SnackbarType.success,
+      icon: CupertinoIcons.doc_on_doc,
+    );
+  }
+
+  void _clearAll() {
+    final currentText = _reviewController.text;
+    if (currentText.isEmpty) return;
+
+    _isUndoRedoAction = true;
+    _undoStack.add(currentText);
+    if (_undoStack.length > 50) {
+      _undoStack.removeAt(0);
+    }
+    _redoStack.clear();
+    _reviewController.clear();
+    _lastSavedText = '';
+    _isUndoRedoAction = false;
+    HapticFeedback.lightImpact();
+    setState(() {});
   }
 
   Future<void> _saveReview() async {
@@ -495,8 +527,12 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
                   onDone: _dismissKeyboard,
                   onUndo: _undo,
                   onRedo: _redo,
+                  onCopy: _copyAll,
+                  onClearAll: _clearAll,
                   canUndo: _undoStack.isNotEmpty,
                   canRedo: _redoStack.isNotEmpty,
+                  canCopy: _reviewController.text.isNotEmpty,
+                  canClearAll: _reviewController.text.isNotEmpty,
                 ),
               ),
           ],
