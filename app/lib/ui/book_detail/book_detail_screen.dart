@@ -42,6 +42,7 @@ import 'package:book_golas/ui/recall/view_model/recall_view_model.dart';
 import 'package:book_golas/data/services/recall_service.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/book_review/book_review_screen.dart';
+import 'widgets/tabs/book_review_tab.dart';
 
 class BookDetailScreen extends StatelessWidget {
   final Book book;
@@ -105,7 +106,8 @@ class _BookDetailContent extends StatefulWidget {
 
 class _BookDetailContentState extends State<_BookDetailContent>
     with TickerProviderStateMixin {
-  late TabController _tabController;
+  TabController? _tabController;
+  int _currentTabLength = 3;
   late AnimationController _progressAnimController;
   late Animation<double> _progressAnimation;
   double _animatedProgress = 0.0;
@@ -114,11 +116,34 @@ class _BookDetailContentState extends State<_BookDetailContent>
   // Confetti 컨트롤러
   ConfettiController? _confettiController;
 
+  void _initTabController(int length) {
+    _tabController?.removeListener(_onTabChanged);
+    _tabController?.dispose();
+    _currentTabLength = length;
+    _tabController = TabController(length: length, vsync: this);
+    _tabController!.addListener(_onTabChanged);
+  }
+
+  void _onTabChanged() {
+    if (mounted) setState(() {});
+  }
+
+  void _updateTabControllerIfNeeded(Book book) {
+    final shouldHaveReviewTab = _isBookCompleted(book);
+    final targetLength = shouldHaveReviewTab ? 4 : 3;
+    if (_currentTabLength != targetLength) {
+      final currentIndex = _tabController?.index ?? 0;
+      _initTabController(targetLength);
+      if (currentIndex < targetLength) {
+        _tabController!.index = currentIndex;
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-    _tabController.addListener(() => setState(() {}));
+    _initTabController(3);
 
     _progressAnimController = AnimationController(
       vsync: this,
@@ -149,9 +174,12 @@ class _BookDetailContentState extends State<_BookDetailContent>
       memorableVm.fetchBookImages();
       progressVm.fetchProgressHistory();
 
+      // 탭 컨트롤러 업데이트 (완독 상태면 4탭)
+      _updateTabControllerIfNeeded(bookVm.currentBook);
+
       // 완독 상태면 히스토리 탭으로 이동
       if (_isBookCompleted(bookVm.currentBook)) {
-        _tabController.animateTo(1);
+        _tabController?.animateTo(1);
       }
 
       // 축하 애니메이션 표시
@@ -192,7 +220,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
 
   @override
   void dispose() {
-    _tabController.dispose();
+    _tabController?.removeListener(_onTabChanged);
+    _tabController?.dispose();
     _progressAnimController.dispose();
     _scrollController.dispose();
     _confettiController?.dispose();
@@ -294,8 +323,11 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                     context, book, bookVm),
                               ],
                               if (_isBookCompleted(book)) ...[
-                                const SizedBox(height: 12),
-                                _buildBookReviewButton(context, book),
+                                if (book.longReview == null ||
+                                    book.longReview!.isEmpty) ...[
+                                  const SizedBox(height: 12),
+                                  _buildBookReviewButton(context, book),
+                                ],
                                 const SizedBox(height: 12),
                                 _buildRestartReadingButton(context, book),
                               ],
@@ -307,7 +339,12 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       SliverPersistentHeader(
                         pinned: true,
                         delegate: StickyTabBarDelegate(
-                          child: CustomTabBar(tabController: _tabController),
+                          child: CustomTabBar(
+                            tabController: _tabController!,
+                            tabLabels: _isBookCompleted(book)
+                                ? const ['기록', '히스토리', '독후감', '상세']
+                                : const ['기록', '히스토리', '상세'],
+                          ),
                           backgroundColor: isDark
                               ? AppColors.scaffoldDark
                               : AppColors.elevatedLight,
@@ -361,6 +398,12 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 );
                               },
                             ),
+                            if (_isBookCompleted(book))
+                              BookReviewTab(
+                                book: book,
+                                onEditTap: () =>
+                                    _navigateToBookReview(context, book),
+                              ),
                             DetailTab(
                               book: book,
                               attemptCount: bookVm.attemptCount,
@@ -818,7 +861,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
       }
 
       if (mounted) {
-        _tabController.animateTo(0);
+        _tabController?.animateTo(0);
         _scrollController.animateTo(0,
             duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
         CustomSnackbar.show(context,

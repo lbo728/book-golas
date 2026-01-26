@@ -211,13 +211,10 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
 
       if (updatedBook != null) {
         await _clearDraft();
-        CustomSnackbar.show(
-          context,
-          message: '독후감이 저장되었습니다.',
-          type: SnackbarType.success,
-          icon: CupertinoIcons.checkmark_circle,
-        );
-        Navigator.pop(context, true);
+        await _showSaveCompleteSheet();
+        if (mounted) {
+          Navigator.pop(context, true);
+        }
       } else {
         CustomSnackbar.show(
           context,
@@ -310,14 +307,103 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
     }
   }
 
+  Future<void> _showSaveCompleteSheet() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isDismissible: true,
+      builder: (bottomSheetContext) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surfaceDark : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: Colors.grey[400],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: AppColors.success.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                CupertinoIcons.checkmark_alt,
+                color: AppColors.success,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '독후감이 저장되었습니다!',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '저장한 독후감은 \'독후감\' 탭 또는\n\'나의 서재 > 독후감\'에서 확인할 수 있어요.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 24),
+            GestureDetector(
+              onTap: () => Navigator.pop(bottomSheetContext),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Center(
+                  child: Text(
+                    '확인',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(
+              height: MediaQuery.of(bottomSheetContext).padding.bottom + 8,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<bool> _onWillPop() async {
     if (!_hasChanges) return true;
 
     final shouldDiscard = await showConfirmationBottomSheet(
       context: context,
-      title: '저장하지 않은 내용이 있습니다.\n정말 나가시겠습니까?',
+      title: '작성 중단하고 나가시겠어요?',
+      subtitle: '작성 중이던 독후감은 임시 저장됩니다.',
       confirmText: '나가기',
-      isDestructive: true,
+      isDestructive: false,
     );
 
     return shouldDiscard ?? false;
@@ -422,7 +508,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
               Positioned(
                 left: 0,
                 right: 0,
-                bottom: MediaQuery.of(context).viewInsets.bottom,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 10,
                 child: KeyboardAccessoryBar(
                   isDark: isDark,
                   onDone: _dismissKeyboard,
