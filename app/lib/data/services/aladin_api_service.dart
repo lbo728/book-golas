@@ -79,22 +79,18 @@ class AladinApiService {
         'Cover': 'Big',
       });
 
-      debugPrint('Aladin API lookup request: $lookupUri');
       final response = await http.get(lookupUri);
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
-        debugPrint('Aladin API lookup response received');
 
         final List<dynamic> items = jsonData['item'] ?? [];
         if (items.isNotEmpty) {
           return BookSearchResult.fromJson(items[0]);
         }
-      } else {
-        debugPrint('Aladin API lookup failed: HTTP ${response.statusCode}');
       }
     } catch (e) {
-      debugPrint('Aladin API lookup error: $e');
+      // 에러 발생 시 null 반환
     }
     return null;
   }

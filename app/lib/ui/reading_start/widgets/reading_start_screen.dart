@@ -111,6 +111,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
         Future.delayed(const Duration(milliseconds: 100), () {
           if (mounted) {
             _searchFocusNode.requestFocus();
+            // iOS에서 키보드 강제 표시
+            SystemChannels.textInput.invokeMethod('TextInput.show');
           }
         });
       });
@@ -301,6 +303,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
   Widget _buildBookTitleInputPage(ReadingStartViewModel vm, bool isDark) {
     // 좌→우 스와이프로 홈으로 돌아가기
     return GestureDetector(
+      behavior: HitTestBehavior.translucent,
       onHorizontalDragEnd: (details) {
         // 우측으로 스와이프 (velocity > 0)
         if (details.primaryVelocity != null && details.primaryVelocity! > 300) {
@@ -451,7 +454,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
           ),
         ),
         ...vm.recommendations
-            .map((rec) => _buildRecommendationCard(rec, vm, isDark)),
+            .map<Widget>((rec) => _buildRecommendationCard(rec, vm, isDark)),
       ],
     );
   }
@@ -565,7 +568,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                       runSpacing: 6,
                       children: recommendation.keywords
                           .take(3)
-                          .map((keyword) => Container(
+                          .map<Widget>((keyword) => Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
                                   vertical: 4,
