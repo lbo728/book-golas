@@ -12,8 +12,19 @@ class AIContentService {
     required String bookId,
   }) async {
     try {
+      final currentUser = _supabase.auth.currentUser;
+      final session = _supabase.auth.currentSession;
+
       debugPrint(
           '[AIContentService] Generating review draft for book: $bookId');
+      debugPrint('[AIContentService] Current user: ${currentUser?.id}');
+      debugPrint('[AIContentService] Session exists: ${session != null}');
+      debugPrint('[AIContentService] Token expires at: ${session?.expiresAt}');
+
+      if (currentUser == null || session == null) {
+        debugPrint('[AIContentService] ERROR: User not authenticated');
+        return null;
+      }
 
       final response = await _supabase.functions.invoke(
         'generate-book-review',
