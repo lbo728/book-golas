@@ -324,18 +324,24 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
               builder: (context, vm, _) => _buildSearchResultsList(vm, isDark),
             ),
           ),
-          // 키보드 접기 버튼 (키보드 열려있을 때만)
-          if (MediaQuery.of(context).viewInsets.bottom > 0)
-            Positioned(
-              left: 16,
-              right: 16,
-              bottom: MediaQuery.of(context).viewInsets.bottom + 64,
-              child: KeyboardAccessoryBar(
-                onDone: () => FocusScope.of(context).unfocus(),
-                isDark: isDark,
-                showNavigation: false,
+          // 키보드 접기 버튼: 항상 렌더링하되 키보드 없을 때 숨김 (위젯 트리 안정성)
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 64,
+            child: AnimatedOpacity(
+              opacity: MediaQuery.of(context).viewInsets.bottom > 0 ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 150),
+              child: IgnorePointer(
+                ignoring: MediaQuery.of(context).viewInsets.bottom == 0,
+                child: KeyboardAccessoryBar(
+                  onDone: () => FocusScope.of(context).unfocus(),
+                  isDark: isDark,
+                  showNavigation: false,
+                ),
               ),
             ),
+          ),
           // 하단 바 (TextField 포함): Consumer 밖에 위치하여 키보드 유지
           // Selector로 필요한 속성만 구독
           Positioned(
