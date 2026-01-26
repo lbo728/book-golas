@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:book_golas/data/services/ai_content_service.dart';
 import 'package:book_golas/data/services/book_service.dart';
@@ -30,11 +31,14 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
   bool _hasChanges = false;
   bool _isGeneratingAI = false;
   bool _isKeyboardVisible = false;
+  bool _hasDraft = false;
 
   final List<String> _undoStack = [];
   final List<String> _redoStack = [];
   String _lastSavedText = '';
   bool _isUndoRedoAction = false;
+
+  String get _draftKey => 'book_review_draft_${widget.book.id}';
 
   @override
   void initState() {
@@ -46,10 +50,66 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
     _lastSavedText = initialText;
     _reviewController.addListener(_onTextChanged);
     _focusNode.addListener(_onFocusChanged);
+    _loadDraft();
+  }
+
+  Future<void> _loadDraft() async {
+    final prefs = await SharedPreferences.getInstance();
+    final draft = prefs.getString(_draftKey);
+    if (draft != null && draft.isNotEmpty && draft != widget.book.longReview) {
+      if (!mounted) return;
+      setState(() {
+        _hasDraft = true;
+      });
+      _showDraftRestoreDialog(draft);
+    }
+  }
+
+  Future<void> _showDraftRestoreDialog(String draft) async {
+    final shouldRestore = await showConfirmationBottomSheet(
+      context: context,
+      title: '임시 저장된 내용이 있습니다.\n불러오시겠습니까?',
+      subtitle: '${draft.length > 50 ? '${draft.substring(0, 50)}...' : draft}',
+      confirmText: '불러오기',
+      cancelText: '삭제하기',
+      isDestructive: false,
+    );
+
+    if (!mounted) return;
+
+    if (shouldRestore == true) {
+      _reviewController.text = draft;
+      CustomSnackbar.show(
+        context,
+        message: '임시 저장된 내용을 불러왔습니다.',
+        type: SnackbarType.info,
+      );
+    } else {
+      _clearDraft();
+    }
+    setState(() {
+      _hasDraft = false;
+    });
+  }
+
+  Future<void> _saveDraft() async {
+    final text = _reviewController.text.trim();
+    final prefs = await SharedPreferences.getInstance();
+    if (text.isNotEmpty && text != widget.book.longReview) {
+      await prefs.setString(_draftKey, text);
+    } else {
+      await prefs.remove(_draftKey);
+    }
+  }
+
+  Future<void> _clearDraft() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_draftKey);
   }
 
   @override
   void dispose() {
+    _saveDraft();
     _reviewController.removeListener(_onTextChanged);
     _focusNode.removeListener(_onFocusChanged);
     _reviewController.dispose();
@@ -150,6 +210,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
       if (!mounted) return;
 
       if (updatedBook != null) {
+        await _clearDraft();
         CustomSnackbar.show(
           context,
           message: '독후감이 저장되었습니다.',

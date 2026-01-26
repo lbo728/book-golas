@@ -371,6 +371,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
                               onPauseReading: () =>
                                   _showPauseReadingConfirmation(bookVm),
                               onDelete: () => _showDeleteConfirmation(bookVm),
+                              onReviewTap: () =>
+                                  _navigateToBookReview(context, book),
                             ),
                           ],
                         );
@@ -450,6 +452,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
     final oldProgress = oldPage / totalPages;
     final newProgress = newPage / totalPages;
     final wasGoalAchieved = bookVm.isTodayGoalAchieved;
+    final wasCompleted = oldPage >= totalPages;
+    final isNowCompleted = newPage >= totalPages;
 
     final success = await bookVm.updateCurrentPage(newPage);
     if (success && mounted) {
@@ -457,6 +461,12 @@ class _BookDetailContentState extends State<_BookDetailContent>
       _scrollController.animateTo(0,
           duration: const Duration(milliseconds: 500),
           curve: Curves.easeOutCubic);
+
+      // 완독 달성 시 축하 애니메이션 + 독후감 작성 유도
+      if (!wasCompleted && isNowCompleted) {
+        _showBookCompletionCelebration(bookVm);
+        return;
+      }
 
       final pagesRead = newPage - oldPage;
       if (bookVm.isTodayGoalAchieved) {
@@ -496,6 +506,147 @@ class _BookDetailContentState extends State<_BookDetailContent>
     );
     _confettiController!.play();
     setState(() {});
+  }
+
+  /// 완독 축하 애니메이션 + 독후감 작성 유도
+  void _showBookCompletionCelebration(BookDetailViewModel bookVm) {
+    _confettiController?.dispose();
+    _confettiController = ConfettiController(
+      duration: const Duration(seconds: 3),
+    );
+    _confettiController!.play();
+    setState(() {});
+
+    context.read<ReadingProgressViewModel>().fetchProgressHistory();
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      _showBookReviewPromptSheet(bookVm);
+    });
+  }
+
+  /// 독후감 작성 유도 바텀시트
+  void _showBookReviewPromptSheet(BookDetailViewModel bookVm) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final book = bookVm.currentBook;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isDismissible: true,
+      builder: (bottomSheetContext) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surfaceDark : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: Colors.grey[400],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const Text(
+              '🎉',
+              style: TextStyle(fontSize: 48),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '완독을 축하합니다!',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              book.title,
+              style: TextStyle(
+                fontSize: 15,
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              '독서의 여운이 남아있을 때\n독후감을 작성해보시겠어요?',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                color: isDark ? Colors.grey[300] : Colors.grey[700],
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(bottomSheetContext),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.grey[800] : Colors.grey[200],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '나중에',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.grey[300] : Colors.grey[700],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 2,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(bottomSheetContext);
+                      _navigateToBookReview(context, book);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          '독후감 쓰러가기',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: MediaQuery.of(bottomSheetContext).padding.bottom + 8,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showDailyTargetChangeDialog(BookDetailViewModel bookVm) async {
