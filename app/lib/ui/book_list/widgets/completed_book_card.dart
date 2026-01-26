@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class CompletedBookCard extends StatefulWidget {
   final Book book;
@@ -104,7 +105,7 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          color: isDark ? AppColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -156,7 +157,7 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                          color: AppColors.success.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
@@ -165,7 +166,7 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                             const Icon(
                               CupertinoIcons.checkmark_seal_fill,
                               size: 14,
-                              color: Color(0xFF10B981),
+                              color: AppColors.success,
                             ),
                             const SizedBox(width: 6),
                             Text(
@@ -175,7 +176,7 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                               style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFF10B981),
+                                color: AppColors.success,
                               ),
                             ),
                           ],
@@ -205,10 +206,10 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                                         : CupertinoIcons.flame_fill,
                                 size: 12,
                                 color: _achievementRate! >= 80
-                                    ? const Color(0xFF059669)
+                                    ? AppColors.success
                                     : _achievementRate! >= 50
-                                        ? const Color(0xFFD97706)
-                                        : const Color(0xFFDC2626),
+                                        ? AppColors.dangerAlt
+                                        : AppColors.danger,
                               ),
                               const SizedBox(width: 4),
                               Text(
@@ -217,10 +218,10 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
                                   color: _achievementRate! >= 80
-                                      ? const Color(0xFF059669)
+                                      ? AppColors.success
                                       : _achievementRate! >= 50
-                                          ? const Color(0xFFD97706)
-                                          : const Color(0xFFDC2626),
+                                          ? AppColors.dangerAlt
+                                          : AppColors.danger,
                                 ),
                               ),
                             ],

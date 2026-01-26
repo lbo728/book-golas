@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 Future<bool?> showDeleteConfirmationSheet({
   required BuildContext context,
@@ -10,7 +11,7 @@ Future<bool?> showDeleteConfirmationSheet({
 
   return showModalBottomSheet<bool>(
     context: context,
-    backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+    backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -113,7 +114,7 @@ Future<bool?> showBatchDeleteConfirmationSheet({
 
   return showModalBottomSheet<bool>(
     context: context,
-    backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+    backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -133,7 +134,7 @@ Future<bool?> showBatchDeleteConfirmationSheet({
               child: const Icon(
                 CupertinoIcons.trash_fill,
                 size: 32,
-                color: Color(0xFFFF3B30),
+                color: AppColors.error,
               ),
             ),
             const SizedBox(height: 16),
@@ -184,7 +185,7 @@ Future<bool?> showBatchDeleteConfirmationSheet({
                     onPressed: () => Navigator.pop(sheetContext, true),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      backgroundColor: const Color(0xFFFF3B30),
+                      backgroundColor: AppColors.error,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

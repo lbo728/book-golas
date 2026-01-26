@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 /// 스케줄 요약 위젯
 /// 목표일수, 하루 목표 페이지를 표시합니다.
@@ -40,7 +41,7 @@ class _SchedulePreviewWidgetState extends State<SchedulePreviewWidget> {
     return Container(
       decoration: BoxDecoration(
         color:
-            widget.isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF8F8F8),
+            widget.isDark ? AppColors.surfaceDark : AppColors.elevatedLight,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: widget.isDark
@@ -86,13 +87,13 @@ class _SchedulePreviewWidgetState extends State<SchedulePreviewWidget> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               icon,
               size: 18,
-              color: const Color(0xFF5B7FFF),
+              color: AppColors.primary,
             ),
           ),
           const SizedBox(width: 10),
@@ -134,13 +135,13 @@ class _SchedulePreviewWidgetState extends State<SchedulePreviewWidget> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               icon,
               size: 18,
-              color: const Color(0xFF5B7FFF),
+              color: AppColors.primary,
             ),
           ),
           const SizedBox(width: 10),
@@ -179,7 +180,7 @@ class _SchedulePreviewWidgetState extends State<SchedulePreviewWidget> {
                           ),
                           decoration: BoxDecoration(
                             color:
-                                const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+                                AppColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: const Text(
@@ -187,7 +188,7 @@ class _SchedulePreviewWidgetState extends State<SchedulePreviewWidget> {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF5B7FFF),
+                              color: AppColors.primary,
                             ),
                           ),
                         ),

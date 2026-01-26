@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -31,7 +32,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: AppColors.scaffoldDark,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,7 +78,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2C2C2E),
+                    color: AppColors.elevatedDark,
                     borderRadius: BorderRadius.circular(22),
                   ),
                   child: const Icon(
@@ -146,7 +147,7 @@ class _SearchScreenState extends State<SearchScreen> {
             Icon(
               isCompleted ? CupertinoIcons.checkmark_circle_fill : icon,
               color: isCompleted
-                  ? const Color(0xFF4CAF50)
+                  ? AppColors.success
                   : Colors.white.withValues(alpha: 0.6),
               size: 22,
             ),
@@ -176,7 +177,7 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: BoxDecoration(
-                color: const Color(0xFF2C2C2E),
+                color: AppColors.elevatedDark,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Row(
@@ -221,7 +222,7 @@ class _SearchScreenState extends State<SearchScreen> {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: const Color(0xFF2C2C2E),
+                color: AppColors.elevatedDark,
                 borderRadius: BorderRadius.circular(22),
               ),
               child: const Icon(

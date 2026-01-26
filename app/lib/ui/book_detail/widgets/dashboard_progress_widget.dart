@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 import 'circular_progress_painter.dart';
 
@@ -34,7 +35,7 @@ class DashboardProgressWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -65,7 +66,7 @@ class DashboardProgressWidget extends StatelessWidget {
                             backgroundColor: isDark
                                 ? Colors.white.withValues(alpha: 0.1)
                                 : const Color(0xFFEEF2FF),
-                            progressColor: const Color(0xFF5B7FFF),
+                            progressColor: AppColors.primary,
                           ),
                         ),
                       ),
@@ -112,8 +113,8 @@ class DashboardProgressWidget extends StatelessWidget {
                     fontSize: 32,
                     fontWeight: FontWeight.w800,
                     color: isOverdue || daysLeft <= 3
-                        ? const Color(0xFFEF4444)
-                        : const Color(0xFF5B7FFF),
+                        ? AppColors.errorAlt
+                        : AppColors.primary,
                     letterSpacing: -1,
                   ),
                 ),
@@ -163,7 +164,7 @@ class DashboardProgressWidget extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: const Color(0xFF10B981).withValues(alpha: 0.1),
+              color: AppColors.success.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
@@ -174,14 +175,14 @@ class DashboardProgressWidget extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF10B981),
+                    color: AppColors.success,
                   ),
                 ),
                 const SizedBox(width: 6),
                 const Icon(
                   CupertinoIcons.pencil,
                   size: 13,
-                  color: Color(0xFF10B981),
+                  color: AppColors.success,
                 ),
               ],
             ),
@@ -192,7 +193,7 @@ class DashboardProgressWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFD700).withValues(alpha: 0.15),
+              color: AppColors.gold.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(6),
             ),
             child: const Row(

@@ -1,7 +1,9 @@
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/bookstore_select_sheet.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 
@@ -17,7 +19,7 @@ void showFullTitleSheet({
     backgroundColor: Colors.transparent,
     builder: (sheetContext) => Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SafeArea(
@@ -80,7 +82,7 @@ void showFullTitleSheet({
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
                           color: isDark
-                              ? const Color(0xFF2A2A2A)
+                              ? AppColors.subtleDark
                               : Colors.grey[100],
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -121,7 +123,7 @@ void showFullTitleSheet({
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF5B7FFF),
+                          color: AppColors.primary,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Row(

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 Future<bool?> showPauseReadingConfirmationSheet({
   required BuildContext context,
@@ -12,7 +13,7 @@ Future<bool?> showPauseReadingConfirmationSheet({
 
   return showModalBottomSheet<bool>(
     context: context,
-    backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+    backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -26,13 +27,13 @@ Future<bool?> showPauseReadingConfirmationSheet({
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFFF9500).withValues(alpha: 0.1),
+                color: AppColors.warning.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 CupertinoIcons.pause_circle,
                 size: 32,
-                color: Color(0xFFFF9500),
+                color: AppColors.warning,
               ),
             ),
             const SizedBox(height: 16),
@@ -93,7 +94,7 @@ Future<bool?> showPauseReadingConfirmationSheet({
                     onPressed: () => Navigator.pop(sheetContext, true),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      backgroundColor: const Color(0xFFFF9500),
+                      backgroundColor: AppColors.warning,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

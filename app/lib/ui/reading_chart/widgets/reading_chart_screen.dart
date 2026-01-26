@@ -10,6 +10,7 @@ import 'package:book_golas/ui/reading_chart/widgets/cards/annual_goal_card.dart'
 import 'package:book_golas/ui/reading_chart/widgets/cards/reading_streak_heatmap.dart';
 import 'package:book_golas/ui/reading_chart/widgets/sheets/reading_goal_sheet.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_tab_bar.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 enum TimeFilter { daily, weekly, monthly }
 
@@ -284,9 +285,11 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+      backgroundColor:
+          isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
       appBar: AppBar(
-        backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+        backgroundColor:
+            isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
         elevation: 0,
         title: const Text('나의 독서 상태'),
         centerTitle: false,
@@ -437,35 +440,35 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 '총 읽은 페이지',
                 '${stats['total_pages']}p',
                 Icons.menu_book_rounded,
-                const Color(0xFF5B7FFF),
+                AppColors.primary,
                 isDark,
               ),
               _buildStatCard(
                 '일평균',
                 '${(stats['average_daily'] as double).toStringAsFixed(1)}p',
                 Icons.calendar_today_rounded,
-                const Color(0xFF10B981),
+                AppColors.success,
                 isDark,
               ),
               _buildStatCard(
                 '최고 기록',
                 '${stats['max_daily']}p',
                 Icons.trending_up_rounded,
-                const Color(0xFFF59E0B),
+                AppColors.warningAlt,
                 isDark,
               ),
               _buildStatCard(
                 '연속 독서',
                 '$streak일',
                 Icons.local_fire_department_rounded,
-                const Color(0xFFEF4444),
+                AppColors.destructive,
                 isDark,
               ),
               _buildStatCard(
                 '최저 기록',
                 '${stats['min_daily']}p',
                 Icons.trending_down_rounded,
-                const Color(0xFF8B5CF6),
+                AppColors.info,
                 isDark,
               ),
               FutureBuilder<double>(
@@ -476,7 +479,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                     '오늘 목표',
                     '${(goalRate * 100).toStringAsFixed(0)}%',
                     Icons.flag_rounded,
-                    const Color(0xFF06B6D4),
+                    AppColors.info,
                     isDark,
                   );
                 },
@@ -546,7 +549,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+                          color: AppColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
@@ -555,7 +558,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF5B7FFF),
+                              color: AppColors.primary,
                             ),
                           ),
                         ),
@@ -595,7 +598,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                                 Icons.add,
                                 size: 16,
                                 color: dailyPage > 0
-                                    ? const Color(0xFF10B981)
+                                    ? AppColors.success
                                     : Colors.grey,
                               ),
                               Text(
@@ -604,7 +607,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: dailyPage > 0
-                                      ? const Color(0xFF10B981)
+                                      ? AppColors.success
                                       : Colors.grey,
                                 ),
                               ),
@@ -635,7 +638,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
+        color: isDark ? AppColors.surfaceDark : Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -673,7 +676,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? const Color(0xFF5B7FFF)
+                              ? AppColors.primary
                               : (isDark ? Colors.grey[800] : Colors.grey[200]),
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -702,11 +705,15 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
           Row(
             children: [
               Container(
-                width: 12,
-                height: 12,
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF10B981),
-                  borderRadius: BorderRadius.circular(2),
+                  color:
+                      isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+                  ),
                 ),
               ),
               const SizedBox(width: 6),
@@ -722,7 +729,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 width: 12,
                 height: 3,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF5B7FFF),
+                  color: AppColors.primary,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -772,7 +779,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
+        color: isDark ? AppColors.surfaceDark : Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -818,7 +825,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         barRods: [
           BarChartRodData(
             toY: normalizedDaily,
-            color: const Color(0xFF10B981).withValues(alpha: 0.7),
+            color: AppColors.success.withValues(alpha: 0.7),
             width: aggregated.length > 30 ? 4 : 8,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(2),
@@ -926,14 +933,14 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                   LineChartBarData(
                     spots: lineSpots,
                     isCurved: true,
-                    color: const Color(0xFF5B7FFF),
+                    color: AppColors.primary,
                     barWidth: 3,
                     dotData: FlDotData(
                       show: aggregated.length <= 30,
                       getDotPainter: (spot, percent, barData, index) {
                         return FlDotCirclePainter(
                           radius: 3,
-                          color: const Color(0xFF5B7FFF),
+                          color: AppColors.primary,
                           strokeWidth: 2,
                           strokeColor: Colors.white,
                         );
@@ -992,7 +999,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isDark ? Colors.grey[800]! : Colors.grey[200]!,

@@ -1,3 +1,4 @@
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:flutter/material.dart';
 
 /// 오늘의 분량 설정 시트
@@ -83,7 +84,7 @@ class TodayGoalSheet {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5B7FFF),
+                    backgroundColor: AppColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),

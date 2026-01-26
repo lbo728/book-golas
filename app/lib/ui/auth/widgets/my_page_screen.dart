@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 
 import 'package:book_golas/data/services/fcm_service.dart';
 import 'package:book_golas/ui/auth/view_model/my_page_view_model.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
 import 'package:book_golas/ui/core/view_model/notification_settings_view_model.dart';
 import 'package:book_golas/ui/core/view_model/theme_view_model.dart';
@@ -75,7 +76,7 @@ class _MyPageContentState extends State<_MyPageContent> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -111,7 +112,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                 await _deleteAccount();
               },
               style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFFFF3B30),
+                foregroundColor: AppColors.error,
               ),
               child: const Text('삭제'),
             ),
@@ -173,7 +174,7 @@ class _MyPageContentState extends State<_MyPageContent> {
         return Container(
           height: 350,
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            color: isDark ? AppColors.surfaceDark : Colors.white,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(20),
               topRight: Radius.circular(20),
@@ -202,7 +203,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                       child: const Text(
                         '취소',
                         style: TextStyle(
-                          color: Color(0xFFFF3B30),
+                          color: AppColors.error,
                           fontSize: 17,
                           fontWeight: FontWeight.w500,
                         ),
@@ -225,7 +226,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                       child: const Text(
                         '확인',
                         style: TextStyle(
-                          color: Color(0xFF5B7FFF),
+                          color: AppColors.primary,
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
                         ),
@@ -390,11 +391,10 @@ class _MyPageContentState extends State<_MyPageContent> {
                       width: 28,
                       height: 28,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF5B7FFF),
+                        color: AppColors.primary,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color:
-                              isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                          color: isDark ? AppColors.surfaceDark : Colors.white,
                           width: 2,
                         ),
                       ),
@@ -533,7 +533,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                   child: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF10B981),
+                      color: AppColors.success,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
@@ -586,7 +586,7 @@ class _MyPageContentState extends State<_MyPageContent> {
       width: 80,
       height: 80,
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2C2C2C) : Colors.blue[50],
+        color: isDark ? AppColors.subtleDark : Colors.blue[50],
         shape: BoxShape.circle,
       ),
       child: Icon(
@@ -628,7 +628,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                     HapticFeedback.selectionClick();
                     themeViewModel.toggleTheme();
                   },
-                  activeTrackColor: const Color(0xFF5B7FFF),
+                  activeTrackColor: AppColors.primary,
                 ),
               );
             },
@@ -698,7 +698,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                                 );
                               }
                             },
-                            activeTrackColor: const Color(0xFF5B7FFF),
+                            activeTrackColor: AppColors.primary,
                           ),
                   ),
                   if (settings.notificationEnabled) ...[
@@ -828,7 +828,7 @@ class _MyPageContentState extends State<_MyPageContent> {
           TextButton(
             onPressed: () => _showDeleteAccountDialog(context),
             style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFFFF3B30),
+              foregroundColor: AppColors.error,
             ),
             child: const Text(
               '계정 삭제',

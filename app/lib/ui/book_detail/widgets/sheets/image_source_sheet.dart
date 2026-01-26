@@ -1,3 +1,4 @@
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -27,7 +28,7 @@ Future<ImageSourceType?> showImageSourceSheet({
     builder: (sheetContext) {
       return Container(
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          color: isDark ? AppColors.surfaceDark : Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: SafeArea(
@@ -48,12 +49,12 @@ Future<ImageSourceType?> showImageSourceSheet({
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withAlpha(25),
+                    color: AppColors.success.withAlpha(25),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     CupertinoIcons.doc_text_viewfinder,
-                    color: Color(0xFF10B981),
+                    color: AppColors.success,
                   ),
                 ),
                 title: Text(
@@ -86,12 +87,12 @@ Future<ImageSourceType?> showImageSourceSheet({
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF5B7FFF).withAlpha(25),
+                    color: AppColors.primary.withAlpha(25),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     CupertinoIcons.camera_fill,
-                    color: Color(0xFF5B7FFF),
+                    color: AppColors.primary,
                   ),
                 ),
                 title: Text(
@@ -123,12 +124,12 @@ Future<ImageSourceType?> showImageSourceSheet({
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF5B7FFF).withAlpha(25),
+                    color: AppColors.primary.withAlpha(25),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     CupertinoIcons.photo_fill,
-                    color: Color(0xFF5B7FFF),
+                    color: AppColors.primary,
                   ),
                 ),
                 title: Text(
@@ -164,7 +165,7 @@ Future<ImageSource?> showImageReplaceOptionsSheet({
 
   return showModalBottomSheet<ImageSource>(
     context: context,
-    backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+    backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -196,12 +197,12 @@ Future<ImageSource?> showImageReplaceOptionsSheet({
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
                   CupertinoIcons.camera,
-                  color: Color(0xFF5B7FFF),
+                  color: AppColors.primary,
                 ),
               ),
               title: const Text('카메라로 촬영'),
@@ -211,12 +212,12 @@ Future<ImageSource?> showImageReplaceOptionsSheet({
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                  color: AppColors.success.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
                   CupertinoIcons.photo,
-                  color: Color(0xFF10B981),
+                  color: AppColors.success,
                 ),
               ),
               title: const Text('갤러리에서 선택'),
@@ -236,7 +237,7 @@ Future<bool?> showReplaceImageConfirmationSheet({
 
   return showModalBottomSheet<bool>(
     context: context,
-    backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+    backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -307,7 +308,7 @@ Future<bool?> showReplaceImageConfirmationSheet({
                     onPressed: () => Navigator.pop(sheetContext, true),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      backgroundColor: const Color(0xFF5B7FFF),
+                      backgroundColor: AppColors.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

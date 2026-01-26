@@ -9,6 +9,7 @@ import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/barcode_scanner/barcode_scanner_screen.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 
@@ -222,7 +223,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
 
     // Consumer 범위 최소화: TextField가 리빌드되지 않도록 Scaffold는 밖에 위치
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+      backgroundColor: isDark ? AppColors.scaffoldDark : Colors.white,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         bottom: false,
@@ -445,7 +446,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                 children: [
                   Icon(
                     Icons.auto_awesome,
-                    color: const Color(0xFF5B7FFF),
+                    color: AppColors.primary,
                     size: 18,
                   ),
                   const SizedBox(width: 8),
@@ -490,7 +491,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+          color: isDark ? AppColors.subtleDark : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isDark
@@ -522,7 +523,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                         width: 48,
                         height: 64,
                         color:
-                            isDark ? const Color(0xFF3A3A3A) : Colors.grey[200],
+                            isDark ? AppColors.elevatedDark : Colors.grey[200],
                         child: Icon(
                           Icons.menu_book_rounded,
                           color: isDark ? Colors.white38 : Colors.grey[400],
@@ -534,7 +535,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                       width: 48,
                       height: 64,
                       color:
-                          isDark ? const Color(0xFF3A3A3A) : Colors.grey[200],
+                          isDark ? AppColors.elevatedDark : Colors.grey[200],
                       child: Icon(
                         Icons.menu_book_rounded,
                         color: isDark ? Colors.white38 : Colors.grey[400],
@@ -591,7 +592,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF5B7FFF)
+                                  color: AppColors.primary
                                       .withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
@@ -599,7 +600,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                                   keyword,
                                   style: const TextStyle(
                                     fontSize: 11,
-                                    color: Color(0xFF5B7FFF),
+                                    color: AppColors.primary,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -631,11 +632,11 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           // 다크 배경 (#343434)
-          color: const Color(0xFF343434),
+          color: AppColors.elevatedDark,
           borderRadius: BorderRadius.circular(16),
           // 이너 보더: 항상 2px로 유지 (레이아웃 시프트 방지)
           border: Border.all(
-            color: isSelected ? const Color(0xFF5B7FFF) : Colors.transparent,
+            color: isSelected ? AppColors.primary : Colors.transparent,
             width: 2,
           ),
         ),
@@ -727,7 +728,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                 height: 28,
                 decoration: BoxDecoration(
                   color:
-                      isSelected ? const Color(0xFF5B7FFF) : Colors.transparent,
+                      isSelected ? AppColors.primary : Colors.transparent,
                   shape: BoxShape.circle,
                 ),
                 child: isSelected
@@ -1107,7 +1108,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
           builder: (context, setModalState) {
             return Container(
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                color: isDark ? AppColors.surfaceDark : Colors.white,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -1130,7 +1131,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color:
-                          isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                          isDark ? AppColors.subtleDark : Colors.grey[100],
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Center(
@@ -1150,7 +1151,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                     height: 180,
                     decoration: BoxDecoration(
                       color:
-                          isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                          isDark ? AppColors.subtleDark : Colors.grey[100],
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: KoreanDatePicker(
@@ -1176,7 +1177,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF5B7FFF),
+                        backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -1305,8 +1306,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                     ),
                     decoration: BoxDecoration(
                       color: isDark
-                          ? const Color(0xFF2A2A2A)
-                          : const Color(0xFFF5F5F5),
+                          ? AppColors.subtleDark
+                          : AppColors.elevatedLight,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -1334,14 +1335,14 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                    color: AppColors.success.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Row(
                     children: [
                       Icon(
                         Icons.check_circle_outline,
-                        color: Color(0xFF10B981),
+                        color: AppColors.success,
                         size: 18,
                       ),
                       SizedBox(width: 8),
@@ -1349,7 +1350,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                         '오늘부터 시작합니다',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF10B981),
+                          color: AppColors.success,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -1383,8 +1384,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                   ),
                   decoration: BoxDecoration(
                     color: isDark
-                        ? const Color(0xFF2A2A2A)
-                        : const Color(0xFFF5F5F5),
+                        ? AppColors.subtleDark
+                        : AppColors.elevatedLight,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -1482,7 +1483,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5B7FFF),
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),

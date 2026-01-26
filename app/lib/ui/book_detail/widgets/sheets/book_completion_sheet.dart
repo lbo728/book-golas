@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 /// 완독 시 별점 + 한줄평 입력 바텀시트
 ///
@@ -31,7 +32,7 @@ class BookCompletionSheet {
           builder: (context, setModalState) {
             return Container(
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                color: isDark ? AppColors.surfaceDark : Colors.white,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -132,7 +133,7 @@ class BookCompletionSheet {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(
-                          color: Color(0xFF5B7FFF),
+                          color: AppColors.primary,
                           width: 2,
                         ),
                       ),
@@ -178,7 +179,7 @@ class BookCompletionSheet {
                                 }
                               : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF5B7FFF),
+                            backgroundColor: AppColors.primary,
                             disabledBackgroundColor:
                                 isDark ? Colors.grey[700] : Colors.grey[300],
                             padding: const EdgeInsets.symmetric(vertical: 16),

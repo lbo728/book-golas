@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class CompactReadingSchedule extends StatelessWidget {
   final DateTime startDate;
@@ -31,7 +32,7 @@ class CompactReadingSchedule extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -124,13 +125,13 @@ class CompactReadingSchedule extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+          color: AppColors.primary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: const Icon(
           CupertinoIcons.pencil,
           size: 16,
-          color: Color(0xFF5B7FFF),
+          color: AppColors.primary,
         ),
       ),
     );

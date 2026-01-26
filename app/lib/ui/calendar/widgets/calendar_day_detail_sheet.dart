@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/domain/models/calendar_reading_data.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
@@ -24,7 +25,7 @@ class CalendarDayDetailSheet extends StatelessWidget {
     return Container(
       constraints: BoxConstraints(maxHeight: screenHeight * 0.6),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -104,7 +105,7 @@ class CalendarDayDetailSheet extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF2C2C2E) : Colors.grey[50],
+          color: isDark ? AppColors.elevatedDark : AppColors.scaffoldLight,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -153,7 +154,7 @@ class CalendarDayDetailSheet extends StatelessWidget {
                     '${bookInfo.pagesReadOnThisDay}페이지 읽음',
                     style: const TextStyle(
                       fontSize: 12,
-                      color: Color(0xFF5B7FFF),
+                      color: AppColors.primary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -175,7 +176,7 @@ class CalendarDayDetailSheet extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: const Color(0xFF34C759).withValues(alpha: 0.15),
+        color: AppColors.successAlt.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4),
       ),
       child: const Row(
@@ -184,7 +185,7 @@ class CalendarDayDetailSheet extends StatelessWidget {
           Icon(
             CupertinoIcons.checkmark,
             size: 12,
-            color: Color(0xFF34C759),
+            color: AppColors.successAlt,
           ),
           SizedBox(width: 4),
           Text(
@@ -192,7 +193,7 @@ class CalendarDayDetailSheet extends StatelessWidget {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF34C759),
+              color: AppColors.successAlt,
             ),
           ),
         ],

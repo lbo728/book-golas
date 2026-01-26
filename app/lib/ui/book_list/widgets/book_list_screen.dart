@@ -10,6 +10,7 @@ import 'package:book_golas/ui/book_list/widgets/planned_book_card.dart';
 import 'package:book_golas/ui/book_list/widgets/paused_book_card.dart';
 import 'package:book_golas/ui/book_list/widgets/completed_book_card.dart';
 import 'package:book_golas/ui/core/widgets/scrollable_tab_bar.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class BookListScreen extends StatefulWidget {
   const BookListScreen({super.key});
@@ -197,7 +198,7 @@ class _BookListScreenState extends State<BookListScreen>
 
     return RefreshIndicator(
       onRefresh: () => _onRefresh(vm),
-      color: const Color(0xFF5B7FFF),
+      color: AppColors.primary,
       backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -221,7 +222,7 @@ class _BookListScreenState extends State<BookListScreen>
 
     return RefreshIndicator(
       onRefresh: () => _onRefresh(vm),
-      color: const Color(0xFF5B7FFF),
+      color: AppColors.primary,
       backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -268,7 +269,7 @@ class _BookListScreenState extends State<BookListScreen>
 
     return RefreshIndicator(
       onRefresh: () => _onRefresh(vm),
-      color: const Color(0xFF5B7FFF),
+      color: AppColors.primary,
       backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -468,7 +469,7 @@ class _BookListScreenState extends State<BookListScreen>
 
     return RefreshIndicator(
       onRefresh: () => _onRefresh(vm),
-      color: const Color(0xFF5B7FFF),
+      color: AppColors.primary,
       backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -492,7 +493,7 @@ class _BookListScreenState extends State<BookListScreen>
 
     return RefreshIndicator(
       onRefresh: () => _onRefresh(vm),
-      color: const Color(0xFF5B7FFF),
+      color: AppColors.primary,
       backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -549,7 +550,7 @@ class _FilterBadgeHeaderDelegate extends SliverPersistentHeaderDelegate {
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      color: isDark ? const Color(0xFF121212) : Colors.white,
+      color: isDark ? AppColors.scaffoldDark : Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,

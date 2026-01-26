@@ -1,3 +1,4 @@
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:flutter/material.dart';
 
 import 'package:book_golas/ui/core/widgets/korean_date_picker.dart';
@@ -52,7 +53,7 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: const EdgeInsets.all(24),
@@ -79,12 +80,12 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: const Color(0xFFFF6B6B).withOpacity(0.1),
+            color: AppColors.destructive.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(
             Icons.calendar_month,
-            color: Color(0xFFFF6B6B),
+            color: AppColors.destructive,
             size: 24,
           ),
         ),
@@ -119,7 +120,7 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+        color: isDark ? AppColors.subtleDark : Colors.grey[100],
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -138,8 +139,8 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: daysRemaining > 0
-                  ? const Color(0xFF10B981).withValues(alpha: 0.1)
-                  : const Color(0xFFFF6B6B).withValues(alpha: 0.1),
+                  ? AppColors.success.withValues(alpha: 0.1)
+                  : AppColors.destructive.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -148,8 +149,8 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
                 color: daysRemaining > 0
-                    ? const Color(0xFF10B981)
-                    : const Color(0xFFFF6B6B),
+                    ? AppColors.success
+                    : AppColors.destructive,
               ),
             ),
           ),
@@ -162,7 +163,7 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
     return Container(
       height: 180,
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+        color: isDark ? AppColors.subtleDark : Colors.grey[100],
         borderRadius: BorderRadius.circular(12),
       ),
       child: KoreanDatePicker(
@@ -199,7 +200,7 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
               await widget.onConfirm(_selectedDate, widget.nextAttemptCount);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF5B7FFF),
+              backgroundColor: AppColors.primary,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),

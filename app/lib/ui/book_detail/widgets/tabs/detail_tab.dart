@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/book_detail/widgets/sheets/reading_management_sheet.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class DetailTab extends StatelessWidget {
   final Book book;
@@ -79,7 +80,7 @@ class DetailTab extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          color: isDark ? AppColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -94,12 +95,12 @@ class DetailTab extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(
                 CupertinoIcons.slider_horizontal_3,
-                color: Color(0xFF5B7FFF),
+                color: AppColors.primary,
                 size: 20,
               ),
             ),
@@ -144,10 +145,10 @@ class DetailTab extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          color: isDark ? AppColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFFEF4444).withValues(alpha: 0.3),
+            color: AppColors.errorAlt.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -156,7 +157,7 @@ class DetailTab extends StatelessWidget {
           children: [
             Icon(
               CupertinoIcons.trash,
-              color: Color(0xFFEF4444),
+              color: AppColors.errorAlt,
               size: 18,
             ),
             SizedBox(width: 8),
@@ -165,7 +166,7 @@ class DetailTab extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFFEF4444),
+                color: AppColors.errorAlt,
               ),
             ),
           ],
@@ -178,7 +179,7 @@ class DetailTab extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -196,13 +197,13 @@ class DetailTab extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
                   CupertinoIcons.calendar,
                   size: 20,
-                  color: Color(0xFF5B7FFF),
+                  color: AppColors.primary,
                 ),
               ),
               const SizedBox(width: 12),
@@ -354,7 +355,7 @@ class DetailTab extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -385,7 +386,7 @@ class DetailTab extends StatelessWidget {
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFF10B981), Color(0xFF059669)],
+              colors: [AppColors.success, Color(0xFF059669)],
             ),
             borderRadius: BorderRadius.circular(12),
           ),
@@ -497,7 +498,7 @@ class DetailTab extends StatelessWidget {
                   ? Colors.white.withValues(alpha: 0.05)
                   : const Color(0xFFF3F4F6);
             } else if (isAchieved == true) {
-              cellColor = const Color(0xFF10B981);
+              cellColor = AppColors.success;
             } else if (isAchieved == false) {
               cellColor = const Color(0xFFFCA5A5);
             } else {
@@ -517,7 +518,7 @@ class DetailTab extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                   border: isToday
                       ? Border.all(
-                          color: const Color(0xFF5B7FFF),
+                          color: AppColors.primary,
                           width: 2,
                         )
                       : null,
@@ -528,7 +529,7 @@ class DetailTab extends StatelessWidget {
                           width: 6,
                           height: 6,
                           decoration: const BoxDecoration(
-                            color: Color(0xFF5B7FFF),
+                            color: AppColors.primary,
                             shape: BoxShape.circle,
                           ),
                         )
@@ -546,7 +547,7 @@ class DetailTab extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildLegendItem('달성', const Color(0xFF10B981), isDark),
+        _buildLegendItem('달성', AppColors.success, isDark),
         const SizedBox(width: 16),
         _buildLegendItem('미달성', const Color(0xFFFCA5A5), isDark),
         const SizedBox(width: 16),

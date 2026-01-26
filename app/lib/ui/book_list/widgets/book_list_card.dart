@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/core/widgets/pressable_wrapper.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class BookListCard extends StatelessWidget {
   final Book book;
@@ -35,7 +36,7 @@ class BookListCard extends StatelessWidget {
         onTap: onTap,
         child: Container(
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            color: isDark ? AppColors.surfaceDark : Colors.white,
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
@@ -146,27 +147,26 @@ class BookListCard extends StatelessWidget {
 
   Color _getDdayBackgroundColor(int daysLeft, bool isCompleted) {
     if (daysLeft < 0) {
-      return const Color(0xFFEF4444).withValues(alpha: 0.12);
+      return AppColors.errorAlt.withValues(alpha: 0.12);
     }
     if (isCompleted) {
-      return const Color(0xFF10B981).withValues(alpha: 0.12);
+      return AppColors.success.withValues(alpha: 0.12);
     }
-    return const Color(0xFF5B7FFF).withValues(alpha: 0.12);
+    return AppColors.primary.withValues(alpha: 0.12);
   }
 
   Color _getDdayTextColor(int daysLeft, bool isCompleted) {
     if (daysLeft < 0) {
-      return const Color(0xFFEF4444);
+      return AppColors.errorAlt;
     }
     if (isCompleted) {
-      return const Color(0xFF10B981);
+      return AppColors.success;
     }
-    return const Color(0xFF5B7FFF);
+    return AppColors.primary;
   }
 
   Widget _buildProgressBar(bool isDark, double pageProgress, bool isCompleted) {
-    final progressColor =
-        isCompleted ? const Color(0xFF10B981) : const Color(0xFF5B7FFF);
+    final progressColor = isCompleted ? AppColors.success : AppColors.primary;
 
     return Row(
       children: [

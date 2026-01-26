@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
+import 'package:book_golas/ui/core/theme/design_system.dart';
+
 class BookListSkeleton extends StatelessWidget {
   final int itemCount;
 
@@ -35,7 +37,7 @@ class _BookListSkeletonCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Shimmer.fromColors(

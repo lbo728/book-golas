@@ -9,6 +9,7 @@ import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/extracted_text_modal.dart';
 import 'package:book_golas/data/services/google_vision_ocr_service.dart';
 import 'package:book_golas/ui/book_detail/utils/document_scan_utils.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 String sanitizeOcrText(String text) {
   if (text.isEmpty) return text;
@@ -172,7 +173,7 @@ Future<void> extractTextFromLocalImage(
         ),
         AndroidUiSettings(
           toolbarTitle: '텍스트 추출 영역 선택',
-          toolbarColor: const Color(0xFF5B7FFF),
+          toolbarColor: AppColors.primary,
           toolbarWidgetColor: Colors.white,
           initAspectRatio: CropAspectRatioPreset.original,
           lockAspectRatio: false,
@@ -202,14 +203,14 @@ Future<void> extractTextFromLocalImage(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: Theme.of(dialogContext).brightness == Brightness.dark
-                  ? const Color(0xFF2A2A2A)
+                  ? AppColors.subtleDark
                   : Colors.white,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const CircularProgressIndicator(color: Color(0xFF5B7FFF)),
+                const CircularProgressIndicator(color: AppColors.primary),
                 const SizedBox(height: 16),
                 Text(
                   '텍스트 추출 중...',
@@ -289,7 +290,7 @@ Future<void> pickImageAndExtractText(
       builder: (bottomSheetContext) => Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          color: isDark ? AppColors.surfaceDark : Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
@@ -345,7 +346,7 @@ Future<void> pickImageAndExtractText(
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF5B7FFF),
+                        color: AppColors.primary,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Center(
@@ -400,7 +401,7 @@ Future<void> pickImageAndExtractText(
           ),
           AndroidUiSettings(
             toolbarTitle: '텍스트 추출 영역 선택',
-            toolbarColor: const Color(0xFF5B7FFF),
+            toolbarColor: AppColors.primary,
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.original,
             lockAspectRatio: false,
@@ -429,13 +430,13 @@ Future<void> pickImageAndExtractText(
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                color: isDark ? AppColors.subtleDark : Colors.white,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const CircularProgressIndicator(color: Color(0xFF5B7FFF)),
+                  const CircularProgressIndicator(color: AppColors.primary),
                   const SizedBox(height: 16),
                   Text(
                     '텍스트 추출 중...',
@@ -509,7 +510,7 @@ Future<void> reExtractTextFromImage(
     builder: (bottomSheetContext) => Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -576,7 +577,7 @@ Future<void> reExtractTextFromImage(
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF5B7FFF),
+                      color: AppColors.primary,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Center(
@@ -614,14 +615,14 @@ Future<void> reExtractTextFromImage(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: Theme.of(dialogContext).brightness == Brightness.dark
-                  ? const Color(0xFF2A2A2A)
+                  ? AppColors.subtleDark
                   : Colors.white,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const CircularProgressIndicator(color: Color(0xFF5B7FFF)),
+                const CircularProgressIndicator(color: AppColors.primary),
                 const SizedBox(height: 16),
                 Text(
                   '이미지 불러오는 중...',
@@ -665,7 +666,7 @@ Future<void> reExtractTextFromImage(
         ),
         AndroidUiSettings(
           toolbarTitle: '텍스트 추출 영역 선택',
-          toolbarColor: const Color(0xFF5B7FFF),
+          toolbarColor: AppColors.primary,
           toolbarWidgetColor: Colors.white,
           initAspectRatio: CropAspectRatioPreset.original,
           lockAspectRatio: false,
@@ -688,14 +689,14 @@ Future<void> reExtractTextFromImage(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: Theme.of(dialogContext).brightness == Brightness.dark
-                  ? const Color(0xFF2A2A2A)
+                  ? AppColors.subtleDark
                   : Colors.white,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const CircularProgressIndicator(color: Color(0xFF5B7FFF)),
+                const CircularProgressIndicator(color: AppColors.primary),
                 const SizedBox(height: 16),
                 Text(
                   '텍스트 추출 중...',
@@ -753,7 +754,7 @@ Future<void> scanDocumentAndExtractText(
       builder: (bottomSheetContext) => Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          color: isDark ? AppColors.surfaceDark : Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
@@ -809,7 +810,7 @@ Future<void> scanDocumentAndExtractText(
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF5B7FFF),
+                        color: AppColors.primary,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Center(
@@ -848,13 +849,13 @@ Future<void> scanDocumentAndExtractText(
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+              color: isDark ? AppColors.subtleDark : Colors.white,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const CircularProgressIndicator(color: Color(0xFF5B7FFF)),
+                const CircularProgressIndicator(color: AppColors.primary),
                 const SizedBox(height: 16),
                 Text(
                   '텍스트 추출 중...',

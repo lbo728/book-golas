@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class CustomTabBar extends StatelessWidget {
   final TabController tabController;
@@ -17,7 +18,7 @@ class CustomTabBar extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(8),
         border: Border(
           bottom: BorderSide(
@@ -68,7 +69,8 @@ class CustomTabBar extends StatelessWidget {
                   animation: tabController.animation!,
                   builder: (context, child) {
                     final animValue = tabController.animation!.value;
-                    final centerPosition = tabWidth * animValue + (tabWidth - indicatorWidth) / 2;
+                    final centerPosition =
+                        tabWidth * animValue + (tabWidth - indicatorWidth) / 2;
                     return Stack(
                       children: [
                         Positioned(

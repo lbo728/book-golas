@@ -5,6 +5,7 @@ import 'package:shimmer/shimmer.dart';
 
 import 'package:book_golas/data/services/google_vision_ocr_service.dart';
 import 'package:book_golas/data/services/image_cache_manager.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class MemorablePagesTab extends StatefulWidget {
   final Future<List<Map<String, dynamic>>> imagesFuture;
@@ -170,7 +171,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+          color: isDark ? AppColors.subtleDark : Colors.grey[100],
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -201,7 +202,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
       child: Row(
         children: [
           if (widget.sortMode == value)
-            const Icon(Icons.check, size: 18, color: Color(0xFF5B7FFF))
+            const Icon(Icons.check, size: 18, color: AppColors.primary)
           else
             const SizedBox(width: 18),
           const SizedBox(width: 8),
@@ -220,12 +221,12 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
             icon: const Icon(
               CupertinoIcons.trash,
               size: 18,
-              color: Color(0xFFFF3B30),
+              color: AppColors.error,
             ),
             label: const Text(
               '삭제',
               style: TextStyle(
-                color: Color(0xFFFF3B30),
+                color: AppColors.error,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -244,7 +245,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF5B7FFF),
+              color: AppColors.primary,
             ),
           ),
         ),
@@ -289,7 +290,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          color: isDark ? AppColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -437,10 +438,10 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
           height: 24,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isSelected ? const Color(0xFF5B7FFF) : Colors.transparent,
+            color: isSelected ? AppColors.primary : Colors.transparent,
             border: Border.all(
               color: isSelected
-                  ? const Color(0xFF5B7FFF)
+                  ? AppColors.primary
                   : (isDark ? Colors.grey[600]! : Colors.grey[400]!),
               width: 2,
             ),

@@ -40,6 +40,7 @@ import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 import 'package:book_golas/ui/recall/widgets/recall_search_sheet.dart';
 import 'package:book_golas/ui/recall/view_model/recall_view_model.dart';
 import 'package:book_golas/data/services/recall_service.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class BookDetailScreen extends StatelessWidget {
   final Book book;
@@ -208,7 +209,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
 
         return Scaffold(
           backgroundColor:
-              isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FA),
+              isDark ? AppColors.scaffoldDark : AppColors.elevatedLight,
           appBar: widget.isEmbedded
               ? null
               : AppBar(
@@ -305,8 +306,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
                         delegate: StickyTabBarDelegate(
                           child: CustomTabBar(tabController: _tabController),
                           backgroundColor: isDark
-                              ? const Color(0xFF121212)
-                              : const Color(0xFFF8F9FA),
+                              ? AppColors.scaffoldDark
+                              : AppColors.elevatedLight,
                         ),
                       ),
                     ];
@@ -396,10 +397,10 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     blastDirectionality: BlastDirectionality.explosive,
                     shouldLoop: false,
                     colors: const [
-                      Color(0xFF5B7FFF),
-                      Color(0xFF10B981),
-                      Color(0xFFFFD700),
-                      Color(0xFFFF6B6B),
+                      AppColors.primary,
+                      AppColors.success,
+                      AppColors.gold,
+                      AppColors.destructive,
                       Color(0xFFAB47BC),
                     ],
                     numberOfParticles: 30,
@@ -847,7 +848,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          color: isDark ? AppColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -865,12 +866,12 @@ class _BookDetailContentState extends State<_BookDetailContent>
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     Icons.schedule_rounded,
-                    color: Color(0xFF5B7FFF),
+                    color: AppColors.primary,
                     size: 22,
                   ),
                 ),
@@ -977,7 +978,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
           child: LinearProgressIndicator(
             value: progress,
             backgroundColor: isDark ? Colors.grey[700] : Colors.grey[200],
-            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF5B7FFF)),
+            valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
             minHeight: 6,
           ),
         ),
@@ -995,7 +996,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+              color: isDark ? AppColors.surfaceDark : Colors.white,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
@@ -1014,12 +1015,12 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                        color: AppColors.success.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(
                         Icons.play_arrow_rounded,
-                        color: Color(0xFF10B981),
+                        color: AppColors.success,
                         size: 22,
                       ),
                     ),
@@ -1083,13 +1084,13 @@ class _BookDetailContentState extends State<_BookDetailContent>
   Color _getPriorityColor(int priority) {
     switch (priority) {
       case 1:
-        return const Color(0xFFFF3B30);
+        return AppColors.error;
       case 2:
-        return const Color(0xFFFF9500);
+        return AppColors.warning;
       case 3:
-        return const Color(0xFF5B7FFF);
+        return AppColors.primary;
       case 4:
-        return const Color(0xFF34C759);
+        return AppColors.successAlt;
       default:
         return Colors.grey;
     }
@@ -1135,7 +1136,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          color: isDark ? AppColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -1154,12 +1155,12 @@ class _BookDetailContentState extends State<_BookDetailContent>
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     Icons.refresh_rounded,
-                    color: Color(0xFF5B7FFF),
+                    color: AppColors.primary,
                     size: 22,
                   ),
                 ),

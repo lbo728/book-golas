@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class ScannerErrorWidget extends StatelessWidget {
   final MobileScannerException error;
@@ -54,7 +55,7 @@ class ScannerErrorWidget extends StatelessWidget {
                 child: const Text(
                   '닫기',
                   style: TextStyle(
-                    color: Color(0xFF5B7FFF),
+                    color: AppColors.primary,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),

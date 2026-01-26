@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 
 /// 장르 분석 카드
 ///
@@ -21,18 +22,7 @@ class GenreAnalysisCard extends StatefulWidget {
 class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
   int touchedIndex = -1;
 
-  static const List<Color> _chartColors = [
-    Color(0xFF5B7FFF),
-    Color(0xFFFF6B6B),
-    Color(0xFF4ECDC4),
-    Color(0xFFFFBE0B),
-    Color(0xFF9B59B6),
-    Color(0xFF3498DB),
-    Color(0xFFE74C3C),
-    Color(0xFF1ABC9C),
-    Color(0xFFF39C12),
-    Color(0xFF8E44AD),
-  ];
+  static const List<Color> _chartColors = AppColors.chartColors;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +37,7 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -67,13 +57,13 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF5B7FFF).withOpacity(0.1),
+                    color: AppColors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
                     Icons.pie_chart_rounded,
                     size: 24,
-                    color: Color(0xFF5B7FFF),
+                    color: AppColors.primary,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -93,8 +83,8 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    const Color(0xFF5B7FFF).withOpacity(0.1),
-                    const Color(0xFF5B7FFF).withOpacity(0.05),
+                    AppColors.primary.withOpacity(0.1),
+                    AppColors.primary.withOpacity(0.05),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
@@ -290,7 +280,7 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
