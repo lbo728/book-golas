@@ -11,6 +11,9 @@ export const config = {
   insights: {
     maxBooksToAnalyze: 10,
     minHighlightsForInsight: 3,
+    rateLimitHours: 24,
+    memoryLimit: 5,
+    timeoutSeconds: 30,
   },
 };
 

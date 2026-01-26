@@ -2,7 +2,7 @@ export interface ReadingInsight {
   id: string;
   title: string;
   description: string;
-  category: "pattern" | "milestone" | "recommendation" | "reflection";
+  category: "pattern" | "milestone" | "reflection";
   relatedBooks: string[];
   generatedAt: string;
 }
