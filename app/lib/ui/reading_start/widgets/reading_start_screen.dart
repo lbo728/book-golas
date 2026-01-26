@@ -220,34 +220,40 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Consumer<ReadingStartViewModel>(
-      builder: (context, vm, _) {
-        return Scaffold(
-          backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
-          resizeToAvoidBottomInset: true,
-          body: SafeArea(
-            bottom: false,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 커스텀 헤더
-                _buildHeader(vm, isDark),
-                // 콘텐츠
-                Expanded(
-                  child: PageView(
-                    controller: _pageController,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [
-                      _buildBookTitleInputPage(vm, isDark),
-                      _buildReadingSchedulePage(vm, isDark),
-                    ],
-                  ),
-                ),
-              ],
+    // Consumer 범위 최소화: TextField가 리빌드되지 않도록 Scaffold는 밖에 위치
+    return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 커스텀 헤더: pageIndex만 필요
+            Selector<ReadingStartViewModel, int>(
+              selector: (_, vm) => vm.currentPageIndex,
+              builder: (context, pageIndex, _) {
+                final vm = context.read<ReadingStartViewModel>();
+                return _buildHeader(vm, isDark);
+              },
             ),
-          ),
-        );
-      },
+            // 콘텐츠
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  _buildBookTitleInputPage(isDark),
+                  Consumer<ReadingStartViewModel>(
+                    builder: (context, vm, _) =>
+                        _buildReadingSchedulePage(vm, isDark),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -300,7 +306,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
     );
   }
 
-  Widget _buildBookTitleInputPage(ReadingStartViewModel vm, bool isDark) {
+  Widget _buildBookTitleInputPage(bool isDark) {
     // 좌→우 스와이프로 홈으로 돌아가기
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -312,9 +318,11 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
       },
       child: Stack(
         children: [
-          // 검색 결과 리스트 영역 (하단 바 뒤로 확장)
+          // 검색 결과 리스트 영역: Consumer로 감싸서 검색/추천 상태 변경 시만 리빌드
           Positioned.fill(
-            child: _buildSearchResultsList(vm, isDark),
+            child: Consumer<ReadingStartViewModel>(
+              builder: (context, vm, _) => _buildSearchResultsList(vm, isDark),
+            ),
           ),
           // 키보드 접기 버튼 (키보드 열려있을 때만)
           if (MediaQuery.of(context).viewInsets.bottom > 0)
@@ -328,14 +336,23 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                 showNavigation: false,
               ),
             ),
-          // 하단 바 (플로팅) - 키보드 있을 때 키보드 위 8px, 없을 때 바텀 네비와 동일 위치 (22px)
+          // 하단 바 (TextField 포함): Consumer 밖에 위치하여 키보드 유지
+          // Selector로 필요한 속성만 구독
           Positioned(
             left: 16,
             right: 16,
             bottom: MediaQuery.of(context).viewInsets.bottom > 0
                 ? MediaQuery.of(context).viewInsets.bottom + 8
                 : 22,
-            child: _buildBottomBar(vm, isDark),
+            child:
+                Selector<ReadingStartViewModel, (int, BookSearchResult?, bool)>(
+              selector: (_, vm) =>
+                  (vm.currentPageIndex, vm.selectedBook, vm.isSaving),
+              builder: (context, data, _) {
+                final vm = context.read<ReadingStartViewModel>();
+                return _buildBottomBar(vm, isDark);
+              },
+            ),
           ),
         ],
       ),
