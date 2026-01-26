@@ -5,18 +5,35 @@ class BookRecommendation {
   final String title;
   final String author;
   final String reason;
+  final List<String> keywords;
+  String? imageUrl;
 
   BookRecommendation({
     required this.title,
     required this.author,
     required this.reason,
+    this.keywords = const [],
+    this.imageUrl,
   });
 
   factory BookRecommendation.fromJson(Map<String, dynamic> json) {
+    final keywordsJson = json['keywords'] as List<dynamic>? ?? [];
     return BookRecommendation(
       title: json['title'] as String,
       author: json['author'] as String,
       reason: json['reason'] as String,
+      keywords: keywordsJson.map((k) => k as String).toList(),
+      imageUrl: json['imageUrl'] as String?,
+    );
+  }
+
+  BookRecommendation copyWith({String? imageUrl}) {
+    return BookRecommendation(
+      title: title,
+      author: author,
+      reason: reason,
+      keywords: keywords,
+      imageUrl: imageUrl ?? this.imageUrl,
     );
   }
 }
@@ -85,6 +102,17 @@ class RecommendationResult {
 
 class RecommendationService {
   final _supabase = Supabase.instance.client;
+
+  /// 책 제목 → 이미지 URL 캐시 (앱 인스턴스 유지 동안)
+  static final Map<String, String> _imageCache = {};
+
+  /// 캐시에서 이미지 URL 조회
+  static String? getCachedImageUrl(String title) => _imageCache[title];
+
+  /// 이미지 URL 캐시에 저장
+  static void cacheImageUrl(String title, String imageUrl) {
+    _imageCache[title] = imageUrl;
+  }
 
   Future<int> getCompletedBooksCount() async {
     try {

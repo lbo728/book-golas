@@ -11,6 +11,9 @@ import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/barcode_scanner/barcode_scanner_screen.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
+
+import 'package:book_golas/ui/core/widgets/recommendation_action_sheet.dart';
+import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
 import 'package:book_golas/ui/reading_start/view_model/reading_start_view_model.dart';
 import 'package:book_golas/ui/reading_start/widgets/priority_selector_widget.dart';
 import 'package:book_golas/ui/reading_start/widgets/schedule_change_modal.dart';
@@ -103,8 +106,15 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
         vm.goToSchedulePage();
       });
     } else {
+      // 화면 진입 시 키보드 자동 표시 (약간의 지연 필요)
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _searchFocusNode.requestFocus();
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (mounted) {
+            _searchFocusNode.requestFocus();
+            // iOS에서 키보드 강제 표시
+            SystemChannels.textInput.invokeMethod('TextInput.show');
+          }
+        });
       });
     }
 
@@ -176,6 +186,26 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
     }
   }
 
+  void _showActionSheetForRecommendation(
+    dynamic recommendation,
+    ReadingStartViewModel vm,
+  ) {
+    showRecommendationActionSheet(
+      context: context,
+      title: recommendation.title,
+      author: recommendation.author,
+      reason: recommendation.reason,
+      onViewDetail: () {},
+      onStartReading: () async {
+        final success =
+            await vm.searchAndSelectFirstResult(recommendation.title);
+        if (success && mounted) {
+          _nextPage(vm);
+        }
+      },
+    );
+  }
+
   void _previousPage(ReadingStartViewModel vm) {
     if (vm.currentPageIndex > 0) {
       _pageController.previousPage(
@@ -190,89 +220,103 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Consumer<ReadingStartViewModel>(
-      builder: (context, vm, _) {
-        return Scaffold(
-          backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
-          resizeToAvoidBottomInset: true,
-          body: SafeArea(
-            bottom: false,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 커스텀 헤더
-                _buildHeader(vm, isDark),
-                // 콘텐츠
-                Expanded(
-                  child: PageView(
-                    controller: _pageController,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [
-                      _buildBookTitleInputPage(vm, isDark),
-                      _buildReadingSchedulePage(vm, isDark),
-                    ],
+    // Consumer 범위 최소화: TextField가 리빌드되지 않도록 Scaffold는 밖에 위치
+    return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 커스텀 헤더: pageIndex만 필요
+            Selector<ReadingStartViewModel, int>(
+              selector: (_, vm) => vm.currentPageIndex,
+              builder: (context, pageIndex, _) {
+                final vm = context.read<ReadingStartViewModel>();
+                return _buildHeader(vm, isDark);
+              },
+            ),
+            // 콘텐츠
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  _buildBookTitleInputPage(isDark),
+                  Consumer<ReadingStartViewModel>(
+                    builder: (context, vm, _) =>
+                        _buildReadingSchedulePage(vm, isDark),
                   ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildHeader(ReadingStartViewModel vm, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 뒤로가기 버튼
-          GestureDetector(
-            onTap: () {
-              if (vm.currentPageIndex > 0) {
-                _previousPage(vm);
-              } else {
-                Navigator.pop(context);
-              }
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Icon(
-                CupertinoIcons.back,
-                color: isDark ? Colors.white : Colors.black,
-                size: 24,
+                ],
               ),
             ),
-          ),
-          const SizedBox(height: 8),
-          // 제목
-          Text(
-            '독서 시작하기',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white : Colors.black,
-            ),
-          ),
-          const SizedBox(height: 4),
-          // 부제목 (검색 페이지일 때만)
-          if (vm.currentPageIndex == 0)
-            Text(
-              '독서를 시작할 책을 검색해보세요.',
-              style: TextStyle(
-                fontSize: 14,
-                color: isDark ? Colors.white54 : Colors.grey[600],
-              ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildBookTitleInputPage(ReadingStartViewModel vm, bool isDark) {
+  Widget _buildHeader(ReadingStartViewModel vm, bool isDark) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        // 헤더 영역 터치 시 키보드 닫기
+        FocusScope.of(context).unfocus();
+      },
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 뒤로가기 버튼
+            GestureDetector(
+              onTap: () {
+                if (vm.currentPageIndex > 0) {
+                  _previousPage(vm);
+                } else {
+                  Navigator.pop(context);
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Icon(
+                  CupertinoIcons.back,
+                  color: isDark ? Colors.white : Colors.black,
+                  size: 24,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            // 제목
+            Text(
+              '독서 시작하기',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+            ),
+            const SizedBox(height: 4),
+            // 부제목 (검색 페이지일 때만)
+            if (vm.currentPageIndex == 0)
+              Text(
+                '독서를 시작할 책을 검색해보세요.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark ? Colors.white54 : Colors.grey[600],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBookTitleInputPage(bool isDark) {
     // 좌→우 스와이프로 홈으로 돌아가기
     return GestureDetector(
+      behavior: HitTestBehavior.translucent,
       onHorizontalDragEnd: (details) {
         // 우측으로 스와이프 (velocity > 0)
         if (details.primaryVelocity != null && details.primaryVelocity! > 300) {
@@ -281,16 +325,34 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
       },
       child: Stack(
         children: [
-          // 검색 결과 리스트 영역 (하단 바 뒤로 확장)
+          // 검색 결과 리스트 영역: 터치 시 키보드 닫기
           Positioned.fill(
-            child: _buildSearchResultsList(vm, isDark),
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                // 검색 결과 영역 터치 시 키보드 닫기
+                FocusScope.of(context).unfocus();
+              },
+              child: Consumer<ReadingStartViewModel>(
+                builder: (context, vm, _) =>
+                    _buildSearchResultsList(vm, isDark),
+              ),
+            ),
           ),
-          // 하단 바 (플로팅)
+          // 하단 바 (플로팅) - 키보드 위 10px (resizeToAvoidBottomInset이 키보드 처리)
           Positioned(
             left: 16,
             right: 16,
-            bottom: 28,
-            child: _buildBottomBar(vm, isDark),
+            bottom: 10,
+            child:
+                Selector<ReadingStartViewModel, (int, BookSearchResult?, bool)>(
+              selector: (_, vm) =>
+                  (vm.currentPageIndex, vm.selectedBook, vm.isSaving),
+              builder: (context, data, _) {
+                final vm = context.read<ReadingStartViewModel>();
+                return _buildBottomBar(vm, isDark);
+              },
+            ),
           ),
         ],
       ),
@@ -367,66 +429,49 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
       return const SizedBox.shrink();
     }
 
+    final authVm = context.watch<AuthViewModel>();
+    final userName = authVm.currentUser?.nickname ?? '회원';
+
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
       children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: isDark
-                  ? [const Color(0xFF2A2D4A), const Color(0xFF1E2030)]
-                  : [const Color(0xFFF0F4FF), const Color(0xFFE8EEFF)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
+        // 섹션 헤더 (타이틀 + 디스크립션)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF5B7FFF).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.auto_awesome,
-                  color: Color(0xFF5B7FFF),
-                  size: 22,
-                ),
+              Row(
+                children: [
+                  Icon(
+                    Icons.auto_awesome,
+                    color: const Color(0xFF5B7FFF),
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'AI 맞춤 추천',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white70 : Colors.black54,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'AI 맞춤 추천',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '독서 패턴을 분석하여 추천해드려요',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: isDark ? Colors.white60 : Colors.grey[600],
-                      ),
-                    ),
-                  ],
+              const SizedBox(height: 6),
+              Text(
+                '$userName님의 독서 패턴을 분석하여 추천하는 책들이에요',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isDark ? Colors.white38 : Colors.grey[500],
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
         ...vm.recommendations
-            .map((rec) => _buildRecommendationCard(rec, vm, isDark)),
+            .map<Widget>((rec) => _buildRecommendationCard(rec, vm, isDark)),
       ],
     );
   }
@@ -439,7 +484,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
     return GestureDetector(
       onTap: () {
         HapticFeedback.selectionClick();
-        vm.selectRecommendation(recommendation);
+        _showActionSheetForRecommendation(recommendation, vm);
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
@@ -465,18 +510,37 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 48,
-              height: 64,
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF3A3A3A) : Colors.grey[200],
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Icon(
-                Icons.menu_book_rounded,
-                color: isDark ? Colors.white38 : Colors.grey[400],
-                size: 24,
-              ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: recommendation.imageUrl != null
+                  ? Image.network(
+                      recommendation.imageUrl!,
+                      width: 48,
+                      height: 64,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 48,
+                        height: 64,
+                        color:
+                            isDark ? const Color(0xFF3A3A3A) : Colors.grey[200],
+                        child: Icon(
+                          Icons.menu_book_rounded,
+                          color: isDark ? Colors.white38 : Colors.grey[400],
+                          size: 24,
+                        ),
+                      ),
+                    )
+                  : Container(
+                      width: 48,
+                      height: 64,
+                      color:
+                          isDark ? const Color(0xFF3A3A3A) : Colors.grey[200],
+                      child: Icon(
+                        Icons.menu_book_rounded,
+                        color: isDark ? Colors.white38 : Colors.grey[400],
+                        size: 24,
+                      ),
+                    ),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -504,34 +568,47 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
+                  Text(
+                    recommendation.reason,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? Colors.white38 : Colors.grey[500],
+                      height: 1.4,
                     ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF5B7FFF).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      recommendation.reason,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF5B7FFF),
-                        fontWeight: FontWeight.w500,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
+                  if (recommendation.keywords.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: recommendation.keywords
+                          .take(3)
+                          .map<Widget>((keyword) => Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF5B7FFF)
+                                      .withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  keyword,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Color(0xFF5B7FFF),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ))
+                          .toList(),
+                    ),
+                  ],
                 ],
               ),
-            ),
-            const SizedBox(width: 8),
-            Icon(
-              CupertinoIcons.search,
-              color: isDark ? Colors.white38 : Colors.grey[400],
-              size: 18,
             ),
           ],
         ),
