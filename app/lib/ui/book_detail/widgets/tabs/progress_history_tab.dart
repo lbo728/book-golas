@@ -164,7 +164,7 @@ class ProgressHistoryTab extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF6B35).withValues(alpha: 0.12),
+                  color: AppColors.warning.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -172,7 +172,7 @@ class ProgressHistoryTab extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFFFF6B35),
+                    color: AppColors.warning,
                   ),
                 ),
               ),
@@ -259,7 +259,7 @@ class ProgressHistoryTab extends StatelessWidget {
               lineTouchData: LineTouchData(
                 touchTooltipData: LineTouchTooltipData(
                   tooltipBgColor:
-                      isDark ? const Color(0xFF2D2D2D) : Colors.white,
+                      isDark ? AppColors.elevatedDark : Colors.white,
                   tooltipBorder: BorderSide(
                     color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
                     width: 1,
@@ -331,7 +331,7 @@ class ProgressHistoryTab extends StatelessWidget {
                   spots: spots,
                   isCurved: true,
                   gradient: const LinearGradient(
-                    colors: [AppColors.primary, Color(0xFF4A6FE8)],
+                    colors: [AppColors.primary, AppColors.primary],
                   ),
                   barWidth: 3,
                   dotData: FlDotData(
@@ -489,7 +489,7 @@ class ProgressHistoryTab extends StatelessWidget {
                             horizontal: 5, vertical: 1),
                         decoration: BoxDecoration(
                           color:
-                              const Color(0xFFFF6B35).withValues(alpha: 0.15),
+                              AppColors.warning.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -497,7 +497,7 @@ class ProgressHistoryTab extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFFFF6B35),
+                            color: AppColors.warning,
                           ),
                         ),
                       ),
@@ -597,14 +597,14 @@ class ProgressHistoryTab extends StatelessWidget {
           'emoji': '🔥',
           'title': '조금 더 속도를 내볼까요?',
           'message': '이번에는 꼭 완독해봐요. 매일 조금씩 더 읽으면 따라잡을 수 있어요!',
-          'color': const Color(0xFFF59E0B),
+          'color': AppColors.warning,
         };
       }
       return {
         'emoji': '📚',
         'title': '조금 더 읽어볼까요?',
         'message': '계획보다 살짝 뒤처졌어요. 오늘 조금 더 읽으면 따라잡을 수 있어요!',
-        'color': const Color(0xFFF59E0B),
+        'color': AppColors.warning,
       };
     }
 

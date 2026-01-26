@@ -208,8 +208,8 @@ class ReadingGoalSheet {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: isDark
-                          ? const Color(0xFF2A2A2A)
-                          : const Color(0xFFF5F7FF),
+                          ? AppColors.subtleDark
+                          : AppColors.subtleBlueLight,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(

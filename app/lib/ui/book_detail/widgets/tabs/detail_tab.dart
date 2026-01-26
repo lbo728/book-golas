@@ -262,7 +262,7 @@ class DetailTab extends StatelessWidget {
                             horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color:
-                              const Color(0xFFFF6B35).withValues(alpha: 0.12),
+                              AppColors.warning.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -270,7 +270,7 @@ class DetailTab extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFFFF6B35),
+                            color: AppColors.warning,
                           ),
                         ),
                       ),
@@ -386,7 +386,7 @@ class DetailTab extends StatelessWidget {
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [AppColors.success, Color(0xFF059669)],
+              colors: [AppColors.success, AppColors.success],
             ),
             borderRadius: BorderRadius.circular(12),
           ),
@@ -406,7 +406,7 @@ class DetailTab extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                  color: isDark ? Colors.white : AppColors.scaffoldDark,
                 ),
               ),
               const SizedBox(height: 2),
@@ -416,7 +416,7 @@ class DetailTab extends StatelessWidget {
                   fontSize: 12,
                   color: isDark
                       ? Colors.white.withValues(alpha: 0.6)
-                      : const Color(0xFF888888),
+                      : Colors.grey[500]!,
                 ),
               ),
             ],
@@ -432,10 +432,10 @@ class DetailTab extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: achievementRate >= 80
-            ? const Color(0xFFD1FAE5)
+            ? AppColors.successBg
             : achievementRate >= 50
-                ? const Color(0xFFFEF3C7)
-                : const Color(0xFFFEE2E2),
+                ? AppColors.amber
+                : AppColors.errorBg,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -449,10 +449,10 @@ class DetailTab extends StatelessWidget {
                     : CupertinoIcons.flame_fill,
             size: 14,
             color: achievementRate >= 80
-                ? const Color(0xFF059669)
+                ? AppColors.success
                 : achievementRate >= 50
-                    ? const Color(0xFFD97706)
-                    : const Color(0xFFDC2626),
+                    ? AppColors.dangerAlt
+                    : AppColors.danger,
           ),
           const SizedBox(width: 4),
           Text(
@@ -461,10 +461,10 @@ class DetailTab extends StatelessWidget {
               fontSize: 13,
               fontWeight: FontWeight.w700,
               color: achievementRate >= 80
-                  ? const Color(0xFF059669)
+                  ? AppColors.success
                   : achievementRate >= 50
-                      ? const Color(0xFFD97706)
-                      : const Color(0xFFDC2626),
+                      ? AppColors.dangerAlt
+                      : AppColors.danger,
             ),
           ),
         ],
@@ -496,15 +496,15 @@ class DetailTab extends StatelessWidget {
             if (isFuture) {
               cellColor = isDark
                   ? Colors.white.withValues(alpha: 0.05)
-                  : const Color(0xFFF3F4F6);
+                  : AppColors.grey100Light;
             } else if (isAchieved == true) {
               cellColor = AppColors.success;
             } else if (isAchieved == false) {
-              cellColor = const Color(0xFFFCA5A5);
+              cellColor = AppColors.errorLight;
             } else {
               cellColor = isDark
                   ? Colors.white.withValues(alpha: 0.1)
-                  : const Color(0xFFE5E7EB);
+                  : AppColors.grey200Light;
             }
 
             return Tooltip(
@@ -549,13 +549,13 @@ class DetailTab extends StatelessWidget {
       children: [
         _buildLegendItem('달성', AppColors.success, isDark),
         const SizedBox(width: 16),
-        _buildLegendItem('미달성', const Color(0xFFFCA5A5), isDark),
+        _buildLegendItem('미달성', AppColors.errorLight, isDark),
         const SizedBox(width: 16),
         _buildLegendItem(
             '예정',
             isDark
                 ? Colors.white.withValues(alpha: 0.1)
-                : const Color(0xFFF3F4F6),
+                : AppColors.grey100Light,
             isDark),
       ],
     );

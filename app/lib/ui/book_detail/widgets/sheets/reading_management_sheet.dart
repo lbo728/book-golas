@@ -171,7 +171,7 @@ Widget _buildCancelButton({
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2C2C2C) : const Color(0xFFF3F4F6),
+        color: isDark ? AppColors.elevatedDark : AppColors.grey100Light,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Center(

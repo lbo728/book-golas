@@ -65,7 +65,7 @@ class DashboardProgressWidget extends StatelessWidget {
                             strokeWidth: 10,
                             backgroundColor: isDark
                                 ? Colors.white.withValues(alpha: 0.1)
-                                : const Color(0xFFEEF2FF),
+                                : AppColors.subtleBlueLight,
                             progressColor: AppColors.primary,
                           ),
                         ),
@@ -202,7 +202,7 @@ class DashboardProgressWidget extends StatelessWidget {
                 Icon(
                   CupertinoIcons.checkmark_seal_fill,
                   size: 12,
-                  color: Color(0xFFD4A000),
+                  color: AppColors.gold,
                 ),
                 SizedBox(width: 4),
                 Text(
@@ -210,7 +210,7 @@ class DashboardProgressWidget extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFFD4A000),
+                    color: AppColors.gold,
                   ),
                 ),
               ],

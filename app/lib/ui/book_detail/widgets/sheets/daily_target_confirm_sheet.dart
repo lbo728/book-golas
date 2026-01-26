@@ -38,12 +38,12 @@ Future<bool?> showDailyTargetConfirmSheet({
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFA500).withValues(alpha: 0.1),
+                color: AppColors.warning.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: const Icon(
                 CupertinoIcons.calendar_today,
-                color: Color(0xFFFFA500),
+                color: AppColors.warning,
                 size: 32,
               ),
             ),

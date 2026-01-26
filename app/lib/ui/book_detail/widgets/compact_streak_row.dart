@@ -129,7 +129,7 @@ class CompactStreakRow extends StatelessWidget {
           CupertinoIcons.flame_fill,
           size: 16,
           color: streak > 0
-              ? const Color(0xFFF97316)
+              ? AppColors.warning
               : (isDark ? Colors.grey[500] : Colors.grey[400]),
         ),
         const SizedBox(width: 4),

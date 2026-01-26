@@ -199,7 +199,7 @@ class _BookListScreenState extends State<BookListScreen>
     return RefreshIndicator(
       onRefresh: () => _onRefresh(vm),
       color: AppColors.primary,
-      backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+      backgroundColor: isDark ? AppColors.elevatedDark : Colors.white,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
@@ -223,7 +223,7 @@ class _BookListScreenState extends State<BookListScreen>
     return RefreshIndicator(
       onRefresh: () => _onRefresh(vm),
       color: AppColors.primary,
-      backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+      backgroundColor: isDark ? AppColors.elevatedDark : Colors.white,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
@@ -270,7 +270,7 @@ class _BookListScreenState extends State<BookListScreen>
     return RefreshIndicator(
       onRefresh: () => _onRefresh(vm),
       color: AppColors.primary,
-      backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+      backgroundColor: isDark ? AppColors.elevatedDark : Colors.white,
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
@@ -470,7 +470,7 @@ class _BookListScreenState extends State<BookListScreen>
     return RefreshIndicator(
       onRefresh: () => _onRefresh(vm),
       color: AppColors.primary,
-      backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+      backgroundColor: isDark ? AppColors.elevatedDark : Colors.white,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
@@ -494,7 +494,7 @@ class _BookListScreenState extends State<BookListScreen>
     return RefreshIndicator(
       onRefresh: () => _onRefresh(vm),
       color: AppColors.primary,
-      backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+      backgroundColor: isDark ? AppColors.elevatedDark : Colors.white,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),

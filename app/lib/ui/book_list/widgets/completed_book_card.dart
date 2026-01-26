@@ -189,10 +189,10 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                               horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
                             color: _achievementRate! >= 80
-                                ? const Color(0xFFD1FAE5)
+                                ? AppColors.successBg
                                 : _achievementRate! >= 50
-                                    ? const Color(0xFFFEF3C7)
-                                    : const Color(0xFFFEE2E2),
+                                    ? AppColors.amber
+                                    : AppColors.errorBg,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(

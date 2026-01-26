@@ -105,7 +105,7 @@ class CompactReadingSchedule extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: const Color(0xFFFF6B35).withValues(alpha: 0.12),
+        color: AppColors.warning.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
@@ -113,7 +113,7 @@ class CompactReadingSchedule extends StatelessWidget {
         style: const TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w700,
-          color: Color(0xFFFF6B35),
+          color: AppColors.warning,
         ),
       ),
     );

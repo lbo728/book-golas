@@ -401,7 +401,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       AppColors.success,
                       AppColors.gold,
                       AppColors.destructive,
-                      Color(0xFFAB47BC),
+                      AppColors.purple,
                     ],
                     numberOfParticles: 30,
                     gravity: 0.2,

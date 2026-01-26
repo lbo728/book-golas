@@ -259,15 +259,15 @@ class ReadingStreakHeatmap extends StatelessWidget {
       return isDark ? Colors.grey[850]! : Colors.grey[200]!;
     }
     if (pages <= 10) {
-      return const Color(0xFF4ECDC4).withOpacity(0.3);
+      return AppColors.info.withOpacity(0.3);
     }
     if (pages <= 30) {
-      return const Color(0xFF4ECDC4).withOpacity(0.5);
+      return AppColors.info.withOpacity(0.5);
     }
     if (pages <= 50) {
-      return const Color(0xFF4ECDC4).withOpacity(0.7);
+      return AppColors.info.withOpacity(0.7);
     }
-    return const Color(0xFF4ECDC4);
+    return AppColors.info;
   }
 
   Widget _buildLegend(bool isDark) {

@@ -8,12 +8,17 @@ class AppColors {
 
   static const Color success = Color(0xFF10B981);
   static const Color successAlt = Color(0xFF34C759);
+  static const Color successBg = Color(0xFFD1FAE5);
   static const Color error = Color(0xFFFF3B30);
   static const Color errorAlt = Color(0xFFEF4444);
+  static const Color errorBg = Color(0xFFFEE2E2);
+  static const Color errorLight = Color(0xFFFCA5A5);
   static const Color warning = Color(0xFFFF9500);
   static const Color warningAlt = Color(0xFFFFBE0B);
   static const Color info = Color(0xFF4ECDC4);
+  static const Color infoAlt = Color(0xFF3498DB);
   static const Color destructive = Color(0xFFFF6B6B);
+  static const Color purple = Color(0xFF9B59B6);
 
   static const List<Color> chartColors = [
     Color(0xFF5B7FFF),
@@ -38,6 +43,9 @@ class AppColors {
   static const Color cardLight = Colors.white;
   static const Color elevatedLight = Color(0xFFF8F9FA);
   static const Color subtleBlueLight = Color(0xFFF5F7FF);
+  static const Color grey50Light = Color(0xFFF5F5F5);
+  static const Color grey100Light = Color(0xFFF3F4F6);
+  static const Color grey200Light = Color(0xFFE5E7EB);
 
   static const Color scaffoldDark = Color(0xFF121212);
   static const Color surfaceDark = Color(0xFF1E1E1E);

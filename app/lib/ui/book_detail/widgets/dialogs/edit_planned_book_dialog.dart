@@ -116,7 +116,7 @@ class _EditPlannedBookDialogState extends State<EditPlannedBookDialog> {
                   decoration: BoxDecoration(
                     color: isDark
                         ? AppColors.subtleDark
-                        : const Color(0xFFF5F5F5),
+                        : AppColors.grey50Light,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: KoreanDatePicker(

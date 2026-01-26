@@ -192,7 +192,7 @@ class CompactBookHeader extends StatelessWidget {
 
     switch (status) {
       case 'planned':
-        return (label: '읽을 예정', color: const Color(0xFF8B5CF6));
+        return (label: '읽을 예정', color: AppColors.purple);
       case 'will_retry':
         return (label: '다시 읽을 책', color: AppColors.warning);
       case 'reading':

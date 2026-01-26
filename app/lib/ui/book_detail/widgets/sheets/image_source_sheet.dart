@@ -251,7 +251,7 @@ Future<bool?> showReplaceImageConfirmationSheet({
             Container(
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
-                color: Color(0xFFFEF3C7),
+                color: AppColors.amber,
                 shape: BoxShape.circle,
               ),
               child: Icon(

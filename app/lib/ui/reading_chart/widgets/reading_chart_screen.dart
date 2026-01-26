@@ -537,7 +537,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                    color: isDark ? AppColors.surfaceDark : Colors.white,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: isDark ? Colors.grey[800]! : Colors.grey[200]!,

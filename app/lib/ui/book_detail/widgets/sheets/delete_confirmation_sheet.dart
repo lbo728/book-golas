@@ -128,7 +128,7 @@ Future<bool?> showBatchDeleteConfirmationSheet({
             Container(
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
-                color: Color(0xFFFEE2E2),
+                color: AppColors.errorBg,
                 shape: BoxShape.circle,
               ),
               child: const Icon(
