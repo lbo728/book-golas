@@ -11,7 +11,7 @@ import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/barcode_scanner/barcode_scanner_screen.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
-import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
+
 import 'package:book_golas/ui/core/widgets/recommendation_action_sheet.dart';
 import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
 import 'package:book_golas/ui/reading_start/view_model/reading_start_view_model.dart';
@@ -318,27 +318,17 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
       },
       child: Stack(
         children: [
-          // 검색 결과 리스트 영역: Consumer로 감싸서 검색/추천 상태 변경 시만 리빌드
+          // 검색 결과 리스트 영역: 터치 시 키보드 닫기
           Positioned.fill(
-            child: Consumer<ReadingStartViewModel>(
-              builder: (context, vm, _) => _buildSearchResultsList(vm, isDark),
-            ),
-          ),
-          // 키보드 접기 버튼: 항상 렌더링하되 키보드 없을 때 숨김 (위젯 트리 안정성)
-          Positioned(
-            left: 16,
-            right: 16,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 64,
-            child: AnimatedOpacity(
-              opacity: MediaQuery.of(context).viewInsets.bottom > 0 ? 1.0 : 0.0,
-              duration: const Duration(milliseconds: 150),
-              child: IgnorePointer(
-                ignoring: MediaQuery.of(context).viewInsets.bottom == 0,
-                child: KeyboardAccessoryBar(
-                  onDone: () => FocusScope.of(context).unfocus(),
-                  isDark: isDark,
-                  showNavigation: false,
-                ),
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                // 검색 결과 영역 터치 시 키보드 닫기
+                FocusScope.of(context).unfocus();
+              },
+              child: Consumer<ReadingStartViewModel>(
+                builder: (context, vm, _) =>
+                    _buildSearchResultsList(vm, isDark),
               ),
             ),
           ),
