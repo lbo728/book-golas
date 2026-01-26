@@ -30,7 +30,6 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
   bool _isSaving = false;
   bool _hasChanges = false;
   bool _isGeneratingAI = false;
-  bool _isKeyboardVisible = false;
   bool _hasDraft = false;
 
   final List<String> _undoStack = [];
@@ -58,38 +57,20 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
     final draft = prefs.getString(_draftKey);
     if (draft != null && draft.isNotEmpty && draft != widget.book.longReview) {
       if (!mounted) return;
+      _reviewController.text = draft;
       setState(() {
         _hasDraft = true;
       });
-      _showDraftRestoreDialog(draft);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          CustomSnackbar.show(
+            context,
+            message: '임시 저장된 내용을 불러왔습니다.',
+            type: SnackbarType.info,
+          );
+        }
+      });
     }
-  }
-
-  Future<void> _showDraftRestoreDialog(String draft) async {
-    final shouldRestore = await showConfirmationBottomSheet(
-      context: context,
-      title: '임시 저장된 내용이 있습니다.\n불러오시겠습니까?',
-      subtitle: '${draft.length > 50 ? '${draft.substring(0, 50)}...' : draft}',
-      confirmText: '불러오기',
-      cancelText: '삭제하기',
-      isDestructive: false,
-    );
-
-    if (!mounted) return;
-
-    if (shouldRestore == true) {
-      _reviewController.text = draft;
-      CustomSnackbar.show(
-        context,
-        message: '임시 저장된 내용을 불러왔습니다.',
-        type: SnackbarType.info,
-      );
-    } else {
-      _clearDraft();
-    }
-    setState(() {
-      _hasDraft = false;
-    });
   }
 
   Future<void> _saveDraft() async {
@@ -119,9 +100,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
   }
 
   void _onFocusChanged() {
-    setState(() {
-      _isKeyboardVisible = _focusNode.hasFocus;
-    });
+    setState(() {});
   }
 
   void _onTextChanged() {
@@ -412,6 +391,8 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final isKeyboardVisible = keyboardHeight > 0;
 
     return PopScope(
       canPop: !_hasChanges,
@@ -488,7 +469,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
                   left: 20,
                   right: 20,
                   top: 20,
-                  bottom: _isKeyboardVisible ? 70 : 20,
+                  bottom: isKeyboardVisible ? 70 : 20,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -504,11 +485,11 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
                 ),
               ),
             ),
-            if (_isKeyboardVisible)
+            if (isKeyboardVisible)
               Positioned(
                 left: 0,
                 right: 0,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 10,
+                bottom: keyboardHeight,
                 child: KeyboardAccessoryBar(
                   isDark: isDark,
                   onDone: _dismissKeyboard,
