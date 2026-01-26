@@ -32,11 +32,14 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
   bool _hasChanges = false;
   bool _isGeneratingAI = false;
   bool _hasDraft = false;
+  bool _isShowingExitSheet = false;
 
   final List<String> _undoStack = [];
   final List<String> _redoStack = [];
   String _lastSavedText = '';
   bool _isUndoRedoAction = false;
+
+  static const double _edgeSwipeWidth = 20.0;
 
   String get _draftKey => 'book_review_draft_${widget.book.id}';
 
@@ -423,6 +426,23 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
     return shouldDiscard ?? false;
   }
 
+  Future<void> _handleSwipeBack() async {
+    if (_isShowingExitSheet) return;
+
+    if (!_hasChanges) {
+      Navigator.pop(context);
+      return;
+    }
+
+    _isShowingExitSheet = true;
+    final shouldPop = await _onWillPop();
+    _isShowingExitSheet = false;
+
+    if (shouldPop && mounted) {
+      Navigator.pop(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -438,108 +458,129 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
           Navigator.pop(context);
         }
       },
-      child: Scaffold(
-        backgroundColor:
-            isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
-        resizeToAvoidBottomInset: true,
-        appBar: AppBar(
-          backgroundColor:
-              isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
-          elevation: 0,
-          leading: IconButton(
-            icon: Icon(
-              CupertinoIcons.chevron_left,
-              color: isDark ? Colors.white : Colors.black,
+      child: Stack(
+        children: [
+          Scaffold(
+            backgroundColor:
+                isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+            resizeToAvoidBottomInset: true,
+            appBar: AppBar(
+              backgroundColor:
+                  isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+              elevation: 0,
+              leading: IconButton(
+                icon: Icon(
+                  CupertinoIcons.chevron_left,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+                onPressed: () async {
+                  if (_hasChanges) {
+                    final shouldPop = await _onWillPop();
+                    if (shouldPop && mounted) {
+                      Navigator.pop(context);
+                    }
+                  } else {
+                    Navigator.pop(context);
+                  }
+                },
+              ),
+              title: Text(
+                '독후감',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+              centerTitle: true,
+              actions: [
+                TextButton(
+                  onPressed: _hasChanges && !_isSaving ? _saveReview : null,
+                  child: _isSaving
+                      ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.primary,
+                          ),
+                        )
+                      : Text(
+                          '저장',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: _hasChanges
+                                ? AppColors.primary
+                                : (isDark
+                                    ? Colors.grey[600]
+                                    : Colors.grey[400]),
+                          ),
+                        ),
+                ),
+              ],
             ),
-            onPressed: () async {
-              if (_hasChanges) {
-                final shouldPop = await _onWillPop();
-                if (shouldPop && mounted) {
-                  Navigator.pop(context);
+            body: Stack(
+              children: [
+                SafeArea(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      left: 20,
+                      right: 20,
+                      top: 20,
+                      bottom: isKeyboardVisible ? 70 : 20,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildBookInfo(isDark),
+                        const SizedBox(height: 16),
+                        _buildAIButton(isDark),
+                        const SizedBox(height: 16),
+                        Expanded(
+                          child: _buildReviewTextField(isDark),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (isKeyboardVisible)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: KeyboardAccessoryBar(
+                      isDark: isDark,
+                      onDone: _dismissKeyboard,
+                      onUndo: _undo,
+                      onRedo: _redo,
+                      onCopy: _copyAll,
+                      onClearAll: _clearAll,
+                      canUndo: _undoStack.isNotEmpty,
+                      canRedo: _redoStack.isNotEmpty,
+                      canCopy: _reviewController.text.isNotEmpty,
+                      canClearAll: _reviewController.text.isNotEmpty,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: _edgeSwipeWidth,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onHorizontalDragEnd: (details) {
+                if (details.primaryVelocity != null &&
+                    details.primaryVelocity! > 300) {
+                  _handleSwipeBack();
                 }
-              } else {
-                Navigator.pop(context);
-              }
-            },
-          ),
-          title: Text(
-            '독후감',
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white : Colors.black,
+              },
             ),
           ),
-          centerTitle: true,
-          actions: [
-            TextButton(
-              onPressed: _hasChanges && !_isSaving ? _saveReview : null,
-              child: _isSaving
-                  ? SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: AppColors.primary,
-                      ),
-                    )
-                  : Text(
-                      '저장',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: _hasChanges
-                            ? AppColors.primary
-                            : (isDark ? Colors.grey[600] : Colors.grey[400]),
-                      ),
-                    ),
-            ),
-          ],
-        ),
-        body: Stack(
-          children: [
-            SafeArea(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                  top: 20,
-                  bottom: isKeyboardVisible ? 70 : 20,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildBookInfo(isDark),
-                    const SizedBox(height: 16),
-                    _buildAIButton(isDark),
-                    const SizedBox(height: 16),
-                    Expanded(
-                      child: _buildReviewTextField(isDark),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            if (isKeyboardVisible)
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: KeyboardAccessoryBar(
-                  isDark: isDark,
-                  onDone: _dismissKeyboard,
-                  onUndo: _undo,
-                  onRedo: _redo,
-                  onCopy: _copyAll,
-                  onClearAll: _clearAll,
-                  canUndo: _undoStack.isNotEmpty,
-                  canRedo: _redoStack.isNotEmpty,
-                  canCopy: _reviewController.text.isNotEmpty,
-                  canClearAll: _reviewController.text.isNotEmpty,
-                ),
-              ),
-          ],
-        ),
+        ],
       ),
     );
   }
