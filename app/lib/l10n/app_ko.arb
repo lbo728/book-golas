@@ -553,17 +553,62 @@
    "loginErrorPasswordTooShort": "비밀번호는 6자 이상이어야 합니다.",
    "@loginErrorPasswordTooShort": {"description": "Password too short error"},
   
-  "reviewTitle": "독후감",
-  "@reviewTitle": {"description": "Review title"},
-  
-  "reviewSave": "저장",
-  "@reviewSave": {"description": "Save review"},
-  
-  "reviewReplace": "대체하기",
-  "@reviewReplace": {"description": "Replace review"},
-  
-  "reviewExit": "나가기",
-  "@reviewExit": {"description": "Exit review"},
+   "reviewTitle": "독후감",
+   "@reviewTitle": {"description": "Review title"},
+   
+   "reviewSave": "저장",
+   "@reviewSave": {"description": "Save review"},
+   
+   "reviewReplace": "대체하기",
+   "@reviewReplace": {"description": "Replace review"},
+   
+   "reviewExit": "나가기",
+   "@reviewExit": {"description": "Exit review"},
+   
+   "reviewDraftLoaded": "임시 저장된 내용을 불러왔습니다.",
+   "@reviewDraftLoaded": {"description": "Draft loaded message"},
+   
+   "reviewCopied": "독후감이 복사되었습니다.",
+   "@reviewCopied": {"description": "Review copied message"},
+   
+   "reviewBookNotFound": "책 정보를 찾을 수 없습니다.",
+   "@reviewBookNotFound": {"description": "Book not found error"},
+   
+   "reviewSaveFailed": "저장에 실패했습니다. 다시 시도해주세요.",
+   "@reviewSaveFailed": {"description": "Save failed error"},
+   
+   "reviewSaveError": "저장 중 오류가 발생했습니다.",
+   "@reviewSaveError": {"description": "Save error"},
+   
+   "reviewReplaceConfirm": "현재 작성 중인 내용이 있습니다.\nAI 초안으로 대체하시겠습니까?",
+   "@reviewReplaceConfirm": {"description": "Replace confirmation message"},
+   
+   "reviewReplaceButton": "대체하기",
+   "@reviewReplaceButton": {"description": "Replace button"},
+   
+   "reviewAIDraftGenerated": "AI 초안이 생성되었습니다. 자유롭게 수정해주세요!",
+   "@reviewAIDraftGenerated": {"description": "AI draft generated message"},
+   
+   "reviewAIDraftFailed": "AI 초안 생성에 실패했습니다. 다시 시도해주세요.",
+   "@reviewAIDraftFailed": {"description": "AI draft failed error"},
+   
+   "reviewAIDraftError": "AI 초안 생성 중 오류가 발생했습니다.",
+   "@reviewAIDraftError": {"description": "AI draft error"},
+   
+   "reviewSaveComplete": "독후감이 저장되었습니다!",
+   "@reviewSaveComplete": {"description": "Save complete message"},
+   
+   "reviewSaveCompleteMessage": "저장한 독후감은 '독후감' 탭 또는\n'나의 서재 > 독후감'에서 확인할 수 있어요.",
+   "@reviewSaveCompleteMessage": {"description": "Save complete detail message"},
+   
+   "reviewExitConfirm": "작성 중단하고 나가시겠어요?",
+   "@reviewExitConfirm": {"description": "Exit confirmation message"},
+   
+   "reviewExitMessage": "작성 중이던 독후감은 임시 저장됩니다.",
+   "@reviewExitMessage": {"description": "Exit detail message"},
+   
+   "reviewHint": "이 책을 읽고 느낀 점, 인상 깊었던 부분, 나에게 준 영감 등을 자유롭게 적어보세요.",
+   "@reviewHint": {"description": "Review text field hint"},
   
   "readingStartSetDate": "시작일 지정",
   "@readingStartSetDate": {"description": "Set start date"},

@@ -586,6 +586,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reviewExit => 'Exit';
 
   @override
+  String get reviewDraftLoaded => 'Draft loaded successfully.';
+
+  @override
+  String get reviewCopied => 'Review copied.';
+
+  @override
+  String get reviewBookNotFound => 'Book information not found.';
+
+  @override
+  String get reviewSaveFailed => 'Failed to save. Please try again.';
+
+  @override
+  String get reviewSaveError => 'An error occurred while saving.';
+
+  @override
+  String get reviewReplaceConfirm =>
+      'You have unsaved content.\nDo you want to replace it with AI draft?';
+
+  @override
+  String get reviewReplaceButton => 'Replace';
+
+  @override
+  String get reviewAIDraftGenerated => 'AI draft generated. Feel free to edit!';
+
+  @override
+  String get reviewAIDraftFailed =>
+      'Failed to generate AI draft. Please try again.';
+
+  @override
+  String get reviewAIDraftError =>
+      'An error occurred while generating AI draft.';
+
+  @override
+  String get reviewSaveComplete => 'Review saved!';
+
+  @override
+  String get reviewSaveCompleteMessage =>
+      'Your saved review can be found in the \'Review\' tab or\n\'My Library > Review\'.';
+
+  @override
+  String get reviewExitConfirm => 'Stop writing and exit?';
+
+  @override
+  String get reviewExitMessage => 'Your draft will be saved automatically.';
+
+  @override
+  String get reviewHint =>
+      'Write freely about your thoughts, impressive parts, and inspiration from this book.';
+
+  @override
   String get readingStartSetDate => 'Set Start Date';
 
   @override
@@ -700,4 +750,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calendarCompleted => 'Completed';
+
+  @override
+  String get onboardingTitle1 => 'Record Your Own Reading Journey';
+
+  @override
+  String get onboardingDescription1 =>
+      'Register books you want to read,\nand manage your reading goals and progress at a glance.';
+
+  @override
+  String get onboardingTitle2 => 'Search Your Reading Records with AI';
+
+  @override
+  String get onboardingDescription2 =>
+      'Search for content you remember,\nand AI will find related notes and books for you.';
+
+  @override
+  String get onboardingTitle3 => 'Get Book Recommendations';
+
+  @override
+  String get onboardingDescription3 =>
+      'Based on the books you\'ve read so far,\nAI recommends books tailored to your taste.';
 }

@@ -1166,6 +1166,96 @@ abstract class AppLocalizations {
   /// **'나가기'**
   String get reviewExit;
 
+  /// Draft loaded message
+  ///
+  /// In ko, this message translates to:
+  /// **'임시 저장된 내용을 불러왔습니다.'**
+  String get reviewDraftLoaded;
+
+  /// Review copied message
+  ///
+  /// In ko, this message translates to:
+  /// **'독후감이 복사되었습니다.'**
+  String get reviewCopied;
+
+  /// Book not found error
+  ///
+  /// In ko, this message translates to:
+  /// **'책 정보를 찾을 수 없습니다.'**
+  String get reviewBookNotFound;
+
+  /// Save failed error
+  ///
+  /// In ko, this message translates to:
+  /// **'저장에 실패했습니다. 다시 시도해주세요.'**
+  String get reviewSaveFailed;
+
+  /// Save error
+  ///
+  /// In ko, this message translates to:
+  /// **'저장 중 오류가 발생했습니다.'**
+  String get reviewSaveError;
+
+  /// Replace confirmation message
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 작성 중인 내용이 있습니다.\nAI 초안으로 대체하시겠습니까?'**
+  String get reviewReplaceConfirm;
+
+  /// Replace button
+  ///
+  /// In ko, this message translates to:
+  /// **'대체하기'**
+  String get reviewReplaceButton;
+
+  /// AI draft generated message
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 초안이 생성되었습니다. 자유롭게 수정해주세요!'**
+  String get reviewAIDraftGenerated;
+
+  /// AI draft failed error
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 초안 생성에 실패했습니다. 다시 시도해주세요.'**
+  String get reviewAIDraftFailed;
+
+  /// AI draft error
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 초안 생성 중 오류가 발생했습니다.'**
+  String get reviewAIDraftError;
+
+  /// Save complete message
+  ///
+  /// In ko, this message translates to:
+  /// **'독후감이 저장되었습니다!'**
+  String get reviewSaveComplete;
+
+  /// Save complete detail message
+  ///
+  /// In ko, this message translates to:
+  /// **'저장한 독후감은 \'독후감\' 탭 또는\n\'나의 서재 > 독후감\'에서 확인할 수 있어요.'**
+  String get reviewSaveCompleteMessage;
+
+  /// Exit confirmation message
+  ///
+  /// In ko, this message translates to:
+  /// **'작성 중단하고 나가시겠어요?'**
+  String get reviewExitConfirm;
+
+  /// Exit detail message
+  ///
+  /// In ko, this message translates to:
+  /// **'작성 중이던 독후감은 임시 저장됩니다.'**
+  String get reviewExitMessage;
+
+  /// Review text field hint
+  ///
+  /// In ko, this message translates to:
+  /// **'이 책을 읽고 느낀 점, 인상 깊었던 부분, 나에게 준 영감 등을 자유롭게 적어보세요.'**
+  String get reviewHint;
+
   /// Set start date
   ///
   /// In ko, this message translates to:
@@ -1381,6 +1471,42 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'완독'**
   String get calendarCompleted;
+
+  /// Onboarding screen title 1
+  ///
+  /// In ko, this message translates to:
+  /// **'나만의 독서 여정을 기록하세요'**
+  String get onboardingTitle1;
+
+  /// Onboarding screen description 1
+  ///
+  /// In ko, this message translates to:
+  /// **'읽고 싶은 책을 등록하고,\n독서 목표와 진행 상황을 한눈에 관리하세요.'**
+  String get onboardingDescription1;
+
+  /// Onboarding screen title 2
+  ///
+  /// In ko, this message translates to:
+  /// **'AI로 독서 기록을 검색하세요'**
+  String get onboardingTitle2;
+
+  /// Onboarding screen description 2
+  ///
+  /// In ko, this message translates to:
+  /// **'기억나는 내용을 검색하면\nAI가 관련된 메모와 책을 찾아드립니다.'**
+  String get onboardingDescription2;
+
+  /// Onboarding screen title 3
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 읽을 책을 추천받으세요'**
+  String get onboardingTitle3;
+
+  /// Onboarding screen description 3
+  ///
+  /// In ko, this message translates to:
+  /// **'지금까지 읽은 책을 바탕으로\n당신의 취향에 맞는 책을 AI가 추천합니다.'**
+  String get onboardingDescription3;
 }
 
 class _AppLocalizationsDelegate

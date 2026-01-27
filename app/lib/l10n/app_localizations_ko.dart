@@ -556,6 +556,52 @@ class AppLocalizationsKo extends AppLocalizations {
   String get reviewExit => '나가기';
 
   @override
+  String get reviewDraftLoaded => '임시 저장된 내용을 불러왔습니다.';
+
+  @override
+  String get reviewCopied => '독후감이 복사되었습니다.';
+
+  @override
+  String get reviewBookNotFound => '책 정보를 찾을 수 없습니다.';
+
+  @override
+  String get reviewSaveFailed => '저장에 실패했습니다. 다시 시도해주세요.';
+
+  @override
+  String get reviewSaveError => '저장 중 오류가 발생했습니다.';
+
+  @override
+  String get reviewReplaceConfirm => '현재 작성 중인 내용이 있습니다.\nAI 초안으로 대체하시겠습니까?';
+
+  @override
+  String get reviewReplaceButton => '대체하기';
+
+  @override
+  String get reviewAIDraftGenerated => 'AI 초안이 생성되었습니다. 자유롭게 수정해주세요!';
+
+  @override
+  String get reviewAIDraftFailed => 'AI 초안 생성에 실패했습니다. 다시 시도해주세요.';
+
+  @override
+  String get reviewAIDraftError => 'AI 초안 생성 중 오류가 발생했습니다.';
+
+  @override
+  String get reviewSaveComplete => '독후감이 저장되었습니다!';
+
+  @override
+  String get reviewSaveCompleteMessage =>
+      '저장한 독후감은 \'독후감\' 탭 또는\n\'나의 서재 > 독후감\'에서 확인할 수 있어요.';
+
+  @override
+  String get reviewExitConfirm => '작성 중단하고 나가시겠어요?';
+
+  @override
+  String get reviewExitMessage => '작성 중이던 독후감은 임시 저장됩니다.';
+
+  @override
+  String get reviewHint => '이 책을 읽고 느낀 점, 인상 깊었던 부분, 나에게 준 영감 등을 자유롭게 적어보세요.';
+
+  @override
   String get readingStartSetDate => '시작일 지정';
 
   @override
@@ -664,4 +710,24 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get calendarCompleted => '완독';
+
+  @override
+  String get onboardingTitle1 => '나만의 독서 여정을 기록하세요';
+
+  @override
+  String get onboardingDescription1 =>
+      '읽고 싶은 책을 등록하고,\n독서 목표와 진행 상황을 한눈에 관리하세요.';
+
+  @override
+  String get onboardingTitle2 => 'AI로 독서 기록을 검색하세요';
+
+  @override
+  String get onboardingDescription2 => '기억나는 내용을 검색하면\nAI가 관련된 메모와 책을 찾아드립니다.';
+
+  @override
+  String get onboardingTitle3 => '다음 읽을 책을 추천받으세요';
+
+  @override
+  String get onboardingDescription3 =>
+      '지금까지 읽은 책을 바탕으로\n당신의 취향에 맞는 책을 AI가 추천합니다.';
 }
