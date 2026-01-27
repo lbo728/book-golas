@@ -1,6 +1,6 @@
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 
 import 'package:book_golas/ui/core/widgets/korean_date_picker.dart';
 import 'package:book_golas/ui/reading_start/widgets/priority_selector_widget.dart';

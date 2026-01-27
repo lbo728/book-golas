@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 
 import 'package:book_golas/data/services/highlight_settings_service.dart';
 import 'package:book_golas/domain/models/highlight_data.dart';

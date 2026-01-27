@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
