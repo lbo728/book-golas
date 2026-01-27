@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -51,16 +52,21 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
 
   int _selectedSectionIndex = 0;
   final _sectionKeys = List.generate(5, (_) => GlobalKey());
+  final ScrollController _analysisScrollController = ScrollController();
+  Timer? _scrollDebounce;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _analysisScrollController.addListener(_updateSelectedSectionOnScroll);
     _loadData();
   }
 
   @override
   void dispose() {
+    _scrollDebounce?.cancel();
+    _analysisScrollController.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -287,6 +293,34 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     }
   }
 
+  void _updateSelectedSectionOnScroll() {
+    if (_tabController.index != 1) return;
+
+    if (_scrollDebounce?.isActive ?? false) _scrollDebounce!.cancel();
+    _scrollDebounce = Timer(const Duration(milliseconds: 100), () {
+      for (int i = 0; i < _sectionKeys.length; i++) {
+        final context = _sectionKeys[i].currentContext;
+        if (context == null) continue;
+
+        final renderBox = context.findRenderObject() as RenderBox?;
+        if (renderBox == null) continue;
+
+        final position = renderBox.localToGlobal(Offset.zero);
+        final sectionTop = position.dy;
+        final sectionBottom = sectionTop + renderBox.size.height;
+
+        if (sectionTop <= 300 && sectionBottom > 300) {
+          if (_selectedSectionIndex != i) {
+            setState(() {
+              _selectedSectionIndex = i;
+            });
+          }
+          break;
+        }
+      }
+    });
+  }
+
   String _getFilterLabel(TimeFilter filter) {
     switch (filter) {
       case TimeFilter.daily:
@@ -434,6 +468,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     ];
 
     return CustomScrollView(
+      controller: _analysisScrollController,
       slivers: [
         SliverPersistentHeader(
           pinned: true,
