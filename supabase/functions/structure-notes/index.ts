@@ -33,6 +33,11 @@ serve(async (req: Request) => {
     }
 
     const authHeader = req.headers.get("Authorization");
+    console.log("🔑 Auth header present:", !!authHeader);
+    console.log("🔑 Auth header (first 30):", authHeader?.substring(0, 30));
+    console.log("🌐 SUPABASE_URL:", Deno.env.get("SUPABASE_URL"));
+    console.log("🔐 SUPABASE_ANON_KEY present:", !!Deno.env.get("SUPABASE_ANON_KEY"));
+    
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
@@ -44,8 +49,11 @@ serve(async (req: Request) => {
       error: userError,
     } = await supabaseClient.auth.getUser();
 
+    console.log("👤 User from getUser():", user?.id);
+    console.log("❌ User error:", userError?.message);
+
     if (userError || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      return new Response(JSON.stringify({ error: "Unauthorized", details: userError?.message }), {
         status: 401,
         headers: { "Content-Type": "application/json" },
       });
