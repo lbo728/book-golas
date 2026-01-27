@@ -80,7 +80,7 @@ class HighlightStatsCard extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         Text(
-          '하이라이트 통계',
+          '기록/하이라이트 통계',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,

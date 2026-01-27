@@ -221,9 +221,10 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     final today = DateTime.now();
     final todayNormalized = DateTime(today.year, today.month, today.day);
 
-    final sortedDates =
-        aggregatedData.map((e) => e['date'] as DateTime).toList()
-          ..sort((a, b) => b.compareTo(a));
+    final sortedDates = aggregatedData
+        .map((e) => e['date'] as DateTime)
+        .toList()
+      ..sort((a, b) => b.compareTo(a));
 
     DateTime expectedDate = todayNormalized;
 
@@ -295,13 +296,11 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? AppColors.scaffoldDark
-          : AppColors.scaffoldLight,
+      backgroundColor:
+          isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
       appBar: AppBar(
-        backgroundColor: isDark
-            ? AppColors.scaffoldDark
-            : AppColors.scaffoldLight,
+        backgroundColor:
+            isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
         elevation: 0,
         title: const Text('나의 독서 상태'),
         centerTitle: false,
@@ -408,125 +407,146 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
       _genreDistribution,
     );
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // NEW: AI Insight Card
-          Consumer<ReadingInsightsViewModel>(
-            builder: (context, viewModel, _) {
-              return AiInsightCard(
-                isLoading: viewModel.isLoading,
-                insights: viewModel.insights,
-                error: viewModel.error,
-                canGenerate: viewModel.canGenerate,
-                bookCount: viewModel.bookCount,
-                onGenerate: viewModel.generateInsight,
-                onRetry: viewModel.generateInsight,
-                onClearMemory: viewModel.clearMemory,
-              );
-            },
-          ),
-          const SizedBox(height: 16),
+    final sections = [
+      'AI 인사이트',
+      '완독률',
+      '기록/하이라이트',
+      '장르 분석',
+      '독서 통계',
+    ];
 
-          // NEW: Completion Rate Card
-          CompletionRateCard(
-            totalStarted: 10,
-            completed: 7,
-            abandoned: 2,
-            inProgress: 1,
-            completionRate: 70.0,
-            abandonRate: 20.0,
-            retrySuccessRate: 50.0,
+    return CustomScrollView(
+      slivers: [
+        SliverPersistentHeader(
+          pinned: true,
+          delegate: _SectionTabBarDelegate(
+            sections: sections,
+            isDark: isDark,
           ),
-          const SizedBox(height: 16),
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // AI Insight Card
+                Consumer<ReadingInsightsViewModel>(
+                  builder: (context, viewModel, _) {
+                    return AiInsightCard(
+                      isLoading: viewModel.isLoading,
+                      insights: viewModel.insights,
+                      error: viewModel.error,
+                      canGenerate: viewModel.canGenerate,
+                      bookCount: viewModel.bookCount,
+                      onGenerate: viewModel.generateInsight,
+                      onRetry: viewModel.generateInsight,
+                      onClearMemory: viewModel.clearMemory,
+                    );
+                  },
+                ),
+                const SizedBox(height: 16),
 
-          // NEW: Highlight Stats Card
-          HighlightStatsCard(
-            totalHighlights: 45,
-            totalNotes: 12,
-            totalPhotos: 3,
-            genreDistribution: {'자기계발': 20, '소설': 15, '에세이': 10},
-            topKeywords: ['성장', '습관', '목표', '동기부여', '실천'],
-          ),
-          const SizedBox(height: 16),
+                // Completion Rate Card
+                CompletionRateCard(
+                  totalStarted: 10,
+                  completed: 7,
+                  abandoned: 2,
+                  inProgress: 1,
+                  completionRate: 70.0,
+                  abandonRate: 20.0,
+                  retrySuccessRate: 50.0,
+                ),
+                const SizedBox(height: 16),
 
-          // EXISTING: Genre Analysis Card
-          GenreAnalysisCard(
-            genreDistribution: _genreDistribution,
-            topGenreMessage: genreMessage,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            '독서 통계',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: isDark ? Colors.white : Colors.black,
+                // Highlight Stats Card
+                HighlightStatsCard(
+                  totalHighlights: 45,
+                  totalNotes: 12,
+                  totalPhotos: 3,
+                  genreDistribution: {'자기계발': 20, '소설': 15, '에세이': 10},
+                  topKeywords: ['성장', '습관', '목표', '동기부여', '실천'],
+                ),
+                const SizedBox(height: 16),
+
+                // Genre Analysis Card
+                GenreAnalysisCard(
+                  genreDistribution: _genreDistribution,
+                  topGenreMessage: genreMessage,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  '독서 통계',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 1.3,
+                  children: [
+                    _buildStatCard(
+                      '총 읽은 페이지',
+                      '${stats['total_pages']}p',
+                      Icons.menu_book_rounded,
+                      AppColors.primary,
+                      isDark,
+                    ),
+                    _buildStatCard(
+                      '일평균',
+                      '${(stats['average_daily'] as double).toStringAsFixed(1)}p',
+                      Icons.calendar_today_rounded,
+                      AppColors.success,
+                      isDark,
+                    ),
+                    _buildStatCard(
+                      '최고 기록',
+                      '${stats['max_daily']}p',
+                      Icons.trending_up_rounded,
+                      AppColors.warningAlt,
+                      isDark,
+                    ),
+                    _buildStatCard(
+                      '연속 독서',
+                      '$streak일',
+                      Icons.local_fire_department_rounded,
+                      AppColors.destructive,
+                      isDark,
+                    ),
+                    _buildStatCard(
+                      '최저 기록',
+                      '${stats['min_daily']}p',
+                      Icons.trending_down_rounded,
+                      AppColors.info,
+                      isDark,
+                    ),
+                    FutureBuilder<double>(
+                      future: _calculateGoalRate(),
+                      builder: (context, snapshot) {
+                        final goalRate = snapshot.data ?? 0.0;
+                        return _buildStatCard(
+                          '오늘 목표',
+                          '${(goalRate * 100).toStringAsFixed(0)}%',
+                          Icons.flag_rounded,
+                          AppColors.info,
+                          isDark,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 12),
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: 1.3,
-            children: [
-              _buildStatCard(
-                '총 읽은 페이지',
-                '${stats['total_pages']}p',
-                Icons.menu_book_rounded,
-                AppColors.primary,
-                isDark,
-              ),
-              _buildStatCard(
-                '일평균',
-                '${(stats['average_daily'] as double).toStringAsFixed(1)}p',
-                Icons.calendar_today_rounded,
-                AppColors.success,
-                isDark,
-              ),
-              _buildStatCard(
-                '최고 기록',
-                '${stats['max_daily']}p',
-                Icons.trending_up_rounded,
-                AppColors.warningAlt,
-                isDark,
-              ),
-              _buildStatCard(
-                '연속 독서',
-                '$streak일',
-                Icons.local_fire_department_rounded,
-                AppColors.destructive,
-                isDark,
-              ),
-              _buildStatCard(
-                '최저 기록',
-                '${stats['min_daily']}p',
-                Icons.trending_down_rounded,
-                AppColors.info,
-                isDark,
-              ),
-              FutureBuilder<double>(
-                future: _calculateGoalRate(),
-                builder: (context, snapshot) {
-                  final goalRate = snapshot.data ?? 0.0;
-                  return _buildStatCard(
-                    '오늘 목표',
-                    '${(goalRate * 100).toStringAsFixed(0)}%',
-                    Icons.flag_rounded,
-                    AppColors.info,
-                    isDark,
-                  );
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -656,9 +676,8 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                             '페이지',
                             style: TextStyle(
                               fontSize: 12,
-                              color: isDark
-                                  ? Colors.grey[400]
-                                  : Colors.grey[600],
+                              color:
+                                  isDark ? Colors.grey[400] : Colors.grey[600],
                             ),
                           ),
                         ],
@@ -732,8 +751,8 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                             color: isSelected
                                 ? Colors.white
                                 : (isDark
-                                      ? Colors.grey[400]
-                                      : Colors.grey[600]),
+                                    ? Colors.grey[400]
+                                    : Colors.grey[600]),
                           ),
                         ),
                       ),
@@ -750,9 +769,8 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isDark
-                      ? AppColors.surfaceDark
-                      : AppColors.surfaceLight,
+                  color:
+                      isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -924,9 +942,9 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                       );
                     },
                     interval: (aggregated.length / 5).ceilToDouble().clamp(
-                      1,
-                      999,
-                    ),
+                          1,
+                          999,
+                        ),
                   ),
                 ),
               ),
@@ -1091,5 +1109,72 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         ],
       ),
     );
+  }
+}
+
+class _SectionTabBarDelegate extends SliverPersistentHeaderDelegate {
+  final List<String> sections;
+  final bool isDark;
+
+  _SectionTabBarDelegate({
+    required this.sections,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Container(
+      color: isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: sections.map((section) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: AppColors.primary.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    section,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  double get maxExtent => 56;
+
+  @override
+  double get minExtent => 56;
+
+  @override
+  bool shouldRebuild(_SectionTabBarDelegate oldDelegate) {
+    return oldDelegate.sections != sections || oldDelegate.isDark != isDark;
   }
 }

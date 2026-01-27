@@ -14,6 +14,7 @@ class AiInsightCard extends StatelessWidget {
   final VoidCallback onGenerate;
   final VoidCallback? onRetry;
   final VoidCallback? onClearMemory;
+  final bool enableTestMode;
 
   const AiInsightCard({
     super.key,
@@ -25,6 +26,7 @@ class AiInsightCard extends StatelessWidget {
     required this.onGenerate,
     this.onRetry,
     this.onClearMemory,
+    this.enableTestMode = false,
   });
 
   @override
@@ -54,6 +56,10 @@ class AiInsightCard extends StatelessWidget {
               _buildLoadingState(context, isDark)
             else if (error != null)
               _buildErrorState(context, isDark)
+            else if (enableTestMode &&
+                bookCount < 3 &&
+                (insights == null || insights!.isEmpty))
+              _buildTestModeState(context, isDark)
             else if (bookCount < 3)
               _buildDisabledState(context, isDark)
             else if (insights != null && insights!.isNotEmpty)
@@ -242,6 +248,104 @@ class AiInsightCard extends StatelessWidget {
     );
   }
 
+  Widget _buildTestModeState(BuildContext context, bool isDark) {
+    final sampleInsights = [
+      ReadingInsight(
+        id: 'sample-1',
+        category: 'pattern',
+        title: '꾸준한 독서 습관',
+        description: '최근 한 달간 주 2-3회 독서를 하고 계시네요. 이런 꾸준함이 쌓이면 큰 변화를 만들어냅니다.',
+        relatedBooks: [],
+        generatedAt: DateTime.now(),
+      ),
+      ReadingInsight(
+        id: 'sample-2',
+        category: 'milestone',
+        title: '첫 완독 달성',
+        description: '축하합니다! 첫 책을 완독하셨네요. 이제 시작입니다.',
+        relatedBooks: [],
+        generatedAt: DateTime.now(),
+      ),
+      ReadingInsight(
+        id: 'sample-3',
+        category: 'reflection',
+        title: '다양한 장르 탐색',
+        description: '여러 장르의 책을 읽으며 시야를 넓히고 계시네요.',
+        relatedBooks: [],
+        generatedAt: DateTime.now(),
+      ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            '(샘플)',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppColors.primary,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        ...sampleInsights.map((insight) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primary.withOpacity(0.1),
+                    AppColors.primary.withOpacity(0.05),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      _getCategoryIcon(insight.category, isDark),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          insight.title,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    insight.description,
+                    style: TextStyle(
+                      fontSize: 14,
+                      height: 1.5,
+                      color: isDark ? Colors.white70 : Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }).toList(),
+      ],
+    );
+  }
+
   Widget _buildSuccessState(BuildContext context, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -390,9 +494,8 @@ class AiInsightCard extends StatelessWidget {
   }
 
   Icon _getCategoryIcon(String category, bool isDark) {
-    final color = isDark
-        ? AppColors.primary.withOpacity(0.8)
-        : AppColors.primary;
+    final color =
+        isDark ? AppColors.primary.withOpacity(0.8) : AppColors.primary;
 
     switch (category) {
       case 'pattern':
