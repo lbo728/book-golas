@@ -3,14 +3,20 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/domain/models/recall_models.dart';
+import 'package:book_golas/domain/models/reading_record.dart';
 import 'package:book_golas/ui/my_library/view_model/my_library_view_model.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_tab_bar.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/book_list/widgets/book_list_card.dart';
+import 'package:book_golas/ui/my_library/widgets/record_list_item.dart';
+import 'package:book_golas/ui/recall/widgets/global_recall_search_sheet.dart';
+import 'package:book_golas/ui/recall/widgets/record_detail_sheet.dart';
 
 class MyLibraryScreen extends StatefulWidget {
   const MyLibraryScreen({super.key});
@@ -38,7 +44,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_onTabChanged);
     _readingSearchController.addListener(_onSearchTextChanged);
     _reviewSearchController.addListener(_onSearchTextChanged);
@@ -61,7 +67,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
   }
 
   void cycleToNextTab() {
-    final nextIndex = (_tabController.index + 1) % 2;
+    final nextIndex = (_tabController.index + 1) % 3;
     _tabController.animateTo(nextIndex);
   }
 
@@ -104,6 +110,50 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
     );
   }
 
+  void _navigateToBookDetailById(String bookId, {int? initialTabIndex}) async {
+    final vm = context.read<MyLibraryViewModel>();
+    final book = vm.books.firstWhere(
+      (b) => b.id == bookId,
+      orElse: () => vm.books.first,
+    );
+    _navigateToBookDetail(book, initialTabIndex: initialTabIndex);
+  }
+
+  void _openGlobalSearch() {
+    showGlobalRecallSearchSheet(
+      context: context,
+      onSourceTap: (source) {
+        if (source.bookId != null) {
+          _navigateToBookDetailById(source.bookId!, initialTabIndex: 0);
+        }
+      },
+    );
+  }
+
+  RecallSource _recordToSource(ReadingRecord record) {
+    return RecallSource(
+      type: record.contentType,
+      content: record.contentText,
+      pageNumber: record.pageNumber,
+      sourceId: record.sourceId,
+      createdAt: record.createdAt,
+      bookId: record.bookId,
+      bookTitle: record.bookTitle,
+    );
+  }
+
+  void _showRecordDetail(ReadingRecord record) {
+    final source = _recordToSource(record);
+    showRecordDetailSheet(
+      context: context,
+      source: source,
+      onGoToBook: () => _navigateToBookDetailById(
+        record.bookId,
+        initialTabIndex: 0,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -124,14 +174,21 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: Selector<MyLibraryViewModel, (int, int)>(
-            selector: (_, vm) =>
-                (vm.allBooks.length, vm.booksWithReview.length),
+          child: Selector<MyLibraryViewModel, (int, int, int)>(
+            selector: (_, vm) => (
+              vm.allBooks.length,
+              vm.booksWithReview.length,
+              vm.totalRecordCount
+            ),
             builder: (context, counts, _) {
-              final (allCount, reviewCount) = counts;
+              final (allCount, reviewCount, recordCount) = counts;
               return LiquidGlassTabBar(
                 controller: _tabController,
-                tabs: ['독서 ($allCount)', '독후감 ($reviewCount)'],
+                tabs: [
+                  '독서 ($allCount)',
+                  '독후감 ($reviewCount)',
+                  '기록 ($recordCount)',
+                ],
               );
             },
           ),
@@ -142,6 +199,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
         children: [
           _buildReadingTab(isDark),
           _buildReviewTab(isDark),
+          _buildRecordTab(isDark),
         ],
       ),
     );
@@ -379,6 +437,149 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildRecordTab(bool isDark) {
+    return Column(
+      children: [
+        _buildRecordHeader(isDark),
+        _buildRecordTypeFilter(isDark),
+        Expanded(
+          child: Consumer<MyLibraryViewModel>(
+            builder: (context, vm, _) {
+              if (vm.isLoadingRecords) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final groups = vm.groupedRecords;
+
+              if (groups.isEmpty) {
+                return _buildEmptyState(isDark, '기록이 없습니다');
+              }
+
+              return ListView.builder(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
+                itemCount: groups.length,
+                itemBuilder: (context, index) {
+                  final group = groups[index];
+                  return GroupedRecordSection(
+                    group: group,
+                    isExpanded: vm.isBookExpanded(group.bookId),
+                    onToggleExpand: () => vm.toggleBookExpanded(group.bookId),
+                    onBookTap: () => _navigateToBookDetailById(
+                      group.bookId,
+                      initialTabIndex: 1,
+                    ),
+                    onRecordTap: _showRecordDetail,
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRecordHeader(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: _openGlobalSearch,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.08)
+                      : Colors.black.withValues(alpha: 0.04),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.auto_awesome,
+                        color: AppColors.primary,
+                        size: 16,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      '모든 기록에서 AI 검색',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.6)
+                            : Colors.black.withValues(alpha: 0.5),
+                      ),
+                    ),
+                    const Spacer(),
+                    FaIcon(
+                      FontAwesomeIcons.circleArrowUp,
+                      size: 18,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.4)
+                          : Colors.black.withValues(alpha: 0.4),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecordTypeFilter(bool isDark) {
+    return Consumer<MyLibraryViewModel>(
+      builder: (context, vm, _) {
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          child: Row(
+            children: [
+              _buildFilterChip(
+                '전체',
+                vm.selectedRecordType == null,
+                isDark,
+                () => vm.setSelectedRecordType(null),
+              ),
+              const SizedBox(width: 8),
+              _buildFilterChip(
+                '✨ 하이라이트',
+                vm.selectedRecordType == 'highlight',
+                isDark,
+                () => vm.setSelectedRecordType('highlight'),
+              ),
+              const SizedBox(width: 8),
+              _buildFilterChip(
+                '📝 메모',
+                vm.selectedRecordType == 'note',
+                isDark,
+                () => vm.setSelectedRecordType('note'),
+              ),
+              const SizedBox(width: 8),
+              _buildFilterChip(
+                '📷 사진',
+                vm.selectedRecordType == 'photo_ocr',
+                isDark,
+                () => vm.setSelectedRecordType('photo_ocr'),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
