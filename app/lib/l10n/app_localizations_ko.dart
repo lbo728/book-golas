@@ -520,4 +520,15 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get loadingInit => '앱을 초기화하는 중...';
+
+  @override
+  String get calendarMonthSelect => '월 선택';
+
+  @override
+  String calendarPagesRead(int count) {
+    return '$count페이지 읽음';
+  }
+
+  @override
+  String get calendarCompleted => '완독';
 }

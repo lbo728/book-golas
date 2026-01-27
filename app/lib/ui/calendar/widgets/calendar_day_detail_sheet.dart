@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/domain/models/calendar_reading_data.dart';
 import 'package:book_golas/domain/models/book.dart';
@@ -125,7 +126,7 @@ class CalendarDayDetailSheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (bookInfo.isCompletedOnThisDay) ...[
-                    _buildCompletedBadge(isDark),
+                    _buildCompletedBadge(context, isDark),
                     const SizedBox(height: 4),
                   ],
                   Text(
@@ -151,7 +152,8 @@ class CalendarDayDetailSheet extends StatelessWidget {
                     ),
                   const SizedBox(height: 4),
                   Text(
-                    '${bookInfo.pagesReadOnThisDay}페이지 읽음',
+                    AppLocalizations.of(context)!
+                        .calendarPagesRead(bookInfo.pagesReadOnThisDay),
                     style: const TextStyle(
                       fontSize: 12,
                       color: AppColors.primary,
@@ -172,25 +174,25 @@ class CalendarDayDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildCompletedBadge(bool isDark) {
+  Widget _buildCompletedBadge(BuildContext context, bool isDark) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         color: AppColors.successAlt.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4),
       ),
-      child: const Row(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          const Icon(
             CupertinoIcons.checkmark,
             size: 12,
             color: AppColors.successAlt,
           ),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Text(
-            '완독',
-            style: TextStyle(
+            AppLocalizations.of(context)!.calendarCompleted,
+            style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
               color: AppColors.successAlt,

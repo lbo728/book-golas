@@ -521,5 +521,19 @@
   "@errorNoRecords": {"description": "No records error"},
   
   "loadingInit": "앱을 초기화하는 중...",
-  "@loadingInit": {"description": "Initializing app message"}
+  "@loadingInit": {"description": "Initializing app message"},
+  
+  "calendarMonthSelect": "월 선택",
+  "@calendarMonthSelect": {"description": "Month selection title"},
+  
+  "calendarPagesRead": "{count}페이지 읽음",
+  "@calendarPagesRead": {
+    "description": "Pages read on this day",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  
+  "calendarCompleted": "완독",
+  "@calendarCompleted": {"description": "Completed reading badge"}
 }

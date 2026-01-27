@@ -1111,6 +1111,24 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'앱을 초기화하는 중...'**
   String get loadingInit;
+
+  /// Month selection title
+  ///
+  /// In ko, this message translates to:
+  /// **'월 선택'**
+  String get calendarMonthSelect;
+
+  /// Pages read on this day
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}페이지 읽음'**
+  String calendarPagesRead(int count);
+
+  /// Completed reading badge
+  ///
+  /// In ko, this message translates to:
+  /// **'완독'**
+  String get calendarCompleted;
 }
 
 class _AppLocalizationsDelegate

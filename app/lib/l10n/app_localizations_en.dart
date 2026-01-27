@@ -540,4 +540,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loadingInit => 'Initializing app...';
+
+  @override
+  String get calendarMonthSelect => 'Select Month';
+
+  @override
+  String calendarPagesRead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pages read',
+      one: '1 page read',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get calendarCompleted => 'Completed';
 }

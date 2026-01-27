@@ -187,8 +187,12 @@
   "genreComic": "Comic",
   "genreUncategorized": "Uncategorized",
   
-  "errorInitFailed": "Initialization failed",
-  "errorLoadFailed": "Failed to load",
-  "errorNoRecords": "No records",
-  "loadingInit": "Initializing app..."
+   "errorInitFailed": "Initialization failed",
+   "errorLoadFailed": "Failed to load",
+   "errorNoRecords": "No records",
+   "loadingInit": "Initializing app...",
+   
+   "calendarMonthSelect": "Select Month",
+   "calendarPagesRead": "{count, plural, =1{1 page read} other{{count} pages read}}",
+   "calendarCompleted": "Completed"
 }
