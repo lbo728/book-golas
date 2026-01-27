@@ -1,0 +1,390 @@
+{
+  "@@locale": "ko",
+  
+  "appTitle": "북골라스",
+  "@appTitle": {"description": "App title"},
+  
+  "commonCancel": "취소",
+  "@commonCancel": {"description": "Cancel button"},
+  
+  "commonConfirm": "확인",
+  "@commonConfirm": {"description": "Confirm button"},
+  
+  "commonSave": "저장",
+  "@commonSave": {"description": "Save button"},
+  
+  "commonDelete": "삭제",
+  "@commonDelete": {"description": "Delete button"},
+  
+  "commonChange": "변경",
+  "@commonChange": {"description": "Change button"},
+  
+  "commonComplete": "완료",
+  "@commonComplete": {"description": "Complete button"},
+  
+  "commonClose": "닫기",
+  "@commonClose": {"description": "Close button"},
+  
+  "commonRetry": "다시 시도",
+  "@commonRetry": {"description": "Retry button"},
+  
+  "commonNext": "다음",
+  "@commonNext": {"description": "Next button"},
+  
+  "commonSkip": "건너뛰기",
+  "@commonSkip": {"description": "Skip button"},
+  
+  "commonStart": "시작하기",
+  "@commonStart": {"description": "Start button"},
+  
+  "navHome": "홈",
+  "@navHome": {"description": "Home navigation"},
+  
+  "navLibrary": "서재",
+  "@navLibrary": {"description": "Library navigation"},
+  
+  "navStats": "상태",
+  "@navStats": {"description": "Stats navigation"},
+  
+  "navCalendar": "캘린더",
+  "@navCalendar": {"description": "Calendar navigation"},
+  
+  "booksCount": "{count}권",
+  "@booksCount": {
+    "description": "Book count with unit",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  
+  "daysCount": "{count}일",
+  "@daysCount": {
+    "description": "Day count with unit",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  
+  "pagesCount": "{count}페이지",
+  "@pagesCount": {
+    "description": "Page count with unit",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  
+  "weekdayMon": "월",
+  "@weekdayMon": {"description": "Monday short"},
+  
+  "weekdayTue": "화",
+  "@weekdayTue": {"description": "Tuesday short"},
+  
+  "weekdayWed": "수",
+  "@weekdayWed": {"description": "Wednesday short"},
+  
+  "weekdayThu": "목",
+  "@weekdayThu": {"description": "Thursday short"},
+  
+  "weekdayFri": "금",
+  "@weekdayFri": {"description": "Friday short"},
+  
+  "weekdaySat": "토",
+  "@weekdaySat": {"description": "Saturday short"},
+  
+  "weekdaySun": "일",
+  "@weekdaySun": {"description": "Sunday short"},
+  
+  "timeAm": "오전",
+  "@timeAm": {"description": "AM"},
+  
+  "timePm": "오후",
+  "@timePm": {"description": "PM"},
+  
+  "unitYear": "년",
+  "@unitYear": {"description": "Year unit"},
+  
+  "unitMonth": "월",
+  "@unitMonth": {"description": "Month unit"},
+  
+  "unitDay": "일",
+  "@unitDay": {"description": "Day unit"},
+  
+  "unitHour": "시",
+  "@unitHour": {"description": "Hour unit"},
+  
+  "unitMinute": "분",
+  "@unitMinute": {"description": "Minute unit"},
+  
+  "statusReading": "독서 중",
+  "@statusReading": {"description": "Reading status"},
+  
+  "statusPlanned": "읽을 예정",
+  "@statusPlanned": {"description": "Planned to read status"},
+  
+  "statusCompleted": "완독",
+  "@statusCompleted": {"description": "Completed status"},
+  
+  "statusReread": "다시 읽을 책",
+  "@statusReread": {"description": "Reread status"},
+  
+  "priorityUrgent": "긴급",
+  "@priorityUrgent": {"description": "Urgent priority"},
+  
+  "priorityHigh": "높음",
+  "@priorityHigh": {"description": "High priority"},
+  
+  "priorityMedium": "보통",
+  "@priorityMedium": {"description": "Medium priority"},
+  
+  "priorityLow": "낮음",
+  "@priorityLow": {"description": "Low priority"},
+  
+  "contentTypeHighlight": "하이라이트",
+  "@contentTypeHighlight": {"description": "Highlight type"},
+  
+  "contentTypeMemo": "메모",
+  "@contentTypeMemo": {"description": "Memo type"},
+  
+  "contentTypePhoto": "사진",
+  "@contentTypePhoto": {"description": "Photo type"},
+  
+  "languageSettingLabel": "언어",
+  "@languageSettingLabel": {"description": "Language setting label"},
+  
+  "homeBookList": "독서 목록",
+  "@homeBookList": {"description": "Book list title on home screen"},
+  
+  "bookListTabReading": "독서 중",
+  "@bookListTabReading": {"description": "Reading tab"},
+  
+  "bookListTabPlanned": "읽을 예정",
+  "@bookListTabPlanned": {"description": "Planned tab"},
+  
+  "bookListTabCompleted": "완독",
+  "@bookListTabCompleted": {"description": "Completed tab"},
+  
+  "bookListTabReread": "다시 읽을 책",
+  "@bookListTabReread": {"description": "Reread tab"},
+  
+  "bookListTabAll": "전체",
+  "@bookListTabAll": {"description": "All tab"},
+  
+  "bookListFilterAll": "전체",
+  "@bookListFilterAll": {"description": "All filter"},
+  
+  "bookDetailTabRecord": "기록",
+  "@bookDetailTabRecord": {"description": "Record tab"},
+  
+  "bookDetailTabHistory": "히스토리",
+  "@bookDetailTabHistory": {"description": "History tab"},
+  
+  "bookDetailTabReview": "독후감",
+  "@bookDetailTabReview": {"description": "Review tab"},
+  
+  "bookDetailTabDetail": "상세",
+  "@bookDetailTabDetail": {"description": "Detail tab"},
+  
+  "bookDetailStartDate": "시작일",
+  "@bookDetailStartDate": {"description": "Start date label"},
+  
+  "bookDetailTargetDate": "목표일",
+  "@bookDetailTargetDate": {"description": "Target date label"},
+  
+  "bookDetailReviewWritten": "작성됨",
+  "@bookDetailReviewWritten": {"description": "Review written status"},
+  
+  "bookDetailReviewNotWritten": "아직 작성되지 않음",
+  "@bookDetailReviewNotWritten": {"description": "Review not written status"},
+  
+  "bookDetailLegendAchieved": "달성",
+  "@bookDetailLegendAchieved": {"description": "Achieved legend"},
+  
+  "bookDetailLegendMissed": "미달성",
+  "@bookDetailLegendMissed": {"description": "Missed legend"},
+  
+  "bookDetailLegendScheduled": "예정",
+  "@bookDetailLegendScheduled": {"description": "Scheduled legend"},
+  
+  "bookDetailLater": "나중에",
+  "@bookDetailLater": {"description": "Later button"},
+  
+  "myLibraryTitle": "나의 서재",
+  "@myLibraryTitle": {"description": "My library title"},
+  
+  "chartTitle": "나의 독서 상태",
+  "@chartTitle": {"description": "Reading chart title"},
+  
+  "chartTabOverview": "개요",
+  "@chartTabOverview": {"description": "Overview tab"},
+  
+  "chartTabAnalysis": "분석",
+  "@chartTabAnalysis": {"description": "Analysis tab"},
+  
+  "chartTabActivity": "활동",
+  "@chartTabActivity": {"description": "Activity tab"},
+  
+  "chartPeriodDaily": "일별",
+  "@chartPeriodDaily": {"description": "Daily period"},
+  
+  "chartPeriodWeekly": "주별",
+  "@chartPeriodWeekly": {"description": "Weekly period"},
+  
+  "chartPeriodMonthly": "월별",
+  "@chartPeriodMonthly": {"description": "Monthly period"},
+  
+  "chartDailyAverage": "일평균",
+  "@chartDailyAverage": {"description": "Daily average"},
+  
+  "chartIncrease": "증감",
+  "@chartIncrease": {"description": "Increase/decrease"},
+  
+  "chartLess": "적음",
+  "@chartLess": {"description": "Less"},
+  
+  "chartMore": "많음",
+  "@chartMore": {"description": "More"},
+  
+  "myPageTitle": "마이페이지",
+  "@myPageTitle": {"description": "My page title"},
+  
+  "myPageSettings": "설정",
+  "@myPageSettings": {"description": "Settings"},
+  
+  "myPageChangeAvatar": "변경",
+  "@myPageChangeAvatar": {"description": "Change avatar"},
+  
+  "myPageLogout": "로그아웃",
+  "@myPageLogout": {"description": "Logout"},
+  
+  "loginAppName": "북골라스",
+  "@loginAppName": {"description": "App name on login screen"},
+  
+  "loginEmailLabel": "이메일",
+  "@loginEmailLabel": {"description": "Email label"},
+  
+  "loginPasswordLabel": "비밀번호",
+  "@loginPasswordLabel": {"description": "Password label"},
+  
+  "loginNicknameLabel": "닉네임",
+  "@loginNicknameLabel": {"description": "Nickname label"},
+  
+  "loginOrDivider": "또는",
+  "@loginOrDivider": {"description": "Or divider"},
+  
+  "loginButton": "로그인",
+  "@loginButton": {"description": "Login button"},
+  
+  "loginSignupButton": "회원가입",
+  "@loginSignupButton": {"description": "Signup button"},
+  
+  "reviewTitle": "독후감",
+  "@reviewTitle": {"description": "Review title"},
+  
+  "reviewSave": "저장",
+  "@reviewSave": {"description": "Save review"},
+  
+  "reviewReplace": "대체하기",
+  "@reviewReplace": {"description": "Replace review"},
+  
+  "reviewExit": "나가기",
+  "@reviewExit": {"description": "Exit review"},
+  
+  "readingStartSetDate": "시작일 지정",
+  "@readingStartSetDate": {"description": "Set start date"},
+  
+  "readingStartUndetermined": "미정",
+  "@readingStartUndetermined": {"description": "Undetermined"},
+  
+  "dialogOpacity": "투명도",
+  "@dialogOpacity": {"description": "Opacity"},
+  
+  "dialogThickness": "굵기",
+  "@dialogThickness": {"description": "Thickness"},
+  
+  "dialogTakePhoto": "카메라로 촬영",
+  "@dialogTakePhoto": {"description": "Take photo"},
+  
+  "dialogReplaceImage": "교체하기",
+  "@dialogReplaceImage": {"description": "Replace image"},
+  
+  "dialogViewFull": "전체보기",
+  "@dialogViewFull": {"description": "View full"},
+  
+  "dialogCopy": "복사하기",
+  "@dialogCopy": {"description": "Copy"},
+  
+  "dialogEdit": "수정하기",
+  "@dialogEdit": {"description": "Edit"},
+  
+  "dialogSaved": "저장되었습니다",
+  "@dialogSaved": {"description": "Saved message"},
+  
+  "dialogSaving": "저장 중...",
+  "@dialogSaving": {"description": "Saving message"},
+  
+  "dialogUpload": "업로드",
+  "@dialogUpload": {"description": "Upload"},
+  
+  "dialogSelect": "선택",
+  "@dialogSelect": {"description": "Select"},
+  
+  "dialogApply": "적용하기",
+  "@dialogApply": {"description": "Apply"},
+  
+  "dialogExtract": "추출하기",
+  "@dialogExtract": {"description": "Extract"},
+  
+  "dialogOkay": "괜찮아요",
+  "@dialogOkay": {"description": "Okay"},
+  
+  "dialogExtractIt": "추출할게요",
+  "@dialogExtractIt": {"description": "Extract it"},
+  
+  "dialogThinkAboutIt": "고민해볼게요",
+  "@dialogThinkAboutIt": {"description": "Think about it"},
+  
+  "genreNovel": "소설",
+  "@genreNovel": {"description": "Novel genre"},
+  
+  "genreLiterature": "문학",
+  "@genreLiterature": {"description": "Literature genre"},
+  
+  "genreSelfHelp": "자기계발",
+  "@genreSelfHelp": {"description": "Self-help genre"},
+  
+  "genreBusiness": "경제경영",
+  "@genreBusiness": {"description": "Business genre"},
+  
+  "genreHumanities": "인문학",
+  "@genreHumanities": {"description": "Humanities genre"},
+  
+  "genreScience": "과학",
+  "@genreScience": {"description": "Science genre"},
+  
+  "genreHistory": "역사",
+  "@genreHistory": {"description": "History genre"},
+  
+  "genreEssay": "에세이",
+  "@genreEssay": {"description": "Essay genre"},
+  
+  "genrePoetry": "시",
+  "@genrePoetry": {"description": "Poetry genre"},
+  
+  "genreComic": "만화",
+  "@genreComic": {"description": "Comic genre"},
+  
+  "genreUncategorized": "미분류",
+  "@genreUncategorized": {"description": "Uncategorized genre"},
+  
+  "errorInitFailed": "초기화 중 오류가 발생했습니다",
+  "@errorInitFailed": {"description": "Initialization failed error"},
+  
+  "errorLoadFailed": "불러오기 실패",
+  "@errorLoadFailed": {"description": "Load failed error"},
+  
+  "errorNoRecords": "기록이 없습니다",
+  "@errorNoRecords": {"description": "No records error"},
+  
+  "loadingInit": "앱을 초기화하는 중...",
+  "@loadingInit": {"description": "Initializing app message"}
+}
