@@ -1197,8 +1197,133 @@
   "@recommendationStartReadingSubtitle": {
     "description": "Start reading subtitle"
   },
-  "recommendationBookstoreSelect": "서점 선택",
-  "@recommendationBookstoreSelect": {
-    "description": "Bookstore selection in recommendation"
-  }
+   "recommendationBookstoreSelect": "서점 선택",
+   "@recommendationBookstoreSelect": {
+     "description": "Bookstore selection in recommendation"
+   },
+   "recallTextCopied": "텍스트가 복사되었습니다",
+   "@recallTextCopied": {
+     "description": "Text copied message"
+   },
+   "recallSearchAllRecords": "모든 기록 검색",
+   "@recallSearchAllRecords": {
+     "description": "Search all records title"
+   },
+   "recallSearchingAllBooks": "모든 책에서 검색하는 중...",
+   "@recallSearchingAllBooks": {
+     "description": "Searching all books message"
+   },
+   "recallRecentGlobalSearches": "최근 전역 검색",
+   "@recallRecentGlobalSearches": {
+     "description": "Recent global searches section"
+   },
+   "recallSearchAllReadingRecords": "모든 독서 기록에서 검색하세요",
+   "@recallSearchAllReadingRecords": {
+     "description": "Search all reading records message"
+   },
+   "recallAiFindsScatteredRecords": "여러 책에 흩어진 기록들을\nAI가 종합하여 찾아드립니다",
+   "@recallAiFindsScatteredRecords": {
+     "description": "AI finds scattered records message"
+   },
+   "recallAiAnswer": "AI 답변",
+   "@recallAiAnswer": {
+     "description": "AI answer label"
+   },
+   "recallReferencedRecords": "참고한 기록",
+   "@recallReferencedRecords": {
+     "description": "Referenced records section"
+   },
+   "recallMoreBooks": "{count}권 더 보기",
+   "@recallMoreBooks": {
+     "description": "Show more books count",
+     "placeholders": {
+       "count": {
+         "type": "int"
+       }
+     }
+   },
+   "recallRecordCount": "{count}개 기록",
+   "@recallRecordCount": {
+     "description": "Number of records",
+     "placeholders": {
+       "count": {
+         "type": "int"
+       }
+     }
+   },
+   "recallSearchMyRecords": "내 기록 검색",
+   "@recallSearchMyRecords": {
+     "description": "Search my records title"
+   },
+   "recallSearchingYourRecords": "당신의 기록을 검색하는 중...",
+   "@recallSearchingYourRecords": {
+     "description": "Searching your records message"
+   },
+   "recallRecentSearches": "최근 검색",
+   "@recallRecentSearches": {
+     "description": "Recent searches section"
+   },
+   "recallJustNow": "방금 전",
+   "@recallJustNow": {
+     "description": "Just now time label"
+   },
+   "recallMinutesAgo": "{count}분 전",
+   "@recallMinutesAgo": {
+     "description": "Time ago in minutes",
+     "placeholders": {
+       "count": {
+         "type": "int"
+       }
+     }
+   },
+   "recallHoursAgo": "{count}시간 전",
+   "@recallHoursAgo": {
+     "description": "Time ago in hours",
+     "placeholders": {
+       "count": {
+         "type": "int"
+       }
+     }
+   },
+   "recallDaysAgo": "{count}일 전",
+   "@recallDaysAgo": {
+     "description": "Time ago in days",
+     "placeholders": {
+       "count": {
+         "type": "int"
+       }
+     }
+   },
+   "recallSuggestedQuestions": "추천 질문",
+   "@recallSuggestedQuestions": {
+     "description": "Suggested questions section"
+   },
+   "recallSearchCurious": "궁금한 내용을 검색해보세요",
+   "@recallSearchCurious": {
+     "description": "Search for what you're curious about message"
+   },
+   "recallFindInRecords": "하이라이트, 메모, 사진 속에서 찾아드립니다",
+   "@recallFindInRecords": {
+     "description": "Find in records message"
+   },
+   "recallRelatedRecords": "관련 기록",
+   "@recallRelatedRecords": {
+     "description": "Related records section"
+   },
+   "recallPage": "페이지",
+   "@recallPage": {
+     "description": "Page label"
+   },
+   "recallContentCopied": "내용이 복사되었습니다",
+   "@recallContentCopied": {
+     "description": "Content copied message"
+   },
+   "recallViewInBook": "이 책에서 보기",
+   "@recallViewInBook": {
+     "description": "View in this book button"
+   },
+   "recallCopy": "복사",
+   "@recallCopy": {
+     "description": "Copy button"
+   }
 }

@@ -1192,4 +1192,89 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get readingGoalSheetUpdate => 'Update Goal';
+
+  @override
+  String get recallTextCopied => '텍스트가 복사되었습니다';
+
+  @override
+  String get recallSearchAllRecords => '모든 기록 검색';
+
+  @override
+  String get recallSearchingAllBooks => '모든 책에서 검색하는 중...';
+
+  @override
+  String get recallRecentGlobalSearches => '최근 전역 검색';
+
+  @override
+  String get recallSearchAllReadingRecords => '모든 독서 기록에서 검색하세요';
+
+  @override
+  String get recallAiFindsScatteredRecords => '여러 책에 흩어진 기록들을\nAI가 종합하여 찾아드립니다';
+
+  @override
+  String get recallAiAnswer => 'AI 답변';
+
+  @override
+  String get recallReferencedRecords => '참고한 기록';
+
+  @override
+  String recallMoreBooks(int count) {
+    return '$count권 더 보기';
+  }
+
+  @override
+  String recallRecordCount(int count) {
+    return '$count개 기록';
+  }
+
+  @override
+  String get recallSearchMyRecords => '내 기록 검색';
+
+  @override
+  String get recallSearchingYourRecords => '당신의 기록을 검색하는 중...';
+
+  @override
+  String get recallRecentSearches => '최근 검색';
+
+  @override
+  String get recallJustNow => '방금 전';
+
+  @override
+  String recallMinutesAgo(int count) {
+    return '$count분 전';
+  }
+
+  @override
+  String recallHoursAgo(int count) {
+    return '$count시간 전';
+  }
+
+  @override
+  String recallDaysAgo(int count) {
+    return '$count일 전';
+  }
+
+  @override
+  String get recallSuggestedQuestions => '추천 질문';
+
+  @override
+  String get recallSearchCurious => '궁금한 내용을 검색해보세요';
+
+  @override
+  String get recallFindInRecords => '하이라이트, 메모, 사진 속에서 찾아드립니다';
+
+  @override
+  String get recallRelatedRecords => '관련 기록';
+
+  @override
+  String get recallPage => '페이지';
+
+  @override
+  String get recallContentCopied => '내용이 복사되었습니다';
+
+  @override
+  String get recallViewInBook => '이 책에서 보기';
+
+  @override
+  String get recallCopy => '복사';
 }

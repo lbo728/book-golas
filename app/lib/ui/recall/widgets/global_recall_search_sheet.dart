@@ -10,6 +10,7 @@ import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 import 'package:book_golas/ui/recall/view_model/global_recall_view_model.dart';
 import 'package:book_golas/ui/recall/widgets/record_detail_sheet.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 
 Future<void> showGlobalRecallSearchSheet({
   required BuildContext context,
@@ -85,7 +86,7 @@ class _GlobalRecallSearchSheetContentState
     Clipboard.setData(ClipboardData(text: answer));
     CustomSnackbar.show(
       context,
-      message: '답변이 복사되었습니다',
+      message: AppLocalizations.of(context)!.recallTextCopied,
       type: SnackbarType.success,
       bottomOffset: 32,
     );
@@ -179,7 +180,8 @@ class _GlobalRecallSearchSheetContentState
                               ),
                               const SizedBox(width: 12),
                               Text(
-                                '모든 기록 검색',
+                                AppLocalizations.of(context)!
+                                    .recallSearchAllRecords,
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -213,7 +215,7 @@ class _GlobalRecallSearchSheetContentState
                           controller: _controller,
                           focusNode: _focusNode,
                           decoration: InputDecoration(
-                            hintText: '예: "습관에 대해 어떤 내용이 있었지?"',
+                            hintText: 'e.g. "What was mentioned about habits?"',
                             hintStyle: TextStyle(
                               color:
                                   isDark ? Colors.grey[500] : Colors.grey[400],
@@ -323,7 +325,7 @@ class _GlobalRecallSearchSheetContentState
             const CircularProgressIndicator(color: AppColors.primary),
             const SizedBox(height: 16),
             Text(
-              '모든 책에서 검색하는 중...',
+              AppLocalizations.of(context)!.recallSearchingAllBooks,
               style: TextStyle(
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
               ),
@@ -386,7 +388,7 @@ class _GlobalRecallSearchSheetContentState
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '최근 전역 검색',
+              AppLocalizations.of(context)!.recallRecentGlobalSearches,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -491,7 +493,7 @@ class _GlobalRecallSearchSheetContentState
           ),
           const SizedBox(height: 20),
           Text(
-            '모든 독서 기록에서 검색하세요',
+            AppLocalizations.of(context)!.recallSearchAllReadingRecords,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -500,7 +502,7 @@ class _GlobalRecallSearchSheetContentState
           ),
           const SizedBox(height: 8),
           Text(
-            '여러 책에 흩어진 기록들을\nAI가 종합하여 찾아드립니다',
+            AppLocalizations.of(context)!.recallAiFindsScatteredRecords,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -561,7 +563,7 @@ class _GlobalRecallSearchSheetContentState
               ),
               const SizedBox(width: 8),
               Text(
-                'AI 답변',
+                AppLocalizations.of(context)!.recallAiAnswer,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -600,7 +602,7 @@ class _GlobalRecallSearchSheetContentState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '참고한 기록 (${viewModel.totalBooksCount}권)',
+          '${AppLocalizations.of(context)!.recallReferencedRecords} (${viewModel.totalBooksCount})',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -629,7 +631,8 @@ class _GlobalRecallSearchSheetContentState
                 ),
                 child: Center(
                   child: Text(
-                    '${viewModel.hiddenBooksCount}권 더 보기',
+                    AppLocalizations.of(context)!
+                        .recallMoreBooks(viewModel.hiddenBooksCount),
                     style: TextStyle(
                       fontSize: 14,
                       color: AppColors.primary,
@@ -689,7 +692,8 @@ class _GlobalRecallSearchSheetContentState
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${sources.length}개 기록',
+                          AppLocalizations.of(context)!
+                              .recallRecordCount(sources.length),
                           style: TextStyle(
                             fontSize: 12,
                             color: isDark
@@ -739,7 +743,7 @@ class _GlobalRecallSearchSheetContentState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '참고한 기록 (${sources.length}개)',
+          '${AppLocalizations.of(context)!.recallReferencedRecords} (${sources.length})',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,

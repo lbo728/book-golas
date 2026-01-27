@@ -6,6 +6,7 @@ import 'package:book_golas/domain/models/recall_models.dart';
 import 'package:book_golas/data/services/recall_service.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 
 Future<void> showRecordDetailSheet({
   required BuildContext context,
@@ -71,7 +72,7 @@ class _RecordDetailSheetContentState extends State<_RecordDetailSheetContent> {
     Clipboard.setData(ClipboardData(text: widget.source.content));
     CustomSnackbar.show(
       context,
-      message: '내용이 복사되었습니다',
+      message: AppLocalizations.of(context)!.recallContentCopied,
       type: SnackbarType.success,
       bottomOffset: 32,
     );
@@ -286,7 +287,7 @@ class _RecordDetailSheetContentState extends State<_RecordDetailSheetContent> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '복사',
+                      AppLocalizations.of(context)!.recallCopy,
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -337,7 +338,7 @@ class _RecordDetailSheetContentState extends State<_RecordDetailSheetContent> {
           widget.onGoToBook?.call();
         },
         icon: const Icon(CupertinoIcons.book, size: 18),
-        label: const Text('이 책에서 보기'),
+        label: Text(AppLocalizations.of(context)!.recallViewInBook),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,

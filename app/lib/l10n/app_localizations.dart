@@ -2335,6 +2335,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Update Goal'**
   String get readingGoalSheetUpdate;
+
+  /// No description provided for @recallTextCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Text copied'**
+  String get recallTextCopied;
+
+  /// No description provided for @recallSearchAllRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Search All Records'**
+  String get recallSearchAllRecords;
+
+  /// No description provided for @recallSearchingAllBooks.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching all books...'**
+  String get recallSearchingAllBooks;
+
+  /// No description provided for @recallRecentGlobalSearches.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Global Searches'**
+  String get recallRecentGlobalSearches;
+
+  /// No description provided for @recallSearchAllReadingRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Search all your reading records'**
+  String get recallSearchAllReadingRecords;
+
+  /// No description provided for @recallAiFindsScatteredRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'AI finds scattered records across books\nand brings them together for you'**
+  String get recallAiFindsScatteredRecords;
+
+  /// No description provided for @recallAiAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Answer'**
+  String get recallAiAnswer;
+
+  /// No description provided for @recallReferencedRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Referenced Records'**
+  String get recallReferencedRecords;
+
+  /// Show more books count
+  ///
+  /// In en, this message translates to:
+  /// **'{count} more books'**
+  String recallMoreBooks(int count);
+
+  /// Number of records
+  ///
+  /// In en, this message translates to:
+  /// **'{count} records'**
+  String recallRecordCount(int count);
+
+  /// No description provided for @recallSearchMyRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Search My Records'**
+  String get recallSearchMyRecords;
+
+  /// No description provided for @recallSearchingYourRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching your records...'**
+  String get recallSearchingYourRecords;
+
+  /// No description provided for @recallRecentSearches.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Searches'**
+  String get recallRecentSearches;
+
+  /// No description provided for @recallJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get recallJustNow;
+
+  /// Time ago in minutes
+  ///
+  /// In en, this message translates to:
+  /// **'{count} minutes ago'**
+  String recallMinutesAgo(int count);
+
+  /// Time ago in hours
+  ///
+  /// In en, this message translates to:
+  /// **'{count} hours ago'**
+  String recallHoursAgo(int count);
+
+  /// Time ago in days
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days ago'**
+  String recallDaysAgo(int count);
+
+  /// No description provided for @recallSuggestedQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested Questions'**
+  String get recallSuggestedQuestions;
+
+  /// No description provided for @recallSearchCurious.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for what you\'re curious about'**
+  String get recallSearchCurious;
+
+  /// No description provided for @recallFindInRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Find in highlights, memos, and photos'**
+  String get recallFindInRecords;
+
+  /// No description provided for @recallRelatedRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Related Records'**
+  String get recallRelatedRecords;
+
+  /// No description provided for @recallPage.
+  ///
+  /// In en, this message translates to:
+  /// **'page'**
+  String get recallPage;
+
+  /// No description provided for @recallContentCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Content copied'**
+  String get recallContentCopied;
+
+  /// No description provided for @recallViewInBook.
+  ///
+  /// In en, this message translates to:
+  /// **'View in This Book'**
+  String get recallViewInBook;
+
+  /// No description provided for @recallCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get recallCopy;
 }
 
 class _AppLocalizationsDelegate

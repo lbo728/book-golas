@@ -531,7 +531,72 @@
   "readingGoalSheetMotivation3": "1 book every 10 days! You love reading. Explore diverse genres!",
   "readingGoalSheetMotivation4": "Almost 1 book per week! You're a true book lover. Keep the fire burning! 🔥",
   "readingGoalSheetMotivation5": "An ambitious goal! More than 1 book per week. You're a reading master! 📚✨",
-  "readingGoalSheetCancel": "Cancel",
-  "readingGoalSheetSet": "Set Goal",
-  "readingGoalSheetUpdate": "Update Goal"
+   "readingGoalSheetCancel": "Cancel",
+   "readingGoalSheetSet": "Set Goal",
+   "readingGoalSheetUpdate": "Update Goal",
+   "recallTextCopied": "Text copied",
+   "recallSearchAllRecords": "Search All Records",
+   "recallSearchingAllBooks": "Searching all books...",
+   "recallRecentGlobalSearches": "Recent Global Searches",
+   "recallSearchAllReadingRecords": "Search all your reading records",
+   "recallAiFindsScatteredRecords": "AI finds scattered records across books\nand brings them together for you",
+   "recallAiAnswer": "AI Answer",
+   "recallReferencedRecords": "Referenced Records",
+   "recallMoreBooks": "{count} more books",
+   "@recallMoreBooks": {
+     "description": "Show more books count",
+     "placeholders": {
+       "count": {
+         "type": "int"
+       }
+     }
+   },
+   "recallRecordCount": "{count} records",
+   "@recallRecordCount": {
+     "description": "Number of records",
+     "placeholders": {
+       "count": {
+         "type": "int"
+       }
+     }
+   },
+   "recallSearchMyRecords": "Search My Records",
+   "recallSearchingYourRecords": "Searching your records...",
+   "recallRecentSearches": "Recent Searches",
+   "recallJustNow": "Just now",
+   "recallMinutesAgo": "{count} minutes ago",
+   "@recallMinutesAgo": {
+     "description": "Time ago in minutes",
+     "placeholders": {
+       "count": {
+         "type": "int"
+       }
+     }
+   },
+   "recallHoursAgo": "{count} hours ago",
+   "@recallHoursAgo": {
+     "description": "Time ago in hours",
+     "placeholders": {
+       "count": {
+         "type": "int"
+       }
+     }
+   },
+   "recallDaysAgo": "{count} days ago",
+   "@recallDaysAgo": {
+     "description": "Time ago in days",
+     "placeholders": {
+       "count": {
+         "type": "int"
+       }
+     }
+   },
+   "recallSuggestedQuestions": "Suggested Questions",
+   "recallSearchCurious": "Search for what you're curious about",
+   "recallFindInRecords": "Find in highlights, memos, and photos",
+   "recallRelatedRecords": "Related Records",
+   "recallPage": "page",
+   "recallContentCopied": "Content copied",
+   "recallViewInBook": "View in This Book",
+   "recallCopy": "Copy"
 }

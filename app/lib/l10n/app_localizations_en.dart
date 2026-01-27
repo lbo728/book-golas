@@ -1238,4 +1238,90 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readingGoalSheetUpdate => 'Update Goal';
+
+  @override
+  String get recallTextCopied => 'Text copied';
+
+  @override
+  String get recallSearchAllRecords => 'Search All Records';
+
+  @override
+  String get recallSearchingAllBooks => 'Searching all books...';
+
+  @override
+  String get recallRecentGlobalSearches => 'Recent Global Searches';
+
+  @override
+  String get recallSearchAllReadingRecords => 'Search all your reading records';
+
+  @override
+  String get recallAiFindsScatteredRecords =>
+      'AI finds scattered records across books\nand brings them together for you';
+
+  @override
+  String get recallAiAnswer => 'AI Answer';
+
+  @override
+  String get recallReferencedRecords => 'Referenced Records';
+
+  @override
+  String recallMoreBooks(int count) {
+    return '$count more books';
+  }
+
+  @override
+  String recallRecordCount(int count) {
+    return '$count records';
+  }
+
+  @override
+  String get recallSearchMyRecords => 'Search My Records';
+
+  @override
+  String get recallSearchingYourRecords => 'Searching your records...';
+
+  @override
+  String get recallRecentSearches => 'Recent Searches';
+
+  @override
+  String get recallJustNow => 'Just now';
+
+  @override
+  String recallMinutesAgo(int count) {
+    return '$count minutes ago';
+  }
+
+  @override
+  String recallHoursAgo(int count) {
+    return '$count hours ago';
+  }
+
+  @override
+  String recallDaysAgo(int count) {
+    return '$count days ago';
+  }
+
+  @override
+  String get recallSuggestedQuestions => 'Suggested Questions';
+
+  @override
+  String get recallSearchCurious => 'Search for what you\'re curious about';
+
+  @override
+  String get recallFindInRecords => 'Find in highlights, memos, and photos';
+
+  @override
+  String get recallRelatedRecords => 'Related Records';
+
+  @override
+  String get recallPage => 'page';
+
+  @override
+  String get recallContentCopied => 'Content copied';
+
+  @override
+  String get recallViewInBook => 'View in This Book';
+
+  @override
+  String get recallCopy => 'Copy';
 }
