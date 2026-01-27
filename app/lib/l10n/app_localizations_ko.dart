@@ -785,4 +785,13 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get onboardingDescription3 =>
       '지금까지 읽은 책을 바탕으로\n당신의 취향에 맞는 책을 AI가 추천합니다.';
+
+  @override
+  String get readingProgressTitle => '진행률 히스토리';
+
+  @override
+  String get readingProgressLoadFailed => '진행률 불러오기 실패';
+
+  @override
+  String get readingProgressNoRecords => '진행률 기록이 없습니다.';
 }

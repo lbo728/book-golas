@@ -827,4 +827,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onboardingDescription3 =>
       'Based on the books you\'ve read so far,\nAI recommends books tailored to your taste.';
+
+  @override
+  String get readingProgressTitle => 'Reading Progress History';
+
+  @override
+  String get readingProgressLoadFailed => 'Failed to load progress';
+
+  @override
+  String get readingProgressNoRecords => 'No progress records';
 }

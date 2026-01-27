@@ -304,6 +304,10 @@
    "onboardingDescription1": "Register books you want to read,\nand manage your reading goals and progress at a glance.",
    "onboardingTitle2": "Search Your Reading Records with AI",
    "onboardingDescription2": "Search for content you remember,\nand AI will find related notes and books for you.",
-   "onboardingTitle3": "Get Book Recommendations",
-   "onboardingDescription3": "Based on the books you've read so far,\nAI recommends books tailored to your taste."
+    "onboardingTitle3": "Get Book Recommendations",
+    "onboardingDescription3": "Based on the books you've read so far,\nAI recommends books tailored to your taste.",
+    
+    "readingProgressTitle": "Reading Progress History",
+    "readingProgressLoadFailed": "Failed to load progress",
+    "readingProgressNoRecords": "No progress records"
 }

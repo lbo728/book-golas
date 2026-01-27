@@ -1609,6 +1609,24 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'지금까지 읽은 책을 바탕으로\n당신의 취향에 맞는 책을 AI가 추천합니다.'**
   String get onboardingDescription3;
+
+  /// Reading progress history title
+  ///
+  /// In ko, this message translates to:
+  /// **'진행률 히스토리'**
+  String get readingProgressTitle;
+
+  /// Failed to load progress
+  ///
+  /// In ko, this message translates to:
+  /// **'진행률 불러오기 실패'**
+  String get readingProgressLoadFailed;
+
+  /// No progress records
+  ///
+  /// In ko, this message translates to:
+  /// **'진행률 기록이 없습니다.'**
+  String get readingProgressNoRecords;
 }
 
 class _AppLocalizationsDelegate
