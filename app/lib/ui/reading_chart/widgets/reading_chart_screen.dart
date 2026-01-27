@@ -60,6 +60,12 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   double _abandonRate = 0.0;
   double _retrySuccessRate = 0.0;
 
+  int _totalHighlights = 0;
+  int _totalNotes = 0;
+  int _totalPhotos = 0;
+  Map<String, int> _highlightGenreDistribution = {};
+  List<String> _topKeywords = [];
+
   int _selectedSectionIndex = 0;
   final _sectionKeys = List.generate(5, (_) => GlobalKey());
   final ScrollController _analysisScrollController = ScrollController();
@@ -101,6 +107,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         _goalService.getYearlyProgress(year: currentYear),
         _progressService.getDailyReadingHeatmap(weeksToShow: 26),
         _calculateCompletionStats(),
+        _calculateHighlightStats(),
       ]);
 
       if (mounted) {
@@ -144,6 +151,66 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         .where((b) => b.status == 'completed' && b.attemptCount > 1)
         .length;
     _retrySuccessRate = willRetry > 0 ? (retriedBooks / willRetry * 100) : 0.0;
+  }
+
+  Future<void> _calculateHighlightStats() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return;
+
+    final response = await Supabase.instance.client
+        .from('book_images')
+        .select('id, extracted_text, highlights, book_id')
+        .eq('user_id', user.id);
+
+    final images = response as List<Map<String, dynamic>>;
+
+    _totalPhotos = images.length;
+
+    int highlightCount = 0;
+    int noteCount = 0;
+    final Map<String, int> genreCount = {};
+    final Map<String, int> wordFrequency = {};
+
+    for (final image in images) {
+      final highlights = image['highlights'] as List?;
+      if (highlights != null && highlights.isNotEmpty) {
+        highlightCount += highlights.length;
+      }
+
+      final extractedText = image['extracted_text'] as String?;
+      if (extractedText != null && extractedText.trim().isNotEmpty) {
+        noteCount++;
+
+        final words = extractedText
+            .split(RegExp(r'[\s,.\!?\(\)\[\]]+'))
+            .where((w) => w.length > 1)
+            .toList();
+        for (final word in words) {
+          wordFrequency[word] = (wordFrequency[word] ?? 0) + 1;
+        }
+      }
+    }
+
+    final books = await _bookService.fetchBooks();
+    final bookGenreMap = {for (var b in books) b.id: b.genre};
+
+    for (final image in images) {
+      final bookId = image['book_id'] as String?;
+      if (bookId != null) {
+        final genre = bookGenreMap[bookId];
+        if (genre != null && genre.isNotEmpty) {
+          genreCount[genre] = (genreCount[genre] ?? 0) + 1;
+        }
+      }
+    }
+
+    final sortedWords = wordFrequency.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    _totalHighlights = highlightCount;
+    _totalNotes = noteCount;
+    _highlightGenreDistribution = genreCount;
+    _topKeywords = sortedWords.take(5).map((e) => e.key).toList();
   }
 
   Future<List<Map<String, dynamic>>> fetchUserProgressHistory() async {
@@ -559,11 +626,11 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 Container(
                   key: _sectionKeys[2],
                   child: HighlightStatsCard(
-                    totalHighlights: 45,
-                    totalNotes: 12,
-                    totalPhotos: 3,
-                    genreDistribution: {'자기계발': 20, '소설': 15, '에세이': 10},
-                    topKeywords: ['성장', '습관', '목표', '동기부여', '실천'],
+                    totalHighlights: _totalHighlights,
+                    totalNotes: _totalNotes,
+                    totalPhotos: _totalPhotos,
+                    genreDistribution: _highlightGenreDistribution,
+                    topKeywords: _topKeywords,
                   ),
                 ),
                 const SizedBox(height: 16),
