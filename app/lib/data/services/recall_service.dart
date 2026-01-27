@@ -86,7 +86,7 @@ class RecallService {
   }
 
   Future<RecallSearchResult?> search({
-    required String bookId,
+    String? bookId,
     required String query,
   }) async {
     try {
@@ -94,7 +94,7 @@ class RecallService {
       final response = await _supabase.functions.invoke(
         'recall-search',
         body: {
-          'bookId': bookId,
+          if (bookId != null) 'bookId': bookId,
           'query': query,
         },
       );
