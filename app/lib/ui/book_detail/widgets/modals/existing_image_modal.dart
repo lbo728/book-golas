@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:book_golas/data/services/highlight_settings_service.dart';
 import 'package:book_golas/domain/models/highlight_data.dart';
@@ -585,8 +586,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(
-                  color:
-                      _pageNumberError ? Colors.red : AppColors.primary,
+                  color: _pageNumberError ? Colors.red : AppColors.primary,
                 ),
               ),
             ),
@@ -956,7 +956,8 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
             Icon(CupertinoIcons.arrow_2_squarepath,
                 size: 14, color: Colors.white),
             SizedBox(width: 4),
-            Text('교체하기', style: TextStyle(fontSize: 12, color: Colors.white)),
+            Text(AppLocalizations.of(context)!.dialogReplaceImage,
+                style: const TextStyle(fontSize: 12, color: Colors.white)),
           ],
         ),
       ),

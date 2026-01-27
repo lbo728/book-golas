@@ -1,5 +1,6 @@
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:book_golas/ui/core/widgets/korean_date_picker.dart';
 
@@ -188,7 +189,7 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
             style: TextButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            child: const Text('취소'),
+            child: Text(AppLocalizations.of(context)!.commonCancel),
           ),
         ),
         const SizedBox(width: 12),

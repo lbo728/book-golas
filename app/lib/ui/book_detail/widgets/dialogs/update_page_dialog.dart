@@ -1,5 +1,6 @@
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 /// 현재 페이지 업데이트 다이얼로그
 ///
@@ -145,7 +146,8 @@ class UpdatePageDialog {
                           style: TextButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
-                          child: const Text('취소'),
+                          child:
+                              Text(AppLocalizations.of(context)!.commonCancel),
                         ),
                       ),
                       const SizedBox(width: 12),

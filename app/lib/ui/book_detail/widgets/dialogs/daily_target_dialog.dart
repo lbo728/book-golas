@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
@@ -59,8 +60,8 @@ class DailyTargetDialog {
         }
         pagesToRead = pagesToRead.clamp(1, remainingPages);
 
-        final weekday = ['월', '화', '수', '목', '금', '토', '일']
-            [currentDate.weekday - 1];
+        final weekday =
+            ['월', '화', '수', '목', '금', '토', '일'][currentDate.weekday - 1];
 
         schedule.add({
           'date': currentDate,
@@ -151,8 +152,7 @@ class DailyTargetDialog {
                     builder: (context, scrollController) {
                       return Container(
                         decoration: BoxDecoration(
-                          color:
-                              isDark ? AppColors.surfaceDark : Colors.white,
+                          color: isDark ? AppColors.surfaceDark : Colors.white,
                           borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(24)),
                         ),
@@ -612,7 +612,7 @@ class DailyTargetDialog {
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              child: const Text('취소'),
+              child: Text(AppLocalizations.of(context)!.commonCancel),
             ),
           ),
           const SizedBox(width: 12),
@@ -635,10 +635,8 @@ class DailyTargetDialog {
 
                 // DB에 일일 목표 페이지 업데이트
                 try {
-                  await Supabase.instance.client
-                      .from('books')
-                      .update({'daily_target_pages': newDailyTarget}).eq(
-                          'id', bookId);
+                  await Supabase.instance.client.from('books').update(
+                      {'daily_target_pages': newDailyTarget}).eq('id', bookId);
 
                   if (!context.mounted) return;
                   Navigator.pop(context);

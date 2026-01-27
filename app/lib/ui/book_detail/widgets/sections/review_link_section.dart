@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 /// 독후감 링크 관리 섹션
@@ -50,7 +51,7 @@ class ReviewLinkSection extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '관련 링크',
+                  AppLocalizations.of(context)!.dialogViewFull,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -143,7 +144,9 @@ class ReviewLinkSection extends StatelessWidget {
         ),
       ),
       title: Text(
-        hasReviewLink ? '독후감 보기' : '독후감 링크 추가',
+        hasReviewLink
+            ? AppLocalizations.of(context)!.dialogViewFull
+            : AppLocalizations.of(context)!.dialogEdit,
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
@@ -151,7 +154,9 @@ class ReviewLinkSection extends StatelessWidget {
         ),
       ),
       subtitle: Text(
-        hasReviewLink ? '내가 작성한 독후감' : '블로그, 노션 등 독후감 링크를 추가하세요',
+        hasReviewLink
+            ? AppLocalizations.of(context)!.dialogViewFull
+            : AppLocalizations.of(context)!.dialogEdit,
         style: TextStyle(
           fontSize: 12,
           color: isDark ? Colors.grey[500] : Colors.grey[600],
@@ -221,7 +226,7 @@ class ReviewLinkSection extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '독후감 링크',
+                    AppLocalizations.of(context)!.dialogEdit,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
@@ -230,7 +235,7 @@ class ReviewLinkSection extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '블로그, 노션, 브런치 등 독후감 링크를 입력하세요',
+                    AppLocalizations.of(context)!.dialogEdit,
                     style: TextStyle(
                       fontSize: 14,
                       color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -251,7 +256,7 @@ class ReviewLinkSection extends StatelessWidget {
                       });
                     },
                     decoration: InputDecoration(
-                      labelText: '독후감 URL',
+                      labelText: AppLocalizations.of(context)!.dialogEdit,
                       hintText: 'https://blog.naver.com/...',
                       errorText: errorText,
                       prefixIcon: const Icon(Icons.link_rounded),
@@ -283,7 +288,8 @@ class ReviewLinkSection extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               foregroundColor: Colors.red,
                             ),
-                            child: const Text('삭제'),
+                            child: Text(
+                                AppLocalizations.of(context)!.commonDelete),
                           ),
                         )
                       else
@@ -293,7 +299,8 @@ class ReviewLinkSection extends StatelessWidget {
                             style: TextButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 16),
                             ),
-                            child: const Text('취소'),
+                            child: Text(
+                                AppLocalizations.of(context)!.commonCancel),
                           ),
                         ),
                       const SizedBox(width: 12),
@@ -317,7 +324,7 @@ class ReviewLinkSection extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            '저장',
+                            AppLocalizations.of(context)!.commonSave,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: errorText == null &&
