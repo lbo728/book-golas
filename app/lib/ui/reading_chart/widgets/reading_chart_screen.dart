@@ -600,7 +600,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                         onGenerate: viewModel.generateInsight,
                         onRetry: viewModel.generateInsight,
                         onClearMemory: viewModel.clearMemory,
-                        enableTestMode: true,
                       );
                     },
                   ),
