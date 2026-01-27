@@ -176,6 +176,41 @@ main (Production)
    └── dev → main PR 생성 (버전 태그: v1.x.x) → 머지 → App Store 배포
 ```
 
+### PR 생성 규칙 (CRITICAL - BLOCKING)
+
+**허용되는 PR 방향:**
+
+| From | To | 허용 |
+|------|-----|------|
+| `feature/BYU-XXX` | `daily/YYYY-MM-DD` | ✅ 허용 |
+| `daily/YYYY-MM-DD` | `dev` | ✅ 허용 |
+| `dev` | `main` | ✅ 허용 (릴리즈 시) |
+| `feature/BYU-XXX` | `dev` | ❌ **절대 금지** |
+| `feature/BYU-XXX` | `main` | ❌ **절대 금지** |
+| `daily/YYYY-MM-DD` | `main` | ❌ **절대 금지** |
+
+**daily 브랜치가 remote에 없을 때:**
+
+```bash
+# ❌ 잘못된 대응: dev에 직접 PR 생성
+gh pr create --base dev  # 절대 금지!
+
+# ✅ 올바른 대응: daily 브랜치 생성 후 push
+git checkout dev
+git pull origin dev
+git checkout -b daily/$(date +%Y-%m-%d)
+git push -u origin daily/$(date +%Y-%m-%d)
+# 그 후 feature → daily PR 생성
+```
+
+**PR 생성 전 필수 체크리스트:**
+
+1. [ ] `--base`가 `daily/YYYY-MM-DD` 형식인가? (feature PR의 경우)
+2. [ ] daily 브랜치가 remote에 존재하는가? 없으면 생성 먼저!
+3. [ ] `--base dev` 또는 `--base main`을 사용하고 있지 않은가?
+
+**위반 시 = BLOCKED. 작업 중단하고 올바른 절차로 재진행.**
+
 ### 브랜치 생성 예시
 
 ```bash
