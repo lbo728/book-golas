@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:collection';
 import 'package:book_golas/data/services/reading_progress_service.dart';
 import 'package:book_golas/data/services/reading_goal_service.dart';
+import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/ui/reading_chart/widgets/cards/genre_analysis_card.dart';
 import 'package:book_golas/ui/reading_chart/widgets/cards/monthly_books_chart.dart';
 import 'package:book_golas/ui/reading_chart/widgets/cards/annual_goal_card.dart';
@@ -11,6 +13,11 @@ import 'package:book_golas/ui/reading_chart/widgets/cards/reading_streak_heatmap
 import 'package:book_golas/ui/reading_chart/widgets/sheets/reading_goal_sheet.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_tab_bar.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/ai_insight_card.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/completion_rate_card.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/highlight_stats_card.dart';
+import 'package:book_golas/ui/reading_chart/view_model/reading_insights_view_model.dart';
+import 'package:provider/provider.dart';
 
 enum TimeFilter { daily, weekly, monthly }
 
@@ -34,6 +41,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   TimeFilter _selectedFilter = TimeFilter.daily;
   final ReadingProgressService _progressService = ReadingProgressService();
   final ReadingGoalService _goalService = ReadingGoalService();
+  final BookService _bookService = BookService();
 
   List<Map<String, dynamic>>? _cachedRawData;
   bool _isLoading = true;
@@ -44,6 +52,26 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   Map<String, dynamic> _goalProgress = {};
   Map<DateTime, int> _heatmapData = {};
 
+  int _totalStarted = 0;
+  int _completedBooks = 0;
+  int _abandonedBooks = 0;
+  int _inProgressBooks = 0;
+  double _completionRate = 0.0;
+  double _abandonRate = 0.0;
+  double _retrySuccessRate = 0.0;
+
+  int _totalHighlights = 0;
+  int _totalNotes = 0;
+  int _totalPhotos = 0;
+  Map<String, int> _highlightGenreDistribution = {};
+
+  int _selectedSectionIndex = 0;
+  bool _isScrollingByTap = false;
+  final _sectionKeys = List.generate(5, (_) => GlobalKey());
+  final _tabKeys = List.generate(5, (_) => GlobalKey());
+  final ScrollController _analysisScrollController = ScrollController();
+  final ScrollController _tabBarScrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -53,6 +81,8 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
 
   @override
   void dispose() {
+    _analysisScrollController.dispose();
+    _tabBarScrollController.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -76,6 +106,8 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         _progressService.getMonthlyBookCount(year: currentYear),
         _goalService.getYearlyProgress(year: currentYear),
         _progressService.getDailyReadingHeatmap(weeksToShow: 26),
+        _calculateCompletionStats(),
+        _calculateHighlightStats(),
       ]);
 
       if (mounted) {
@@ -98,6 +130,76 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     }
   }
 
+  Future<void> _calculateCompletionStats() async {
+    final books = await _bookService.fetchBooks();
+
+    final startedBooks = books.where((b) => b.status != 'planned').toList();
+    final completed = books.where((b) => b.status == 'completed').length;
+    final reading = books.where((b) => b.status == 'reading').length;
+    final willRetry = books.where((b) => b.status == 'will_retry').length;
+
+    final totalStarted = startedBooks.length;
+
+    _totalStarted = totalStarted;
+    _completedBooks = completed;
+    _abandonedBooks = willRetry;
+    _inProgressBooks = reading;
+    _completionRate = totalStarted > 0 ? (completed / totalStarted * 100) : 0.0;
+    _abandonRate = totalStarted > 0 ? (willRetry / totalStarted * 100) : 0.0;
+
+    final retriedBooks = books
+        .where((b) => b.status == 'completed' && b.attemptCount > 1)
+        .length;
+    _retrySuccessRate = willRetry > 0 ? (retriedBooks / willRetry * 100) : 0.0;
+  }
+
+  Future<void> _calculateHighlightStats() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return;
+
+    final response = await Supabase.instance.client
+        .from('book_images')
+        .select('id, extracted_text, highlights, book_id')
+        .eq('user_id', user.id);
+
+    final images = response as List<Map<String, dynamic>>;
+
+    _totalPhotos = images.length;
+
+    int highlightCount = 0;
+    int noteCount = 0;
+    final Map<String, int> genreCount = {};
+
+    for (final image in images) {
+      final highlights = image['highlights'] as List?;
+      if (highlights != null && highlights.isNotEmpty) {
+        highlightCount += highlights.length;
+      }
+
+      final extractedText = image['extracted_text'] as String?;
+      if (extractedText != null && extractedText.trim().isNotEmpty) {
+        noteCount++;
+      }
+    }
+
+    final books = await _bookService.fetchBooks();
+    final bookGenreMap = {for (var b in books) b.id: b.genre};
+
+    for (final image in images) {
+      final bookId = image['book_id'] as String?;
+      if (bookId != null) {
+        final genre = bookGenreMap[bookId];
+        if (genre != null && genre.isNotEmpty) {
+          genreCount[genre] = (genreCount[genre] ?? 0) + 1;
+        }
+      }
+    }
+
+    _totalHighlights = highlightCount;
+    _totalNotes = noteCount;
+    _highlightGenreDistribution = genreCount;
+  }
+
   Future<List<Map<String, dynamic>>> fetchUserProgressHistory() async {
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) return [];
@@ -109,16 +211,20 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         .order('created_at', ascending: true);
 
     return (response as List)
-        .map((e) => {
-              'page': e['page'] as int,
-              'book_id': e['book_id'] as String?,
-              'created_at': DateTime.parse(e['created_at'] as String),
-            })
+        .map(
+          (e) => {
+            'page': e['page'] as int,
+            'book_id': e['book_id'] as String?,
+            'created_at': DateTime.parse(e['created_at'] as String),
+          },
+        )
         .toList();
   }
 
   List<Map<String, dynamic>> aggregateByDate(
-      List<Map<String, dynamic>> data, TimeFilter filter) {
+    List<Map<String, dynamic>> data,
+    TimeFilter filter,
+  ) {
     if (data.isEmpty) return [];
 
     final SplayTreeMap<DateTime, Map<String, int>> dateData = SplayTreeMap();
@@ -134,8 +240,11 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         case TimeFilter.weekly:
           final weekday = createdAt.weekday;
           final diff = weekday - 1;
-          key = DateTime(createdAt.year, createdAt.month, createdAt.day)
-              .subtract(Duration(days: diff));
+          key = DateTime(
+            createdAt.year,
+            createdAt.month,
+            createdAt.day,
+          ).subtract(Duration(days: diff));
           break;
         case TimeFilter.monthly:
           key = DateTime(createdAt.year, createdAt.month, 1);
@@ -160,8 +269,10 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     final result = <Map<String, dynamic>>[];
 
     for (final entry in dateData.entries) {
-      final dailyTotal =
-          entry.value.values.fold<int>(0, (sum, page) => sum + page);
+      final dailyTotal = entry.value.values.fold<int>(
+        0,
+        (sum, page) => sum + page,
+      );
       cumulativePages += dailyTotal;
 
       result.add({
@@ -250,12 +361,124 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     );
 
     if (result != null && mounted) {
-      await _goalService.setYearlyGoal(
-        year: currentYear,
-        targetBooks: result,
-      );
+      await _goalService.setYearlyGoal(year: currentYear, targetBooks: result);
       _loadData();
     }
+  }
+
+  void _scrollToSection(int index) {
+    _isScrollingByTap = true;
+
+    setState(() {
+      _selectedSectionIndex = index;
+    });
+
+    _scrollTabBarToIndex(index);
+
+    final context = _sectionKeys[index].currentContext;
+    if (context != null) {
+      Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      ).then((_) {
+        _isScrollingByTap = false;
+      });
+    }
+  }
+
+  void _updateActiveSection() {
+    if (_tabController.index != 1) return;
+    if (_isScrollingByTap) return;
+
+    if (!_analysisScrollController.hasClients) return;
+
+    final scrollPosition = _analysisScrollController.position.pixels;
+    final maxScroll = _analysisScrollController.position.maxScrollExtent;
+
+    if (scrollPosition >= maxScroll - 50) {
+      if (_selectedSectionIndex != _sectionKeys.length - 1) {
+        setState(() {
+          _selectedSectionIndex = _sectionKeys.length - 1;
+        });
+      }
+      return;
+    }
+
+    int? closestIndex;
+    double closestDistance = double.infinity;
+    final screenCenter = 300.0;
+
+    for (int i = 0; i < _sectionKeys.length; i++) {
+      final context = _sectionKeys[i].currentContext;
+      if (context == null) continue;
+
+      final renderBox = context.findRenderObject() as RenderBox?;
+      if (renderBox == null) continue;
+
+      final position = renderBox.localToGlobal(Offset.zero);
+      final sectionTop = position.dy;
+      final sectionCenter = sectionTop + (renderBox.size.height / 2);
+      final distance = (sectionCenter - screenCenter).abs();
+
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestIndex = i;
+      }
+    }
+
+    if (closestIndex != null && _selectedSectionIndex != closestIndex) {
+      setState(() {
+        _selectedSectionIndex = closestIndex!;
+      });
+    }
+  }
+
+  bool _handleScrollNotification(ScrollNotification notification) {
+    if (_tabController.index != 1) return false;
+    if (_isScrollingByTap) return true;
+
+    if (notification is ScrollUpdateNotification) {
+      _updateActiveSection();
+    } else if (notification is ScrollEndNotification) {
+      _scrollTabBarToIndex(_selectedSectionIndex);
+    }
+
+    return false;
+  }
+
+  void _scrollTabBarToIndex(int index) {
+    if (!_tabBarScrollController.hasClients) return;
+
+    final tabContext = _tabKeys[index].currentContext;
+    if (tabContext == null) return;
+
+    final renderBox = tabContext.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    // Get tab's position relative to the scroll view
+    final tabPosition = renderBox.localToGlobal(Offset.zero);
+    final tabWidth = renderBox.size.width;
+
+    // Get viewport width
+    final viewportWidth = _tabBarScrollController.position.viewportDimension;
+
+    // Calculate target scroll position to center the tab
+    // tabPosition.dx is the tab's left edge position on screen
+    // We want to center it, so: currentScroll + tabLeftEdge - (viewportWidth / 2) + (tabWidth / 2)
+    final currentScroll = _tabBarScrollController.offset;
+    final targetScroll =
+        currentScroll + tabPosition.dx - (viewportWidth / 2) + (tabWidth / 2);
+
+    // Clamp to valid scroll range
+    final maxScroll = _tabBarScrollController.position.maxScrollExtent;
+    final clampedScroll = targetScroll.clamp(0.0, maxScroll);
+
+    _tabBarScrollController.animateTo(
+      clampedScroll,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   String _getFilterLabel(TimeFilter filter) {
@@ -303,9 +526,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
           tabs: const ['개요', '분석', '활동'],
         ),
       ),
-      body: SafeArea(
-        child: _buildContent(isDark),
-      ),
+      body: SafeArea(child: _buildContent(isDark)),
     );
   }
 
@@ -326,24 +547,14 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.error_outline,
-                size: 48,
-                color: Colors.red,
-              ),
+              const Icon(Icons.error_outline, size: 48, color: Colors.red),
               const SizedBox(height: 16),
               Text(
                 '데이터를 불러올 수 없습니다',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[700],
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.grey[700]),
               ),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _loadData,
-                child: const Text('다시 시도'),
-              ),
+              ElevatedButton(onPressed: _loadData, child: const Text('다시 시도')),
             ],
           ),
         ),
@@ -373,10 +584,8 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     int currentYear,
   ) {
     final monthlyDataForChart = _monthlyBookCount.map(
-      (month, count) => MapEntry(
-        '$currentYear-${month.toString().padLeft(2, '0')}',
-        count,
-      ),
+      (month, count) =>
+          MapEntry('$currentYear-${month.toString().padLeft(2, '0')}', count),
     );
 
     return SingleChildScrollView(
@@ -406,85 +615,175 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     Map<String, dynamic> stats,
     int streak,
   ) {
-    final genreMessage =
-        _progressService.getTopGenreMessage(_genreDistribution);
+    final genreMessage = _progressService.getTopGenreMessage(
+      _genreDistribution,
+    );
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GenreAnalysisCard(
-            genreDistribution: _genreDistribution,
-            topGenreMessage: genreMessage,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            '독서 통계',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: isDark ? Colors.white : Colors.black,
+    final sections = [
+      'AI 인사이트',
+      '완독률',
+      '기록/하이라이트',
+      '장르 분석',
+      '독서 통계',
+    ];
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: _handleScrollNotification,
+      child: CustomScrollView(
+        key: const PageStorageKey('analysis_scroll'),
+        controller: _analysisScrollController,
+        slivers: [
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _SectionTabBarDelegate(
+              sections: sections,
+              isDark: isDark,
+              selectedIndex: _selectedSectionIndex,
+              onTap: _scrollToSection,
+              scrollController: _tabBarScrollController,
+              tabKeys: _tabKeys,
             ),
           ),
-          const SizedBox(height: 12),
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: 1.3,
-            children: [
-              _buildStatCard(
-                '총 읽은 페이지',
-                '${stats['total_pages']}p',
-                Icons.menu_book_rounded,
-                AppColors.primary,
-                isDark,
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // AI Insight Card
+                  Container(
+                    key: _sectionKeys[0],
+                    child: Consumer<ReadingInsightsViewModel>(
+                      builder: (context, viewModel, _) {
+                        return AiInsightCard(
+                          isLoading: viewModel.isLoading,
+                          insights: viewModel.insights,
+                          error: viewModel.error,
+                          canGenerate: viewModel.canGenerate,
+                          bookCount: viewModel.bookCount,
+                          onGenerate: viewModel.generateInsight,
+                          onRetry: viewModel.generateInsight,
+                          onClearMemory: viewModel.clearMemory,
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Completion Rate Card
+                  Container(
+                    key: _sectionKeys[1],
+                    child: CompletionRateCard(
+                      totalStarted: _totalStarted,
+                      completed: _completedBooks,
+                      abandoned: _abandonedBooks,
+                      inProgress: _inProgressBooks,
+                      completionRate: _completionRate,
+                      abandonRate: _abandonRate,
+                      retrySuccessRate: _retrySuccessRate,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Highlight Stats Card
+                  Container(
+                    key: _sectionKeys[2],
+                    child: HighlightStatsCard(
+                      totalHighlights: _totalHighlights,
+                      totalNotes: _totalNotes,
+                      totalPhotos: _totalPhotos,
+                      genreDistribution: _highlightGenreDistribution,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Genre Analysis Card
+                  Container(
+                    key: _sectionKeys[3],
+                    child: GenreAnalysisCard(
+                      genreDistribution: _genreDistribution,
+                      topGenreMessage: genreMessage,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    key: _sectionKeys[4],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '독서 통계',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        GridView.count(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 1.3,
+                          children: [
+                            _buildStatCard(
+                              '총 읽은 페이지',
+                              '${stats['total_pages']}p',
+                              Icons.menu_book_rounded,
+                              AppColors.primary,
+                              isDark,
+                            ),
+                            _buildStatCard(
+                              '일평균',
+                              '${(stats['average_daily'] as double).toStringAsFixed(1)}p',
+                              Icons.calendar_today_rounded,
+                              AppColors.success,
+                              isDark,
+                            ),
+                            _buildStatCard(
+                              '최고 기록',
+                              '${stats['max_daily']}p',
+                              Icons.trending_up_rounded,
+                              AppColors.warningAlt,
+                              isDark,
+                            ),
+                            _buildStatCard(
+                              '연속 독서',
+                              '$streak일',
+                              Icons.local_fire_department_rounded,
+                              AppColors.destructive,
+                              isDark,
+                            ),
+                            _buildStatCard(
+                              '최저 기록',
+                              '${stats['min_daily']}p',
+                              Icons.trending_down_rounded,
+                              AppColors.info,
+                              isDark,
+                            ),
+                            FutureBuilder<double>(
+                              future: _calculateGoalRate(),
+                              builder: (context, snapshot) {
+                                final goalRate = snapshot.data ?? 0.0;
+                                return _buildStatCard(
+                                  '오늘 목표',
+                                  '${(goalRate * 100).toStringAsFixed(0)}%',
+                                  Icons.flag_rounded,
+                                  AppColors.info,
+                                  isDark,
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              _buildStatCard(
-                '일평균',
-                '${(stats['average_daily'] as double).toStringAsFixed(1)}p',
-                Icons.calendar_today_rounded,
-                AppColors.success,
-                isDark,
-              ),
-              _buildStatCard(
-                '최고 기록',
-                '${stats['max_daily']}p',
-                Icons.trending_up_rounded,
-                AppColors.warningAlt,
-                isDark,
-              ),
-              _buildStatCard(
-                '연속 독서',
-                '$streak일',
-                Icons.local_fire_department_rounded,
-                AppColors.destructive,
-                isDark,
-              ),
-              _buildStatCard(
-                '최저 기록',
-                '${stats['min_daily']}p',
-                Icons.trending_down_rounded,
-                AppColors.info,
-                isDark,
-              ),
-              FutureBuilder<double>(
-                future: _calculateGoalRate(),
-                builder: (context, snapshot) {
-                  final goalRate = snapshot.data ?? 0.0;
-                  return _buildStatCard(
-                    '오늘 목표',
-                    '${(goalRate * 100).toStringAsFixed(0)}%',
-                    Icons.flag_rounded,
-                    AppColors.info,
-                    isDark,
-                  );
-                },
-              ),
-            ],
+            ),
           ),
         ],
       ),
@@ -634,7 +933,9 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   }
 
   Widget _buildReadingProgressChart(
-      bool isDark, List<Map<String, dynamic>> aggregated) {
+    bool isDark,
+    List<Map<String, dynamic>> aggregated,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -751,18 +1052,11 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.show_chart,
-                      size: 48,
-                      color: Colors.grey[400],
-                    ),
+                    Icon(Icons.show_chart, size: 48, color: Colors.grey[400]),
                     const SizedBox(height: 12),
                     Text(
                       '아직 데이터가 없어요',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
                   ],
                 ),
@@ -788,18 +1082,11 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
       child: Center(
         child: Column(
           children: [
-            Icon(
-              Icons.list_alt,
-              size: 48,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.list_alt, size: 48, color: Colors.grey[400]),
             const SizedBox(height: 12),
             Text(
               '읽은 기록이 없어요',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Colors.grey[600], fontSize: 14),
             ),
           ],
         ),
@@ -808,7 +1095,9 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   }
 
   Widget _buildCombinationChartContent(
-      bool isDark, List<Map<String, dynamic>> aggregated) {
+    bool isDark,
+    List<Map<String, dynamic>> aggregated,
+  ) {
     final maxDaily = aggregated
         .map((e) => e['daily_page'] as int)
         .reduce((a, b) => a > b ? a : b);
@@ -892,8 +1181,10 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                         ),
                       );
                     },
-                    interval:
-                        (aggregated.length / 5).ceilToDouble().clamp(1, 999),
+                    interval: (aggregated.length / 5).ceilToDouble().clamp(
+                          1,
+                          999,
+                        ),
                   ),
                 ),
               ),
@@ -1024,11 +1315,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
               color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 18,
-            ),
+            child: Icon(icon, color: color, size: 18),
           ),
           Flexible(
             child: Column(
@@ -1062,5 +1349,98 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         ],
       ),
     );
+  }
+}
+
+class _SectionTabBarDelegate extends SliverPersistentHeaderDelegate {
+  final List<String> sections;
+  final bool isDark;
+  final int selectedIndex;
+  final Function(int) onTap;
+  final ScrollController scrollController;
+  final List<GlobalKey> tabKeys;
+
+  _SectionTabBarDelegate({
+    required this.sections,
+    required this.isDark,
+    required this.selectedIndex,
+    required this.onTap,
+    required this.scrollController,
+    required this.tabKeys,
+  });
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Container(
+      color: isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+      child: SingleChildScrollView(
+        controller: scrollController,
+        scrollDirection: Axis.horizontal,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: sections.asMap().entries.map((entry) {
+              final index = entry.key;
+              final section = entry.value;
+              final isSelected = index == selectedIndex;
+
+              return Padding(
+                key: tabKeys[index],
+                padding: const EdgeInsets.only(right: 12),
+                child: GestureDetector(
+                  onTap: () => onTap(index),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? AppColors.primary
+                          : AppColors.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: !isSelected
+                          ? Border.all(
+                              color: AppColors.primary.withOpacity(0.3),
+                              width: 1,
+                            )
+                          : null,
+                    ),
+                    child: Text(
+                      section,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: isSelected
+                            ? Colors.white
+                            : (isDark ? Colors.grey[600] : Colors.grey[400]),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  double get maxExtent => 56;
+
+  @override
+  double get minExtent => 56;
+
+  @override
+  bool shouldRebuild(_SectionTabBarDelegate oldDelegate) {
+    return oldDelegate.sections != sections ||
+        oldDelegate.isDark != isDark ||
+        oldDelegate.selectedIndex != selectedIndex ||
+        oldDelegate.tabKeys != tabKeys;
   }
 }

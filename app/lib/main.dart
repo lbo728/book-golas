@@ -37,10 +37,7 @@ import 'domain/models/book.dart';
 import 'ui/book_detail/book_detail_screen.dart';
 import 'ui/onboarding/view_model/onboarding_view_model.dart';
 import 'ui/onboarding/widgets/onboarding_screen.dart';
-import 'data/services/note_structure_service.dart';
-import 'ui/book_detail/view_model/note_structure_view_model.dart';
-import 'ui/my_library/view_model/my_library_view_model.dart';
-import 'ui/my_library/widgets/my_library_screen.dart';
+import 'ui/reading_chart/view_model/reading_insights_view_model.dart';
 
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
@@ -220,9 +217,6 @@ class MyApp extends StatelessWidget {
         Provider<ReadingProgressService>(
           create: (_) => ReadingProgressService(),
         ),
-        Provider<NoteStructureService>(
-          create: (_) => NoteStructureService(),
-        ),
         // === Repositories ===
         Provider<BookRepository>(
           create: (context) => BookRepositoryImpl(context.read<BookService>()),
@@ -256,12 +250,11 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (_) => ThemeViewModel()),
         ChangeNotifierProvider(create: (_) => OnboardingViewModel()),
-        ChangeNotifierProvider<NoteStructureViewModel>(
-          create: (context) => NoteStructureViewModel(
-            service: context.read<NoteStructureService>(),
+        ChangeNotifierProvider(
+          create: (_) => ReadingInsightsViewModel(
+            userId: Supabase.instance.client.auth.currentUser!.id,
           ),
         ),
-        ChangeNotifierProvider(create: (_) => MyLibraryViewModel()),
       ],
       child: Consumer<ThemeViewModel>(
         builder: (context, themeViewModel, child) {
@@ -487,7 +480,6 @@ class _MainScreenState extends State<MainScreen>
             _addMemorablePageCallback = addMemorable;
           },
         ),
-        MyLibraryScreen(key: MyLibraryScreen.globalKey),
         ReadingChartScreen(key: ReadingChartScreen.globalKey),
         const CalendarScreen(),
         const MyPageScreen(),
@@ -498,9 +490,6 @@ class _MainScreenState extends State<MainScreen>
       HapticFeedback.lightImpact();
       context.read<BookListViewModel>().cycleToNextTab();
     } else if (index == 1 && _selectedIndex == 1) {
-      HapticFeedback.lightImpact();
-      MyLibraryScreen.cycleToNextTab();
-    } else if (index == 2 && _selectedIndex == 2) {
       HapticFeedback.lightImpact();
       ReadingChartScreen.cycleToNextTab();
     } else {
