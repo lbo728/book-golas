@@ -535,14 +535,34 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     if (!_tabBarScrollController.hasClients) return;
 
     final tabContext = _tabKeys[index].currentContext;
-    if (tabContext != null) {
-      Scrollable.ensureVisible(
-        tabContext,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
-        alignment: 0.5,
-      );
-    }
+    if (tabContext == null) return;
+
+    final renderBox = tabContext.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    // Get tab's position relative to the scroll view
+    final tabPosition = renderBox.localToGlobal(Offset.zero);
+    final tabWidth = renderBox.size.width;
+
+    // Get viewport width
+    final viewportWidth = _tabBarScrollController.position.viewportDimension;
+
+    // Calculate target scroll position to center the tab
+    // tabPosition.dx is the tab's left edge position on screen
+    // We want to center it, so: currentScroll + tabLeftEdge - (viewportWidth / 2) + (tabWidth / 2)
+    final currentScroll = _tabBarScrollController.offset;
+    final targetScroll =
+        currentScroll + tabPosition.dx - (viewportWidth / 2) + (tabWidth / 2);
+
+    // Clamp to valid scroll range
+    final maxScroll = _tabBarScrollController.position.maxScrollExtent;
+    final clampedScroll = targetScroll.clamp(0.0, maxScroll);
+
+    _tabBarScrollController.animateTo(
+      clampedScroll,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   String _getFilterLabel(TimeFilter filter) {
