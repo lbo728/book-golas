@@ -83,6 +83,10 @@ class BookListViewModel extends BaseViewModel {
           }
           if (a.plannedStartDate != null && b.plannedStartDate != null) {
             return a.plannedStartDate!.compareTo(b.plannedStartDate!);
+          } else if (a.plannedStartDate != null) {
+            return -1;
+          } else if (b.plannedStartDate != null) {
+            return 1;
           }
           return b.createdAt?.compareTo(a.createdAt ?? DateTime.now()) ?? 0;
         });
