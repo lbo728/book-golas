@@ -124,7 +124,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
       context: context,
       onSourceTap: (source) {
         if (source.bookId != null) {
-          _navigateToBookDetailById(source.bookId!, initialTabIndex: 1);
+          _navigateToBookDetailById(source.bookId!, initialTabIndex: 0);
         }
       },
     );
@@ -149,7 +149,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
       source: source,
       onGoToBook: () => _navigateToBookDetailById(
         record.bookId,
-        initialTabIndex: 1,
+        initialTabIndex: 0,
       ),
     );
   }
