@@ -10,6 +10,9 @@ class HighlightStatsCard extends StatelessWidget {
   final int totalPhotos;
   final Map<String, int> genreDistribution; // 장르별 하이라이트 수
   final List<String> topKeywords;
+  final VoidCallback? onHighlightsTap;
+  final VoidCallback? onNotesTap;
+  final VoidCallback? onPhotosTap;
 
   const HighlightStatsCard({
     super.key,
@@ -18,6 +21,9 @@ class HighlightStatsCard extends StatelessWidget {
     required this.totalPhotos,
     required this.genreDistribution,
     required this.topKeywords,
+    this.onHighlightsTap,
+    this.onNotesTap,
+    this.onPhotosTap,
   });
 
   @override
@@ -102,6 +108,7 @@ class HighlightStatsCard extends StatelessWidget {
           totalHighlights.toString(),
           '하이라이트',
           Colors.amber,
+          onHighlightsTap,
         ),
         _buildStatItem(
           context,
@@ -110,6 +117,7 @@ class HighlightStatsCard extends StatelessWidget {
           totalNotes.toString(),
           '메모',
           Colors.blue,
+          onNotesTap,
         ),
         _buildStatItem(
           context,
@@ -118,6 +126,7 @@ class HighlightStatsCard extends StatelessWidget {
           totalPhotos.toString(),
           '사진',
           Colors.green,
+          onPhotosTap,
         ),
       ],
     );
@@ -130,8 +139,9 @@ class HighlightStatsCard extends StatelessWidget {
     String value,
     String label,
     Color color,
+    VoidCallback? onTap,
   ) {
-    return Column(
+    final child = Column(
       children: [
         Container(
           padding: const EdgeInsets.all(12),
@@ -159,6 +169,14 @@ class HighlightStatsCard extends StatelessWidget {
         ),
       ],
     );
+
+    if (onTap != null) {
+      return GestureDetector(
+        onTap: onTap,
+        child: child,
+      );
+    }
+    return child;
   }
 
   Widget _buildGenreDistribution(BuildContext context, bool isDark) {
