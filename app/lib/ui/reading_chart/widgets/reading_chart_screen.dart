@@ -477,6 +477,8 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     if (_tabController.index != 1) return;
     if (_isScrollingByTap) return;
 
+    if (!_analysisScrollController.hasClients) return;
+
     final scrollPosition = _analysisScrollController.position.pixels;
     final maxScroll = _analysisScrollController.position.maxScrollExtent;
 
@@ -489,7 +491,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
       return;
     }
 
-    int closestIndex = 0;
+    int? closestIndex;
     double closestDistance = double.infinity;
     final screenCenter = 300.0;
 
@@ -511,9 +513,9 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
       }
     }
 
-    if (_selectedSectionIndex != closestIndex) {
+    if (closestIndex != null && _selectedSectionIndex != closestIndex) {
       setState(() {
-        _selectedSectionIndex = closestIndex;
+        _selectedSectionIndex = closestIndex!;
       });
     }
   }
@@ -714,6 +716,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     return NotificationListener<ScrollNotification>(
       onNotification: _handleScrollNotification,
       child: CustomScrollView(
+        key: const PageStorageKey('analysis_scroll'),
         controller: _analysisScrollController,
         slivers: [
           SliverPersistentHeader(
