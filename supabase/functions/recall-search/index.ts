@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 
 interface SearchRequest {
-  bookId: string;
+  bookId?: string;
   query: string;
 }
 
@@ -14,6 +14,8 @@ interface SourceDocument {
   pageNumber: number | null;
   sourceId: string | null;
   createdAt: string;
+  bookId: string | null;
+  bookTitle: string | null;
 }
 
 async function generateEmbedding(text: string): Promise<number[]> {
@@ -151,12 +153,14 @@ serve(async (req: Request) => {
 
     const { bookId, query }: SearchRequest = await req.json();
 
-    if (!bookId || !query) {
+    if (!query) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields: bookId, query" }),
+        JSON.stringify({ error: "Missing required field: query" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
+
+    const isGlobalSearch = !bookId;
 
     const queryEmbedding = await generateEmbedding(query);
     const embeddingString = `[${queryEmbedding.join(",")}]`;
@@ -176,9 +180,9 @@ serve(async (req: Request) => {
       "match_reading_content",
       {
         query_embedding: embeddingString,
-        match_count: 5,
+        match_count: isGlobalSearch ? 10 : 5,
         filter_user_id: user.id,
-        filter_book_id: bookId,
+        filter_book_id: isGlobalSearch ? null : bookId,
       }
     );
 
@@ -187,20 +191,37 @@ serve(async (req: Request) => {
     }
 
     if (!searchResults || searchResults.length === 0) {
-      return new Response(
-        JSON.stringify({
-          answer:
-            "관련 기록을 찾지 못했습니다. 더 많은 하이라이트나 메모를 추가해보세요!",
-          sources: [],
-        }),
-        {
-          status: 200,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          },
+      const emptyResponse: any = {
+        answer:
+          "관련 기록을 찾지 못했습니다. 더 많은 하이라이트나 메모를 추가해보세요!",
+        sources: [],
+      };
+      if (isGlobalSearch) {
+        emptyResponse.sourcesByBook = {};
+      }
+      return new Response(JSON.stringify(emptyResponse), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+    }
+
+    const uniqueBookIds = [...new Set(searchResults.map((r: any) => r.book_id))];
+    const bookTitleMap: Record<string, string> = {};
+
+    if (uniqueBookIds.length > 0) {
+      const { data: books } = await serviceClient
+        .from("books")
+        .select("id, title")
+        .in("id", uniqueBookIds);
+
+      if (books) {
+        for (const book of books) {
+          bookTitleMap[book.id] = book.title;
         }
-      );
+      }
     }
 
     const context = searchResults
@@ -214,7 +235,10 @@ serve(async (req: Request) => {
         const pageInfo = result.page_number
           ? ` (${result.page_number}페이지)`
           : "";
-        return `[${index + 1}] ${typeLabel}${pageInfo}:\n${result.content_text}`;
+        const bookInfo = isGlobalSearch && bookTitleMap[result.book_id]
+          ? ` [${bookTitleMap[result.book_id]}]`
+          : "";
+        return `[${index + 1}] ${typeLabel}${pageInfo}${bookInfo}:\n${result.content_text}`;
       })
       .join("\n\n");
 
@@ -226,29 +250,44 @@ serve(async (req: Request) => {
       pageNumber: result.page_number,
       sourceId: result.source_id,
       createdAt: result.created_at,
+      bookId: result.book_id,
+      bookTitle: bookTitleMap[result.book_id] || null,
     }));
+
+    const sourcesByBook: Record<string, SourceDocument[]> = {};
+    if (isGlobalSearch) {
+      for (const source of sources) {
+        const title = source.bookTitle || "Unknown";
+        if (!sourcesByBook[title]) {
+          sourcesByBook[title] = [];
+        }
+        sourcesByBook[title].push(source);
+      }
+    }
 
     await serviceClient.from("recall_search_history").insert({
       user_id: user.id,
-      book_id: bookId,
+      book_id: isGlobalSearch ? null : bookId,
       query: query,
       answer: answer,
       sources: sources,
     });
 
-    return new Response(
-      JSON.stringify({
-        answer,
-        sources,
-      }),
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-      }
-    );
+    const responseBody: any = {
+      answer,
+      sources,
+    };
+    if (isGlobalSearch) {
+      responseBody.sourcesByBook = sourcesByBook;
+    }
+
+    return new Response(JSON.stringify(responseBody), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
   } catch (error) {
     console.error("Error:", error);
     return new Response(JSON.stringify({ error: (error as Error).message }), {
