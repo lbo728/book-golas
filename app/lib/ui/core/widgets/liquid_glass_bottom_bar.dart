@@ -55,7 +55,6 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
   // 검색 버튼 위치 추적
   final GlobalKey _searchButtonKey = GlobalKey();
 
-  // 탭 설정 (4개 네비게이션 탭)
   static const List<_TabItemData> _tabs = [
     _TabItemData(
       icon: CupertinoIcons.house,
@@ -63,19 +62,24 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
       label: '홈',
     ),
     _TabItemData(
+      icon: CupertinoIcons.square_stack_3d_up,
+      activeIcon: CupertinoIcons.square_stack_3d_up_fill,
+      label: '서재',
+    ),
+    _TabItemData(
       icon: CupertinoIcons.book,
       activeIcon: CupertinoIcons.book_fill,
-      label: '독서 상태',
+      label: '상태',
     ),
     _TabItemData(
       icon: CupertinoIcons.calendar,
       activeIcon: CupertinoIcons.calendar,
-      label: '독서캘린더',
+      label: '캘린더',
     ),
     _TabItemData(
       icon: CupertinoIcons.person_crop_circle,
       activeIcon: CupertinoIcons.person_crop_circle_fill,
-      label: '마이페이지',
+      label: 'MY',
     ),
   ];
 
@@ -89,23 +93,20 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
     _slideAnimation = Tween<double>(
       begin: widget.selectedIndex.toDouble(),
       end: widget.selectedIndex.toDouble(),
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutCubic,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
   }
 
   @override
   void didUpdateWidget(LiquidGlassBottomBar oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.selectedIndex != widget.selectedIndex && !_isDragging) {
-      _slideAnimation = Tween<double>(
-        begin: _slideAnimation.value,
-        end: widget.selectedIndex.toDouble(),
-      ).animate(CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOutCubic,
-      ));
+      _slideAnimation =
+          Tween<double>(
+            begin: _slideAnimation.value,
+            end: widget.selectedIndex.toDouble(),
+          ).animate(
+            CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+          );
       _controller.forward(from: 0);
     }
   }
@@ -130,8 +131,10 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
     if (!_isDragging || _tabWidth <= 0) return;
 
     final newPosition = details.localPosition.dx / _tabWidth;
-    final clampedPosition =
-        newPosition.clamp(0.0, (_tabs.length - 1).toDouble());
+    final clampedPosition = newPosition.clamp(
+      0.0,
+      (_tabs.length - 1).toDouble(),
+    );
 
     setState(() {
       _dragPosition = clampedPosition;
@@ -159,10 +162,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
     _slideAnimation = Tween<double>(
       begin: _dragPosition,
       end: targetIndex.toDouble(),
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutCubic,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
     _controller.forward(from: 0);
 
     // 탭 선택
@@ -180,9 +180,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
     final content = Row(
       children: [
         // Pill TabBar (4개 탭)
-        Expanded(
-          child: _buildLiquidGlassTabBar(isDark),
-        ),
+        Expanded(child: _buildLiquidGlassTabBar(isDark)),
         const SizedBox(width: 12),
         // 분리된 원형 검색 버튼
         _buildSearchButton(isDark),
@@ -229,10 +227,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
             decoration: BoxDecoration(
               color: glassColor,
               borderRadius: BorderRadius.circular(100),
-              border: Border.all(
-                color: borderColor,
-                width: 0.5,
-              ),
+              border: Border.all(color: borderColor, width: 0.5),
             ),
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -267,7 +262,10 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
 
   /// 물방울 인디케이터 (렌즈 효과 포함)
   Widget _buildDropletIndicator(
-      bool isDark, double maxWidth, double chevronWidth) {
+    bool isDark,
+    double maxWidth,
+    double chevronWidth,
+  ) {
     final indicatorColor = isDark
         ? Colors.white.withValues(alpha: 0.22)
         : Colors.black.withValues(alpha: 0.12);
@@ -281,8 +279,9 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
       animation: _slideAnimation,
       builder: (context, child) {
         // 드래그 중이면 드래그 위치, 아니면 애니메이션 값 사용
-        final currentPosition =
-            _isDragging ? _dragPosition : _slideAnimation.value;
+        final currentPosition = _isDragging
+            ? _dragPosition
+            : _slideAnimation.value;
         final tabWidth = maxWidth / _tabs.length;
 
         return Positioned(
@@ -359,8 +358,9 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
         animation: _slideAnimation,
         builder: (context, child) {
           // 현재 위치 (드래그 중이면 드래그 위치 사용)
-          final currentPosition =
-              _isDragging ? _dragPosition : _slideAnimation.value;
+          final currentPosition = _isDragging
+              ? _dragPosition
+              : _slideAnimation.value;
 
           // 물방울과의 거리 계산 (0~1 범위로 정규화)
           final distance = (currentPosition - index).abs();
@@ -469,16 +469,9 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
             decoration: BoxDecoration(
               color: glassColor,
               borderRadius: BorderRadius.circular(100),
-              border: Border.all(
-                color: borderColor,
-                width: 0.5,
-              ),
+              border: Border.all(color: borderColor, width: 0.5),
             ),
-            child: Icon(
-              CupertinoIcons.search,
-              color: iconColor,
-              size: 22,
-            ),
+            child: Icon(CupertinoIcons.search, color: iconColor, size: 22),
           ),
         ),
       ),
