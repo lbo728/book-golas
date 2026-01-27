@@ -1247,7 +1247,7 @@ class _SectionTabBarDelegate extends SliverPersistentHeaderDelegate {
                         fontWeight: FontWeight.w500,
                         color: isSelected
                             ? Colors.white
-                            : AppColors.primary.withOpacity(0.6),
+                            : AppColors.primary.withOpacity(0.8),
                       ),
                     ),
                   ),
