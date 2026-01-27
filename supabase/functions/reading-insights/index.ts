@@ -2,6 +2,8 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "@supabase/supabase-js";
 import { config, validateConfig } from "./config.ts";
 import type { ReadingInsightResponse } from "./types.ts";
+import { PatternCollector } from "./services/pattern-collector.ts";
+import { InsightService } from "./services/insight-service.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -36,11 +38,22 @@ serve(async (req: Request) => {
 
     console.log(`[reading-insights] Processing insights for user: ${userId}`);
 
-    // Placeholder response - logic will be implemented in next tasks
+    const patternCollector = new PatternCollector(supabase);
+    const insightService = new InsightService(supabase);
+
+    const patterns = await patternCollector.collect(userId);
+    console.log(`[reading-insights] Patterns collected: ${JSON.stringify({
+      books: patterns.completionRates.totalStarted,
+      completed: patterns.completionRates.completed,
+      highlights: patterns.highlightStats.totalCount,
+    })}`);
+
+    const insights = await insightService.generate(userId, patterns);
+    console.log(`[reading-insights] Generated ${insights.length} insights`);
+
     const response: ReadingInsightResponse = {
       success: true,
-      insights: [],
-      message: "Reading insights scaffold ready for implementation",
+      insights,
     };
 
     return new Response(JSON.stringify(response), {
@@ -51,10 +64,14 @@ serve(async (req: Request) => {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
     console.error("[reading-insights] Error:", errorMessage);
+
+    const isRateLimitError = errorMessage.includes("Rate limit exceeded");
+    const status = isRateLimitError ? 429 : 500;
+
     return new Response(
       JSON.stringify({ error: errorMessage }),
       {
-        status: 500,
+        status,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
