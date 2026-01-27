@@ -56,9 +56,15 @@
   
   "languageSettingLabel": "Language",
   
-  "homeBookList": "Book List",
-  
-  "bookListTabReading": "Reading",
+   "homeBookList": "Book List",
+   "homeNoReadingBooks": "No books in progress. Please register a book first.",
+   "homeNoReadingBooksShort": "No books in progress",
+   "homeViewAllBooks": "View all books",
+   "homeViewReadingOnly": "View reading only",
+   "homeViewAllBooksMessage": "Switched to view all books.",
+   "homeViewReadingMessage": "Switched to view reading books.",
+   
+   "bookListTabReading": "Reading",
   "bookListTabPlanned": "To Read",
   "bookListTabCompleted": "Completed",
   "bookListTabReread": "Reread",

@@ -151,10 +151,28 @@
   "languageSettingLabel": "언어",
   "@languageSettingLabel": {"description": "Language setting label"},
   
-  "homeBookList": "독서 목록",
-  "@homeBookList": {"description": "Book list title on home screen"},
-  
-  "bookListTabReading": "독서 중",
+   "homeBookList": "독서 목록",
+   "@homeBookList": {"description": "Book list title on home screen"},
+   
+   "homeNoReadingBooks": "진행 중인 독서가 없습니다. 먼저 책을 등록해주세요.",
+   "@homeNoReadingBooks": {"description": "No reading books message"},
+   
+   "homeNoReadingBooksShort": "진행 중인 독서가 없습니다",
+   "@homeNoReadingBooksShort": {"description": "No reading books short message"},
+   
+   "homeViewAllBooks": "전체 독서 보기",
+   "@homeViewAllBooks": {"description": "View all books button"},
+   
+   "homeViewReadingOnly": "진행 중인 독서만 보기",
+   "@homeViewReadingOnly": {"description": "View reading only button"},
+   
+   "homeViewAllBooksMessage": "전체 독서 보기로 전환되었습니다.",
+   "@homeViewAllBooksMessage": {"description": "Switched to view all books message"},
+   
+   "homeViewReadingMessage": "진행 중인 독서 보기로 전환되었습니다.",
+   "@homeViewReadingMessage": {"description": "Switched to view reading books message"},
+   
+   "bookListTabReading": "독서 중",
   "@bookListTabReading": {"description": "Reading tab"},
   
   "bookListTabPlanned": "읽을 예정",
