@@ -39,6 +39,7 @@ import 'ui/book_detail/book_detail_screen.dart';
 import 'ui/onboarding/view_model/onboarding_view_model.dart';
 import 'ui/onboarding/widgets/onboarding_screen.dart';
 import 'data/services/note_structure_service.dart';
+import 'data/services/subscription_service.dart';
 import 'ui/book_detail/view_model/note_structure_view_model.dart';
 import 'ui/my_library/view_model/my_library_view_model.dart';
 import 'ui/my_library/widgets/my_library_screen.dart';
@@ -231,6 +232,9 @@ class MyApp extends StatelessWidget {
         ),
         Provider<NoteStructureService>(
           create: (_) => NoteStructureService(),
+        ),
+        Provider<SubscriptionService>(
+          create: (_) => SubscriptionService(),
         ),
         // === Repositories ===
         Provider<BookRepository>(
