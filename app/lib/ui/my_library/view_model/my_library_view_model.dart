@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/domain/models/reading_record.dart';
 import 'package:book_golas/data/services/book_service.dart';
+import 'package:book_golas/data/services/record_service.dart';
 
 class MyLibraryViewModel extends ChangeNotifier {
   final BookService _bookService = BookService();
+  final RecordService _recordService = RecordService();
 
   List<Book> _books = [];
   bool _isLoading = false;
@@ -15,6 +18,12 @@ class MyLibraryViewModel extends ChangeNotifier {
   String _readingSearchQuery = '';
   String _reviewSearchQuery = '';
 
+  List<GroupedRecords> _groupedRecords = [];
+  bool _isLoadingRecords = false;
+  String? _selectedRecordType;
+  final Set<String> _expandedBookIds = {};
+  int _totalRecordCount = 0;
+
   List<Book> get books => _books;
   bool get isLoading => _isLoading;
   int get selectedTabIndex => _selectedTabIndex;
@@ -23,6 +32,12 @@ class MyLibraryViewModel extends ChangeNotifier {
   int? get selectedRating => _selectedRating;
   String get readingSearchQuery => _readingSearchQuery;
   String get reviewSearchQuery => _reviewSearchQuery;
+
+  List<GroupedRecords> get groupedRecords => _groupedRecords;
+  bool get isLoadingRecords => _isLoadingRecords;
+  String? get selectedRecordType => _selectedRecordType;
+  Set<String> get expandedBookIds => _expandedBookIds;
+  int get totalRecordCount => _totalRecordCount;
 
   List<Book> get allBooks => _books;
 
@@ -79,6 +94,9 @@ class MyLibraryViewModel extends ChangeNotifier {
 
   void setSelectedTabIndex(int index) {
     _selectedTabIndex = index;
+    if (index == 2 && _groupedRecords.isEmpty && !_isLoadingRecords) {
+      loadRecords();
+    }
     notifyListeners();
   }
 
@@ -120,11 +138,49 @@ class MyLibraryViewModel extends ChangeNotifier {
 
     try {
       _books = await _bookService.fetchBooks();
+      _totalRecordCount = await _recordService.getTotalRecordCount();
     } catch (e) {
       debugPrint('Failed to load books: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<void> loadRecords() async {
+    _isLoadingRecords = true;
+    notifyListeners();
+
+    try {
+      _groupedRecords = await _recordService.fetchGroupedRecords(
+        contentType: _selectedRecordType,
+      );
+      if (_groupedRecords.isNotEmpty && _expandedBookIds.isEmpty) {
+        _expandedBookIds.add(_groupedRecords.first.bookId);
+      }
+    } catch (e) {
+      debugPrint('Failed to load records: $e');
+    } finally {
+      _isLoadingRecords = false;
+      notifyListeners();
+    }
+  }
+
+  void setSelectedRecordType(String? type) {
+    _selectedRecordType = type;
+    loadRecords();
+  }
+
+  void toggleBookExpanded(String bookId) {
+    if (_expandedBookIds.contains(bookId)) {
+      _expandedBookIds.remove(bookId);
+    } else {
+      _expandedBookIds.add(bookId);
+    }
+    notifyListeners();
+  }
+
+  bool isBookExpanded(String bookId) {
+    return _expandedBookIds.contains(bookId);
   }
 }
