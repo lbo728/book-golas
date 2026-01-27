@@ -37,6 +37,8 @@ import 'domain/models/book.dart';
 import 'ui/book_detail/book_detail_screen.dart';
 import 'ui/onboarding/view_model/onboarding_view_model.dart';
 import 'ui/onboarding/widgets/onboarding_screen.dart';
+import 'data/services/note_structure_service.dart';
+import 'ui/book_detail/view_model/note_structure_view_model.dart';
 import 'ui/my_library/view_model/my_library_view_model.dart';
 import 'ui/my_library/widgets/my_library_screen.dart';
 
@@ -218,6 +220,9 @@ class MyApp extends StatelessWidget {
         Provider<ReadingProgressService>(
           create: (_) => ReadingProgressService(),
         ),
+        Provider<NoteStructureService>(
+          create: (_) => NoteStructureService(),
+        ),
         // === Repositories ===
         Provider<BookRepository>(
           create: (context) => BookRepositoryImpl(context.read<BookService>()),
@@ -251,6 +256,11 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (_) => ThemeViewModel()),
         ChangeNotifierProvider(create: (_) => OnboardingViewModel()),
+        ChangeNotifierProvider<NoteStructureViewModel>(
+          create: (context) => NoteStructureViewModel(
+            service: context.read<NoteStructureService>(),
+          ),
+        ),
         ChangeNotifierProvider(create: (_) => MyLibraryViewModel()),
       ],
       child: Consumer<ThemeViewModel>(
