@@ -57,17 +57,17 @@ class AppLocalizationsKo extends AppLocalizations {
   String get navCalendar => '캘린더';
 
   @override
-  String booksCount(int count) {
+  String booksCount(num count) {
     return '$count권';
   }
 
   @override
-  String daysCount(int count) {
+  String daysCount(num count) {
     return '$count일';
   }
 
   @override
-  String pagesCount(int count) {
+  String pagesCount(num count) {
     return '$count페이지';
   }
 
@@ -637,7 +637,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get readingStartConfirm => '확인';
 
   @override
-  String readingStartPages(int totalPages) {
+  String readingStartPages(num totalPages) {
     return '$totalPages페이지';
   }
 
@@ -759,7 +759,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get calendarMonthSelect => '월 선택';
 
   @override
-  String calendarPagesRead(int count) {
+  String calendarPagesRead(num count) {
     return '$count페이지 읽음';
   }
 
@@ -896,4 +896,300 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get recommendationBookstoreSelect => '서점 선택';
+
+  @override
+  String get chartAiInsightTitle => 'AI Insight';
+
+  @override
+  String get chartAiInsightAnalyzing => 'Analyzing your reading patterns...';
+
+  @override
+  String get chartAiInsightUnknownError => 'An unknown error occurred';
+
+  @override
+  String get chartAiInsightRetry => 'Retry';
+
+  @override
+  String get chartAiInsightMinBooksRequired =>
+      'Read more books to get AI insights';
+
+  @override
+  String chartAiInsightMinBooksMessage(int count) {
+    return 'Books completed: $count';
+  }
+
+  @override
+  String get chartAiInsightMinBooksHint => 'Minimum 3 books, recommended 5+';
+
+  @override
+  String get chartAiInsightGenerateButton => 'Analyze';
+
+  @override
+  String get chartAiInsightEmptyState =>
+      'Click the button below to generate insights';
+
+  @override
+  String get chartAiInsightAlreadyAnalyzed =>
+      'Already analyzed today. Try again tomorrow.';
+
+  @override
+  String get chartAiInsightClearMemory => 'Clear Insight History';
+
+  @override
+  String get chartAiInsightClearMemoryTitle => 'Clear Insight History';
+
+  @override
+  String get chartAiInsightClearMemoryMessage =>
+      'Are you sure you want to delete all insight history?\nThis action cannot be undone.';
+
+  @override
+  String get chartAiInsightClearMemoryCancel => 'Cancel';
+
+  @override
+  String get chartAiInsightClearMemoryConfirm => 'Delete';
+
+  @override
+  String get chartAiInsightSampleLabel => '(Sample)';
+
+  @override
+  String chartAnnualGoalTitle(int year) {
+    return '$year Reading Goal';
+  }
+
+  @override
+  String chartAnnualGoalAchieved(int percent) {
+    return '$percent% Achieved';
+  }
+
+  @override
+  String chartAnnualGoalRemaining(int count) {
+    return '$count books remaining';
+  }
+
+  @override
+  String get chartAnnualGoalAchievedMessage =>
+      'Congratulations! You\'ve achieved this year\'s goal!';
+
+  @override
+  String chartAnnualGoalAheadMessage(int count) {
+    return 'You\'ve read $count more books than expected!';
+  }
+
+  @override
+  String get chartAnnualGoalMotivationMessage =>
+      'Keep going! You can reach your goal!';
+
+  @override
+  String get chartAnnualGoalSetGoal => 'Set Goal';
+
+  @override
+  String get chartAnnualGoalSetGoalMessage =>
+      'Set your reading goal to see your progress at a glance';
+
+  @override
+  String get chartAnnualGoalEditGoal => 'Edit Goal';
+
+  @override
+  String get chartCompletionRateTitle => 'Reading Completion';
+
+  @override
+  String get chartCompletionRateLabel => 'Completion Rate';
+
+  @override
+  String chartCompletionRateBooks(int count) {
+    return '$count books completed';
+  }
+
+  @override
+  String get chartAbandonRateLabel => 'Abandon Rate';
+
+  @override
+  String chartAbandonRateBooks(int count) {
+    return '$count books abandoned';
+  }
+
+  @override
+  String get chartRetrySuccessRateLabel => 'Retry Success Rate';
+
+  @override
+  String get chartRetrySuccessRateBooks => 'Completed after retry';
+
+  @override
+  String get chartCompletionRateSummaryStarted => 'Started';
+
+  @override
+  String get chartCompletionRateSummaryCompleted => 'Completed';
+
+  @override
+  String get chartCompletionRateSummaryInProgress => 'In Progress';
+
+  @override
+  String get chartCompletionRateSummaryAbandoned => 'Abandoned';
+
+  @override
+  String get chartCompletionRateEmptyMessage => 'No completed books yet';
+
+  @override
+  String get chartCompletionRateEmptyHint =>
+      'Read and complete books to see your completion rate';
+
+  @override
+  String get chartGenreAnalysisTitle => 'Genre Analysis';
+
+  @override
+  String get chartGenreAnalysisTotalCompleted => 'Total Completed';
+
+  @override
+  String get chartGenreAnalysisDiversity => 'Genre Diversity';
+
+  @override
+  String get chartGenreAnalysisEmptyMessage => 'No completed books yet';
+
+  @override
+  String get chartGenreAnalysisEmptyHint =>
+      'Complete books to see genre statistics!';
+
+  @override
+  String get chartHighlightStatsTitle => 'Records/Highlights Statistics';
+
+  @override
+  String get chartHighlightStatsHighlights => 'Highlights';
+
+  @override
+  String get chartHighlightStatsMemos => 'Memos';
+
+  @override
+  String get chartHighlightStatsPhotos => 'Photos';
+
+  @override
+  String get chartHighlightStatsByGenre => 'Highlights by Genre';
+
+  @override
+  String get chartHighlightStatsEmptyMessage => 'No highlights yet';
+
+  @override
+  String get chartHighlightStatsEmptyHint =>
+      'Highlight important parts while reading';
+
+  @override
+  String chartMonthlyBooksTitle(int year) {
+    return '$year Monthly Reading';
+  }
+
+  @override
+  String get chartMonthlyBooksThisMonth => 'This Month';
+
+  @override
+  String get chartMonthlyBooksLastMonth => 'Last Month';
+
+  @override
+  String get chartMonthlyBooksChange => 'Change';
+
+  @override
+  String chartMonthlyBooksMonth(int month) {
+    return '$month';
+  }
+
+  @override
+  String chartMonthlyBooksTooltip(int month, int count) {
+    return '$month month\n$count books';
+  }
+
+  @override
+  String chartReadingStreakTitle(int year) {
+    return '$year Reading Heatmap';
+  }
+
+  @override
+  String get chartReadingStreakDaysRead => 'Days Read';
+
+  @override
+  String get chartReadingStreakTotalPages => 'Total Pages';
+
+  @override
+  String get chartReadingStreakDailyAverage => 'Daily Avg';
+
+  @override
+  String get chartReadingStreakLess => 'Less';
+
+  @override
+  String get chartReadingStreakMore => 'More';
+
+  @override
+  String chartReadingStreakTooltip(int month, int day, int pages) {
+    return '$month/$day: $pages pages';
+  }
+
+  @override
+  String get chartReadingStreakMonthJan => 'Jan';
+
+  @override
+  String get chartReadingStreakMonthMar => 'Mar';
+
+  @override
+  String get chartReadingStreakMonthMay => 'May';
+
+  @override
+  String get chartReadingStreakMonthJul => 'Jul';
+
+  @override
+  String get chartReadingStreakMonthSep => 'Sep';
+
+  @override
+  String get chartReadingStreakMonthNov => 'Nov';
+
+  @override
+  String readingGoalSheetTitle(int year) {
+    return '$year Reading Goal';
+  }
+
+  @override
+  String get readingGoalSheetQuestion =>
+      'How many books do you want to read this year?';
+
+  @override
+  String get readingGoalSheetRecommended => 'Recommended Goals';
+
+  @override
+  String get readingGoalSheetCustom => 'Custom Input';
+
+  @override
+  String readingGoalSheetBooksPerMonth(String count) {
+    return 'Average $count books per month';
+  }
+
+  @override
+  String get readingGoalSheetHint => 'Enter goal number';
+
+  @override
+  String get readingGoalSheetBooks => 'books';
+
+  @override
+  String get readingGoalSheetMotivation1 =>
+      'Reading 1 book per month consistently builds a reading habit. Enjoy reading without pressure!';
+
+  @override
+  String get readingGoalSheetMotivation2 =>
+      'Reading 1 book every 2 weeks is achievable! Experience the joy of reading with a reasonable goal.';
+
+  @override
+  String get readingGoalSheetMotivation3 =>
+      '1 book every 10 days! You love reading. Explore diverse genres!';
+
+  @override
+  String get readingGoalSheetMotivation4 =>
+      'Almost 1 book per week! You\'re a true book lover. Keep the fire burning! 🔥';
+
+  @override
+  String get readingGoalSheetMotivation5 =>
+      'An ambitious goal! More than 1 book per week. You\'re a reading master! 📚✨';
+
+  @override
+  String get readingGoalSheetCancel => 'Cancel';
+
+  @override
+  String get readingGoalSheetSet => 'Set Goal';
+
+  @override
+  String get readingGoalSheetUpdate => 'Update Goal';
 }

@@ -1,915 +1,1204 @@
 {
   "@@locale": "ko",
-  
   "appTitle": "북골라스",
-  "@appTitle": {"description": "App title"},
-  
+  "@appTitle": {
+    "description": "App title"
+  },
   "commonCancel": "취소",
-  "@commonCancel": {"description": "Cancel button"},
-  
+  "@commonCancel": {
+    "description": "Cancel button"
+  },
   "commonConfirm": "확인",
-  "@commonConfirm": {"description": "Confirm button"},
-  
+  "@commonConfirm": {
+    "description": "Confirm button"
+  },
   "commonSave": "저장",
-  "@commonSave": {"description": "Save button"},
-  
+  "@commonSave": {
+    "description": "Save button"
+  },
   "commonDelete": "삭제",
-  "@commonDelete": {"description": "Delete button"},
-  
+  "@commonDelete": {
+    "description": "Delete button"
+  },
   "commonChange": "변경",
-  "@commonChange": {"description": "Change button"},
-  
+  "@commonChange": {
+    "description": "Change button"
+  },
   "commonComplete": "완료",
-  "@commonComplete": {"description": "Complete button"},
-  
+  "@commonComplete": {
+    "description": "Complete button"
+  },
   "commonClose": "닫기",
-  "@commonClose": {"description": "Close button"},
-  
+  "@commonClose": {
+    "description": "Close button"
+  },
   "commonRetry": "다시 시도",
-  "@commonRetry": {"description": "Retry button"},
-  
+  "@commonRetry": {
+    "description": "Retry button"
+  },
   "commonNext": "다음",
-  "@commonNext": {"description": "Next button"},
-  
+  "@commonNext": {
+    "description": "Next button"
+  },
   "commonSkip": "건너뛰기",
-  "@commonSkip": {"description": "Skip button"},
-  
+  "@commonSkip": {
+    "description": "Skip button"
+  },
   "commonStart": "시작하기",
-  "@commonStart": {"description": "Start button"},
-  
+  "@commonStart": {
+    "description": "Start button"
+  },
   "navHome": "홈",
-  "@navHome": {"description": "Home navigation"},
-  
+  "@navHome": {
+    "description": "Home navigation"
+  },
   "navLibrary": "서재",
-  "@navLibrary": {"description": "Library navigation"},
-  
+  "@navLibrary": {
+    "description": "Library navigation"
+  },
   "navStats": "상태",
-  "@navStats": {"description": "Stats navigation"},
-  
+  "@navStats": {
+    "description": "Stats navigation"
+  },
   "navCalendar": "캘린더",
-  "@navCalendar": {"description": "Calendar navigation"},
-  
+  "@navCalendar": {
+    "description": "Calendar navigation"
+  },
   "booksCount": "{count}권",
   "@booksCount": {
     "description": "Book count with unit",
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "num"
+      }
     }
   },
-  
   "daysCount": "{count}일",
   "@daysCount": {
     "description": "Day count with unit",
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "num"
+      }
     }
   },
-  
   "pagesCount": "{count}페이지",
   "@pagesCount": {
     "description": "Page count with unit",
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "num"
+      }
     }
   },
-  
   "weekdayMon": "월",
-  "@weekdayMon": {"description": "Monday short"},
-  
+  "@weekdayMon": {
+    "description": "Monday short"
+  },
   "weekdayTue": "화",
-  "@weekdayTue": {"description": "Tuesday short"},
-  
+  "@weekdayTue": {
+    "description": "Tuesday short"
+  },
   "weekdayWed": "수",
-  "@weekdayWed": {"description": "Wednesday short"},
-  
+  "@weekdayWed": {
+    "description": "Wednesday short"
+  },
   "weekdayThu": "목",
-  "@weekdayThu": {"description": "Thursday short"},
-  
+  "@weekdayThu": {
+    "description": "Thursday short"
+  },
   "weekdayFri": "금",
-  "@weekdayFri": {"description": "Friday short"},
-  
+  "@weekdayFri": {
+    "description": "Friday short"
+  },
   "weekdaySat": "토",
-  "@weekdaySat": {"description": "Saturday short"},
-  
+  "@weekdaySat": {
+    "description": "Saturday short"
+  },
   "weekdaySun": "일",
-  "@weekdaySun": {"description": "Sunday short"},
-  
+  "@weekdaySun": {
+    "description": "Sunday short"
+  },
   "timeAm": "오전",
-  "@timeAm": {"description": "AM"},
-  
+  "@timeAm": {
+    "description": "AM"
+  },
   "timePm": "오후",
-  "@timePm": {"description": "PM"},
-  
+  "@timePm": {
+    "description": "PM"
+  },
   "unitYear": "년",
-  "@unitYear": {"description": "Year unit"},
-  
+  "@unitYear": {
+    "description": "Year unit"
+  },
   "unitMonth": "월",
-  "@unitMonth": {"description": "Month unit"},
-  
+  "@unitMonth": {
+    "description": "Month unit"
+  },
   "unitDay": "일",
-  "@unitDay": {"description": "Day unit"},
-  
+  "@unitDay": {
+    "description": "Day unit"
+  },
   "unitHour": "시",
-  "@unitHour": {"description": "Hour unit"},
-  
+  "@unitHour": {
+    "description": "Hour unit"
+  },
   "unitMinute": "분",
-  "@unitMinute": {"description": "Minute unit"},
-  
+  "@unitMinute": {
+    "description": "Minute unit"
+  },
   "statusReading": "독서 중",
-  "@statusReading": {"description": "Reading status"},
-  
+  "@statusReading": {
+    "description": "Reading status"
+  },
   "statusPlanned": "읽을 예정",
-  "@statusPlanned": {"description": "Planned to read status"},
-  
+  "@statusPlanned": {
+    "description": "Planned to read status"
+  },
   "statusCompleted": "완독",
-  "@statusCompleted": {"description": "Completed status"},
-  
+  "@statusCompleted": {
+    "description": "Completed status"
+  },
   "statusReread": "다시 읽을 책",
-  "@statusReread": {"description": "Reread status"},
-  
+  "@statusReread": {
+    "description": "Reread status"
+  },
   "priorityUrgent": "긴급",
-  "@priorityUrgent": {"description": "Urgent priority"},
-  
+  "@priorityUrgent": {
+    "description": "Urgent priority"
+  },
   "priorityHigh": "높음",
-  "@priorityHigh": {"description": "High priority"},
-  
+  "@priorityHigh": {
+    "description": "High priority"
+  },
   "priorityMedium": "보통",
-  "@priorityMedium": {"description": "Medium priority"},
-  
+  "@priorityMedium": {
+    "description": "Medium priority"
+  },
   "priorityLow": "낮음",
-  "@priorityLow": {"description": "Low priority"},
-  
+  "@priorityLow": {
+    "description": "Low priority"
+  },
   "contentTypeHighlight": "하이라이트",
-  "@contentTypeHighlight": {"description": "Highlight type"},
-  
+  "@contentTypeHighlight": {
+    "description": "Highlight type"
+  },
   "contentTypeMemo": "메모",
-  "@contentTypeMemo": {"description": "Memo type"},
-  
+  "@contentTypeMemo": {
+    "description": "Memo type"
+  },
   "contentTypePhoto": "사진",
-  "@contentTypePhoto": {"description": "Photo type"},
-  
+  "@contentTypePhoto": {
+    "description": "Photo type"
+  },
   "languageSettingLabel": "언어",
-  "@languageSettingLabel": {"description": "Language setting label"},
-  
-   "homeBookList": "독서 목록",
-   "@homeBookList": {"description": "Book list title on home screen"},
-   
-   "homeNoReadingBooks": "진행 중인 독서가 없습니다. 먼저 책을 등록해주세요.",
-   "@homeNoReadingBooks": {"description": "No reading books message"},
-   
-   "homeNoReadingBooksShort": "진행 중인 독서가 없습니다",
-   "@homeNoReadingBooksShort": {"description": "No reading books short message"},
-   
-   "homeViewAllBooks": "전체 독서 보기",
-   "@homeViewAllBooks": {"description": "View all books button"},
-   
-   "homeViewReadingOnly": "진행 중인 독서만 보기",
-   "@homeViewReadingOnly": {"description": "View reading only button"},
-   
-   "homeViewAllBooksMessage": "전체 독서 보기로 전환되었습니다.",
-   "@homeViewAllBooksMessage": {"description": "Switched to view all books message"},
-   
-   "homeViewReadingMessage": "진행 중인 독서 보기로 전환되었습니다.",
-   "@homeViewReadingMessage": {"description": "Switched to view reading books message"},
-   
-   "bookListTabReading": "독서 중",
-  "@bookListTabReading": {"description": "Reading tab"},
-  
+  "@languageSettingLabel": {
+    "description": "Language setting label"
+  },
+  "homeBookList": "독서 목록",
+  "@homeBookList": {
+    "description": "Book list title on home screen"
+  },
+  "homeNoReadingBooks": "진행 중인 독서가 없습니다. 먼저 책을 등록해주세요.",
+  "@homeNoReadingBooks": {
+    "description": "No reading books message"
+  },
+  "homeNoReadingBooksShort": "진행 중인 독서가 없습니다",
+  "@homeNoReadingBooksShort": {
+    "description": "No reading books short message"
+  },
+  "homeViewAllBooks": "전체 독서 보기",
+  "@homeViewAllBooks": {
+    "description": "View all books button"
+  },
+  "homeViewReadingOnly": "진행 중인 독서만 보기",
+  "@homeViewReadingOnly": {
+    "description": "View reading only button"
+  },
+  "homeViewAllBooksMessage": "전체 독서 보기로 전환되었습니다.",
+  "@homeViewAllBooksMessage": {
+    "description": "Switched to view all books message"
+  },
+  "homeViewReadingMessage": "진행 중인 독서 보기로 전환되었습니다.",
+  "@homeViewReadingMessage": {
+    "description": "Switched to view reading books message"
+  },
+  "bookListTabReading": "독서 중",
+  "@bookListTabReading": {
+    "description": "Reading tab"
+  },
   "bookListTabPlanned": "읽을 예정",
-  "@bookListTabPlanned": {"description": "Planned tab"},
-  
+  "@bookListTabPlanned": {
+    "description": "Planned tab"
+  },
   "bookListTabCompleted": "완독",
-  "@bookListTabCompleted": {"description": "Completed tab"},
-  
+  "@bookListTabCompleted": {
+    "description": "Completed tab"
+  },
   "bookListTabReread": "다시 읽을 책",
-  "@bookListTabReread": {"description": "Reread tab"},
-  
-   "bookListTabAll": "전체",
-   "@bookListTabAll": {"description": "All tab"},
-   
-   "bookListFilterAll": "전체",
-   "@bookListFilterAll": {"description": "All filter"},
-   
-   "bookListErrorLoadFailed": "데이터를 불러올 수 없습니다",
-   "@bookListErrorLoadFailed": {"description": "Error loading data"},
-   
-   "bookListErrorNetworkCheck": "네트워크 연결을 확인해주세요",
-   "@bookListErrorNetworkCheck": {"description": "Network check message"},
-   
-   "bookListEmptyReading": "현재 읽고 있는 책이 없습니다",
-   "@bookListEmptyReading": {"description": "No reading books"},
-   
-   "bookListEmptyPlanned": "읽을 예정인 책이 없습니다",
-   "@bookListEmptyPlanned": {"description": "No planned books"},
-   
-   "bookListEmptyCompleted": "완독한 책이 없습니다",
-   "@bookListEmptyCompleted": {"description": "No completed books"},
-   
-   "bookListEmptyPaused": "잠시 쉬어가는 책이 없습니다",
-   "@bookListEmptyPaused": {"description": "No paused books"},
-   
-   "bookListEmptyAll": "아직 시작한 독서가 없습니다",
-   "@bookListEmptyAll": {"description": "No reading started"},
-   
-   "bookDetailTabRecord": "기록",
-  "@bookDetailTabRecord": {"description": "Record tab"},
-  
+  "@bookListTabReread": {
+    "description": "Reread tab"
+  },
+  "bookListTabAll": "전체",
+  "@bookListTabAll": {
+    "description": "All tab"
+  },
+  "bookListFilterAll": "전체",
+  "@bookListFilterAll": {
+    "description": "All filter"
+  },
+  "bookListErrorLoadFailed": "데이터를 불러올 수 없습니다",
+  "@bookListErrorLoadFailed": {
+    "description": "Error loading data"
+  },
+  "bookListErrorNetworkCheck": "네트워크 연결을 확인해주세요",
+  "@bookListErrorNetworkCheck": {
+    "description": "Network check message"
+  },
+  "bookListEmptyReading": "현재 읽고 있는 책이 없습니다",
+  "@bookListEmptyReading": {
+    "description": "No reading books"
+  },
+  "bookListEmptyPlanned": "읽을 예정인 책이 없습니다",
+  "@bookListEmptyPlanned": {
+    "description": "No planned books"
+  },
+  "bookListEmptyCompleted": "완독한 책이 없습니다",
+  "@bookListEmptyCompleted": {
+    "description": "No completed books"
+  },
+  "bookListEmptyPaused": "잠시 쉬어가는 책이 없습니다",
+  "@bookListEmptyPaused": {
+    "description": "No paused books"
+  },
+  "bookListEmptyAll": "아직 시작한 독서가 없습니다",
+  "@bookListEmptyAll": {
+    "description": "No reading started"
+  },
+  "bookDetailTabRecord": "기록",
+  "@bookDetailTabRecord": {
+    "description": "Record tab"
+  },
   "bookDetailTabHistory": "히스토리",
-  "@bookDetailTabHistory": {"description": "History tab"},
-  
+  "@bookDetailTabHistory": {
+    "description": "History tab"
+  },
   "bookDetailTabReview": "독후감",
-  "@bookDetailTabReview": {"description": "Review tab"},
-  
+  "@bookDetailTabReview": {
+    "description": "Review tab"
+  },
   "bookDetailTabDetail": "상세",
-  "@bookDetailTabDetail": {"description": "Detail tab"},
-  
+  "@bookDetailTabDetail": {
+    "description": "Detail tab"
+  },
   "bookDetailStartDate": "시작일",
-  "@bookDetailStartDate": {"description": "Start date label"},
-  
+  "@bookDetailStartDate": {
+    "description": "Start date label"
+  },
   "bookDetailTargetDate": "목표일",
-  "@bookDetailTargetDate": {"description": "Target date label"},
-  
+  "@bookDetailTargetDate": {
+    "description": "Target date label"
+  },
   "bookDetailReviewWritten": "작성됨",
-  "@bookDetailReviewWritten": {"description": "Review written status"},
-  
+  "@bookDetailReviewWritten": {
+    "description": "Review written status"
+  },
   "bookDetailReviewNotWritten": "아직 작성되지 않음",
-  "@bookDetailReviewNotWritten": {"description": "Review not written status"},
-  
+  "@bookDetailReviewNotWritten": {
+    "description": "Review not written status"
+  },
   "bookDetailLegendAchieved": "달성",
-  "@bookDetailLegendAchieved": {"description": "Achieved legend"},
-  
+  "@bookDetailLegendAchieved": {
+    "description": "Achieved legend"
+  },
   "bookDetailLegendMissed": "미달성",
-  "@bookDetailLegendMissed": {"description": "Missed legend"},
-  
+  "@bookDetailLegendMissed": {
+    "description": "Missed legend"
+  },
   "bookDetailLegendScheduled": "예정",
-  "@bookDetailLegendScheduled": {"description": "Scheduled legend"},
-  
+  "@bookDetailLegendScheduled": {
+    "description": "Scheduled legend"
+  },
   "bookDetailLater": "나중에",
-  "@bookDetailLater": {"description": "Later button"},
-  
-   "myLibraryTitle": "나의 서재",
-   "@myLibraryTitle": {"description": "My library title"},
-   
-   "myLibraryTabReading": "독서",
-   "@myLibraryTabReading": {"description": "Reading tab in my library"},
-   
-   "myLibraryTabReview": "독후감",
-   "@myLibraryTabReview": {"description": "Review tab in my library"},
-   
-   "myLibraryTabRecord": "기록",
-   "@myLibraryTabRecord": {"description": "Record tab in my library"},
-   
-   "myLibrarySearchHint": "제목, 저자로 검색",
-   "@myLibrarySearchHint": {"description": "Search hint text"},
-   
-   "myLibraryNoSearchResults": "검색 결과가 없습니다",
-   "@myLibraryNoSearchResults": {"description": "No search results message"},
-   
-   "myLibraryNoBooks": "등록된 책이 없습니다",
-   "@myLibraryNoBooks": {"description": "No books registered message"},
-   
-   "myLibraryNoReviewBooks": "독후감이 있는 책이 없습니다",
-   "@myLibraryNoReviewBooks": {"description": "No books with reviews message"},
-   
-   "myLibraryNoRecords": "기록이 없습니다",
-   "@myLibraryNoRecords": {"description": "No records message"},
-   
-   "myLibraryAiSearch": "모든 기록에서 AI 검색",
-   "@myLibraryAiSearch": {"description": "AI search all records button"},
-   
-   "myLibraryFilterAll": "전체",
-   "@myLibraryFilterAll": {"description": "All filter option"},
-   
-   "myLibraryFilterHighlight": "✨ 하이라이트",
-   "@myLibraryFilterHighlight": {"description": "Highlight filter option"},
-   
-   "myLibraryFilterMemo": "📝 메모",
-   "@myLibraryFilterMemo": {"description": "Memo filter option"},
-   
-   "myLibraryFilterPhoto": "📷 사진",
-   "@myLibraryFilterPhoto": {"description": "Photo filter option"},
-   
-   "chartTitle": "나의 독서 상태",
-   "@chartTitle": {"description": "Reading chart title"},
-   
-   "chartTabOverview": "개요",
-   "@chartTabOverview": {"description": "Overview tab"},
-   
-   "chartTabAnalysis": "분석",
-   "@chartTabAnalysis": {"description": "Analysis tab"},
-   
-   "chartTabActivity": "활동",
-   "@chartTabActivity": {"description": "Activity tab"},
-   
-   "chartPeriodDaily": "일별",
-   "@chartPeriodDaily": {"description": "Daily period"},
-   
-   "chartPeriodWeekly": "주별",
-   "@chartPeriodWeekly": {"description": "Weekly period"},
-   
-   "chartPeriodMonthly": "월별",
-   "@chartPeriodMonthly": {"description": "Monthly period"},
-   
-   "chartDailyAverage": "일평균",
-   "@chartDailyAverage": {"description": "Daily average"},
-   
-   "chartIncrease": "증감",
-   "@chartIncrease": {"description": "Increase/decrease"},
-   
-   "chartLess": "적음",
-   "@chartLess": {"description": "Less"},
-   
-   "chartMore": "많음",
-   "@chartMore": {"description": "More"},
-   
-   "chartErrorLoadFailed": "데이터를 불러올 수 없습니다",
-   "@chartErrorLoadFailed": {"description": "Error loading data"},
-   
-   "chartErrorRetry": "다시 시도",
-   "@chartErrorRetry": {"description": "Retry button"},
-   
-   "chartTotalPages": "총 읽은 페이지",
-   "@chartTotalPages": {"description": "Total pages read"},
-   
-   "chartDailyAvgPages": "일평균",
-   "@chartDailyAvgPages": {"description": "Daily average pages"},
-   
-   "chartMaxDaily": "최고 기록",
-   "@chartMaxDaily": {"description": "Best record"},
-   
-   "chartMinDaily": "최저 기록",
-   "@chartMinDaily": {"description": "Lowest record"},
-   
-   "chartConsecutiveDays": "연속 독서",
-   "@chartConsecutiveDays": {"description": "Consecutive reading days"},
-   
-   "chartTodayGoal": "오늘 목표",
-   "@chartTodayGoal": {"description": "Today's goal"},
-   
-   "chartReadingProgress": "독서 진행 차트",
-   "@chartReadingProgress": {"description": "Reading progress chart"},
-   
-   "chartDailyPages": "일별 페이지",
-   "@chartDailyPages": {"description": "Daily pages"},
-   
-   "chartCumulativePages": "누적 페이지",
-   "@chartCumulativePages": {"description": "Cumulative pages"},
-   
-   "chartNoData": "아직 데이터가 없어요",
-   "@chartNoData": {"description": "No data yet"},
-   
-   "chartDailyReadPages": "페이지",
-   "@chartDailyReadPages": {"description": "Pages"},
-   
-   "chartReadingStats": "독서 통계",
-   "@chartReadingStats": {"description": "Reading statistics"},
-   
-   "chartAiInsight": "AI 인사이트",
-   "@chartAiInsight": {"description": "AI insight"},
-   
-   "chartCompletionRate": "완독률",
-   "@chartCompletionRate": {"description": "Completion rate"},
-   
-   "chartRecordsHighlights": "기록/하이라이트",
-   "@chartRecordsHighlights": {"description": "Records/highlights"},
-   
-   "chartGenreAnalysis": "장르 분석",
-   "@chartGenreAnalysis": {"description": "Genre analysis"},
-   
-   "chartNoReadingRecords": "읽은 기록이 없어요",
-   "@chartNoReadingRecords": {"description": "No reading records"},
-  
-   "myPageTitle": "마이페이지",
-   "@myPageTitle": {"description": "My page title"},
-   
-   "myPageSettings": "설정",
-   "@myPageSettings": {"description": "Settings"},
-   
-   "myPageChangeAvatar": "변경",
-   "@myPageChangeAvatar": {"description": "Change avatar"},
-   
-   "myPageLogout": "로그아웃",
-   "@myPageLogout": {"description": "Logout"},
-   
-   "myPageDeleteAccount": "계정 삭제",
-   "@myPageDeleteAccount": {"description": "Delete account"},
-   
-   "myPageDeleteAccountConfirm": "정말로 계정을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.",
-   "@myPageDeleteAccountConfirm": {"description": "Delete account confirmation message"},
-   
-   "myPageDeleteAccountSuccess": "계정이 성공적으로 삭제되었습니다.",
-   "@myPageDeleteAccountSuccess": {"description": "Account deleted successfully"},
-   
-   "myPageDeleteAccountFailed": "계정 삭제에 실패했습니다. 다시 시도해주세요.",
-   "@myPageDeleteAccountFailed": {"description": "Failed to delete account"},
-   
-   "myPageDeleteAccountError": "오류가 발생했습니다: {error}",
-   "@myPageDeleteAccountError": {
-     "description": "Error message when deleting account",
-     "placeholders": {
-       "error": {"type": "String"}
-     }
-   },
-   
-   "myPageNotificationTimeTitle": "알림 시간 설정",
-   "@myPageNotificationTimeTitle": {"description": "Set notification time"},
-   
-   "myPageNoNickname": "닉네임 없음",
-   "@myPageNoNickname": {"description": "No nickname"},
-   
-   "myPageNicknameHint": "닉네임을 입력하세요",
-   "@myPageNicknameHint": {"description": "Nickname hint"},
-   
-   "myPageDarkMode": "다크 모드",
-   "@myPageDarkMode": {"description": "Dark mode"},
-   
-   "myPageDailyReadingNotification": "매일 독서 목표 알림",
-   "@myPageDailyReadingNotification": {"description": "Daily reading goal notification"},
-   
-   "myPageNotificationTime": "매일 {time}에 알림",
-   "@myPageNotificationTime": {
-     "description": "Notification time display",
-     "placeholders": {
-       "time": {"type": "String"}
-     }
-   },
-   
-   "myPageNoNotification": "알림을 받지 않습니다",
-   "@myPageNoNotification": {"description": "No notifications"},
-   
-   "myPageNotificationEnabled": "알림이 활성화되었습니다",
-   "@myPageNotificationEnabled": {"description": "Notifications enabled"},
-   
-   "myPageNotificationDisabled": "알림이 비활성화되었습니다",
-   "@myPageNotificationDisabled": {"description": "Notifications disabled"},
-   
-   "myPageNotificationChangeFailed": "알림 설정 변경에 실패했습니다",
-   "@myPageNotificationChangeFailed": {"description": "Failed to change notification settings"},
-   
-   "myPageTestNotification": "테스트 알림 (30초 후)",
-   "@myPageTestNotification": {"description": "Test notification"},
-   
-   "myPageTestNotificationSent": "30초 후에 테스트 알림이 발송됩니다!",
-   "@myPageTestNotificationSent": {"description": "Test notification sent message"},
-   
-   "myPageAvatarChanged": "프로필 이미지가 변경되었습니다",
-   "@myPageAvatarChanged": {"description": "Avatar changed"},
-   
-   "myPageAvatarChangeFailed": "프로필 이미지 변경 실패: {error}",
-   "@myPageAvatarChangeFailed": {
-     "description": "Error message when changing avatar",
-     "placeholders": {
-       "error": {"type": "String"}
-     }
-   },
-  
-   "loginAppName": "북골라스",
-   "@loginAppName": {"description": "App name on login screen"},
-   
-   "loginEmailLabel": "이메일",
-   "@loginEmailLabel": {"description": "Email label"},
-   
-   "loginPasswordLabel": "비밀번호",
-   "@loginPasswordLabel": {"description": "Password label"},
-   
-   "loginNicknameLabel": "닉네임",
-   "@loginNicknameLabel": {"description": "Nickname label"},
-   
-   "loginOrDivider": "또는",
-   "@loginOrDivider": {"description": "Or divider"},
-   
-   "loginButton": "로그인",
-   "@loginButton": {"description": "Login button"},
-   
-   "loginSignupButton": "회원가입",
-   "@loginSignupButton": {"description": "Signup button"},
-   
-   "loginDescriptionSignIn": "오늘도 한 페이지,\n당신의 독서를 응원합니다",
-   "@loginDescriptionSignIn": {"description": "Sign in description"},
-   
-   "loginDescriptionSignUp": "북골라스와 함께\n독서 습관을 시작해보세요",
-   "@loginDescriptionSignUp": {"description": "Sign up description"},
-   
-   "loginDescriptionForgotPassword": "가입하신 이메일로\n재설정 링크를 보내드립니다",
-   "@loginDescriptionForgotPassword": {"description": "Forgot password description"},
-   
-   "loginEmailHint": "example@email.com",
-   "@loginEmailHint": {"description": "Email hint"},
-   
-   "loginPasswordHint": "6자 이상 입력해주세요",
-   "@loginPasswordHint": {"description": "Password hint"},
-   
-   "loginNicknameHint": "앱에서 사용할 이름",
-   "@loginNicknameHint": {"description": "Nickname hint"},
-   
-   "loginEmailRequired": "이메일을 입력해주세요",
-   "@loginEmailRequired": {"description": "Email required error"},
-   
-   "loginEmailInvalid": "올바른 이메일 주소를 입력해주세요",
-   "@loginEmailInvalid": {"description": "Invalid email error"},
-   
-   "loginPasswordRequired": "비밀번호를 입력해주세요",
-   "@loginPasswordRequired": {"description": "Password required error"},
-   
-   "loginPasswordTooShort": "비밀번호는 6자 이상이어야 합니다",
-   "@loginPasswordTooShort": {"description": "Password too short error"},
-   
-   "loginNicknameRequired": "닉네임을 입력해주세요",
-   "@loginNicknameRequired": {"description": "Nickname required error"},
-   
-   "loginForgotPassword": "비밀번호를 잊으셨나요?",
-   "@loginForgotPassword": {"description": "Forgot password button"},
-   
-   "loginNoAccount": "계정이 없으신가요? 회원가입",
-   "@loginNoAccount": {"description": "No account sign up button"},
-   
-   "loginHaveAccount": "이미 계정이 있으신가요? 로그인",
-   "@loginHaveAccount": {"description": "Have account login button"},
-   
-   "loginBackToSignIn": "로그인으로 돌아가기",
-   "@loginBackToSignIn": {"description": "Back to sign in button"},
-   
-   "loginSaveEmail": "이메일 저장",
-   "@loginSaveEmail": {"description": "Save email checkbox"},
-   
-   "loginSignupSuccess": "회원가입이 완료되었습니다. 이메일을 확인해주세요.",
-   "@loginSignupSuccess": {"description": "Sign up success message"},
-   
-   "loginResetPasswordSuccess": "비밀번호 재설정 이메일을 보냈습니다.",
-   "@loginResetPasswordSuccess": {"description": "Reset password success message"},
-   
-   "loginUnexpectedError": "예상치 못한 오류가 발생했습니다.",
-   "@loginUnexpectedError": {"description": "Unexpected error message"},
-   
-   "loginErrorInvalidCredentials": "이메일 또는 비밀번호가 올바르지 않습니다.",
-   "@loginErrorInvalidCredentials": {"description": "Invalid credentials error"},
-   
-   "loginErrorEmailNotConfirmed": "이메일 인증이 완료되지 않았습니다.",
-   "@loginErrorEmailNotConfirmed": {"description": "Email not confirmed error"},
-   
-   "loginErrorEmailAlreadyRegistered": "이미 등록된 이메일입니다.",
-   "@loginErrorEmailAlreadyRegistered": {"description": "Email already registered error"},
-   
-   "loginErrorPasswordTooShort": "비밀번호는 6자 이상이어야 합니다.",
-   "@loginErrorPasswordTooShort": {"description": "Password too short error"},
-  
-   "reviewTitle": "독후감",
-   "@reviewTitle": {"description": "Review title"},
-   
-   "reviewSave": "저장",
-   "@reviewSave": {"description": "Save review"},
-   
-   "reviewReplace": "대체하기",
-   "@reviewReplace": {"description": "Replace review"},
-   
-   "reviewExit": "나가기",
-   "@reviewExit": {"description": "Exit review"},
-   
-   "reviewDraftLoaded": "임시 저장된 내용을 불러왔습니다.",
-   "@reviewDraftLoaded": {"description": "Draft loaded message"},
-   
-   "reviewCopied": "독후감이 복사되었습니다.",
-   "@reviewCopied": {"description": "Review copied message"},
-   
-   "reviewBookNotFound": "책 정보를 찾을 수 없습니다.",
-   "@reviewBookNotFound": {"description": "Book not found error"},
-   
-   "reviewSaveFailed": "저장에 실패했습니다. 다시 시도해주세요.",
-   "@reviewSaveFailed": {"description": "Save failed error"},
-   
-   "reviewSaveError": "저장 중 오류가 발생했습니다.",
-   "@reviewSaveError": {"description": "Save error"},
-   
-   "reviewReplaceConfirm": "현재 작성 중인 내용이 있습니다.\nAI 초안으로 대체하시겠습니까?",
-   "@reviewReplaceConfirm": {"description": "Replace confirmation message"},
-   
-   "reviewReplaceButton": "대체하기",
-   "@reviewReplaceButton": {"description": "Replace button"},
-   
-   "reviewAIDraftGenerated": "AI 초안이 생성되었습니다. 자유롭게 수정해주세요!",
-   "@reviewAIDraftGenerated": {"description": "AI draft generated message"},
-   
-   "reviewAIDraftFailed": "AI 초안 생성에 실패했습니다. 다시 시도해주세요.",
-   "@reviewAIDraftFailed": {"description": "AI draft failed error"},
-   
-   "reviewAIDraftError": "AI 초안 생성 중 오류가 발생했습니다.",
-   "@reviewAIDraftError": {"description": "AI draft error"},
-   
-   "reviewSaveComplete": "독후감이 저장되었습니다!",
-   "@reviewSaveComplete": {"description": "Save complete message"},
-   
-   "reviewSaveCompleteMessage": "저장한 독후감은 '독후감' 탭 또는\n'나의 서재 > 독후감'에서 확인할 수 있어요.",
-   "@reviewSaveCompleteMessage": {"description": "Save complete detail message"},
-   
-   "reviewExitConfirm": "작성 중단하고 나가시겠어요?",
-   "@reviewExitConfirm": {"description": "Exit confirmation message"},
-   
-   "reviewExitMessage": "작성 중이던 독후감은 임시 저장됩니다.",
-   "@reviewExitMessage": {"description": "Exit detail message"},
-   
-   "reviewHint": "이 책을 읽고 느낀 점, 인상 깊었던 부분, 나에게 준 영감 등을 자유롭게 적어보세요.",
-   "@reviewHint": {"description": "Review text field hint"},
-  
-   "readingStartSetDate": "시작일 지정",
-   "@readingStartSetDate": {"description": "Set start date"},
-   
-   "readingStartUndetermined": "미정",
-   "@readingStartUndetermined": {"description": "Undetermined"},
-   
-   "readingStartTitle": "독서 시작하기",
-   "@readingStartTitle": {"description": "Start reading title"},
-   
-   "readingStartSubtitle": "독서를 시작할 책을 검색해보세요.",
-   "@readingStartSubtitle": {"description": "Start reading subtitle"},
-   
-   "readingStartNoResults": "검색 결과가 없습니다",
-   "@readingStartNoResults": {"description": "No search results"},
-   
-   "readingStartAnalyzing": "독서 패턴을 분석하고 있어요...",
-   "@readingStartAnalyzing": {"description": "Analyzing reading patterns"},
-   
-   "readingStartAiRecommendation": "AI 맞춤 추천",
-   "@readingStartAiRecommendation": {"description": "AI personalized recommendation"},
-   
-   "readingStartAiRecommendationDesc": "{userName}님의 독서 패턴을 분석하여 추천하는 책들이에요",
-   "@readingStartAiRecommendationDesc": {
-     "description": "AI recommendation description",
-     "placeholders": {
-       "userName": {"type": "String"}
-     }
-   },
-   
-   "readingStartSearchHint": "책 제목을 입력해주세요.",
-   "@readingStartSearchHint": {"description": "Search hint"},
-   
-   "readingStartSelectionComplete": "선택 완료",
-   "@readingStartSelectionComplete": {"description": "Selection complete"},
-   
-   "readingStartConfirm": "확인",
-   "@readingStartConfirm": {"description": "Confirm button"},
-   
-   "readingStartPages": "{totalPages}페이지",
-   "@readingStartPages": {
-     "description": "Total pages display",
-     "placeholders": {
-       "totalPages": {"type": "int"}
-     }
-   },
-   
-   "readingStartPlannedDate": "독서 시작 예정일",
-   "@readingStartPlannedDate": {"description": "Planned reading start date"},
-   
-   "readingStartToday": "오늘부터 시작합니다",
-   "@readingStartToday": {"description": "Starting today"},
-   
-   "readingStartTargetDate": "목표 마감일",
-   "@readingStartTargetDate": {"description": "Target deadline"},
-   
-   "readingStartTargetDateNote": "독서 시작 후에도 목표일을 변경할 수 있습니다",
-   "@readingStartTargetDateNote": {"description": "Target date note"},
-   
-   "readingStartSaveError": "독서 정보 저장에 실패했습니다.",
-   "@readingStartSaveError": {"description": "Save error"},
-   
-   "readingStartReserve": "독서 예약하기",
-   "@readingStartReserve": {"description": "Reserve reading"},
-   
-   "readingStartBegin": "독서 시작",
-   "@readingStartBegin": {"description": "Begin reading"},
-   
-   "dialogOpacity": "투명도",
-  "@dialogOpacity": {"description": "Opacity"},
-  
+  "@bookDetailLater": {
+    "description": "Later button"
+  },
+  "myLibraryTitle": "나의 서재",
+  "@myLibraryTitle": {
+    "description": "My library title"
+  },
+  "myLibraryTabReading": "독서",
+  "@myLibraryTabReading": {
+    "description": "Reading tab in my library"
+  },
+  "myLibraryTabReview": "독후감",
+  "@myLibraryTabReview": {
+    "description": "Review tab in my library"
+  },
+  "myLibraryTabRecord": "기록",
+  "@myLibraryTabRecord": {
+    "description": "Record tab in my library"
+  },
+  "myLibrarySearchHint": "제목, 저자로 검색",
+  "@myLibrarySearchHint": {
+    "description": "Search hint text"
+  },
+  "myLibraryNoSearchResults": "검색 결과가 없습니다",
+  "@myLibraryNoSearchResults": {
+    "description": "No search results message"
+  },
+  "myLibraryNoBooks": "등록된 책이 없습니다",
+  "@myLibraryNoBooks": {
+    "description": "No books registered message"
+  },
+  "myLibraryNoReviewBooks": "독후감이 있는 책이 없습니다",
+  "@myLibraryNoReviewBooks": {
+    "description": "No books with reviews message"
+  },
+  "myLibraryNoRecords": "기록이 없습니다",
+  "@myLibraryNoRecords": {
+    "description": "No records message"
+  },
+  "myLibraryAiSearch": "모든 기록에서 AI 검색",
+  "@myLibraryAiSearch": {
+    "description": "AI search all records button"
+  },
+  "myLibraryFilterAll": "전체",
+  "@myLibraryFilterAll": {
+    "description": "All filter option"
+  },
+  "myLibraryFilterHighlight": "✨ 하이라이트",
+  "@myLibraryFilterHighlight": {
+    "description": "Highlight filter option"
+  },
+  "myLibraryFilterMemo": "📝 메모",
+  "@myLibraryFilterMemo": {
+    "description": "Memo filter option"
+  },
+  "myLibraryFilterPhoto": "📷 사진",
+  "@myLibraryFilterPhoto": {
+    "description": "Photo filter option"
+  },
+  "chartTitle": "나의 독서 상태",
+  "@chartTitle": {
+    "description": "Reading chart title"
+  },
+  "chartTabOverview": "개요",
+  "@chartTabOverview": {
+    "description": "Overview tab"
+  },
+  "chartTabAnalysis": "분석",
+  "@chartTabAnalysis": {
+    "description": "Analysis tab"
+  },
+  "chartTabActivity": "활동",
+  "@chartTabActivity": {
+    "description": "Activity tab"
+  },
+  "chartPeriodDaily": "일별",
+  "@chartPeriodDaily": {
+    "description": "Daily period"
+  },
+  "chartPeriodWeekly": "주별",
+  "@chartPeriodWeekly": {
+    "description": "Weekly period"
+  },
+  "chartPeriodMonthly": "월별",
+  "@chartPeriodMonthly": {
+    "description": "Monthly period"
+  },
+  "chartDailyAverage": "일평균",
+  "@chartDailyAverage": {
+    "description": "Daily average"
+  },
+  "chartIncrease": "증감",
+  "@chartIncrease": {
+    "description": "Increase/decrease"
+  },
+  "chartLess": "적음",
+  "@chartLess": {
+    "description": "Less"
+  },
+  "chartMore": "많음",
+  "@chartMore": {
+    "description": "More"
+  },
+  "chartErrorLoadFailed": "데이터를 불러올 수 없습니다",
+  "@chartErrorLoadFailed": {
+    "description": "Error loading data"
+  },
+  "chartErrorRetry": "다시 시도",
+  "@chartErrorRetry": {
+    "description": "Retry button"
+  },
+  "chartTotalPages": "총 읽은 페이지",
+  "@chartTotalPages": {
+    "description": "Total pages read"
+  },
+  "chartDailyAvgPages": "일평균",
+  "@chartDailyAvgPages": {
+    "description": "Daily average pages"
+  },
+  "chartMaxDaily": "최고 기록",
+  "@chartMaxDaily": {
+    "description": "Best record"
+  },
+  "chartMinDaily": "최저 기록",
+  "@chartMinDaily": {
+    "description": "Lowest record"
+  },
+  "chartConsecutiveDays": "연속 독서",
+  "@chartConsecutiveDays": {
+    "description": "Consecutive reading days"
+  },
+  "chartTodayGoal": "오늘 목표",
+  "@chartTodayGoal": {
+    "description": "Today's goal"
+  },
+  "chartReadingProgress": "독서 진행 차트",
+  "@chartReadingProgress": {
+    "description": "Reading progress chart"
+  },
+  "chartDailyPages": "일별 페이지",
+  "@chartDailyPages": {
+    "description": "Daily pages"
+  },
+  "chartCumulativePages": "누적 페이지",
+  "@chartCumulativePages": {
+    "description": "Cumulative pages"
+  },
+  "chartNoData": "아직 데이터가 없어요",
+  "@chartNoData": {
+    "description": "No data yet"
+  },
+  "chartDailyReadPages": "페이지",
+  "@chartDailyReadPages": {
+    "description": "Pages"
+  },
+  "chartReadingStats": "독서 통계",
+  "@chartReadingStats": {
+    "description": "Reading statistics"
+  },
+  "chartAiInsight": "AI 인사이트",
+  "@chartAiInsight": {
+    "description": "AI insight"
+  },
+  "chartCompletionRate": "완독률",
+  "@chartCompletionRate": {
+    "description": "Completion rate"
+  },
+  "chartRecordsHighlights": "기록/하이라이트",
+  "@chartRecordsHighlights": {
+    "description": "Records/highlights"
+  },
+  "chartGenreAnalysis": "장르 분석",
+  "@chartGenreAnalysis": {
+    "description": "Genre analysis"
+  },
+  "chartNoReadingRecords": "읽은 기록이 없어요",
+  "@chartNoReadingRecords": {
+    "description": "No reading records"
+  },
+  "myPageTitle": "마이페이지",
+  "@myPageTitle": {
+    "description": "My page title"
+  },
+  "myPageSettings": "설정",
+  "@myPageSettings": {
+    "description": "Settings"
+  },
+  "myPageChangeAvatar": "변경",
+  "@myPageChangeAvatar": {
+    "description": "Change avatar"
+  },
+  "myPageLogout": "로그아웃",
+  "@myPageLogout": {
+    "description": "Logout"
+  },
+  "myPageDeleteAccount": "계정 삭제",
+  "@myPageDeleteAccount": {
+    "description": "Delete account"
+  },
+  "myPageDeleteAccountConfirm": "정말로 계정을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.",
+  "@myPageDeleteAccountConfirm": {
+    "description": "Delete account confirmation message"
+  },
+  "myPageDeleteAccountSuccess": "계정이 성공적으로 삭제되었습니다.",
+  "@myPageDeleteAccountSuccess": {
+    "description": "Account deleted successfully"
+  },
+  "myPageDeleteAccountFailed": "계정 삭제에 실패했습니다. 다시 시도해주세요.",
+  "@myPageDeleteAccountFailed": {
+    "description": "Failed to delete account"
+  },
+  "myPageDeleteAccountError": "오류가 발생했습니다: {error}",
+  "@myPageDeleteAccountError": {
+    "description": "Error message when deleting account",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "myPageNotificationTimeTitle": "알림 시간 설정",
+  "@myPageNotificationTimeTitle": {
+    "description": "Set notification time"
+  },
+  "myPageNoNickname": "닉네임 없음",
+  "@myPageNoNickname": {
+    "description": "No nickname"
+  },
+  "myPageNicknameHint": "닉네임을 입력하세요",
+  "@myPageNicknameHint": {
+    "description": "Nickname hint"
+  },
+  "myPageDarkMode": "다크 모드",
+  "@myPageDarkMode": {
+    "description": "Dark mode"
+  },
+  "myPageDailyReadingNotification": "매일 독서 목표 알림",
+  "@myPageDailyReadingNotification": {
+    "description": "Daily reading goal notification"
+  },
+  "myPageNotificationTime": "매일 {time}에 알림",
+  "@myPageNotificationTime": {
+    "description": "Notification time display",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "myPageNoNotification": "알림을 받지 않습니다",
+  "@myPageNoNotification": {
+    "description": "No notifications"
+  },
+  "myPageNotificationEnabled": "알림이 활성화되었습니다",
+  "@myPageNotificationEnabled": {
+    "description": "Notifications enabled"
+  },
+  "myPageNotificationDisabled": "알림이 비활성화되었습니다",
+  "@myPageNotificationDisabled": {
+    "description": "Notifications disabled"
+  },
+  "myPageNotificationChangeFailed": "알림 설정 변경에 실패했습니다",
+  "@myPageNotificationChangeFailed": {
+    "description": "Failed to change notification settings"
+  },
+  "myPageTestNotification": "테스트 알림 (30초 후)",
+  "@myPageTestNotification": {
+    "description": "Test notification"
+  },
+  "myPageTestNotificationSent": "30초 후에 테스트 알림이 발송됩니다!",
+  "@myPageTestNotificationSent": {
+    "description": "Test notification sent message"
+  },
+  "myPageAvatarChanged": "프로필 이미지가 변경되었습니다",
+  "@myPageAvatarChanged": {
+    "description": "Avatar changed"
+  },
+  "myPageAvatarChangeFailed": "프로필 이미지 변경 실패: {error}",
+  "@myPageAvatarChangeFailed": {
+    "description": "Error message when changing avatar",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "loginAppName": "북골라스",
+  "@loginAppName": {
+    "description": "App name on login screen"
+  },
+  "loginEmailLabel": "이메일",
+  "@loginEmailLabel": {
+    "description": "Email label"
+  },
+  "loginPasswordLabel": "비밀번호",
+  "@loginPasswordLabel": {
+    "description": "Password label"
+  },
+  "loginNicknameLabel": "닉네임",
+  "@loginNicknameLabel": {
+    "description": "Nickname label"
+  },
+  "loginOrDivider": "또는",
+  "@loginOrDivider": {
+    "description": "Or divider"
+  },
+  "loginButton": "로그인",
+  "@loginButton": {
+    "description": "Login button"
+  },
+  "loginSignupButton": "회원가입",
+  "@loginSignupButton": {
+    "description": "Signup button"
+  },
+  "loginDescriptionSignIn": "오늘도 한 페이지,\n당신의 독서를 응원합니다",
+  "@loginDescriptionSignIn": {
+    "description": "Sign in description"
+  },
+  "loginDescriptionSignUp": "북골라스와 함께\n독서 습관을 시작해보세요",
+  "@loginDescriptionSignUp": {
+    "description": "Sign up description"
+  },
+  "loginDescriptionForgotPassword": "가입하신 이메일로\n재설정 링크를 보내드립니다",
+  "@loginDescriptionForgotPassword": {
+    "description": "Forgot password description"
+  },
+  "loginEmailHint": "example@email.com",
+  "@loginEmailHint": {
+    "description": "Email hint"
+  },
+  "loginPasswordHint": "6자 이상 입력해주세요",
+  "@loginPasswordHint": {
+    "description": "Password hint"
+  },
+  "loginNicknameHint": "앱에서 사용할 이름",
+  "@loginNicknameHint": {
+    "description": "Nickname hint"
+  },
+  "loginEmailRequired": "이메일을 입력해주세요",
+  "@loginEmailRequired": {
+    "description": "Email required error"
+  },
+  "loginEmailInvalid": "올바른 이메일 주소를 입력해주세요",
+  "@loginEmailInvalid": {
+    "description": "Invalid email error"
+  },
+  "loginPasswordRequired": "비밀번호를 입력해주세요",
+  "@loginPasswordRequired": {
+    "description": "Password required error"
+  },
+  "loginPasswordTooShort": "비밀번호는 6자 이상이어야 합니다",
+  "@loginPasswordTooShort": {
+    "description": "Password too short error"
+  },
+  "loginNicknameRequired": "닉네임을 입력해주세요",
+  "@loginNicknameRequired": {
+    "description": "Nickname required error"
+  },
+  "loginForgotPassword": "비밀번호를 잊으셨나요?",
+  "@loginForgotPassword": {
+    "description": "Forgot password button"
+  },
+  "loginNoAccount": "계정이 없으신가요? 회원가입",
+  "@loginNoAccount": {
+    "description": "No account sign up button"
+  },
+  "loginHaveAccount": "이미 계정이 있으신가요? 로그인",
+  "@loginHaveAccount": {
+    "description": "Have account login button"
+  },
+  "loginBackToSignIn": "로그인으로 돌아가기",
+  "@loginBackToSignIn": {
+    "description": "Back to sign in button"
+  },
+  "loginSaveEmail": "이메일 저장",
+  "@loginSaveEmail": {
+    "description": "Save email checkbox"
+  },
+  "loginSignupSuccess": "회원가입이 완료되었습니다. 이메일을 확인해주세요.",
+  "@loginSignupSuccess": {
+    "description": "Sign up success message"
+  },
+  "loginResetPasswordSuccess": "비밀번호 재설정 이메일을 보냈습니다.",
+  "@loginResetPasswordSuccess": {
+    "description": "Reset password success message"
+  },
+  "loginUnexpectedError": "예상치 못한 오류가 발생했습니다.",
+  "@loginUnexpectedError": {
+    "description": "Unexpected error message"
+  },
+  "loginErrorInvalidCredentials": "이메일 또는 비밀번호가 올바르지 않습니다.",
+  "@loginErrorInvalidCredentials": {
+    "description": "Invalid credentials error"
+  },
+  "loginErrorEmailNotConfirmed": "이메일 인증이 완료되지 않았습니다.",
+  "@loginErrorEmailNotConfirmed": {
+    "description": "Email not confirmed error"
+  },
+  "loginErrorEmailAlreadyRegistered": "이미 등록된 이메일입니다.",
+  "@loginErrorEmailAlreadyRegistered": {
+    "description": "Email already registered error"
+  },
+  "loginErrorPasswordTooShort": "비밀번호는 6자 이상이어야 합니다.",
+  "@loginErrorPasswordTooShort": {
+    "description": "Password too short error"
+  },
+  "reviewTitle": "독후감",
+  "@reviewTitle": {
+    "description": "Review title"
+  },
+  "reviewSave": "저장",
+  "@reviewSave": {
+    "description": "Save review"
+  },
+  "reviewReplace": "대체하기",
+  "@reviewReplace": {
+    "description": "Replace review"
+  },
+  "reviewExit": "나가기",
+  "@reviewExit": {
+    "description": "Exit review"
+  },
+  "reviewDraftLoaded": "임시 저장된 내용을 불러왔습니다.",
+  "@reviewDraftLoaded": {
+    "description": "Draft loaded message"
+  },
+  "reviewCopied": "독후감이 복사되었습니다.",
+  "@reviewCopied": {
+    "description": "Review copied message"
+  },
+  "reviewBookNotFound": "책 정보를 찾을 수 없습니다.",
+  "@reviewBookNotFound": {
+    "description": "Book not found error"
+  },
+  "reviewSaveFailed": "저장에 실패했습니다. 다시 시도해주세요.",
+  "@reviewSaveFailed": {
+    "description": "Save failed error"
+  },
+  "reviewSaveError": "저장 중 오류가 발생했습니다.",
+  "@reviewSaveError": {
+    "description": "Save error"
+  },
+  "reviewReplaceConfirm": "현재 작성 중인 내용이 있습니다.\nAI 초안으로 대체하시겠습니까?",
+  "@reviewReplaceConfirm": {
+    "description": "Replace confirmation message"
+  },
+  "reviewReplaceButton": "대체하기",
+  "@reviewReplaceButton": {
+    "description": "Replace button"
+  },
+  "reviewAIDraftGenerated": "AI 초안이 생성되었습니다. 자유롭게 수정해주세요!",
+  "@reviewAIDraftGenerated": {
+    "description": "AI draft generated message"
+  },
+  "reviewAIDraftFailed": "AI 초안 생성에 실패했습니다. 다시 시도해주세요.",
+  "@reviewAIDraftFailed": {
+    "description": "AI draft failed error"
+  },
+  "reviewAIDraftError": "AI 초안 생성 중 오류가 발생했습니다.",
+  "@reviewAIDraftError": {
+    "description": "AI draft error"
+  },
+  "reviewSaveComplete": "독후감이 저장되었습니다!",
+  "@reviewSaveComplete": {
+    "description": "Save complete message"
+  },
+  "reviewSaveCompleteMessage": "저장한 독후감은 '독후감' 탭 또는\n'나의 서재 > 독후감'에서 확인할 수 있어요.",
+  "@reviewSaveCompleteMessage": {
+    "description": "Save complete detail message"
+  },
+  "reviewExitConfirm": "작성 중단하고 나가시겠어요?",
+  "@reviewExitConfirm": {
+    "description": "Exit confirmation message"
+  },
+  "reviewExitMessage": "작성 중이던 독후감은 임시 저장됩니다.",
+  "@reviewExitMessage": {
+    "description": "Exit detail message"
+  },
+  "reviewHint": "이 책을 읽고 느낀 점, 인상 깊었던 부분, 나에게 준 영감 등을 자유롭게 적어보세요.",
+  "@reviewHint": {
+    "description": "Review text field hint"
+  },
+  "readingStartSetDate": "시작일 지정",
+  "@readingStartSetDate": {
+    "description": "Set start date"
+  },
+  "readingStartUndetermined": "미정",
+  "@readingStartUndetermined": {
+    "description": "Undetermined"
+  },
+  "readingStartTitle": "독서 시작하기",
+  "@readingStartTitle": {
+    "description": "Start reading title"
+  },
+  "readingStartSubtitle": "독서를 시작할 책을 검색해보세요.",
+  "@readingStartSubtitle": {
+    "description": "Start reading subtitle"
+  },
+  "readingStartNoResults": "검색 결과가 없습니다",
+  "@readingStartNoResults": {
+    "description": "No search results"
+  },
+  "readingStartAnalyzing": "독서 패턴을 분석하고 있어요...",
+  "@readingStartAnalyzing": {
+    "description": "Analyzing reading patterns"
+  },
+  "readingStartAiRecommendation": "AI 맞춤 추천",
+  "@readingStartAiRecommendation": {
+    "description": "AI personalized recommendation"
+  },
+  "readingStartAiRecommendationDesc": "{userName}님의 독서 패턴을 분석하여 추천하는 책들이에요",
+  "@readingStartAiRecommendationDesc": {
+    "description": "AI recommendation description",
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "readingStartSearchHint": "책 제목을 입력해주세요.",
+  "@readingStartSearchHint": {
+    "description": "Search hint"
+  },
+  "readingStartSelectionComplete": "선택 완료",
+  "@readingStartSelectionComplete": {
+    "description": "Selection complete"
+  },
+  "readingStartConfirm": "확인",
+  "@readingStartConfirm": {
+    "description": "Confirm button"
+  },
+  "readingStartPages": "{totalPages}페이지",
+  "@readingStartPages": {
+    "description": "Total pages display",
+    "placeholders": {
+      "totalPages": {
+        "type": "num"
+      }
+    }
+  },
+  "readingStartPlannedDate": "독서 시작 예정일",
+  "@readingStartPlannedDate": {
+    "description": "Planned reading start date"
+  },
+  "readingStartToday": "오늘부터 시작합니다",
+  "@readingStartToday": {
+    "description": "Starting today"
+  },
+  "readingStartTargetDate": "목표 마감일",
+  "@readingStartTargetDate": {
+    "description": "Target deadline"
+  },
+  "readingStartTargetDateNote": "독서 시작 후에도 목표일을 변경할 수 있습니다",
+  "@readingStartTargetDateNote": {
+    "description": "Target date note"
+  },
+  "readingStartSaveError": "독서 정보 저장에 실패했습니다.",
+  "@readingStartSaveError": {
+    "description": "Save error"
+  },
+  "readingStartReserve": "독서 예약하기",
+  "@readingStartReserve": {
+    "description": "Reserve reading"
+  },
+  "readingStartBegin": "독서 시작",
+  "@readingStartBegin": {
+    "description": "Begin reading"
+  },
+  "dialogOpacity": "투명도",
+  "@dialogOpacity": {
+    "description": "Opacity"
+  },
   "dialogThickness": "굵기",
-  "@dialogThickness": {"description": "Thickness"},
-  
+  "@dialogThickness": {
+    "description": "Thickness"
+  },
   "dialogTakePhoto": "카메라로 촬영",
-  "@dialogTakePhoto": {"description": "Take photo"},
-  
+  "@dialogTakePhoto": {
+    "description": "Take photo"
+  },
   "dialogReplaceImage": "교체하기",
-  "@dialogReplaceImage": {"description": "Replace image"},
-  
+  "@dialogReplaceImage": {
+    "description": "Replace image"
+  },
   "dialogViewFull": "전체보기",
-  "@dialogViewFull": {"description": "View full"},
-  
+  "@dialogViewFull": {
+    "description": "View full"
+  },
   "dialogCopy": "복사하기",
-  "@dialogCopy": {"description": "Copy"},
-  
+  "@dialogCopy": {
+    "description": "Copy"
+  },
   "dialogEdit": "수정하기",
-  "@dialogEdit": {"description": "Edit"},
-  
+  "@dialogEdit": {
+    "description": "Edit"
+  },
   "dialogSaved": "저장되었습니다",
-  "@dialogSaved": {"description": "Saved message"},
-  
+  "@dialogSaved": {
+    "description": "Saved message"
+  },
   "dialogSaving": "저장 중...",
-  "@dialogSaving": {"description": "Saving message"},
-  
+  "@dialogSaving": {
+    "description": "Saving message"
+  },
   "dialogUpload": "업로드",
-  "@dialogUpload": {"description": "Upload"},
-  
+  "@dialogUpload": {
+    "description": "Upload"
+  },
   "dialogSelect": "선택",
-  "@dialogSelect": {"description": "Select"},
-  
+  "@dialogSelect": {
+    "description": "Select"
+  },
   "dialogApply": "적용하기",
-  "@dialogApply": {"description": "Apply"},
-  
+  "@dialogApply": {
+    "description": "Apply"
+  },
   "dialogExtract": "추출하기",
-  "@dialogExtract": {"description": "Extract"},
-  
+  "@dialogExtract": {
+    "description": "Extract"
+  },
   "dialogOkay": "괜찮아요",
-  "@dialogOkay": {"description": "Okay"},
-  
+  "@dialogOkay": {
+    "description": "Okay"
+  },
   "dialogExtractIt": "추출할게요",
-  "@dialogExtractIt": {"description": "Extract it"},
-  
+  "@dialogExtractIt": {
+    "description": "Extract it"
+  },
   "dialogThinkAboutIt": "고민해볼게요",
-  "@dialogThinkAboutIt": {"description": "Think about it"},
-  
+  "@dialogThinkAboutIt": {
+    "description": "Think about it"
+  },
   "genreNovel": "소설",
-  "@genreNovel": {"description": "Novel genre"},
-  
+  "@genreNovel": {
+    "description": "Novel genre"
+  },
   "genreLiterature": "문학",
-  "@genreLiterature": {"description": "Literature genre"},
-  
+  "@genreLiterature": {
+    "description": "Literature genre"
+  },
   "genreSelfHelp": "자기계발",
-  "@genreSelfHelp": {"description": "Self-help genre"},
-  
+  "@genreSelfHelp": {
+    "description": "Self-help genre"
+  },
   "genreBusiness": "경제경영",
-  "@genreBusiness": {"description": "Business genre"},
-  
+  "@genreBusiness": {
+    "description": "Business genre"
+  },
   "genreHumanities": "인문학",
-  "@genreHumanities": {"description": "Humanities genre"},
-  
+  "@genreHumanities": {
+    "description": "Humanities genre"
+  },
   "genreScience": "과학",
-  "@genreScience": {"description": "Science genre"},
-  
+  "@genreScience": {
+    "description": "Science genre"
+  },
   "genreHistory": "역사",
-  "@genreHistory": {"description": "History genre"},
-  
+  "@genreHistory": {
+    "description": "History genre"
+  },
   "genreEssay": "에세이",
-  "@genreEssay": {"description": "Essay genre"},
-  
+  "@genreEssay": {
+    "description": "Essay genre"
+  },
   "genrePoetry": "시",
-  "@genrePoetry": {"description": "Poetry genre"},
-  
+  "@genrePoetry": {
+    "description": "Poetry genre"
+  },
   "genreComic": "만화",
-  "@genreComic": {"description": "Comic genre"},
-  
+  "@genreComic": {
+    "description": "Comic genre"
+  },
   "genreUncategorized": "미분류",
-  "@genreUncategorized": {"description": "Uncategorized genre"},
-  
+  "@genreUncategorized": {
+    "description": "Uncategorized genre"
+  },
   "errorInitFailed": "초기화 중 오류가 발생했습니다",
-  "@errorInitFailed": {"description": "Initialization failed error"},
-  
+  "@errorInitFailed": {
+    "description": "Initialization failed error"
+  },
   "errorLoadFailed": "불러오기 실패",
-  "@errorLoadFailed": {"description": "Load failed error"},
-  
+  "@errorLoadFailed": {
+    "description": "Load failed error"
+  },
   "errorNoRecords": "기록이 없습니다",
-  "@errorNoRecords": {"description": "No records error"},
-  
+  "@errorNoRecords": {
+    "description": "No records error"
+  },
   "loadingInit": "앱을 초기화하는 중...",
-  "@loadingInit": {"description": "Initializing app message"},
-  
+  "@loadingInit": {
+    "description": "Initializing app message"
+  },
   "calendarMonthSelect": "월 선택",
-  "@calendarMonthSelect": {"description": "Month selection title"},
-  
+  "@calendarMonthSelect": {
+    "description": "Month selection title"
+  },
   "calendarPagesRead": "{count}페이지 읽음",
   "@calendarPagesRead": {
     "description": "Pages read on this day",
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "num"
+      }
     }
   },
-  
-   "calendarCompleted": "완독",
-   "@calendarCompleted": {"description": "Completed reading badge"},
-   
-   "onboardingTitle1": "나만의 독서 여정을 기록하세요",
-   "@onboardingTitle1": {"description": "Onboarding screen title 1"},
-   
-   "onboardingDescription1": "읽고 싶은 책을 등록하고,\n독서 목표와 진행 상황을 한눈에 관리하세요.",
-   "@onboardingDescription1": {"description": "Onboarding screen description 1"},
-   
-   "onboardingTitle2": "AI로 독서 기록을 검색하세요",
-   "@onboardingTitle2": {"description": "Onboarding screen title 2"},
-   
-   "onboardingDescription2": "기억나는 내용을 검색하면\nAI가 관련된 메모와 책을 찾아드립니다.",
-   "@onboardingDescription2": {"description": "Onboarding screen description 2"},
-   
-    "onboardingTitle3": "다음 읽을 책을 추천받으세요",
-    "@onboardingTitle3": {"description": "Onboarding screen title 3"},
-    
-    "onboardingDescription3": "지금까지 읽은 책을 바탕으로\n당신의 취향에 맞는 책을 AI가 추천합니다.",
-    "@onboardingDescription3": {"description": "Onboarding screen description 3"},
-    
-     "readingProgressTitle": "진행률 히스토리",
-     "@readingProgressTitle": {"description": "Reading progress history title"},
-     
-     "readingProgressLoadFailed": "진행률 불러오기 실패",
-     "@readingProgressLoadFailed": {"description": "Failed to load progress"},
-     
-     "readingProgressNoRecords": "진행률 기록이 없습니다.",
-     "@readingProgressNoRecords": {"description": "No progress records"},
-     
-     "barcodeScannerTitle": "ISBN 바코드 스캔",
-     "@barcodeScannerTitle": {"description": "Barcode scanner screen title"},
-     
-     "barcodeScannerHint": "책 뒷면의 ISBN 바코드를 스캔해주세요",
-     "@barcodeScannerHint": {"description": "Barcode scanner hint text"},
-     
-     "scannerErrorPermissionDenied": "카메라 권한이 필요합니다\n설정에서 권한을 허용해주세요",
-     "@scannerErrorPermissionDenied": {"description": "Camera permission denied error"},
-     
-     "scannerErrorInitializing": "카메라를 초기화하는 중입니다",
-     "@scannerErrorInitializing": {"description": "Camera initializing message"},
-     
-      "scannerErrorDefault": "카메라 오류가 발생했습니다\n다시 시도해주세요",
-      "@scannerErrorDefault": {"description": "Default camera error message"},
-      
-      "bookstoreSelectTitle": "서점 선택",
-      "@bookstoreSelectTitle": {"description": "Bookstore selection title"},
-      
-      "bookstoreAladdin": "알라딘",
-      "@bookstoreAladdin": {"description": "Aladin bookstore"},
-      
-      "bookstoreKyobo": "교보문고",
-      "@bookstoreKyobo": {"description": "Kyobo bookstore"},
-      
-      "expandedNavBackToDetail": "독서상세 메뉴로",
-      "@expandedNavBackToDetail": {"description": "Back to reading detail menu"},
-      
-      "extractedTextTitle": "추출된 텍스트",
-      "@extractedTextTitle": {"description": "Extracted text title"},
-      
-      "extractedTextSubtitle": "추출된 내용을 확인해주세요. 직접 수정도 가능해요!",
-      "@extractedTextSubtitle": {"description": "Extracted text subtitle"},
-      
-      "extractedTextApplyButton": "적용하기",
-      "@extractedTextApplyButton": {"description": "Apply extracted text button"},
-      
-      "extractedTextCancelButton": "다시 선택",
-      "@extractedTextCancelButton": {"description": "Cancel extracted text button"},
-      
-      "extractedTextHint": "텍스트를 입력하세요",
-      "@extractedTextHint": {"description": "Extracted text input hint"},
-      
-      "fullTextViewTitle": "기록 문구",
-      "@fullTextViewTitle": {"description": "Full text view title"},
-      
-      "fullTextViewHint": "텍스트를 입력하세요...",
-      "@fullTextViewHint": {"description": "Full text view input hint"},
-      
-      "fullTextViewCopied": "텍스트가 복사되었습니다.",
-      "@fullTextViewCopied": {"description": "Text copied message"},
-      
-      "highlightEditTitle": "하이라이트 편집",
-      "@highlightEditTitle": {"description": "Highlight edit title"},
-      
-      "highlightEditOpacity": "투명도",
-      "@highlightEditOpacity": {"description": "Highlight opacity"},
-      
-      "highlightEditThickness": "굵기",
-      "@highlightEditThickness": {"description": "Highlight thickness"},
-      
-      "koreanDatePickerYear": "년",
-      "@koreanDatePickerYear": {"description": "Year suffix in date picker"},
-      
-      "koreanDatePickerMonth": "월",
-      "@koreanDatePickerMonth": {"description": "Month suffix in date picker"},
-      
-      "koreanDatePickerDay": "일",
-      "@koreanDatePickerDay": {"description": "Day suffix in date picker"},
-      
-      "koreanTimePickerHour": "시",
-      "@koreanTimePickerHour": {"description": "Hour suffix in time picker"},
-      
-      "koreanTimePickerMinute": "분",
-      "@koreanTimePickerMinute": {"description": "Minute suffix in time picker"},
-      
-      "koreanYearMonthPickerYear": "년",
-      "@koreanYearMonthPickerYear": {"description": "Year suffix in year-month picker"},
-      
-      "koreanYearMonthPickerMonth": "월",
-      "@koreanYearMonthPickerMonth": {"description": "Month suffix in year-month picker"},
-      
-      "liquidGlassSearchHint": "책 제목을 입력해주세요.",
-      "@liquidGlassSearchHint": {"description": "Search hint in liquid glass overlay"},
-      
-      "readingDetailPageUpdate": "페이지 업데이트",
-      "@readingDetailPageUpdate": {"description": "Page update button"},
-      
-      "recommendationViewDetail": "책 내용 상세보기",
-      "@recommendationViewDetail": {"description": "View book detail action"},
-      
-      "recommendationViewDetailSubtitle": "서점에서 책 정보를 확인해요",
-      "@recommendationViewDetailSubtitle": {"description": "View book detail subtitle"},
-      
-      "recommendationStartReading": "독서 시작",
-      "@recommendationStartReading": {"description": "Start reading action"},
-      
-      "recommendationStartReadingSubtitle": "이 책으로 독서를 시작합니다",
-      "@recommendationStartReadingSubtitle": {"description": "Start reading subtitle"},
-      
-      "recommendationBookstoreSelect": "서점 선택",
-      "@recommendationBookstoreSelect": {"description": "Bookstore selection in recommendation"}
+  "calendarCompleted": "완독",
+  "@calendarCompleted": {
+    "description": "Completed reading badge"
+  },
+  "onboardingTitle1": "나만의 독서 여정을 기록하세요",
+  "@onboardingTitle1": {
+    "description": "Onboarding screen title 1"
+  },
+  "onboardingDescription1": "읽고 싶은 책을 등록하고,\n독서 목표와 진행 상황을 한눈에 관리하세요.",
+  "@onboardingDescription1": {
+    "description": "Onboarding screen description 1"
+  },
+  "onboardingTitle2": "AI로 독서 기록을 검색하세요",
+  "@onboardingTitle2": {
+    "description": "Onboarding screen title 2"
+  },
+  "onboardingDescription2": "기억나는 내용을 검색하면\nAI가 관련된 메모와 책을 찾아드립니다.",
+  "@onboardingDescription2": {
+    "description": "Onboarding screen description 2"
+  },
+  "onboardingTitle3": "다음 읽을 책을 추천받으세요",
+  "@onboardingTitle3": {
+    "description": "Onboarding screen title 3"
+  },
+  "onboardingDescription3": "지금까지 읽은 책을 바탕으로\n당신의 취향에 맞는 책을 AI가 추천합니다.",
+  "@onboardingDescription3": {
+    "description": "Onboarding screen description 3"
+  },
+  "readingProgressTitle": "진행률 히스토리",
+  "@readingProgressTitle": {
+    "description": "Reading progress history title"
+  },
+  "readingProgressLoadFailed": "진행률 불러오기 실패",
+  "@readingProgressLoadFailed": {
+    "description": "Failed to load progress"
+  },
+  "readingProgressNoRecords": "진행률 기록이 없습니다.",
+  "@readingProgressNoRecords": {
+    "description": "No progress records"
+  },
+  "barcodeScannerTitle": "ISBN 바코드 스캔",
+  "@barcodeScannerTitle": {
+    "description": "Barcode scanner screen title"
+  },
+  "barcodeScannerHint": "책 뒷면의 ISBN 바코드를 스캔해주세요",
+  "@barcodeScannerHint": {
+    "description": "Barcode scanner hint text"
+  },
+  "scannerErrorPermissionDenied": "카메라 권한이 필요합니다\n설정에서 권한을 허용해주세요",
+  "@scannerErrorPermissionDenied": {
+    "description": "Camera permission denied error"
+  },
+  "scannerErrorInitializing": "카메라를 초기화하는 중입니다",
+  "@scannerErrorInitializing": {
+    "description": "Camera initializing message"
+  },
+  "scannerErrorDefault": "카메라 오류가 발생했습니다\n다시 시도해주세요",
+  "@scannerErrorDefault": {
+    "description": "Default camera error message"
+  },
+  "bookstoreSelectTitle": "서점 선택",
+  "@bookstoreSelectTitle": {
+    "description": "Bookstore selection title"
+  },
+  "bookstoreAladdin": "알라딘",
+  "@bookstoreAladdin": {
+    "description": "Aladin bookstore"
+  },
+  "bookstoreKyobo": "교보문고",
+  "@bookstoreKyobo": {
+    "description": "Kyobo bookstore"
+  },
+  "expandedNavBackToDetail": "독서상세 메뉴로",
+  "@expandedNavBackToDetail": {
+    "description": "Back to reading detail menu"
+  },
+  "extractedTextTitle": "추출된 텍스트",
+  "@extractedTextTitle": {
+    "description": "Extracted text title"
+  },
+  "extractedTextSubtitle": "추출된 내용을 확인해주세요. 직접 수정도 가능해요!",
+  "@extractedTextSubtitle": {
+    "description": "Extracted text subtitle"
+  },
+  "extractedTextApplyButton": "적용하기",
+  "@extractedTextApplyButton": {
+    "description": "Apply extracted text button"
+  },
+  "extractedTextCancelButton": "다시 선택",
+  "@extractedTextCancelButton": {
+    "description": "Cancel extracted text button"
+  },
+  "extractedTextHint": "텍스트를 입력하세요",
+  "@extractedTextHint": {
+    "description": "Extracted text input hint"
+  },
+  "fullTextViewTitle": "기록 문구",
+  "@fullTextViewTitle": {
+    "description": "Full text view title"
+  },
+  "fullTextViewHint": "텍스트를 입력하세요...",
+  "@fullTextViewHint": {
+    "description": "Full text view input hint"
+  },
+  "fullTextViewCopied": "텍스트가 복사되었습니다.",
+  "@fullTextViewCopied": {
+    "description": "Text copied message"
+  },
+  "highlightEditTitle": "하이라이트 편집",
+  "@highlightEditTitle": {
+    "description": "Highlight edit title"
+  },
+  "highlightEditOpacity": "투명도",
+  "@highlightEditOpacity": {
+    "description": "Highlight opacity"
+  },
+  "highlightEditThickness": "굵기",
+  "@highlightEditThickness": {
+    "description": "Highlight thickness"
+  },
+  "koreanDatePickerYear": "년",
+  "@koreanDatePickerYear": {
+    "description": "Year suffix in date picker"
+  },
+  "koreanDatePickerMonth": "월",
+  "@koreanDatePickerMonth": {
+    "description": "Month suffix in date picker"
+  },
+  "koreanDatePickerDay": "일",
+  "@koreanDatePickerDay": {
+    "description": "Day suffix in date picker"
+  },
+  "koreanTimePickerHour": "시",
+  "@koreanTimePickerHour": {
+    "description": "Hour suffix in time picker"
+  },
+  "koreanTimePickerMinute": "분",
+  "@koreanTimePickerMinute": {
+    "description": "Minute suffix in time picker"
+  },
+  "koreanYearMonthPickerYear": "년",
+  "@koreanYearMonthPickerYear": {
+    "description": "Year suffix in year-month picker"
+  },
+  "koreanYearMonthPickerMonth": "월",
+  "@koreanYearMonthPickerMonth": {
+    "description": "Month suffix in year-month picker"
+  },
+  "liquidGlassSearchHint": "책 제목을 입력해주세요.",
+  "@liquidGlassSearchHint": {
+    "description": "Search hint in liquid glass overlay"
+  },
+  "readingDetailPageUpdate": "페이지 업데이트",
+  "@readingDetailPageUpdate": {
+    "description": "Page update button"
+  },
+  "recommendationViewDetail": "책 내용 상세보기",
+  "@recommendationViewDetail": {
+    "description": "View book detail action"
+  },
+  "recommendationViewDetailSubtitle": "서점에서 책 정보를 확인해요",
+  "@recommendationViewDetailSubtitle": {
+    "description": "View book detail subtitle"
+  },
+  "recommendationStartReading": "독서 시작",
+  "@recommendationStartReading": {
+    "description": "Start reading action"
+  },
+  "recommendationStartReadingSubtitle": "이 책으로 독서를 시작합니다",
+  "@recommendationStartReadingSubtitle": {
+    "description": "Start reading subtitle"
+  },
+  "recommendationBookstoreSelect": "서점 선택",
+  "@recommendationBookstoreSelect": {
+    "description": "Bookstore selection in recommendation"
+  }
 }

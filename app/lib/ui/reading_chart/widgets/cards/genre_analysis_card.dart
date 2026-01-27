@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 /// 장르 분석 카드
@@ -68,7 +69,7 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  '장르 분석',
+                  AppLocalizations.of(context)!.chartGenreAnalysisTitle,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -193,7 +194,7 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildStatItem(
-                  label: '총 완독',
+                  label: AppLocalizations.of(context)!.chartGenreAnalysisTotalCompleted,
                   value: '$total권',
                   isDark: isDark,
                 ),
@@ -203,7 +204,7 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
                   color: isDark ? Colors.grey[700] : Colors.grey[300],
                 ),
                 _buildStatItem(
-                  label: '장르 다양성',
+                  label: AppLocalizations.of(context)!.chartGenreAnalysisDiversity,
                   value: '${widget.genreDistribution.length}개',
                   isDark: isDark,
                 ),
@@ -299,7 +300,7 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
           ),
           const SizedBox(height: 16),
           Text(
-            '아직 완독한 책이 없어요',
+            AppLocalizations.of(context)!.chartGenreAnalysisEmptyMessage,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -308,7 +309,7 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
           ),
           const SizedBox(height: 8),
           Text(
-            '책을 완독하면 장르별 통계를 볼 수 있어요!',
+            AppLocalizations.of(context)!.chartGenreAnalysisEmptyHint,
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.grey[500] : Colors.grey[500],

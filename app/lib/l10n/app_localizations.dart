@@ -98,1739 +98,2243 @@ abstract class AppLocalizations {
     Locale('ko')
   ];
 
-  /// App title
+  /// No description provided for @appTitle.
   ///
-  /// In ko, this message translates to:
-  /// **'북골라스'**
+  /// In en, this message translates to:
+  /// **'BookGolas'**
   String get appTitle;
 
-  /// Cancel button
+  /// No description provided for @commonCancel.
   ///
-  /// In ko, this message translates to:
-  /// **'취소'**
+  /// In en, this message translates to:
+  /// **'Cancel'**
   String get commonCancel;
 
-  /// Confirm button
+  /// No description provided for @commonConfirm.
   ///
-  /// In ko, this message translates to:
-  /// **'확인'**
+  /// In en, this message translates to:
+  /// **'OK'**
   String get commonConfirm;
 
-  /// Save button
+  /// No description provided for @commonSave.
   ///
-  /// In ko, this message translates to:
-  /// **'저장'**
+  /// In en, this message translates to:
+  /// **'Save'**
   String get commonSave;
 
-  /// Delete button
+  /// No description provided for @commonDelete.
   ///
-  /// In ko, this message translates to:
-  /// **'삭제'**
+  /// In en, this message translates to:
+  /// **'Delete'**
   String get commonDelete;
 
-  /// Change button
+  /// No description provided for @commonChange.
   ///
-  /// In ko, this message translates to:
-  /// **'변경'**
+  /// In en, this message translates to:
+  /// **'Change'**
   String get commonChange;
 
-  /// Complete button
+  /// No description provided for @commonComplete.
   ///
-  /// In ko, this message translates to:
-  /// **'완료'**
+  /// In en, this message translates to:
+  /// **'Done'**
   String get commonComplete;
 
-  /// Close button
+  /// No description provided for @commonClose.
   ///
-  /// In ko, this message translates to:
-  /// **'닫기'**
+  /// In en, this message translates to:
+  /// **'Close'**
   String get commonClose;
 
-  /// Retry button
+  /// No description provided for @commonRetry.
   ///
-  /// In ko, this message translates to:
-  /// **'다시 시도'**
+  /// In en, this message translates to:
+  /// **'Retry'**
   String get commonRetry;
 
-  /// Next button
+  /// No description provided for @commonNext.
   ///
-  /// In ko, this message translates to:
-  /// **'다음'**
+  /// In en, this message translates to:
+  /// **'Next'**
   String get commonNext;
 
-  /// Skip button
+  /// No description provided for @commonSkip.
   ///
-  /// In ko, this message translates to:
-  /// **'건너뛰기'**
+  /// In en, this message translates to:
+  /// **'Skip'**
   String get commonSkip;
 
-  /// Start button
+  /// No description provided for @commonStart.
   ///
-  /// In ko, this message translates to:
-  /// **'시작하기'**
+  /// In en, this message translates to:
+  /// **'Get Started'**
   String get commonStart;
 
-  /// Home navigation
+  /// No description provided for @navHome.
   ///
-  /// In ko, this message translates to:
-  /// **'홈'**
+  /// In en, this message translates to:
+  /// **'Home'**
   String get navHome;
 
-  /// Library navigation
+  /// No description provided for @navLibrary.
   ///
-  /// In ko, this message translates to:
-  /// **'서재'**
+  /// In en, this message translates to:
+  /// **'Library'**
   String get navLibrary;
 
-  /// Stats navigation
+  /// No description provided for @navStats.
   ///
-  /// In ko, this message translates to:
-  /// **'상태'**
+  /// In en, this message translates to:
+  /// **'Stats'**
   String get navStats;
 
-  /// Calendar navigation
+  /// No description provided for @navCalendar.
   ///
-  /// In ko, this message translates to:
-  /// **'캘린더'**
+  /// In en, this message translates to:
+  /// **'Calendar'**
   String get navCalendar;
 
-  /// Book count with unit
+  /// No description provided for @booksCount.
   ///
-  /// In ko, this message translates to:
-  /// **'{count}권'**
-  String booksCount(int count);
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 book} other{{count} books}}'**
+  String booksCount(num count);
 
-  /// Day count with unit
+  /// No description provided for @daysCount.
   ///
-  /// In ko, this message translates to:
-  /// **'{count}일'**
-  String daysCount(int count);
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String daysCount(num count);
 
-  /// Page count with unit
+  /// No description provided for @pagesCount.
   ///
-  /// In ko, this message translates to:
-  /// **'{count}페이지'**
-  String pagesCount(int count);
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 page} other{{count} pages}}'**
+  String pagesCount(num count);
 
-  /// Monday short
+  /// No description provided for @weekdayMon.
   ///
-  /// In ko, this message translates to:
-  /// **'월'**
+  /// In en, this message translates to:
+  /// **'Mon'**
   String get weekdayMon;
 
-  /// Tuesday short
+  /// No description provided for @weekdayTue.
   ///
-  /// In ko, this message translates to:
-  /// **'화'**
+  /// In en, this message translates to:
+  /// **'Tue'**
   String get weekdayTue;
 
-  /// Wednesday short
+  /// No description provided for @weekdayWed.
   ///
-  /// In ko, this message translates to:
-  /// **'수'**
+  /// In en, this message translates to:
+  /// **'Wed'**
   String get weekdayWed;
 
-  /// Thursday short
+  /// No description provided for @weekdayThu.
   ///
-  /// In ko, this message translates to:
-  /// **'목'**
+  /// In en, this message translates to:
+  /// **'Thu'**
   String get weekdayThu;
 
-  /// Friday short
+  /// No description provided for @weekdayFri.
   ///
-  /// In ko, this message translates to:
-  /// **'금'**
+  /// In en, this message translates to:
+  /// **'Fri'**
   String get weekdayFri;
 
-  /// Saturday short
+  /// No description provided for @weekdaySat.
   ///
-  /// In ko, this message translates to:
-  /// **'토'**
+  /// In en, this message translates to:
+  /// **'Sat'**
   String get weekdaySat;
 
-  /// Sunday short
+  /// No description provided for @weekdaySun.
   ///
-  /// In ko, this message translates to:
-  /// **'일'**
+  /// In en, this message translates to:
+  /// **'Sun'**
   String get weekdaySun;
 
-  /// AM
+  /// No description provided for @timeAm.
   ///
-  /// In ko, this message translates to:
-  /// **'오전'**
+  /// In en, this message translates to:
+  /// **'AM'**
   String get timeAm;
 
-  /// PM
+  /// No description provided for @timePm.
   ///
-  /// In ko, this message translates to:
-  /// **'오후'**
+  /// In en, this message translates to:
+  /// **'PM'**
   String get timePm;
 
-  /// Year unit
+  /// No description provided for @unitYear.
   ///
-  /// In ko, this message translates to:
-  /// **'년'**
+  /// In en, this message translates to:
+  /// **''**
   String get unitYear;
 
-  /// Month unit
+  /// No description provided for @unitMonth.
   ///
-  /// In ko, this message translates to:
-  /// **'월'**
+  /// In en, this message translates to:
+  /// **''**
   String get unitMonth;
 
-  /// Day unit
+  /// No description provided for @unitDay.
   ///
-  /// In ko, this message translates to:
-  /// **'일'**
+  /// In en, this message translates to:
+  /// **''**
   String get unitDay;
 
-  /// Hour unit
+  /// No description provided for @unitHour.
   ///
-  /// In ko, this message translates to:
-  /// **'시'**
+  /// In en, this message translates to:
+  /// **''**
   String get unitHour;
 
-  /// Minute unit
+  /// No description provided for @unitMinute.
   ///
-  /// In ko, this message translates to:
-  /// **'분'**
+  /// In en, this message translates to:
+  /// **''**
   String get unitMinute;
 
-  /// Reading status
+  /// No description provided for @statusReading.
   ///
-  /// In ko, this message translates to:
-  /// **'독서 중'**
+  /// In en, this message translates to:
+  /// **'Reading'**
   String get statusReading;
 
-  /// Planned to read status
+  /// No description provided for @statusPlanned.
   ///
-  /// In ko, this message translates to:
-  /// **'읽을 예정'**
+  /// In en, this message translates to:
+  /// **'To Read'**
   String get statusPlanned;
 
-  /// Completed status
+  /// No description provided for @statusCompleted.
   ///
-  /// In ko, this message translates to:
-  /// **'완독'**
+  /// In en, this message translates to:
+  /// **'Completed'**
   String get statusCompleted;
 
-  /// Reread status
+  /// No description provided for @statusReread.
   ///
-  /// In ko, this message translates to:
-  /// **'다시 읽을 책'**
+  /// In en, this message translates to:
+  /// **'Reread'**
   String get statusReread;
 
-  /// Urgent priority
+  /// No description provided for @priorityUrgent.
   ///
-  /// In ko, this message translates to:
-  /// **'긴급'**
+  /// In en, this message translates to:
+  /// **'Urgent'**
   String get priorityUrgent;
 
-  /// High priority
+  /// No description provided for @priorityHigh.
   ///
-  /// In ko, this message translates to:
-  /// **'높음'**
+  /// In en, this message translates to:
+  /// **'High'**
   String get priorityHigh;
 
-  /// Medium priority
+  /// No description provided for @priorityMedium.
   ///
-  /// In ko, this message translates to:
-  /// **'보통'**
+  /// In en, this message translates to:
+  /// **'Medium'**
   String get priorityMedium;
 
-  /// Low priority
+  /// No description provided for @priorityLow.
   ///
-  /// In ko, this message translates to:
-  /// **'낮음'**
+  /// In en, this message translates to:
+  /// **'Low'**
   String get priorityLow;
 
-  /// Highlight type
+  /// No description provided for @contentTypeHighlight.
   ///
-  /// In ko, this message translates to:
-  /// **'하이라이트'**
+  /// In en, this message translates to:
+  /// **'Highlight'**
   String get contentTypeHighlight;
 
-  /// Memo type
+  /// No description provided for @contentTypeMemo.
   ///
-  /// In ko, this message translates to:
-  /// **'메모'**
+  /// In en, this message translates to:
+  /// **'Memo'**
   String get contentTypeMemo;
 
-  /// Photo type
+  /// No description provided for @contentTypePhoto.
   ///
-  /// In ko, this message translates to:
-  /// **'사진'**
+  /// In en, this message translates to:
+  /// **'Photo'**
   String get contentTypePhoto;
 
-  /// Language setting label
+  /// No description provided for @languageSettingLabel.
   ///
-  /// In ko, this message translates to:
-  /// **'언어'**
+  /// In en, this message translates to:
+  /// **'Language'**
   String get languageSettingLabel;
 
-  /// Book list title on home screen
+  /// No description provided for @homeBookList.
   ///
-  /// In ko, this message translates to:
-  /// **'독서 목록'**
+  /// In en, this message translates to:
+  /// **'Book List'**
   String get homeBookList;
 
-  /// No reading books message
+  /// No description provided for @homeNoReadingBooks.
   ///
-  /// In ko, this message translates to:
-  /// **'진행 중인 독서가 없습니다. 먼저 책을 등록해주세요.'**
+  /// In en, this message translates to:
+  /// **'No books in progress. Please register a book first.'**
   String get homeNoReadingBooks;
 
-  /// No reading books short message
+  /// No description provided for @homeNoReadingBooksShort.
   ///
-  /// In ko, this message translates to:
-  /// **'진행 중인 독서가 없습니다'**
+  /// In en, this message translates to:
+  /// **'No books in progress'**
   String get homeNoReadingBooksShort;
 
-  /// View all books button
+  /// No description provided for @homeViewAllBooks.
   ///
-  /// In ko, this message translates to:
-  /// **'전체 독서 보기'**
+  /// In en, this message translates to:
+  /// **'View all books'**
   String get homeViewAllBooks;
 
-  /// View reading only button
+  /// No description provided for @homeViewReadingOnly.
   ///
-  /// In ko, this message translates to:
-  /// **'진행 중인 독서만 보기'**
+  /// In en, this message translates to:
+  /// **'View reading only'**
   String get homeViewReadingOnly;
 
-  /// Switched to view all books message
+  /// No description provided for @homeViewAllBooksMessage.
   ///
-  /// In ko, this message translates to:
-  /// **'전체 독서 보기로 전환되었습니다.'**
+  /// In en, this message translates to:
+  /// **'Switched to view all books.'**
   String get homeViewAllBooksMessage;
 
-  /// Switched to view reading books message
+  /// No description provided for @homeViewReadingMessage.
   ///
-  /// In ko, this message translates to:
-  /// **'진행 중인 독서 보기로 전환되었습니다.'**
+  /// In en, this message translates to:
+  /// **'Switched to view reading books.'**
   String get homeViewReadingMessage;
 
-  /// Reading tab
+  /// No description provided for @bookListTabReading.
   ///
-  /// In ko, this message translates to:
-  /// **'독서 중'**
+  /// In en, this message translates to:
+  /// **'Reading'**
   String get bookListTabReading;
 
-  /// Planned tab
+  /// No description provided for @bookListTabPlanned.
   ///
-  /// In ko, this message translates to:
-  /// **'읽을 예정'**
+  /// In en, this message translates to:
+  /// **'To Read'**
   String get bookListTabPlanned;
 
-  /// Completed tab
+  /// No description provided for @bookListTabCompleted.
   ///
-  /// In ko, this message translates to:
-  /// **'완독'**
+  /// In en, this message translates to:
+  /// **'Completed'**
   String get bookListTabCompleted;
 
-  /// Reread tab
+  /// No description provided for @bookListTabReread.
   ///
-  /// In ko, this message translates to:
-  /// **'다시 읽을 책'**
+  /// In en, this message translates to:
+  /// **'Reread'**
   String get bookListTabReread;
 
-  /// All tab
+  /// No description provided for @bookListTabAll.
   ///
-  /// In ko, this message translates to:
-  /// **'전체'**
+  /// In en, this message translates to:
+  /// **'All'**
   String get bookListTabAll;
 
-  /// All filter
+  /// No description provided for @bookListFilterAll.
   ///
-  /// In ko, this message translates to:
-  /// **'전체'**
+  /// In en, this message translates to:
+  /// **'All'**
   String get bookListFilterAll;
 
-  /// Error loading data
+  /// No description provided for @bookListErrorLoadFailed.
   ///
-  /// In ko, this message translates to:
-  /// **'데이터를 불러올 수 없습니다'**
+  /// In en, this message translates to:
+  /// **'Unable to load data'**
   String get bookListErrorLoadFailed;
 
-  /// Network check message
+  /// No description provided for @bookListErrorNetworkCheck.
   ///
-  /// In ko, this message translates to:
-  /// **'네트워크 연결을 확인해주세요'**
+  /// In en, this message translates to:
+  /// **'Please check your network connection'**
   String get bookListErrorNetworkCheck;
 
-  /// No reading books
+  /// No description provided for @bookListEmptyReading.
   ///
-  /// In ko, this message translates to:
-  /// **'현재 읽고 있는 책이 없습니다'**
+  /// In en, this message translates to:
+  /// **'No books in progress'**
   String get bookListEmptyReading;
 
-  /// No planned books
+  /// No description provided for @bookListEmptyPlanned.
   ///
-  /// In ko, this message translates to:
-  /// **'읽을 예정인 책이 없습니다'**
+  /// In en, this message translates to:
+  /// **'No books to read'**
   String get bookListEmptyPlanned;
 
-  /// No completed books
+  /// No description provided for @bookListEmptyCompleted.
   ///
-  /// In ko, this message translates to:
-  /// **'완독한 책이 없습니다'**
+  /// In en, this message translates to:
+  /// **'No completed books'**
   String get bookListEmptyCompleted;
 
-  /// No paused books
+  /// No description provided for @bookListEmptyPaused.
   ///
-  /// In ko, this message translates to:
-  /// **'잠시 쉬어가는 책이 없습니다'**
+  /// In en, this message translates to:
+  /// **'No paused books'**
   String get bookListEmptyPaused;
 
-  /// No reading started
+  /// No description provided for @bookListEmptyAll.
   ///
-  /// In ko, this message translates to:
-  /// **'아직 시작한 독서가 없습니다'**
+  /// In en, this message translates to:
+  /// **'No reading started yet'**
   String get bookListEmptyAll;
 
-  /// Record tab
+  /// No description provided for @bookDetailTabRecord.
   ///
-  /// In ko, this message translates to:
-  /// **'기록'**
+  /// In en, this message translates to:
+  /// **'Record'**
   String get bookDetailTabRecord;
 
-  /// History tab
+  /// No description provided for @bookDetailTabHistory.
   ///
-  /// In ko, this message translates to:
-  /// **'히스토리'**
+  /// In en, this message translates to:
+  /// **'History'**
   String get bookDetailTabHistory;
 
-  /// Review tab
+  /// No description provided for @bookDetailTabReview.
   ///
-  /// In ko, this message translates to:
-  /// **'독후감'**
+  /// In en, this message translates to:
+  /// **'Review'**
   String get bookDetailTabReview;
 
-  /// Detail tab
+  /// No description provided for @bookDetailTabDetail.
   ///
-  /// In ko, this message translates to:
-  /// **'상세'**
+  /// In en, this message translates to:
+  /// **'Details'**
   String get bookDetailTabDetail;
 
-  /// Start date label
+  /// No description provided for @bookDetailStartDate.
   ///
-  /// In ko, this message translates to:
-  /// **'시작일'**
+  /// In en, this message translates to:
+  /// **'Start Date'**
   String get bookDetailStartDate;
 
-  /// Target date label
+  /// No description provided for @bookDetailTargetDate.
   ///
-  /// In ko, this message translates to:
-  /// **'목표일'**
+  /// In en, this message translates to:
+  /// **'Target Date'**
   String get bookDetailTargetDate;
 
-  /// Review written status
+  /// No description provided for @bookDetailReviewWritten.
   ///
-  /// In ko, this message translates to:
-  /// **'작성됨'**
+  /// In en, this message translates to:
+  /// **'Written'**
   String get bookDetailReviewWritten;
 
-  /// Review not written status
+  /// No description provided for @bookDetailReviewNotWritten.
   ///
-  /// In ko, this message translates to:
-  /// **'아직 작성되지 않음'**
+  /// In en, this message translates to:
+  /// **'Not written yet'**
   String get bookDetailReviewNotWritten;
 
-  /// Achieved legend
+  /// No description provided for @bookDetailLegendAchieved.
   ///
-  /// In ko, this message translates to:
-  /// **'달성'**
+  /// In en, this message translates to:
+  /// **'Achieved'**
   String get bookDetailLegendAchieved;
 
-  /// Missed legend
+  /// No description provided for @bookDetailLegendMissed.
   ///
-  /// In ko, this message translates to:
-  /// **'미달성'**
+  /// In en, this message translates to:
+  /// **'Missed'**
   String get bookDetailLegendMissed;
 
-  /// Scheduled legend
+  /// No description provided for @bookDetailLegendScheduled.
   ///
-  /// In ko, this message translates to:
-  /// **'예정'**
+  /// In en, this message translates to:
+  /// **'Scheduled'**
   String get bookDetailLegendScheduled;
 
-  /// Later button
+  /// No description provided for @bookDetailLater.
   ///
-  /// In ko, this message translates to:
-  /// **'나중에'**
+  /// In en, this message translates to:
+  /// **'Later'**
   String get bookDetailLater;
 
-  /// My library title
+  /// No description provided for @myLibraryTitle.
   ///
-  /// In ko, this message translates to:
-  /// **'나의 서재'**
+  /// In en, this message translates to:
+  /// **'My Library'**
   String get myLibraryTitle;
 
-  /// Reading tab in my library
+  /// No description provided for @myLibraryTabReading.
   ///
-  /// In ko, this message translates to:
-  /// **'독서'**
+  /// In en, this message translates to:
+  /// **'Reading'**
   String get myLibraryTabReading;
 
-  /// Review tab in my library
+  /// No description provided for @myLibraryTabReview.
   ///
-  /// In ko, this message translates to:
-  /// **'독후감'**
+  /// In en, this message translates to:
+  /// **'Review'**
   String get myLibraryTabReview;
 
-  /// Record tab in my library
+  /// No description provided for @myLibraryTabRecord.
   ///
-  /// In ko, this message translates to:
-  /// **'기록'**
+  /// In en, this message translates to:
+  /// **'Record'**
   String get myLibraryTabRecord;
 
-  /// Search hint text
+  /// No description provided for @myLibrarySearchHint.
   ///
-  /// In ko, this message translates to:
-  /// **'제목, 저자로 검색'**
+  /// In en, this message translates to:
+  /// **'Search by title or author'**
   String get myLibrarySearchHint;
 
-  /// No search results message
+  /// No description provided for @myLibraryNoSearchResults.
   ///
-  /// In ko, this message translates to:
-  /// **'검색 결과가 없습니다'**
+  /// In en, this message translates to:
+  /// **'No search results'**
   String get myLibraryNoSearchResults;
 
-  /// No books registered message
+  /// No description provided for @myLibraryNoBooks.
   ///
-  /// In ko, this message translates to:
-  /// **'등록된 책이 없습니다'**
+  /// In en, this message translates to:
+  /// **'No books registered'**
   String get myLibraryNoBooks;
 
-  /// No books with reviews message
+  /// No description provided for @myLibraryNoReviewBooks.
   ///
-  /// In ko, this message translates to:
-  /// **'독후감이 있는 책이 없습니다'**
+  /// In en, this message translates to:
+  /// **'No books with reviews'**
   String get myLibraryNoReviewBooks;
 
-  /// No records message
+  /// No description provided for @myLibraryNoRecords.
   ///
-  /// In ko, this message translates to:
-  /// **'기록이 없습니다'**
+  /// In en, this message translates to:
+  /// **'No records'**
   String get myLibraryNoRecords;
 
-  /// AI search all records button
+  /// No description provided for @myLibraryAiSearch.
   ///
-  /// In ko, this message translates to:
-  /// **'모든 기록에서 AI 검색'**
+  /// In en, this message translates to:
+  /// **'AI Search All Records'**
   String get myLibraryAiSearch;
 
-  /// All filter option
+  /// No description provided for @myLibraryFilterAll.
   ///
-  /// In ko, this message translates to:
-  /// **'전체'**
+  /// In en, this message translates to:
+  /// **'All'**
   String get myLibraryFilterAll;
 
-  /// Highlight filter option
+  /// No description provided for @myLibraryFilterHighlight.
   ///
-  /// In ko, this message translates to:
-  /// **'✨ 하이라이트'**
+  /// In en, this message translates to:
+  /// **'✨ Highlight'**
   String get myLibraryFilterHighlight;
 
-  /// Memo filter option
+  /// No description provided for @myLibraryFilterMemo.
   ///
-  /// In ko, this message translates to:
-  /// **'📝 메모'**
+  /// In en, this message translates to:
+  /// **'📝 Memo'**
   String get myLibraryFilterMemo;
 
-  /// Photo filter option
+  /// No description provided for @myLibraryFilterPhoto.
   ///
-  /// In ko, this message translates to:
-  /// **'📷 사진'**
+  /// In en, this message translates to:
+  /// **'📷 Photo'**
   String get myLibraryFilterPhoto;
 
-  /// Reading chart title
+  /// No description provided for @chartTitle.
   ///
-  /// In ko, this message translates to:
-  /// **'나의 독서 상태'**
+  /// In en, this message translates to:
+  /// **'My Reading Stats'**
   String get chartTitle;
 
-  /// Overview tab
+  /// No description provided for @chartTabOverview.
   ///
-  /// In ko, this message translates to:
-  /// **'개요'**
+  /// In en, this message translates to:
+  /// **'Overview'**
   String get chartTabOverview;
 
-  /// Analysis tab
+  /// No description provided for @chartTabAnalysis.
   ///
-  /// In ko, this message translates to:
-  /// **'분석'**
+  /// In en, this message translates to:
+  /// **'Analysis'**
   String get chartTabAnalysis;
 
-  /// Activity tab
+  /// No description provided for @chartTabActivity.
   ///
-  /// In ko, this message translates to:
-  /// **'활동'**
+  /// In en, this message translates to:
+  /// **'Activity'**
   String get chartTabActivity;
 
-  /// Daily period
+  /// No description provided for @chartPeriodDaily.
   ///
-  /// In ko, this message translates to:
-  /// **'일별'**
+  /// In en, this message translates to:
+  /// **'Daily'**
   String get chartPeriodDaily;
 
-  /// Weekly period
+  /// No description provided for @chartPeriodWeekly.
   ///
-  /// In ko, this message translates to:
-  /// **'주별'**
+  /// In en, this message translates to:
+  /// **'Weekly'**
   String get chartPeriodWeekly;
 
-  /// Monthly period
+  /// No description provided for @chartPeriodMonthly.
   ///
-  /// In ko, this message translates to:
-  /// **'월별'**
+  /// In en, this message translates to:
+  /// **'Monthly'**
   String get chartPeriodMonthly;
 
-  /// Daily average
+  /// No description provided for @chartDailyAverage.
   ///
-  /// In ko, this message translates to:
-  /// **'일평균'**
+  /// In en, this message translates to:
+  /// **'Daily Avg'**
   String get chartDailyAverage;
 
-  /// Increase/decrease
+  /// No description provided for @chartIncrease.
   ///
-  /// In ko, this message translates to:
-  /// **'증감'**
+  /// In en, this message translates to:
+  /// **'Change'**
   String get chartIncrease;
 
-  /// Less
+  /// No description provided for @chartLess.
   ///
-  /// In ko, this message translates to:
-  /// **'적음'**
+  /// In en, this message translates to:
+  /// **'Less'**
   String get chartLess;
 
-  /// More
+  /// No description provided for @chartMore.
   ///
-  /// In ko, this message translates to:
-  /// **'많음'**
+  /// In en, this message translates to:
+  /// **'More'**
   String get chartMore;
 
-  /// Error loading data
+  /// No description provided for @chartErrorLoadFailed.
   ///
-  /// In ko, this message translates to:
-  /// **'데이터를 불러올 수 없습니다'**
+  /// In en, this message translates to:
+  /// **'Unable to load data'**
   String get chartErrorLoadFailed;
 
-  /// Retry button
+  /// No description provided for @chartErrorRetry.
   ///
-  /// In ko, this message translates to:
-  /// **'다시 시도'**
+  /// In en, this message translates to:
+  /// **'Retry'**
   String get chartErrorRetry;
 
-  /// Total pages read
+  /// No description provided for @chartTotalPages.
   ///
-  /// In ko, this message translates to:
-  /// **'총 읽은 페이지'**
+  /// In en, this message translates to:
+  /// **'Total Pages Read'**
   String get chartTotalPages;
 
-  /// Daily average pages
+  /// No description provided for @chartDailyAvgPages.
   ///
-  /// In ko, this message translates to:
-  /// **'일평균'**
+  /// In en, this message translates to:
+  /// **'Daily Average'**
   String get chartDailyAvgPages;
 
-  /// Best record
+  /// No description provided for @chartMaxDaily.
   ///
-  /// In ko, this message translates to:
-  /// **'최고 기록'**
+  /// In en, this message translates to:
+  /// **'Best Record'**
   String get chartMaxDaily;
 
-  /// Lowest record
+  /// No description provided for @chartMinDaily.
   ///
-  /// In ko, this message translates to:
-  /// **'최저 기록'**
+  /// In en, this message translates to:
+  /// **'Lowest Record'**
   String get chartMinDaily;
 
-  /// Consecutive reading days
+  /// No description provided for @chartConsecutiveDays.
   ///
-  /// In ko, this message translates to:
-  /// **'연속 독서'**
+  /// In en, this message translates to:
+  /// **'Consecutive Days'**
   String get chartConsecutiveDays;
 
-  /// Today's goal
+  /// No description provided for @chartTodayGoal.
   ///
-  /// In ko, this message translates to:
-  /// **'오늘 목표'**
+  /// In en, this message translates to:
+  /// **'Today\'s Goal'**
   String get chartTodayGoal;
 
-  /// Reading progress chart
+  /// No description provided for @chartReadingProgress.
   ///
-  /// In ko, this message translates to:
-  /// **'독서 진행 차트'**
+  /// In en, this message translates to:
+  /// **'Reading Progress'**
   String get chartReadingProgress;
 
-  /// Daily pages
+  /// No description provided for @chartDailyPages.
   ///
-  /// In ko, this message translates to:
-  /// **'일별 페이지'**
+  /// In en, this message translates to:
+  /// **'Daily Pages'**
   String get chartDailyPages;
 
-  /// Cumulative pages
+  /// No description provided for @chartCumulativePages.
   ///
-  /// In ko, this message translates to:
-  /// **'누적 페이지'**
+  /// In en, this message translates to:
+  /// **'Cumulative Pages'**
   String get chartCumulativePages;
 
-  /// No data yet
+  /// No description provided for @chartNoData.
   ///
-  /// In ko, this message translates to:
-  /// **'아직 데이터가 없어요'**
+  /// In en, this message translates to:
+  /// **'No data yet'**
   String get chartNoData;
 
-  /// Pages
+  /// No description provided for @chartDailyReadPages.
   ///
-  /// In ko, this message translates to:
-  /// **'페이지'**
+  /// In en, this message translates to:
+  /// **'Pages Read'**
   String get chartDailyReadPages;
 
-  /// Reading statistics
+  /// No description provided for @chartReadingStats.
   ///
-  /// In ko, this message translates to:
-  /// **'독서 통계'**
+  /// In en, this message translates to:
+  /// **'Reading Statistics'**
   String get chartReadingStats;
 
-  /// AI insight
+  /// No description provided for @chartAiInsight.
   ///
-  /// In ko, this message translates to:
-  /// **'AI 인사이트'**
+  /// In en, this message translates to:
+  /// **'AI Insight'**
   String get chartAiInsight;
 
-  /// Completion rate
+  /// No description provided for @chartCompletionRate.
   ///
-  /// In ko, this message translates to:
-  /// **'완독률'**
+  /// In en, this message translates to:
+  /// **'Completion Rate'**
   String get chartCompletionRate;
 
-  /// Records/highlights
+  /// No description provided for @chartRecordsHighlights.
   ///
-  /// In ko, this message translates to:
-  /// **'기록/하이라이트'**
+  /// In en, this message translates to:
+  /// **'Records/Highlights'**
   String get chartRecordsHighlights;
 
-  /// Genre analysis
+  /// No description provided for @chartGenreAnalysis.
   ///
-  /// In ko, this message translates to:
-  /// **'장르 분석'**
+  /// In en, this message translates to:
+  /// **'Genre Analysis'**
   String get chartGenreAnalysis;
 
-  /// No reading records
+  /// No description provided for @chartNoReadingRecords.
   ///
-  /// In ko, this message translates to:
-  /// **'읽은 기록이 없어요'**
+  /// In en, this message translates to:
+  /// **'No reading records'**
   String get chartNoReadingRecords;
 
-  /// My page title
+  /// No description provided for @myPageTitle.
   ///
-  /// In ko, this message translates to:
-  /// **'마이페이지'**
+  /// In en, this message translates to:
+  /// **'My Page'**
   String get myPageTitle;
 
-  /// Settings
+  /// No description provided for @myPageSettings.
   ///
-  /// In ko, this message translates to:
-  /// **'설정'**
+  /// In en, this message translates to:
+  /// **'Settings'**
   String get myPageSettings;
 
-  /// Change avatar
+  /// No description provided for @myPageChangeAvatar.
   ///
-  /// In ko, this message translates to:
-  /// **'변경'**
+  /// In en, this message translates to:
+  /// **'Change'**
   String get myPageChangeAvatar;
 
-  /// Logout
+  /// No description provided for @myPageLogout.
   ///
-  /// In ko, this message translates to:
-  /// **'로그아웃'**
+  /// In en, this message translates to:
+  /// **'Logout'**
   String get myPageLogout;
 
-  /// Delete account
+  /// No description provided for @myPageDeleteAccount.
   ///
-  /// In ko, this message translates to:
-  /// **'계정 삭제'**
+  /// In en, this message translates to:
+  /// **'Delete Account'**
   String get myPageDeleteAccount;
 
-  /// Delete account confirmation message
+  /// No description provided for @myPageDeleteAccountConfirm.
   ///
-  /// In ko, this message translates to:
-  /// **'정말로 계정을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.'**
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete your account?\n\nThis action cannot be undone, and all data will be permanently deleted.'**
   String get myPageDeleteAccountConfirm;
 
-  /// Account deleted successfully
+  /// No description provided for @myPageDeleteAccountSuccess.
   ///
-  /// In ko, this message translates to:
-  /// **'계정이 성공적으로 삭제되었습니다.'**
+  /// In en, this message translates to:
+  /// **'Account successfully deleted.'**
   String get myPageDeleteAccountSuccess;
 
-  /// Failed to delete account
+  /// No description provided for @myPageDeleteAccountFailed.
   ///
-  /// In ko, this message translates to:
-  /// **'계정 삭제에 실패했습니다. 다시 시도해주세요.'**
+  /// In en, this message translates to:
+  /// **'Failed to delete account. Please try again.'**
   String get myPageDeleteAccountFailed;
 
   /// Error message when deleting account
   ///
-  /// In ko, this message translates to:
-  /// **'오류가 발생했습니다: {error}'**
+  /// In en, this message translates to:
+  /// **'An error occurred: {error}'**
   String myPageDeleteAccountError(String error);
 
-  /// Set notification time
+  /// No description provided for @myPageNotificationTimeTitle.
   ///
-  /// In ko, this message translates to:
-  /// **'알림 시간 설정'**
+  /// In en, this message translates to:
+  /// **'Set Notification Time'**
   String get myPageNotificationTimeTitle;
 
-  /// No nickname
+  /// No description provided for @myPageNoNickname.
   ///
-  /// In ko, this message translates to:
-  /// **'닉네임 없음'**
+  /// In en, this message translates to:
+  /// **'No nickname'**
   String get myPageNoNickname;
 
-  /// Nickname hint
+  /// No description provided for @myPageNicknameHint.
   ///
-  /// In ko, this message translates to:
-  /// **'닉네임을 입력하세요'**
+  /// In en, this message translates to:
+  /// **'Enter your nickname'**
   String get myPageNicknameHint;
 
-  /// Dark mode
+  /// No description provided for @myPageDarkMode.
   ///
-  /// In ko, this message translates to:
-  /// **'다크 모드'**
+  /// In en, this message translates to:
+  /// **'Dark Mode'**
   String get myPageDarkMode;
 
-  /// Daily reading goal notification
+  /// No description provided for @myPageDailyReadingNotification.
   ///
-  /// In ko, this message translates to:
-  /// **'매일 독서 목표 알림'**
+  /// In en, this message translates to:
+  /// **'Daily Reading Goal Notification'**
   String get myPageDailyReadingNotification;
 
   /// Notification time display
   ///
-  /// In ko, this message translates to:
-  /// **'매일 {time}에 알림'**
+  /// In en, this message translates to:
+  /// **'Daily notification at {time}'**
   String myPageNotificationTime(String time);
 
-  /// No notifications
+  /// No description provided for @myPageNoNotification.
   ///
-  /// In ko, this message translates to:
-  /// **'알림을 받지 않습니다'**
+  /// In en, this message translates to:
+  /// **'No notifications'**
   String get myPageNoNotification;
 
-  /// Notifications enabled
+  /// No description provided for @myPageNotificationEnabled.
   ///
-  /// In ko, this message translates to:
-  /// **'알림이 활성화되었습니다'**
+  /// In en, this message translates to:
+  /// **'Notifications enabled'**
   String get myPageNotificationEnabled;
 
-  /// Notifications disabled
+  /// No description provided for @myPageNotificationDisabled.
   ///
-  /// In ko, this message translates to:
-  /// **'알림이 비활성화되었습니다'**
+  /// In en, this message translates to:
+  /// **'Notifications disabled'**
   String get myPageNotificationDisabled;
 
-  /// Failed to change notification settings
+  /// No description provided for @myPageNotificationChangeFailed.
   ///
-  /// In ko, this message translates to:
-  /// **'알림 설정 변경에 실패했습니다'**
+  /// In en, this message translates to:
+  /// **'Failed to change notification settings'**
   String get myPageNotificationChangeFailed;
 
-  /// Test notification
+  /// No description provided for @myPageTestNotification.
   ///
-  /// In ko, this message translates to:
-  /// **'테스트 알림 (30초 후)'**
+  /// In en, this message translates to:
+  /// **'Test Notification (in 30 seconds)'**
   String get myPageTestNotification;
 
-  /// Test notification sent message
+  /// No description provided for @myPageTestNotificationSent.
   ///
-  /// In ko, this message translates to:
-  /// **'30초 후에 테스트 알림이 발송됩니다!'**
+  /// In en, this message translates to:
+  /// **'Test notification will be sent in 30 seconds!'**
   String get myPageTestNotificationSent;
 
-  /// Avatar changed
+  /// No description provided for @myPageAvatarChanged.
   ///
-  /// In ko, this message translates to:
-  /// **'프로필 이미지가 변경되었습니다'**
+  /// In en, this message translates to:
+  /// **'Profile image changed'**
   String get myPageAvatarChanged;
 
   /// Error message when changing avatar
   ///
-  /// In ko, this message translates to:
-  /// **'프로필 이미지 변경 실패: {error}'**
+  /// In en, this message translates to:
+  /// **'Failed to change profile image: {error}'**
   String myPageAvatarChangeFailed(String error);
 
-  /// App name on login screen
+  /// No description provided for @loginAppName.
   ///
-  /// In ko, this message translates to:
-  /// **'북골라스'**
+  /// In en, this message translates to:
+  /// **'BookGolas'**
   String get loginAppName;
 
-  /// Email label
+  /// No description provided for @loginEmailLabel.
   ///
-  /// In ko, this message translates to:
-  /// **'이메일'**
+  /// In en, this message translates to:
+  /// **'Email'**
   String get loginEmailLabel;
 
-  /// Password label
+  /// No description provided for @loginPasswordLabel.
   ///
-  /// In ko, this message translates to:
-  /// **'비밀번호'**
+  /// In en, this message translates to:
+  /// **'Password'**
   String get loginPasswordLabel;
 
-  /// Nickname label
+  /// No description provided for @loginNicknameLabel.
   ///
-  /// In ko, this message translates to:
-  /// **'닉네임'**
+  /// In en, this message translates to:
+  /// **'Nickname'**
   String get loginNicknameLabel;
 
-  /// Or divider
+  /// No description provided for @loginOrDivider.
   ///
-  /// In ko, this message translates to:
-  /// **'또는'**
+  /// In en, this message translates to:
+  /// **'or'**
   String get loginOrDivider;
 
-  /// Login button
+  /// No description provided for @loginButton.
   ///
-  /// In ko, this message translates to:
-  /// **'로그인'**
+  /// In en, this message translates to:
+  /// **'Login'**
   String get loginButton;
 
-  /// Signup button
+  /// No description provided for @loginSignupButton.
   ///
-  /// In ko, this message translates to:
-  /// **'회원가입'**
+  /// In en, this message translates to:
+  /// **'Sign Up'**
   String get loginSignupButton;
 
-  /// Sign in description
+  /// No description provided for @loginDescriptionSignIn.
   ///
-  /// In ko, this message translates to:
-  /// **'오늘도 한 페이지,\n당신의 독서를 응원합니다'**
+  /// In en, this message translates to:
+  /// **'One page a day,\nwe support your reading'**
   String get loginDescriptionSignIn;
 
-  /// Sign up description
+  /// No description provided for @loginDescriptionSignUp.
   ///
-  /// In ko, this message translates to:
-  /// **'북골라스와 함께\n독서 습관을 시작해보세요'**
+  /// In en, this message translates to:
+  /// **'Start your reading habit\nwith BookGolas'**
   String get loginDescriptionSignUp;
 
-  /// Forgot password description
+  /// No description provided for @loginDescriptionForgotPassword.
   ///
-  /// In ko, this message translates to:
-  /// **'가입하신 이메일로\n재설정 링크를 보내드립니다'**
+  /// In en, this message translates to:
+  /// **'We\'ll send a password reset link\nto your registered email'**
   String get loginDescriptionForgotPassword;
 
-  /// Email hint
+  /// No description provided for @loginEmailHint.
   ///
-  /// In ko, this message translates to:
+  /// In en, this message translates to:
   /// **'example@email.com'**
   String get loginEmailHint;
 
-  /// Password hint
+  /// No description provided for @loginPasswordHint.
   ///
-  /// In ko, this message translates to:
-  /// **'6자 이상 입력해주세요'**
+  /// In en, this message translates to:
+  /// **'Enter 6 or more characters'**
   String get loginPasswordHint;
 
-  /// Nickname hint
+  /// No description provided for @loginNicknameHint.
   ///
-  /// In ko, this message translates to:
-  /// **'앱에서 사용할 이름'**
+  /// In en, this message translates to:
+  /// **'Name to use in the app'**
   String get loginNicknameHint;
 
-  /// Email required error
+  /// No description provided for @loginEmailRequired.
   ///
-  /// In ko, this message translates to:
-  /// **'이메일을 입력해주세요'**
+  /// In en, this message translates to:
+  /// **'Please enter your email'**
   String get loginEmailRequired;
 
-  /// Invalid email error
+  /// No description provided for @loginEmailInvalid.
   ///
-  /// In ko, this message translates to:
-  /// **'올바른 이메일 주소를 입력해주세요'**
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address'**
   String get loginEmailInvalid;
 
-  /// Password required error
+  /// No description provided for @loginPasswordRequired.
   ///
-  /// In ko, this message translates to:
-  /// **'비밀번호를 입력해주세요'**
+  /// In en, this message translates to:
+  /// **'Please enter your password'**
   String get loginPasswordRequired;
 
-  /// Password too short error
+  /// No description provided for @loginPasswordTooShort.
   ///
-  /// In ko, this message translates to:
-  /// **'비밀번호는 6자 이상이어야 합니다'**
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
   String get loginPasswordTooShort;
 
-  /// Nickname required error
+  /// No description provided for @loginNicknameRequired.
   ///
-  /// In ko, this message translates to:
-  /// **'닉네임을 입력해주세요'**
+  /// In en, this message translates to:
+  /// **'Please enter your nickname'**
   String get loginNicknameRequired;
 
-  /// Forgot password button
+  /// No description provided for @loginForgotPassword.
   ///
-  /// In ko, this message translates to:
-  /// **'비밀번호를 잊으셨나요?'**
+  /// In en, this message translates to:
+  /// **'Forgot your password?'**
   String get loginForgotPassword;
 
-  /// No account sign up button
+  /// No description provided for @loginNoAccount.
   ///
-  /// In ko, this message translates to:
-  /// **'계정이 없으신가요? 회원가입'**
+  /// In en, this message translates to:
+  /// **'Don\'t have an account? Sign Up'**
   String get loginNoAccount;
 
-  /// Have account login button
+  /// No description provided for @loginHaveAccount.
   ///
-  /// In ko, this message translates to:
-  /// **'이미 계정이 있으신가요? 로그인'**
+  /// In en, this message translates to:
+  /// **'Already have an account? Login'**
   String get loginHaveAccount;
 
-  /// Back to sign in button
+  /// No description provided for @loginBackToSignIn.
   ///
-  /// In ko, this message translates to:
-  /// **'로그인으로 돌아가기'**
+  /// In en, this message translates to:
+  /// **'Back to Login'**
   String get loginBackToSignIn;
 
-  /// Save email checkbox
+  /// No description provided for @loginSaveEmail.
   ///
-  /// In ko, this message translates to:
-  /// **'이메일 저장'**
+  /// In en, this message translates to:
+  /// **'Save email'**
   String get loginSaveEmail;
 
-  /// Sign up success message
+  /// No description provided for @loginSignupSuccess.
   ///
-  /// In ko, this message translates to:
-  /// **'회원가입이 완료되었습니다. 이메일을 확인해주세요.'**
+  /// In en, this message translates to:
+  /// **'Sign up complete. Please check your email.'**
   String get loginSignupSuccess;
 
-  /// Reset password success message
+  /// No description provided for @loginResetPasswordSuccess.
   ///
-  /// In ko, this message translates to:
-  /// **'비밀번호 재설정 이메일을 보냈습니다.'**
+  /// In en, this message translates to:
+  /// **'Password reset email sent.'**
   String get loginResetPasswordSuccess;
 
-  /// Unexpected error message
+  /// No description provided for @loginUnexpectedError.
   ///
-  /// In ko, this message translates to:
-  /// **'예상치 못한 오류가 발생했습니다.'**
+  /// In en, this message translates to:
+  /// **'An unexpected error occurred.'**
   String get loginUnexpectedError;
 
-  /// Invalid credentials error
+  /// No description provided for @loginErrorInvalidCredentials.
   ///
-  /// In ko, this message translates to:
-  /// **'이메일 또는 비밀번호가 올바르지 않습니다.'**
+  /// In en, this message translates to:
+  /// **'Invalid email or password.'**
   String get loginErrorInvalidCredentials;
 
-  /// Email not confirmed error
+  /// No description provided for @loginErrorEmailNotConfirmed.
   ///
-  /// In ko, this message translates to:
-  /// **'이메일 인증이 완료되지 않았습니다.'**
+  /// In en, this message translates to:
+  /// **'Email verification is not complete.'**
   String get loginErrorEmailNotConfirmed;
 
-  /// Email already registered error
+  /// No description provided for @loginErrorEmailAlreadyRegistered.
   ///
-  /// In ko, this message translates to:
-  /// **'이미 등록된 이메일입니다.'**
+  /// In en, this message translates to:
+  /// **'This email is already registered.'**
   String get loginErrorEmailAlreadyRegistered;
 
-  /// Password too short error
+  /// No description provided for @loginErrorPasswordTooShort.
   ///
-  /// In ko, this message translates to:
-  /// **'비밀번호는 6자 이상이어야 합니다.'**
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters.'**
   String get loginErrorPasswordTooShort;
 
-  /// Review title
+  /// No description provided for @reviewTitle.
   ///
-  /// In ko, this message translates to:
-  /// **'독후감'**
+  /// In en, this message translates to:
+  /// **'Book Review'**
   String get reviewTitle;
 
-  /// Save review
+  /// No description provided for @reviewSave.
   ///
-  /// In ko, this message translates to:
-  /// **'저장'**
+  /// In en, this message translates to:
+  /// **'Save'**
   String get reviewSave;
 
-  /// Replace review
+  /// No description provided for @reviewReplace.
   ///
-  /// In ko, this message translates to:
-  /// **'대체하기'**
+  /// In en, this message translates to:
+  /// **'Replace'**
   String get reviewReplace;
 
-  /// Exit review
+  /// No description provided for @reviewExit.
   ///
-  /// In ko, this message translates to:
-  /// **'나가기'**
+  /// In en, this message translates to:
+  /// **'Exit'**
   String get reviewExit;
 
-  /// Draft loaded message
+  /// No description provided for @reviewDraftLoaded.
   ///
-  /// In ko, this message translates to:
-  /// **'임시 저장된 내용을 불러왔습니다.'**
+  /// In en, this message translates to:
+  /// **'Draft loaded successfully.'**
   String get reviewDraftLoaded;
 
-  /// Review copied message
+  /// No description provided for @reviewCopied.
   ///
-  /// In ko, this message translates to:
-  /// **'독후감이 복사되었습니다.'**
+  /// In en, this message translates to:
+  /// **'Review copied.'**
   String get reviewCopied;
 
-  /// Book not found error
+  /// No description provided for @reviewBookNotFound.
   ///
-  /// In ko, this message translates to:
-  /// **'책 정보를 찾을 수 없습니다.'**
+  /// In en, this message translates to:
+  /// **'Book information not found.'**
   String get reviewBookNotFound;
 
-  /// Save failed error
+  /// No description provided for @reviewSaveFailed.
   ///
-  /// In ko, this message translates to:
-  /// **'저장에 실패했습니다. 다시 시도해주세요.'**
+  /// In en, this message translates to:
+  /// **'Failed to save. Please try again.'**
   String get reviewSaveFailed;
 
-  /// Save error
+  /// No description provided for @reviewSaveError.
   ///
-  /// In ko, this message translates to:
-  /// **'저장 중 오류가 발생했습니다.'**
+  /// In en, this message translates to:
+  /// **'An error occurred while saving.'**
   String get reviewSaveError;
 
-  /// Replace confirmation message
+  /// No description provided for @reviewReplaceConfirm.
   ///
-  /// In ko, this message translates to:
-  /// **'현재 작성 중인 내용이 있습니다.\nAI 초안으로 대체하시겠습니까?'**
+  /// In en, this message translates to:
+  /// **'You have unsaved content.\nDo you want to replace it with AI draft?'**
   String get reviewReplaceConfirm;
 
-  /// Replace button
+  /// No description provided for @reviewReplaceButton.
   ///
-  /// In ko, this message translates to:
-  /// **'대체하기'**
+  /// In en, this message translates to:
+  /// **'Replace'**
   String get reviewReplaceButton;
 
-  /// AI draft generated message
+  /// No description provided for @reviewAIDraftGenerated.
   ///
-  /// In ko, this message translates to:
-  /// **'AI 초안이 생성되었습니다. 자유롭게 수정해주세요!'**
+  /// In en, this message translates to:
+  /// **'AI draft generated. Feel free to edit!'**
   String get reviewAIDraftGenerated;
 
-  /// AI draft failed error
+  /// No description provided for @reviewAIDraftFailed.
   ///
-  /// In ko, this message translates to:
-  /// **'AI 초안 생성에 실패했습니다. 다시 시도해주세요.'**
+  /// In en, this message translates to:
+  /// **'Failed to generate AI draft. Please try again.'**
   String get reviewAIDraftFailed;
 
-  /// AI draft error
+  /// No description provided for @reviewAIDraftError.
   ///
-  /// In ko, this message translates to:
-  /// **'AI 초안 생성 중 오류가 발생했습니다.'**
+  /// In en, this message translates to:
+  /// **'An error occurred while generating AI draft.'**
   String get reviewAIDraftError;
 
-  /// Save complete message
+  /// No description provided for @reviewSaveComplete.
   ///
-  /// In ko, this message translates to:
-  /// **'독후감이 저장되었습니다!'**
+  /// In en, this message translates to:
+  /// **'Review saved!'**
   String get reviewSaveComplete;
 
-  /// Save complete detail message
+  /// No description provided for @reviewSaveCompleteMessage.
   ///
-  /// In ko, this message translates to:
-  /// **'저장한 독후감은 \'독후감\' 탭 또는\n\'나의 서재 > 독후감\'에서 확인할 수 있어요.'**
+  /// In en, this message translates to:
+  /// **'Your saved review can be found in the \'Review\' tab or\n\'My Library > Review\'.'**
   String get reviewSaveCompleteMessage;
 
-  /// Exit confirmation message
+  /// No description provided for @reviewExitConfirm.
   ///
-  /// In ko, this message translates to:
-  /// **'작성 중단하고 나가시겠어요?'**
+  /// In en, this message translates to:
+  /// **'Stop writing and exit?'**
   String get reviewExitConfirm;
 
-  /// Exit detail message
+  /// No description provided for @reviewExitMessage.
   ///
-  /// In ko, this message translates to:
-  /// **'작성 중이던 독후감은 임시 저장됩니다.'**
+  /// In en, this message translates to:
+  /// **'Your draft will be saved automatically.'**
   String get reviewExitMessage;
 
-  /// Review text field hint
+  /// No description provided for @reviewHint.
   ///
-  /// In ko, this message translates to:
-  /// **'이 책을 읽고 느낀 점, 인상 깊었던 부분, 나에게 준 영감 등을 자유롭게 적어보세요.'**
+  /// In en, this message translates to:
+  /// **'Write freely about your thoughts, impressive parts, and inspiration from this book.'**
   String get reviewHint;
 
-  /// Set start date
+  /// No description provided for @readingStartSetDate.
   ///
-  /// In ko, this message translates to:
-  /// **'시작일 지정'**
+  /// In en, this message translates to:
+  /// **'Set Start Date'**
   String get readingStartSetDate;
 
-  /// Undetermined
+  /// No description provided for @readingStartUndetermined.
   ///
-  /// In ko, this message translates to:
-  /// **'미정'**
+  /// In en, this message translates to:
+  /// **'TBD'**
   String get readingStartUndetermined;
 
-  /// Start reading title
+  /// No description provided for @readingStartTitle.
   ///
-  /// In ko, this message translates to:
-  /// **'독서 시작하기'**
+  /// In en, this message translates to:
+  /// **'Start Reading'**
   String get readingStartTitle;
 
-  /// Start reading subtitle
+  /// No description provided for @readingStartSubtitle.
   ///
-  /// In ko, this message translates to:
-  /// **'독서를 시작할 책을 검색해보세요.'**
+  /// In en, this message translates to:
+  /// **'Search for a book to start reading'**
   String get readingStartSubtitle;
 
-  /// No search results
+  /// No description provided for @readingStartNoResults.
   ///
-  /// In ko, this message translates to:
-  /// **'검색 결과가 없습니다'**
+  /// In en, this message translates to:
+  /// **'No search results'**
   String get readingStartNoResults;
 
-  /// Analyzing reading patterns
+  /// No description provided for @readingStartAnalyzing.
   ///
-  /// In ko, this message translates to:
-  /// **'독서 패턴을 분석하고 있어요...'**
+  /// In en, this message translates to:
+  /// **'Analyzing reading patterns...'**
   String get readingStartAnalyzing;
 
-  /// AI personalized recommendation
+  /// No description provided for @readingStartAiRecommendation.
   ///
-  /// In ko, this message translates to:
-  /// **'AI 맞춤 추천'**
+  /// In en, this message translates to:
+  /// **'AI Personalized Recommendations'**
   String get readingStartAiRecommendation;
 
   /// AI recommendation description
   ///
-  /// In ko, this message translates to:
-  /// **'{userName}님의 독서 패턴을 분석하여 추천하는 책들이에요'**
+  /// In en, this message translates to:
+  /// **'Books recommended based on {userName}\'s reading patterns'**
   String readingStartAiRecommendationDesc(String userName);
 
-  /// Search hint
+  /// No description provided for @readingStartSearchHint.
   ///
-  /// In ko, this message translates to:
-  /// **'책 제목을 입력해주세요.'**
+  /// In en, this message translates to:
+  /// **'Enter book title'**
   String get readingStartSearchHint;
 
-  /// Selection complete
+  /// No description provided for @readingStartSelectionComplete.
   ///
-  /// In ko, this message translates to:
-  /// **'선택 완료'**
+  /// In en, this message translates to:
+  /// **'Selection Complete'**
   String get readingStartSelectionComplete;
 
-  /// Confirm button
+  /// No description provided for @readingStartConfirm.
   ///
-  /// In ko, this message translates to:
-  /// **'확인'**
+  /// In en, this message translates to:
+  /// **'OK'**
   String get readingStartConfirm;
 
   /// Total pages display
   ///
-  /// In ko, this message translates to:
-  /// **'{totalPages}페이지'**
-  String readingStartPages(int totalPages);
+  /// In en, this message translates to:
+  /// **'{totalPages} pages'**
+  String readingStartPages(num totalPages);
 
-  /// Planned reading start date
+  /// No description provided for @readingStartPlannedDate.
   ///
-  /// In ko, this message translates to:
-  /// **'독서 시작 예정일'**
+  /// In en, this message translates to:
+  /// **'Planned Reading Start Date'**
   String get readingStartPlannedDate;
 
-  /// Starting today
+  /// No description provided for @readingStartToday.
   ///
-  /// In ko, this message translates to:
-  /// **'오늘부터 시작합니다'**
+  /// In en, this message translates to:
+  /// **'Starting today'**
   String get readingStartToday;
 
-  /// Target deadline
+  /// No description provided for @readingStartTargetDate.
   ///
-  /// In ko, this message translates to:
-  /// **'목표 마감일'**
+  /// In en, this message translates to:
+  /// **'Target Deadline'**
   String get readingStartTargetDate;
 
-  /// Target date note
+  /// No description provided for @readingStartTargetDateNote.
   ///
-  /// In ko, this message translates to:
-  /// **'독서 시작 후에도 목표일을 변경할 수 있습니다'**
+  /// In en, this message translates to:
+  /// **'You can change the target date even after starting to read'**
   String get readingStartTargetDateNote;
 
-  /// Save error
+  /// No description provided for @readingStartSaveError.
   ///
-  /// In ko, this message translates to:
-  /// **'독서 정보 저장에 실패했습니다.'**
+  /// In en, this message translates to:
+  /// **'Failed to save reading information'**
   String get readingStartSaveError;
 
-  /// Reserve reading
+  /// No description provided for @readingStartReserve.
   ///
-  /// In ko, this message translates to:
-  /// **'독서 예약하기'**
+  /// In en, this message translates to:
+  /// **'Reserve Reading'**
   String get readingStartReserve;
 
-  /// Begin reading
+  /// No description provided for @readingStartBegin.
   ///
-  /// In ko, this message translates to:
-  /// **'독서 시작'**
+  /// In en, this message translates to:
+  /// **'Start Reading'**
   String get readingStartBegin;
 
-  /// Opacity
+  /// No description provided for @dialogOpacity.
   ///
-  /// In ko, this message translates to:
-  /// **'투명도'**
+  /// In en, this message translates to:
+  /// **'Opacity'**
   String get dialogOpacity;
 
-  /// Thickness
+  /// No description provided for @dialogThickness.
   ///
-  /// In ko, this message translates to:
-  /// **'굵기'**
+  /// In en, this message translates to:
+  /// **'Thickness'**
   String get dialogThickness;
 
-  /// Take photo
+  /// No description provided for @dialogTakePhoto.
   ///
-  /// In ko, this message translates to:
-  /// **'카메라로 촬영'**
+  /// In en, this message translates to:
+  /// **'Take Photo'**
   String get dialogTakePhoto;
 
-  /// Replace image
+  /// No description provided for @dialogReplaceImage.
   ///
-  /// In ko, this message translates to:
-  /// **'교체하기'**
+  /// In en, this message translates to:
+  /// **'Replace'**
   String get dialogReplaceImage;
 
-  /// View full
+  /// No description provided for @dialogViewFull.
   ///
-  /// In ko, this message translates to:
-  /// **'전체보기'**
+  /// In en, this message translates to:
+  /// **'View Full'**
   String get dialogViewFull;
 
-  /// Copy
+  /// No description provided for @dialogCopy.
   ///
-  /// In ko, this message translates to:
-  /// **'복사하기'**
+  /// In en, this message translates to:
+  /// **'Copy'**
   String get dialogCopy;
 
-  /// Edit
+  /// No description provided for @dialogEdit.
   ///
-  /// In ko, this message translates to:
-  /// **'수정하기'**
+  /// In en, this message translates to:
+  /// **'Edit'**
   String get dialogEdit;
 
-  /// Saved message
+  /// No description provided for @dialogSaved.
   ///
-  /// In ko, this message translates to:
-  /// **'저장되었습니다'**
+  /// In en, this message translates to:
+  /// **'Saved'**
   String get dialogSaved;
 
-  /// Saving message
+  /// No description provided for @dialogSaving.
   ///
-  /// In ko, this message translates to:
-  /// **'저장 중...'**
+  /// In en, this message translates to:
+  /// **'Saving...'**
   String get dialogSaving;
 
-  /// Upload
+  /// No description provided for @dialogUpload.
   ///
-  /// In ko, this message translates to:
-  /// **'업로드'**
+  /// In en, this message translates to:
+  /// **'Upload'**
   String get dialogUpload;
 
-  /// Select
+  /// No description provided for @dialogSelect.
   ///
-  /// In ko, this message translates to:
-  /// **'선택'**
+  /// In en, this message translates to:
+  /// **'Select'**
   String get dialogSelect;
 
-  /// Apply
+  /// No description provided for @dialogApply.
   ///
-  /// In ko, this message translates to:
-  /// **'적용하기'**
+  /// In en, this message translates to:
+  /// **'Apply'**
   String get dialogApply;
 
-  /// Extract
+  /// No description provided for @dialogExtract.
   ///
-  /// In ko, this message translates to:
-  /// **'추출하기'**
+  /// In en, this message translates to:
+  /// **'Extract'**
   String get dialogExtract;
 
-  /// Okay
+  /// No description provided for @dialogOkay.
   ///
-  /// In ko, this message translates to:
-  /// **'괜찮아요'**
+  /// In en, this message translates to:
+  /// **'Okay'**
   String get dialogOkay;
 
-  /// Extract it
+  /// No description provided for @dialogExtractIt.
   ///
-  /// In ko, this message translates to:
-  /// **'추출할게요'**
+  /// In en, this message translates to:
+  /// **'Extract It'**
   String get dialogExtractIt;
 
-  /// Think about it
+  /// No description provided for @dialogThinkAboutIt.
   ///
-  /// In ko, this message translates to:
-  /// **'고민해볼게요'**
+  /// In en, this message translates to:
+  /// **'Think About It'**
   String get dialogThinkAboutIt;
 
-  /// Novel genre
+  /// No description provided for @genreNovel.
   ///
-  /// In ko, this message translates to:
-  /// **'소설'**
+  /// In en, this message translates to:
+  /// **'Novel'**
   String get genreNovel;
 
-  /// Literature genre
+  /// No description provided for @genreLiterature.
   ///
-  /// In ko, this message translates to:
-  /// **'문학'**
+  /// In en, this message translates to:
+  /// **'Literature'**
   String get genreLiterature;
 
-  /// Self-help genre
+  /// No description provided for @genreSelfHelp.
   ///
-  /// In ko, this message translates to:
-  /// **'자기계발'**
+  /// In en, this message translates to:
+  /// **'Self-Help'**
   String get genreSelfHelp;
 
-  /// Business genre
+  /// No description provided for @genreBusiness.
   ///
-  /// In ko, this message translates to:
-  /// **'경제경영'**
+  /// In en, this message translates to:
+  /// **'Business'**
   String get genreBusiness;
 
-  /// Humanities genre
+  /// No description provided for @genreHumanities.
   ///
-  /// In ko, this message translates to:
-  /// **'인문학'**
+  /// In en, this message translates to:
+  /// **'Humanities'**
   String get genreHumanities;
 
-  /// Science genre
+  /// No description provided for @genreScience.
   ///
-  /// In ko, this message translates to:
-  /// **'과학'**
+  /// In en, this message translates to:
+  /// **'Science'**
   String get genreScience;
 
-  /// History genre
+  /// No description provided for @genreHistory.
   ///
-  /// In ko, this message translates to:
-  /// **'역사'**
+  /// In en, this message translates to:
+  /// **'History'**
   String get genreHistory;
 
-  /// Essay genre
+  /// No description provided for @genreEssay.
   ///
-  /// In ko, this message translates to:
-  /// **'에세이'**
+  /// In en, this message translates to:
+  /// **'Essay'**
   String get genreEssay;
 
-  /// Poetry genre
+  /// No description provided for @genrePoetry.
   ///
-  /// In ko, this message translates to:
-  /// **'시'**
+  /// In en, this message translates to:
+  /// **'Poetry'**
   String get genrePoetry;
 
-  /// Comic genre
+  /// No description provided for @genreComic.
   ///
-  /// In ko, this message translates to:
-  /// **'만화'**
+  /// In en, this message translates to:
+  /// **'Comic'**
   String get genreComic;
 
-  /// Uncategorized genre
+  /// No description provided for @genreUncategorized.
   ///
-  /// In ko, this message translates to:
-  /// **'미분류'**
+  /// In en, this message translates to:
+  /// **'Uncategorized'**
   String get genreUncategorized;
 
-  /// Initialization failed error
+  /// No description provided for @errorInitFailed.
   ///
-  /// In ko, this message translates to:
-  /// **'초기화 중 오류가 발생했습니다'**
+  /// In en, this message translates to:
+  /// **'Initialization failed'**
   String get errorInitFailed;
 
-  /// Load failed error
+  /// No description provided for @errorLoadFailed.
   ///
-  /// In ko, this message translates to:
-  /// **'불러오기 실패'**
+  /// In en, this message translates to:
+  /// **'Failed to load'**
   String get errorLoadFailed;
 
-  /// No records error
+  /// No description provided for @errorNoRecords.
   ///
-  /// In ko, this message translates to:
-  /// **'기록이 없습니다'**
+  /// In en, this message translates to:
+  /// **'No records'**
   String get errorNoRecords;
 
-  /// Initializing app message
+  /// No description provided for @loadingInit.
   ///
-  /// In ko, this message translates to:
-  /// **'앱을 초기화하는 중...'**
+  /// In en, this message translates to:
+  /// **'Initializing app...'**
   String get loadingInit;
 
-  /// Month selection title
+  /// No description provided for @calendarMonthSelect.
   ///
-  /// In ko, this message translates to:
-  /// **'월 선택'**
+  /// In en, this message translates to:
+  /// **'Select Month'**
   String get calendarMonthSelect;
 
-  /// Pages read on this day
+  /// No description provided for @calendarPagesRead.
   ///
-  /// In ko, this message translates to:
-  /// **'{count}페이지 읽음'**
-  String calendarPagesRead(int count);
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 page read} other{{count} pages read}}'**
+  String calendarPagesRead(num count);
 
-  /// Completed reading badge
+  /// No description provided for @calendarCompleted.
   ///
-  /// In ko, this message translates to:
-  /// **'완독'**
+  /// In en, this message translates to:
+  /// **'Completed'**
   String get calendarCompleted;
 
-  /// Onboarding screen title 1
+  /// No description provided for @onboardingTitle1.
   ///
-  /// In ko, this message translates to:
-  /// **'나만의 독서 여정을 기록하세요'**
+  /// In en, this message translates to:
+  /// **'Record Your Own Reading Journey'**
   String get onboardingTitle1;
 
-  /// Onboarding screen description 1
+  /// No description provided for @onboardingDescription1.
   ///
-  /// In ko, this message translates to:
-  /// **'읽고 싶은 책을 등록하고,\n독서 목표와 진행 상황을 한눈에 관리하세요.'**
+  /// In en, this message translates to:
+  /// **'Register books you want to read,\nand manage your reading goals and progress at a glance.'**
   String get onboardingDescription1;
 
-  /// Onboarding screen title 2
+  /// No description provided for @onboardingTitle2.
   ///
-  /// In ko, this message translates to:
-  /// **'AI로 독서 기록을 검색하세요'**
+  /// In en, this message translates to:
+  /// **'Search Your Reading Records with AI'**
   String get onboardingTitle2;
 
-  /// Onboarding screen description 2
+  /// No description provided for @onboardingDescription2.
   ///
-  /// In ko, this message translates to:
-  /// **'기억나는 내용을 검색하면\nAI가 관련된 메모와 책을 찾아드립니다.'**
+  /// In en, this message translates to:
+  /// **'Search for content you remember,\nand AI will find related notes and books for you.'**
   String get onboardingDescription2;
 
-  /// Onboarding screen title 3
+  /// No description provided for @onboardingTitle3.
   ///
-  /// In ko, this message translates to:
-  /// **'다음 읽을 책을 추천받으세요'**
+  /// In en, this message translates to:
+  /// **'Get Book Recommendations'**
   String get onboardingTitle3;
 
-  /// Onboarding screen description 3
+  /// No description provided for @onboardingDescription3.
   ///
-  /// In ko, this message translates to:
-  /// **'지금까지 읽은 책을 바탕으로\n당신의 취향에 맞는 책을 AI가 추천합니다.'**
+  /// In en, this message translates to:
+  /// **'Based on the books you\'ve read so far,\nAI recommends books tailored to your taste.'**
   String get onboardingDescription3;
 
-  /// Reading progress history title
+  /// No description provided for @readingProgressTitle.
   ///
-  /// In ko, this message translates to:
-  /// **'진행률 히스토리'**
+  /// In en, this message translates to:
+  /// **'Reading Progress History'**
   String get readingProgressTitle;
 
-  /// Failed to load progress
+  /// No description provided for @readingProgressLoadFailed.
   ///
-  /// In ko, this message translates to:
-  /// **'진행률 불러오기 실패'**
+  /// In en, this message translates to:
+  /// **'Failed to load progress'**
   String get readingProgressLoadFailed;
 
-  /// No progress records
+  /// No description provided for @readingProgressNoRecords.
   ///
-  /// In ko, this message translates to:
-  /// **'진행률 기록이 없습니다.'**
+  /// In en, this message translates to:
+  /// **'No progress records'**
   String get readingProgressNoRecords;
 
-  /// Barcode scanner screen title
+  /// No description provided for @barcodeScannerTitle.
   ///
-  /// In ko, this message translates to:
-  /// **'ISBN 바코드 스캔'**
+  /// In en, this message translates to:
+  /// **'Scan ISBN Barcode'**
   String get barcodeScannerTitle;
 
-  /// Barcode scanner hint text
+  /// No description provided for @barcodeScannerHint.
   ///
-  /// In ko, this message translates to:
-  /// **'책 뒷면의 ISBN 바코드를 스캔해주세요'**
+  /// In en, this message translates to:
+  /// **'Scan the ISBN barcode on the back of the book'**
   String get barcodeScannerHint;
 
-  /// Camera permission denied error
+  /// No description provided for @scannerErrorPermissionDenied.
   ///
-  /// In ko, this message translates to:
-  /// **'카메라 권한이 필요합니다\n설정에서 권한을 허용해주세요'**
+  /// In en, this message translates to:
+  /// **'Camera permission required\nPlease allow camera access in settings'**
   String get scannerErrorPermissionDenied;
 
-  /// Camera initializing message
+  /// No description provided for @scannerErrorInitializing.
   ///
-  /// In ko, this message translates to:
-  /// **'카메라를 초기화하는 중입니다'**
+  /// In en, this message translates to:
+  /// **'Initializing camera'**
   String get scannerErrorInitializing;
 
-  /// Default camera error message
+  /// No description provided for @scannerErrorDefault.
   ///
-  /// In ko, this message translates to:
-  /// **'카메라 오류가 발생했습니다\n다시 시도해주세요'**
+  /// In en, this message translates to:
+  /// **'Camera error occurred\nPlease try again'**
   String get scannerErrorDefault;
 
-  /// Bookstore selection title
+  /// No description provided for @bookstoreSelectTitle.
   ///
-  /// In ko, this message translates to:
-  /// **'서점 선택'**
+  /// In en, this message translates to:
+  /// **'Select Bookstore'**
   String get bookstoreSelectTitle;
 
-  /// Aladin bookstore
+  /// No description provided for @bookstoreAladdin.
   ///
-  /// In ko, this message translates to:
-  /// **'알라딘'**
+  /// In en, this message translates to:
+  /// **'Aladin'**
   String get bookstoreAladdin;
 
-  /// Kyobo bookstore
+  /// No description provided for @bookstoreKyobo.
   ///
-  /// In ko, this message translates to:
-  /// **'교보문고'**
+  /// In en, this message translates to:
+  /// **'Kyobo'**
   String get bookstoreKyobo;
 
-  /// Back to reading detail menu
+  /// No description provided for @expandedNavBackToDetail.
   ///
-  /// In ko, this message translates to:
-  /// **'독서상세 메뉴로'**
+  /// In en, this message translates to:
+  /// **'Back to Reading Detail'**
   String get expandedNavBackToDetail;
 
-  /// Extracted text title
+  /// No description provided for @extractedTextTitle.
   ///
-  /// In ko, this message translates to:
-  /// **'추출된 텍스트'**
+  /// In en, this message translates to:
+  /// **'Extracted Text'**
   String get extractedTextTitle;
 
-  /// Extracted text subtitle
+  /// No description provided for @extractedTextSubtitle.
   ///
-  /// In ko, this message translates to:
-  /// **'추출된 내용을 확인해주세요. 직접 수정도 가능해요!'**
+  /// In en, this message translates to:
+  /// **'Check the extracted content. You can edit it directly!'**
   String get extractedTextSubtitle;
 
-  /// Apply extracted text button
+  /// No description provided for @extractedTextApplyButton.
   ///
-  /// In ko, this message translates to:
-  /// **'적용하기'**
+  /// In en, this message translates to:
+  /// **'Apply'**
   String get extractedTextApplyButton;
 
-  /// Cancel extracted text button
+  /// No description provided for @extractedTextCancelButton.
   ///
-  /// In ko, this message translates to:
-  /// **'다시 선택'**
+  /// In en, this message translates to:
+  /// **'Select Again'**
   String get extractedTextCancelButton;
 
-  /// Extracted text input hint
+  /// No description provided for @extractedTextHint.
   ///
-  /// In ko, this message translates to:
-  /// **'텍스트를 입력하세요'**
+  /// In en, this message translates to:
+  /// **'Enter text'**
   String get extractedTextHint;
 
-  /// Full text view title
+  /// No description provided for @fullTextViewTitle.
   ///
-  /// In ko, this message translates to:
-  /// **'기록 문구'**
+  /// In en, this message translates to:
+  /// **'Text Record'**
   String get fullTextViewTitle;
 
-  /// Full text view input hint
+  /// No description provided for @fullTextViewHint.
   ///
-  /// In ko, this message translates to:
-  /// **'텍스트를 입력하세요...'**
+  /// In en, this message translates to:
+  /// **'Enter text...'**
   String get fullTextViewHint;
 
-  /// Text copied message
+  /// No description provided for @fullTextViewCopied.
   ///
-  /// In ko, this message translates to:
-  /// **'텍스트가 복사되었습니다.'**
+  /// In en, this message translates to:
+  /// **'Text copied.'**
   String get fullTextViewCopied;
 
-  /// Highlight edit title
+  /// No description provided for @highlightEditTitle.
   ///
-  /// In ko, this message translates to:
-  /// **'하이라이트 편집'**
+  /// In en, this message translates to:
+  /// **'Edit Highlight'**
   String get highlightEditTitle;
 
-  /// Highlight opacity
+  /// No description provided for @highlightEditOpacity.
   ///
-  /// In ko, this message translates to:
-  /// **'투명도'**
+  /// In en, this message translates to:
+  /// **'Opacity'**
   String get highlightEditOpacity;
 
-  /// Highlight thickness
+  /// No description provided for @highlightEditThickness.
   ///
-  /// In ko, this message translates to:
-  /// **'굵기'**
+  /// In en, this message translates to:
+  /// **'Thickness'**
   String get highlightEditThickness;
 
-  /// Year suffix in date picker
+  /// No description provided for @koreanDatePickerYear.
   ///
-  /// In ko, this message translates to:
-  /// **'년'**
+  /// In en, this message translates to:
+  /// **''**
   String get koreanDatePickerYear;
 
-  /// Month suffix in date picker
+  /// No description provided for @koreanDatePickerMonth.
   ///
-  /// In ko, this message translates to:
-  /// **'월'**
+  /// In en, this message translates to:
+  /// **''**
   String get koreanDatePickerMonth;
 
-  /// Day suffix in date picker
+  /// No description provided for @koreanDatePickerDay.
   ///
-  /// In ko, this message translates to:
-  /// **'일'**
+  /// In en, this message translates to:
+  /// **''**
   String get koreanDatePickerDay;
 
-  /// Hour suffix in time picker
+  /// No description provided for @koreanTimePickerHour.
   ///
-  /// In ko, this message translates to:
-  /// **'시'**
+  /// In en, this message translates to:
+  /// **''**
   String get koreanTimePickerHour;
 
-  /// Minute suffix in time picker
+  /// No description provided for @koreanTimePickerMinute.
   ///
-  /// In ko, this message translates to:
-  /// **'분'**
+  /// In en, this message translates to:
+  /// **''**
   String get koreanTimePickerMinute;
 
-  /// Year suffix in year-month picker
+  /// No description provided for @koreanYearMonthPickerYear.
   ///
-  /// In ko, this message translates to:
-  /// **'년'**
+  /// In en, this message translates to:
+  /// **''**
   String get koreanYearMonthPickerYear;
 
-  /// Month suffix in year-month picker
+  /// No description provided for @koreanYearMonthPickerMonth.
   ///
-  /// In ko, this message translates to:
-  /// **'월'**
+  /// In en, this message translates to:
+  /// **''**
   String get koreanYearMonthPickerMonth;
 
-  /// Search hint in liquid glass overlay
+  /// No description provided for @liquidGlassSearchHint.
   ///
-  /// In ko, this message translates to:
-  /// **'책 제목을 입력해주세요.'**
+  /// In en, this message translates to:
+  /// **'Enter book title'**
   String get liquidGlassSearchHint;
 
-  /// Page update button
+  /// No description provided for @readingDetailPageUpdate.
   ///
-  /// In ko, this message translates to:
-  /// **'페이지 업데이트'**
+  /// In en, this message translates to:
+  /// **'Update Pages'**
   String get readingDetailPageUpdate;
 
-  /// View book detail action
+  /// No description provided for @recommendationViewDetail.
   ///
-  /// In ko, this message translates to:
-  /// **'책 내용 상세보기'**
+  /// In en, this message translates to:
+  /// **'View Book Details'**
   String get recommendationViewDetail;
 
-  /// View book detail subtitle
+  /// No description provided for @recommendationViewDetailSubtitle.
   ///
-  /// In ko, this message translates to:
-  /// **'서점에서 책 정보를 확인해요'**
+  /// In en, this message translates to:
+  /// **'Check book information at the bookstore'**
   String get recommendationViewDetailSubtitle;
 
-  /// Start reading action
+  /// No description provided for @recommendationStartReading.
   ///
-  /// In ko, this message translates to:
-  /// **'독서 시작'**
+  /// In en, this message translates to:
+  /// **'Start Reading'**
   String get recommendationStartReading;
 
-  /// Start reading subtitle
+  /// No description provided for @recommendationStartReadingSubtitle.
   ///
-  /// In ko, this message translates to:
-  /// **'이 책으로 독서를 시작합니다'**
+  /// In en, this message translates to:
+  /// **'Start reading this book'**
   String get recommendationStartReadingSubtitle;
 
-  /// Bookstore selection in recommendation
+  /// No description provided for @recommendationBookstoreSelect.
   ///
-  /// In ko, this message translates to:
-  /// **'서점 선택'**
+  /// In en, this message translates to:
+  /// **'Select Bookstore'**
   String get recommendationBookstoreSelect;
+
+  /// No description provided for @chartAiInsightTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Insight'**
+  String get chartAiInsightTitle;
+
+  /// No description provided for @chartAiInsightAnalyzing.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing your reading patterns...'**
+  String get chartAiInsightAnalyzing;
+
+  /// No description provided for @chartAiInsightUnknownError.
+  ///
+  /// In en, this message translates to:
+  /// **'An unknown error occurred'**
+  String get chartAiInsightUnknownError;
+
+  /// No description provided for @chartAiInsightRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get chartAiInsightRetry;
+
+  /// No description provided for @chartAiInsightMinBooksRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Read more books to get AI insights'**
+  String get chartAiInsightMinBooksRequired;
+
+  /// Minimum books required message
+  ///
+  /// In en, this message translates to:
+  /// **'Books completed: {count}'**
+  String chartAiInsightMinBooksMessage(int count);
+
+  /// No description provided for @chartAiInsightMinBooksHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum 3 books, recommended 5+'**
+  String get chartAiInsightMinBooksHint;
+
+  /// No description provided for @chartAiInsightGenerateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze'**
+  String get chartAiInsightGenerateButton;
+
+  /// No description provided for @chartAiInsightEmptyState.
+  ///
+  /// In en, this message translates to:
+  /// **'Click the button below to generate insights'**
+  String get chartAiInsightEmptyState;
+
+  /// No description provided for @chartAiInsightAlreadyAnalyzed.
+  ///
+  /// In en, this message translates to:
+  /// **'Already analyzed today. Try again tomorrow.'**
+  String get chartAiInsightAlreadyAnalyzed;
+
+  /// No description provided for @chartAiInsightClearMemory.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Insight History'**
+  String get chartAiInsightClearMemory;
+
+  /// No description provided for @chartAiInsightClearMemoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Insight History'**
+  String get chartAiInsightClearMemoryTitle;
+
+  /// No description provided for @chartAiInsightClearMemoryMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete all insight history?\nThis action cannot be undone.'**
+  String get chartAiInsightClearMemoryMessage;
+
+  /// No description provided for @chartAiInsightClearMemoryCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get chartAiInsightClearMemoryCancel;
+
+  /// No description provided for @chartAiInsightClearMemoryConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get chartAiInsightClearMemoryConfirm;
+
+  /// No description provided for @chartAiInsightSampleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'(Sample)'**
+  String get chartAiInsightSampleLabel;
+
+  /// Annual goal card title
+  ///
+  /// In en, this message translates to:
+  /// **'{year} Reading Goal'**
+  String chartAnnualGoalTitle(int year);
+
+  /// Achievement percentage
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% Achieved'**
+  String chartAnnualGoalAchieved(int percent);
+
+  /// Remaining books count
+  ///
+  /// In en, this message translates to:
+  /// **'{count} books remaining'**
+  String chartAnnualGoalRemaining(int count);
+
+  /// No description provided for @chartAnnualGoalAchievedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Congratulations! You\'ve achieved this year\'s goal!'**
+  String get chartAnnualGoalAchievedMessage;
+
+  /// Ahead of schedule message
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve read {count} more books than expected!'**
+  String chartAnnualGoalAheadMessage(int count);
+
+  /// No description provided for @chartAnnualGoalMotivationMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep going! You can reach your goal!'**
+  String get chartAnnualGoalMotivationMessage;
+
+  /// No description provided for @chartAnnualGoalSetGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Goal'**
+  String get chartAnnualGoalSetGoal;
+
+  /// No description provided for @chartAnnualGoalSetGoalMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your reading goal to see your progress at a glance'**
+  String get chartAnnualGoalSetGoalMessage;
+
+  /// No description provided for @chartAnnualGoalEditGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Goal'**
+  String get chartAnnualGoalEditGoal;
+
+  /// No description provided for @chartCompletionRateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading Completion'**
+  String get chartCompletionRateTitle;
+
+  /// No description provided for @chartCompletionRateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Completion Rate'**
+  String get chartCompletionRateLabel;
+
+  /// Completed books count
+  ///
+  /// In en, this message translates to:
+  /// **'{count} books completed'**
+  String chartCompletionRateBooks(int count);
+
+  /// No description provided for @chartAbandonRateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Abandon Rate'**
+  String get chartAbandonRateLabel;
+
+  /// Abandoned books count
+  ///
+  /// In en, this message translates to:
+  /// **'{count} books abandoned'**
+  String chartAbandonRateBooks(int count);
+
+  /// No description provided for @chartRetrySuccessRateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry Success Rate'**
+  String get chartRetrySuccessRateLabel;
+
+  /// No description provided for @chartRetrySuccessRateBooks.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed after retry'**
+  String get chartRetrySuccessRateBooks;
+
+  /// No description provided for @chartCompletionRateSummaryStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Started'**
+  String get chartCompletionRateSummaryStarted;
+
+  /// No description provided for @chartCompletionRateSummaryCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get chartCompletionRateSummaryCompleted;
+
+  /// No description provided for @chartCompletionRateSummaryInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'In Progress'**
+  String get chartCompletionRateSummaryInProgress;
+
+  /// No description provided for @chartCompletionRateSummaryAbandoned.
+  ///
+  /// In en, this message translates to:
+  /// **'Abandoned'**
+  String get chartCompletionRateSummaryAbandoned;
+
+  /// No description provided for @chartCompletionRateEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No completed books yet'**
+  String get chartCompletionRateEmptyMessage;
+
+  /// No description provided for @chartCompletionRateEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Read and complete books to see your completion rate'**
+  String get chartCompletionRateEmptyHint;
+
+  /// No description provided for @chartGenreAnalysisTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Genre Analysis'**
+  String get chartGenreAnalysisTitle;
+
+  /// No description provided for @chartGenreAnalysisTotalCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Completed'**
+  String get chartGenreAnalysisTotalCompleted;
+
+  /// No description provided for @chartGenreAnalysisDiversity.
+  ///
+  /// In en, this message translates to:
+  /// **'Genre Diversity'**
+  String get chartGenreAnalysisDiversity;
+
+  /// No description provided for @chartGenreAnalysisEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No completed books yet'**
+  String get chartGenreAnalysisEmptyMessage;
+
+  /// No description provided for @chartGenreAnalysisEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete books to see genre statistics!'**
+  String get chartGenreAnalysisEmptyHint;
+
+  /// No description provided for @chartHighlightStatsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Records/Highlights Statistics'**
+  String get chartHighlightStatsTitle;
+
+  /// No description provided for @chartHighlightStatsHighlights.
+  ///
+  /// In en, this message translates to:
+  /// **'Highlights'**
+  String get chartHighlightStatsHighlights;
+
+  /// No description provided for @chartHighlightStatsMemos.
+  ///
+  /// In en, this message translates to:
+  /// **'Memos'**
+  String get chartHighlightStatsMemos;
+
+  /// No description provided for @chartHighlightStatsPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos'**
+  String get chartHighlightStatsPhotos;
+
+  /// No description provided for @chartHighlightStatsByGenre.
+  ///
+  /// In en, this message translates to:
+  /// **'Highlights by Genre'**
+  String get chartHighlightStatsByGenre;
+
+  /// No description provided for @chartHighlightStatsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No highlights yet'**
+  String get chartHighlightStatsEmptyMessage;
+
+  /// No description provided for @chartHighlightStatsEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Highlight important parts while reading'**
+  String get chartHighlightStatsEmptyHint;
+
+  /// Monthly books chart title
+  ///
+  /// In en, this message translates to:
+  /// **'{year} Monthly Reading'**
+  String chartMonthlyBooksTitle(int year);
+
+  /// No description provided for @chartMonthlyBooksThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This Month'**
+  String get chartMonthlyBooksThisMonth;
+
+  /// No description provided for @chartMonthlyBooksLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Month'**
+  String get chartMonthlyBooksLastMonth;
+
+  /// No description provided for @chartMonthlyBooksChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get chartMonthlyBooksChange;
+
+  /// Month number
+  ///
+  /// In en, this message translates to:
+  /// **'{month}'**
+  String chartMonthlyBooksMonth(int month);
+
+  /// Monthly books tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'{month} month\n{count} books'**
+  String chartMonthlyBooksTooltip(int month, int count);
+
+  /// Reading streak heatmap title
+  ///
+  /// In en, this message translates to:
+  /// **'{year} Reading Heatmap'**
+  String chartReadingStreakTitle(int year);
+
+  /// No description provided for @chartReadingStreakDaysRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Days Read'**
+  String get chartReadingStreakDaysRead;
+
+  /// No description provided for @chartReadingStreakTotalPages.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Pages'**
+  String get chartReadingStreakTotalPages;
+
+  /// No description provided for @chartReadingStreakDailyAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Avg'**
+  String get chartReadingStreakDailyAverage;
+
+  /// No description provided for @chartReadingStreakLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Less'**
+  String get chartReadingStreakLess;
+
+  /// No description provided for @chartReadingStreakMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get chartReadingStreakMore;
+
+  /// Reading streak tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'{month}/{day}: {pages} pages'**
+  String chartReadingStreakTooltip(int month, int day, int pages);
+
+  /// No description provided for @chartReadingStreakMonthJan.
+  ///
+  /// In en, this message translates to:
+  /// **'Jan'**
+  String get chartReadingStreakMonthJan;
+
+  /// No description provided for @chartReadingStreakMonthMar.
+  ///
+  /// In en, this message translates to:
+  /// **'Mar'**
+  String get chartReadingStreakMonthMar;
+
+  /// No description provided for @chartReadingStreakMonthMay.
+  ///
+  /// In en, this message translates to:
+  /// **'May'**
+  String get chartReadingStreakMonthMay;
+
+  /// No description provided for @chartReadingStreakMonthJul.
+  ///
+  /// In en, this message translates to:
+  /// **'Jul'**
+  String get chartReadingStreakMonthJul;
+
+  /// No description provided for @chartReadingStreakMonthSep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sep'**
+  String get chartReadingStreakMonthSep;
+
+  /// No description provided for @chartReadingStreakMonthNov.
+  ///
+  /// In en, this message translates to:
+  /// **'Nov'**
+  String get chartReadingStreakMonthNov;
+
+  /// Reading goal sheet title
+  ///
+  /// In en, this message translates to:
+  /// **'{year} Reading Goal'**
+  String readingGoalSheetTitle(int year);
+
+  /// No description provided for @readingGoalSheetQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'How many books do you want to read this year?'**
+  String get readingGoalSheetQuestion;
+
+  /// No description provided for @readingGoalSheetRecommended.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended Goals'**
+  String get readingGoalSheetRecommended;
+
+  /// No description provided for @readingGoalSheetCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Input'**
+  String get readingGoalSheetCustom;
+
+  /// Books per month message
+  ///
+  /// In en, this message translates to:
+  /// **'Average {count} books per month'**
+  String readingGoalSheetBooksPerMonth(String count);
+
+  /// No description provided for @readingGoalSheetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter goal number'**
+  String get readingGoalSheetHint;
+
+  /// No description provided for @readingGoalSheetBooks.
+  ///
+  /// In en, this message translates to:
+  /// **'books'**
+  String get readingGoalSheetBooks;
+
+  /// No description provided for @readingGoalSheetMotivation1.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading 1 book per month consistently builds a reading habit. Enjoy reading without pressure!'**
+  String get readingGoalSheetMotivation1;
+
+  /// No description provided for @readingGoalSheetMotivation2.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading 1 book every 2 weeks is achievable! Experience the joy of reading with a reasonable goal.'**
+  String get readingGoalSheetMotivation2;
+
+  /// No description provided for @readingGoalSheetMotivation3.
+  ///
+  /// In en, this message translates to:
+  /// **'1 book every 10 days! You love reading. Explore diverse genres!'**
+  String get readingGoalSheetMotivation3;
+
+  /// No description provided for @readingGoalSheetMotivation4.
+  ///
+  /// In en, this message translates to:
+  /// **'Almost 1 book per week! You\'re a true book lover. Keep the fire burning! 🔥'**
+  String get readingGoalSheetMotivation4;
+
+  /// No description provided for @readingGoalSheetMotivation5.
+  ///
+  /// In en, this message translates to:
+  /// **'An ambitious goal! More than 1 book per week. You\'re a reading master! 📚✨'**
+  String get readingGoalSheetMotivation5;
+
+  /// No description provided for @readingGoalSheetCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get readingGoalSheetCancel;
+
+  /// No description provided for @readingGoalSheetSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Goal'**
+  String get readingGoalSheetSet;
+
+  /// No description provided for @readingGoalSheetUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Goal'**
+  String get readingGoalSheetUpdate;
 }
 
 class _AppLocalizationsDelegate

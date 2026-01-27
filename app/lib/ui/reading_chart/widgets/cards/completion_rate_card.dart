@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 /// 완독률 카드
@@ -54,31 +55,31 @@ class CompletionRateCard extends StatelessWidget {
             _buildRateItem(
               context,
               isDark,
-              '완독률',
+              AppLocalizations.of(context)!.chartCompletionRateLabel,
               completionRate,
               Icons.check_circle_outline,
               AppColors.primary,
-              '$completed권 완독',
+              AppLocalizations.of(context)!.chartCompletionRateBooks(completed),
             ),
             const SizedBox(height: 16),
             _buildRateItem(
               context,
               isDark,
-              '중단률',
+              AppLocalizations.of(context)!.chartAbandonRateLabel,
               abandonRate,
               Icons.cancel_outlined,
               Colors.orange,
-              '$abandoned권 중단',
+              AppLocalizations.of(context)!.chartAbandonRateBooks(abandoned),
             ),
             const SizedBox(height: 16),
             _buildRateItem(
               context,
               isDark,
-              '재시도 성공률',
+              AppLocalizations.of(context)!.chartRetrySuccessRateLabel,
               retrySuccessRate,
               Icons.refresh,
               Colors.green,
-              '재도전 후 완독',
+              AppLocalizations.of(context)!.chartRetrySuccessRateBooks,
             ),
             const SizedBox(height: 16),
             _buildSummary(context, isDark),
@@ -105,7 +106,7 @@ class CompletionRateCard extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         Text(
-          '독서 완성도',
+          AppLocalizations.of(context)!.chartCompletionRateTitle,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -186,28 +187,28 @@ class CompletionRateCard extends StatelessWidget {
           _buildSummaryItem(
             context,
             isDark,
-            '시작',
+            AppLocalizations.of(context)!.chartCompletionRateSummaryStarted,
             totalStarted.toString(),
             Icons.play_arrow,
           ),
           _buildSummaryItem(
             context,
             isDark,
-            '완독',
+            AppLocalizations.of(context)!.chartCompletionRateSummaryCompleted,
             completed.toString(),
             Icons.check,
           ),
           _buildSummaryItem(
             context,
             isDark,
-            '진행중',
+            AppLocalizations.of(context)!.chartCompletionRateSummaryInProgress,
             inProgress.toString(),
             Icons.hourglass_empty,
           ),
           _buildSummaryItem(
             context,
             isDark,
-            '중단',
+            AppLocalizations.of(context)!.chartCompletionRateSummaryAbandoned,
             abandoned.toString(),
             Icons.close,
           ),
@@ -276,7 +277,7 @@ class CompletionRateCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              '아직 완독한 책이 없어요',
+              AppLocalizations.of(context)!.chartCompletionRateEmptyMessage,
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.white60 : Colors.black54,
@@ -284,7 +285,7 @@ class CompletionRateCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              '책을 읽고 완독률을 확인해보세요',
+              AppLocalizations.of(context)!.chartCompletionRateEmptyHint,
               style: TextStyle(
                 fontSize: 12,
                 color: isDark ? Colors.white54 : Colors.black45,
