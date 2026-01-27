@@ -67,6 +67,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   List<String> _topKeywords = [];
 
   int _selectedSectionIndex = 0;
+  bool _isScrollingByTap = false;
   final _sectionKeys = List.generate(5, (_) => GlobalKey());
   final ScrollController _analysisScrollController = ScrollController();
   final ScrollController _tabBarScrollController = ScrollController();
@@ -454,9 +455,13 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   }
 
   void _scrollToSection(int index) {
+    _isScrollingByTap = true;
+
     setState(() {
       _selectedSectionIndex = index;
     });
+
+    _scrollTabBarToIndex(index);
 
     final context = _sectionKeys[index].currentContext;
     if (context != null) {
@@ -464,12 +469,15 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         context,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-      );
+      ).then((_) {
+        _isScrollingByTap = false;
+      });
     }
   }
 
   void _updateSelectedSectionOnScroll() {
     if (_tabController.index != 1) return;
+    if (_isScrollingByTap) return;
 
     final scrollPosition = _analysisScrollController.position.pixels;
     final maxScroll = _analysisScrollController.position.maxScrollExtent;
@@ -516,7 +524,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
 
   void _scrollTabBarToIndexDebounced(int index) {
     if (_tabScrollDebounce?.isActive ?? false) _tabScrollDebounce!.cancel();
-    _tabScrollDebounce = Timer(const Duration(milliseconds: 150), () {
+    _tabScrollDebounce = Timer(const Duration(milliseconds: 500), () {
       _scrollTabBarToIndex(index);
     });
   }
