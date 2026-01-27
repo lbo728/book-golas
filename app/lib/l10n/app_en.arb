@@ -591,12 +591,16 @@
        }
      }
    },
-   "recallSuggestedQuestions": "Suggested Questions",
-   "recallSearchCurious": "Search for what you're curious about",
-   "recallFindInRecords": "Find in highlights, memos, and photos",
-   "recallRelatedRecords": "Related Records",
-   "recallPage": "page",
-   "recallContentCopied": "Content copied",
-   "recallViewInBook": "View in This Book",
-   "recallCopy": "Copy"
+    "recallSuggestedQuestions": "Suggested Questions",
+    "recallSuggestedQuestion1": "What impressed me the most?",
+    "recallSuggestedQuestion2": "What did I note to practice?",
+    "recallSuggestedQuestion3": "What's the author's key message?",
+    "recallSuggestedQuestion4": "What part did I empathize with?",
+    "recallSearchCurious": "Search for what you're curious about",
+    "recallFindInRecords": "Find in highlights, memos, and photos",
+    "recallRelatedRecords": "Related Records",
+    "recallPage": "page",
+    "recallContentCopied": "Content copied",
+    "recallViewInBook": "View in This Book",
+    "recallCopy": "Copy"
 }

@@ -1258,6 +1258,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String get recallSuggestedQuestions => '추천 질문';
 
   @override
+  String get recallSuggestedQuestion1 => '가장 인상 깊었던 부분은?';
+
+  @override
+  String get recallSuggestedQuestion2 => '연습하기 위해 적은 내용은?';
+
+  @override
+  String get recallSuggestedQuestion3 => '저자의 핵심 메시지는?';
+
+  @override
+  String get recallSuggestedQuestion4 => '공감했던 부분은?';
+
+  @override
   String get recallSearchCurious => '궁금한 내용을 검색해보세요';
 
   @override

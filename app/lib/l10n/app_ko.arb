@@ -1325,5 +1325,21 @@
    "recallCopy": "복사",
    "@recallCopy": {
      "description": "Copy button"
+   },
+   "recallSuggestedQuestion1": "가장 인상 깊었던 부분은?",
+   "@recallSuggestedQuestion1": {
+     "description": "Suggested question 1"
+   },
+   "recallSuggestedQuestion2": "연습하기 위해 적은 내용은?",
+   "@recallSuggestedQuestion2": {
+     "description": "Suggested question 2"
+   },
+   "recallSuggestedQuestion3": "저자의 핵심 메시지는?",
+   "@recallSuggestedQuestion3": {
+     "description": "Suggested question 3"
+   },
+   "recallSuggestedQuestion4": "공감했던 부분은?",
+   "@recallSuggestedQuestion4": {
+     "description": "Suggested question 4"
    }
 }

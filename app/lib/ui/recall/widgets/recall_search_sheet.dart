@@ -545,18 +545,19 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
   }
 
   Widget _buildSuggestedQuestions(bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     final suggestions = [
-      'What impressed me the most?',
-      'What did I note to practice?',
-      "What's the author's key message?",
-      'What part did I empathize with?',
+      l10n.recallSuggestedQuestion1,
+      l10n.recallSuggestedQuestion2,
+      l10n.recallSuggestedQuestion3,
+      l10n.recallSuggestedQuestion4,
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppLocalizations.of(context)!.recallSuggestedQuestions,
+          l10n.recallSuggestedQuestions,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -641,7 +642,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                       color: AppColors.primary, size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    'AI 답변',
+                    AppLocalizations.of(context)!.recallAiAnswer,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: isDark ? Colors.white : Colors.black,

@@ -2444,6 +2444,30 @@ abstract class AppLocalizations {
   /// **'Suggested Questions'**
   String get recallSuggestedQuestions;
 
+  /// No description provided for @recallSuggestedQuestion1.
+  ///
+  /// In en, this message translates to:
+  /// **'What impressed me the most?'**
+  String get recallSuggestedQuestion1;
+
+  /// No description provided for @recallSuggestedQuestion2.
+  ///
+  /// In en, this message translates to:
+  /// **'What did I note to practice?'**
+  String get recallSuggestedQuestion2;
+
+  /// No description provided for @recallSuggestedQuestion3.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s the author\'s key message?'**
+  String get recallSuggestedQuestion3;
+
+  /// No description provided for @recallSuggestedQuestion4.
+  ///
+  /// In en, this message translates to:
+  /// **'What part did I empathize with?'**
+  String get recallSuggestedQuestion4;
+
   /// No description provided for @recallSearchCurious.
   ///
   /// In en, this message translates to:

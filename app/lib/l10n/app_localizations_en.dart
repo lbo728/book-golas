@@ -1305,6 +1305,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recallSuggestedQuestions => 'Suggested Questions';
 
   @override
+  String get recallSuggestedQuestion1 => 'What impressed me the most?';
+
+  @override
+  String get recallSuggestedQuestion2 => 'What did I note to practice?';
+
+  @override
+  String get recallSuggestedQuestion3 => 'What\'s the author\'s key message?';
+
+  @override
+  String get recallSuggestedQuestion4 => 'What part did I empathize with?';
+
+  @override
   String get recallSearchCurious => 'Search for what you\'re curious about';
 
   @override
