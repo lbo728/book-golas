@@ -183,9 +183,81 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
       if (extractedText != null && extractedText.trim().isNotEmpty) {
         noteCount++;
 
+        final koreanStopwords = {
+          '는',
+          '은',
+          '이',
+          '가',
+          '을',
+          '를',
+          '의',
+          '에',
+          '에서',
+          '으로',
+          '로',
+          '와',
+          '과',
+          '도',
+          '만',
+          '하는',
+          '되는',
+          '있는',
+          '없는',
+          '하고',
+          '되고',
+          '있고',
+          '없고',
+          '모든',
+          '이런',
+          '저런',
+          '그런',
+          '어떤',
+          '것',
+          '수',
+          '등',
+          '때',
+          '중',
+          '간',
+          '곳',
+          '데',
+          '더',
+          '또',
+          '및',
+          '한',
+          '할',
+          '함',
+          '해',
+          '했',
+          '하다',
+          '하면',
+          '하지',
+          '한다',
+          '합니다',
+          '입니다',
+          '있다',
+          '있습니다',
+          '없다',
+          '없습니다',
+        };
+
         final words = extractedText
             .split(RegExp(r'[\s,.\!?\(\)\[\]]+'))
-            .where((w) => w.length > 1)
+            .where((w) =>
+                w.length >= 2 &&
+                !koreanStopwords.contains(w) &&
+                !w.endsWith('는') &&
+                !w.endsWith('은') &&
+                !w.endsWith('이') &&
+                !w.endsWith('가') &&
+                !w.endsWith('을') &&
+                !w.endsWith('를') &&
+                !w.endsWith('의') &&
+                !w.endsWith('에') &&
+                !w.endsWith('도') &&
+                !w.endsWith('만') &&
+                !w.endsWith('고') &&
+                !w.endsWith('다') &&
+                !w.endsWith('요'))
             .toList();
         for (final word in words) {
           wordFrequency[word] = (wordFrequency[word] ?? 0) + 1;
