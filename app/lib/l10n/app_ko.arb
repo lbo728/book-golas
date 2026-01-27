@@ -82,16 +82,17 @@
       }
     }
   },
-  "pagesCount": "{count}페이지",
-  "@pagesCount": {
-    "description": "Page count with unit",
-    "placeholders": {
-      "count": {
-        "type": "num"
+   "pagesCount": "{count}페이지",
+    "@pagesCount": {
+      "description": "Page count with unit",
+      "placeholders": {
+        "count": {
+          "type": "num"
+        }
       }
-    }
-  },
-  "weekdayMon": "월",
+    },
+   "unitPages": "페이지",
+   "weekdayMon": "월",
   "@weekdayMon": {
     "description": "Monday short"
   },
@@ -1338,8 +1339,60 @@
    "@recallSuggestedQuestion3": {
      "description": "Suggested question 3"
    },
-   "recallSuggestedQuestion4": "공감했던 부분은?",
-   "@recallSuggestedQuestion4": {
-     "description": "Suggested question 4"
-   }
+    "recallSuggestedQuestion4": "공감했던 부분은?",
+    "@recallSuggestedQuestion4": {
+      "description": "Suggested question 4"
+    },
+    "bookListPlannedStartDate": "시작 예정: {date}",
+    "@bookListPlannedStartDate": {
+      "description": "Planned start date for a book",
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "bookListUndetermined": "시작일 미정",
+    "@bookListUndetermined": {
+      "description": "Undetermined start date"
+    },
+    "bookListCompletedIn": "{days}일만에 완독",
+    "@bookListCompletedIn": {
+      "description": "Days taken to complete a book",
+      "placeholders": {
+        "days": {
+          "type": "int"
+        }
+      }
+    },
+    "bookListCompletedSameDay": "당일 완독",
+    "@bookListCompletedSameDay": {
+      "description": "Book completed on the same day"
+    },
+    "bookListAchievementRate": "달성률 {rate}%",
+    "@bookListAchievementRate": {
+      "description": "Achievement rate percentage",
+      "placeholders": {
+        "rate": {
+          "type": "int"
+        }
+      }
+    },
+    "bookListUnknown": "알 수 없음",
+    "@bookListUnknown": {
+      "description": "Unknown value"
+    },
+    "bookListCompletedDate": "완독일 {date}",
+    "@bookListCompletedDate": {
+      "description": "Completed date",
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "readingStartPriority": "우선순위 (선택사항)",
+    "@readingStartPriority": {
+      "description": "Priority selector label"
+    }
 }

@@ -623,11 +623,11 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     Map<String, dynamic> stats,
     int streak,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final genreMessage = _progressService.getTopGenreMessage(
       _genreDistribution,
+      l10n,
     );
-
-    final l10n = AppLocalizations.of(context)!;
     final sections = [
       l10n.chartAiInsight,
       l10n.chartCompletionRate,

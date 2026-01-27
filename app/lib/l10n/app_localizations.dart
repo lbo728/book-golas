@@ -212,6 +212,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 page} other{{count} pages}}'**
   String pagesCount(num count);
 
+  /// No description provided for @unitPages.
+  ///
+  /// In en, this message translates to:
+  /// **'pages'**
+  String get unitPages;
+
   /// No description provided for @weekdayMon.
   ///
   /// In en, this message translates to:
@@ -2509,6 +2515,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Copy'**
   String get recallCopy;
+
+  /// Planned start date for a book
+  ///
+  /// In en, this message translates to:
+  /// **'Planned start: {date}'**
+  String bookListPlannedStartDate(String date);
+
+  /// Undetermined start date
+  ///
+  /// In en, this message translates to:
+  /// **'Undetermined'**
+  String get bookListUndetermined;
+
+  /// Days taken to complete a book
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days to complete'**
+  String bookListCompletedIn(int days);
+
+  /// Book completed on the same day
+  ///
+  /// In en, this message translates to:
+  /// **'Completed same day'**
+  String get bookListCompletedSameDay;
+
+  /// Achievement rate percentage
+  ///
+  /// In en, this message translates to:
+  /// **'Achievement rate {rate}%'**
+  String bookListAchievementRate(int rate);
+
+  /// Unknown value
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get bookListUnknown;
+
+  /// Completed date
+  ///
+  /// In en, this message translates to:
+  /// **'Completed {date}'**
+  String bookListCompletedDate(String date);
+
+  /// Priority selector label
+  ///
+  /// In en, this message translates to:
+  /// **'Priority (Optional)'**
+  String get readingStartPriority;
 }
 
 class _AppLocalizationsDelegate

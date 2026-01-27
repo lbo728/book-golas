@@ -72,6 +72,9 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get unitPages => '페이지';
+
+  @override
   String get weekdayMon => '월';
 
   @override
@@ -1289,4 +1292,36 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get recallCopy => '복사';
+
+  @override
+  String bookListPlannedStartDate(String date) {
+    return '시작 예정: $date';
+  }
+
+  @override
+  String get bookListUndetermined => '시작일 미정';
+
+  @override
+  String bookListCompletedIn(int days) {
+    return '$days일만에 완독';
+  }
+
+  @override
+  String get bookListCompletedSameDay => '당일 완독';
+
+  @override
+  String bookListAchievementRate(int rate) {
+    return '달성률 $rate%';
+  }
+
+  @override
+  String get bookListUnknown => '알 수 없음';
+
+  @override
+  String bookListCompletedDate(String date) {
+    return '완독일 $date';
+  }
+
+  @override
+  String get readingStartPriority => '우선순위 (선택사항)';
 }

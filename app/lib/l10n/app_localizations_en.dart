@@ -90,6 +90,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get unitPages => 'pages';
+
+  @override
   String get weekdayMon => 'Mon';
 
   @override
@@ -1336,4 +1339,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recallCopy => 'Copy';
+
+  @override
+  String bookListPlannedStartDate(String date) {
+    return 'Planned start: $date';
+  }
+
+  @override
+  String get bookListUndetermined => 'Undetermined';
+
+  @override
+  String bookListCompletedIn(int days) {
+    return '$days days to complete';
+  }
+
+  @override
+  String get bookListCompletedSameDay => 'Completed same day';
+
+  @override
+  String bookListAchievementRate(int rate) {
+    return 'Achievement rate $rate%';
+  }
+
+  @override
+  String get bookListUnknown => 'Unknown';
+
+  @override
+  String bookListCompletedDate(String date) {
+    return 'Completed $date';
+  }
+
+  @override
+  String get readingStartPriority => 'Priority (Optional)';
 }

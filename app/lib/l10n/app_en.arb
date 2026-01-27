@@ -19,6 +19,7 @@
   "booksCount": "{count, plural, =1{1 book} other{{count} books}}",
   "daysCount": "{count, plural, =1{1 day} other{{count} days}}",
   "pagesCount": "{count, plural, =1{1 page} other{{count} pages}}",
+  "unitPages": "pages",
   "weekdayMon": "Mon",
   "weekdayTue": "Tue",
   "weekdayWed": "Wed",
@@ -602,5 +603,57 @@
     "recallPage": "page",
     "recallContentCopied": "Content copied",
     "recallViewInBook": "View in This Book",
-    "recallCopy": "Copy"
+    "recallCopy": "Copy",
+    "bookListPlannedStartDate": "Planned start: {date}",
+    "@bookListPlannedStartDate": {
+      "description": "Planned start date for a book",
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "bookListUndetermined": "Undetermined",
+    "@bookListUndetermined": {
+      "description": "Undetermined start date"
+    },
+    "bookListCompletedIn": "{days} days to complete",
+    "@bookListCompletedIn": {
+      "description": "Days taken to complete a book",
+      "placeholders": {
+        "days": {
+          "type": "int"
+        }
+      }
+    },
+    "bookListCompletedSameDay": "Completed same day",
+    "@bookListCompletedSameDay": {
+      "description": "Book completed on the same day"
+    },
+    "bookListAchievementRate": "Achievement rate {rate}%",
+    "@bookListAchievementRate": {
+      "description": "Achievement rate percentage",
+      "placeholders": {
+        "rate": {
+          "type": "int"
+        }
+      }
+    },
+    "bookListUnknown": "Unknown",
+    "@bookListUnknown": {
+      "description": "Unknown value"
+    },
+    "bookListCompletedDate": "Completed {date}",
+    "@bookListCompletedDate": {
+      "description": "Completed date",
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "readingStartPriority": "Priority (Optional)",
+    "@readingStartPriority": {
+      "description": "Priority selector label"
+    }
 }
