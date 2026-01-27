@@ -802,12 +802,27 @@
     "onboardingDescription3": "지금까지 읽은 책을 바탕으로\n당신의 취향에 맞는 책을 AI가 추천합니다.",
     "@onboardingDescription3": {"description": "Onboarding screen description 3"},
     
-    "readingProgressTitle": "진행률 히스토리",
-    "@readingProgressTitle": {"description": "Reading progress history title"},
-    
-    "readingProgressLoadFailed": "진행률 불러오기 실패",
-    "@readingProgressLoadFailed": {"description": "Failed to load progress"},
-    
-    "readingProgressNoRecords": "진행률 기록이 없습니다.",
-    "@readingProgressNoRecords": {"description": "No progress records"}
+     "readingProgressTitle": "진행률 히스토리",
+     "@readingProgressTitle": {"description": "Reading progress history title"},
+     
+     "readingProgressLoadFailed": "진행률 불러오기 실패",
+     "@readingProgressLoadFailed": {"description": "Failed to load progress"},
+     
+     "readingProgressNoRecords": "진행률 기록이 없습니다.",
+     "@readingProgressNoRecords": {"description": "No progress records"},
+     
+     "barcodeScannerTitle": "ISBN 바코드 스캔",
+     "@barcodeScannerTitle": {"description": "Barcode scanner screen title"},
+     
+     "barcodeScannerHint": "책 뒷면의 ISBN 바코드를 스캔해주세요",
+     "@barcodeScannerHint": {"description": "Barcode scanner hint text"},
+     
+     "scannerErrorPermissionDenied": "카메라 권한이 필요합니다\n설정에서 권한을 허용해주세요",
+     "@scannerErrorPermissionDenied": {"description": "Camera permission denied error"},
+     
+     "scannerErrorInitializing": "카메라를 초기화하는 중입니다",
+     "@scannerErrorInitializing": {"description": "Camera initializing message"},
+     
+     "scannerErrorDefault": "카메라 오류가 발생했습니다\n다시 시도해주세요",
+     "@scannerErrorDefault": {"description": "Default camera error message"}
 }

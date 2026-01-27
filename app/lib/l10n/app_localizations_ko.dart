@@ -794,4 +794,19 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get readingProgressNoRecords => '진행률 기록이 없습니다.';
+
+  @override
+  String get barcodeScannerTitle => 'ISBN 바코드 스캔';
+
+  @override
+  String get barcodeScannerHint => '책 뒷면의 ISBN 바코드를 스캔해주세요';
+
+  @override
+  String get scannerErrorPermissionDenied => '카메라 권한이 필요합니다\n설정에서 권한을 허용해주세요';
+
+  @override
+  String get scannerErrorInitializing => '카메라를 초기화하는 중입니다';
+
+  @override
+  String get scannerErrorDefault => '카메라 오류가 발생했습니다\n다시 시도해주세요';
 }

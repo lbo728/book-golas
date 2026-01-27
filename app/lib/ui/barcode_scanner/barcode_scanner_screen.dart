@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import 'package:book_golas/ui/barcode_scanner/widgets/scanner_error_widget.dart';
@@ -111,9 +112,9 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
                       ),
                     ),
                   ),
-                  const Text(
-                    'ISBN 바코드 스캔',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context).barcodeScannerTitle,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -146,7 +147,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      '책 뒷면의 ISBN 바코드를 스캔해주세요',
+                      AppLocalizations.of(context).barcodeScannerHint,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 13,

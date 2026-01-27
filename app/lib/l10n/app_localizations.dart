@@ -1627,6 +1627,36 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'진행률 기록이 없습니다.'**
   String get readingProgressNoRecords;
+
+  /// Barcode scanner screen title
+  ///
+  /// In ko, this message translates to:
+  /// **'ISBN 바코드 스캔'**
+  String get barcodeScannerTitle;
+
+  /// Barcode scanner hint text
+  ///
+  /// In ko, this message translates to:
+  /// **'책 뒷면의 ISBN 바코드를 스캔해주세요'**
+  String get barcodeScannerHint;
+
+  /// Camera permission denied error
+  ///
+  /// In ko, this message translates to:
+  /// **'카메라 권한이 필요합니다\n설정에서 권한을 허용해주세요'**
+  String get scannerErrorPermissionDenied;
+
+  /// Camera initializing message
+  ///
+  /// In ko, this message translates to:
+  /// **'카메라를 초기화하는 중입니다'**
+  String get scannerErrorInitializing;
+
+  /// Default camera error message
+  ///
+  /// In ko, this message translates to:
+  /// **'카메라 오류가 발생했습니다\n다시 시도해주세요'**
+  String get scannerErrorDefault;
 }
 
 class _AppLocalizationsDelegate

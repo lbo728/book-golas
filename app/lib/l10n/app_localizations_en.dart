@@ -836,4 +836,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readingProgressNoRecords => 'No progress records';
+
+  @override
+  String get barcodeScannerTitle => 'Scan ISBN Barcode';
+
+  @override
+  String get barcodeScannerHint =>
+      'Scan the ISBN barcode on the back of the book';
+
+  @override
+  String get scannerErrorPermissionDenied =>
+      'Camera permission required\nPlease allow camera access in settings';
+
+  @override
+  String get scannerErrorInitializing => 'Initializing camera';
+
+  @override
+  String get scannerErrorDefault => 'Camera error occurred\nPlease try again';
 }

@@ -309,5 +309,11 @@
     
     "readingProgressTitle": "Reading Progress History",
     "readingProgressLoadFailed": "Failed to load progress",
-    "readingProgressNoRecords": "No progress records"
+    "readingProgressNoRecords": "No progress records",
+    
+    "barcodeScannerTitle": "Scan ISBN Barcode",
+    "barcodeScannerHint": "Scan the ISBN barcode on the back of the book",
+    "scannerErrorPermissionDenied": "Camera permission required\nPlease allow camera access in settings",
+    "scannerErrorInitializing": "Initializing camera",
+    "scannerErrorDefault": "Camera error occurred\nPlease try again"
 }
