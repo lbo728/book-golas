@@ -566,6 +566,84 @@ abstract class AppLocalizations {
   /// **'나의 서재'**
   String get myLibraryTitle;
 
+  /// Reading tab in my library
+  ///
+  /// In ko, this message translates to:
+  /// **'독서'**
+  String get myLibraryTabReading;
+
+  /// Review tab in my library
+  ///
+  /// In ko, this message translates to:
+  /// **'독후감'**
+  String get myLibraryTabReview;
+
+  /// Record tab in my library
+  ///
+  /// In ko, this message translates to:
+  /// **'기록'**
+  String get myLibraryTabRecord;
+
+  /// Search hint text
+  ///
+  /// In ko, this message translates to:
+  /// **'제목, 저자로 검색'**
+  String get myLibrarySearchHint;
+
+  /// No search results message
+  ///
+  /// In ko, this message translates to:
+  /// **'검색 결과가 없습니다'**
+  String get myLibraryNoSearchResults;
+
+  /// No books registered message
+  ///
+  /// In ko, this message translates to:
+  /// **'등록된 책이 없습니다'**
+  String get myLibraryNoBooks;
+
+  /// No books with reviews message
+  ///
+  /// In ko, this message translates to:
+  /// **'독후감이 있는 책이 없습니다'**
+  String get myLibraryNoReviewBooks;
+
+  /// No records message
+  ///
+  /// In ko, this message translates to:
+  /// **'기록이 없습니다'**
+  String get myLibraryNoRecords;
+
+  /// AI search all records button
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 기록에서 AI 검색'**
+  String get myLibraryAiSearch;
+
+  /// All filter option
+  ///
+  /// In ko, this message translates to:
+  /// **'전체'**
+  String get myLibraryFilterAll;
+
+  /// Highlight filter option
+  ///
+  /// In ko, this message translates to:
+  /// **'✨ 하이라이트'**
+  String get myLibraryFilterHighlight;
+
+  /// Memo filter option
+  ///
+  /// In ko, this message translates to:
+  /// **'📝 메모'**
+  String get myLibraryFilterMemo;
+
+  /// Photo filter option
+  ///
+  /// In ko, this message translates to:
+  /// **'📷 사진'**
+  String get myLibraryFilterPhoto;
+
   /// Reading chart title
   ///
   /// In ko, this message translates to:

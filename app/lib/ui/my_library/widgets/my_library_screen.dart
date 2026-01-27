@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/domain/models/recall_models.dart';
 import 'package:book_golas/domain/models/reading_record.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/my_library/view_model/my_library_view_model.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_tab_bar.dart';
@@ -165,7 +166,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         scrolledUnderElevation: 0,
-        title: const Text('나의 서재'),
+        title: Text(AppLocalizations.of(context).myLibraryTitle),
         centerTitle: false,
         titleTextStyle: TextStyle(
           fontSize: 20,
@@ -185,9 +186,9 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
               return LiquidGlassTabBar(
                 controller: _tabController,
                 tabs: [
-                  '독서 ($allCount)',
-                  '독후감 ($reviewCount)',
-                  '기록 ($recordCount)',
+                  '${AppLocalizations.of(context).myLibraryTabReading} ($allCount)',
+                  '${AppLocalizations.of(context).myLibraryTabReview} ($reviewCount)',
+                  '${AppLocalizations.of(context).myLibraryTabRecord} ($recordCount)',
                 ],
               );
             },
@@ -217,7 +218,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
         controller: controller,
         onChanged: onChanged,
         decoration: InputDecoration(
-          hintText: '제목, 저자로 검색',
+          hintText: AppLocalizations.of(context).myLibrarySearchHint,
           hintStyle: TextStyle(
             color: isDark
                 ? Colors.white.withValues(alpha: 0.4)
@@ -288,7 +289,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
           child: Row(
             children: [
               _buildFilterChip(
-                '전체',
+                AppLocalizations.of(context).myLibraryFilterAll,
                 vm.selectedYear == null,
                 isDark,
                 () => vm.setSelectedYear(null),
@@ -372,8 +373,8 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
 
               if (books.isEmpty) {
                 final emptyMessage = vm.readingSearchQuery.isNotEmpty
-                    ? '검색 결과가 없습니다'
-                    : '등록된 책이 없습니다';
+                    ? AppLocalizations.of(context).myLibraryNoSearchResults
+                    : AppLocalizations.of(context).myLibraryNoBooks;
                 return _buildEmptyState(isDark, emptyMessage);
               }
 
@@ -416,8 +417,8 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
 
               if (books.isEmpty) {
                 final emptyMessage = vm.reviewSearchQuery.isNotEmpty
-                    ? '검색 결과가 없습니다'
-                    : '독후감이 있는 책이 없습니다';
+                    ? AppLocalizations.of(context).myLibraryNoSearchResults
+                    : AppLocalizations.of(context).myLibraryNoReviewBooks;
                 return _buildEmptyState(isDark, emptyMessage);
               }
 
@@ -455,7 +456,8 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
               final groups = vm.groupedRecords;
 
               if (groups.isEmpty) {
-                return _buildEmptyState(isDark, '기록이 없습니다');
+                return _buildEmptyState(
+                    isDark, AppLocalizations.of(context).myLibraryNoRecords);
               }
 
               return ListView.builder(
@@ -515,7 +517,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      '모든 기록에서 AI 검색',
+                      AppLocalizations.of(context).myLibraryAiSearch,
                       style: TextStyle(
                         fontSize: 14,
                         color: isDark
@@ -550,28 +552,28 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
           child: Row(
             children: [
               _buildFilterChip(
-                '전체',
+                AppLocalizations.of(context).myLibraryFilterAll,
                 vm.selectedRecordType == null,
                 isDark,
                 () => vm.setSelectedRecordType(null),
               ),
               const SizedBox(width: 8),
               _buildFilterChip(
-                '✨ 하이라이트',
+                AppLocalizations.of(context).myLibraryFilterHighlight,
                 vm.selectedRecordType == 'highlight',
                 isDark,
                 () => vm.setSelectedRecordType('highlight'),
               ),
               const SizedBox(width: 8),
               _buildFilterChip(
-                '📝 메모',
+                AppLocalizations.of(context).myLibraryFilterMemo,
                 vm.selectedRecordType == 'note',
                 isDark,
                 () => vm.setSelectedRecordType('note'),
               ),
               const SizedBox(width: 8),
               _buildFilterChip(
-                '📷 사진',
+                AppLocalizations.of(context).myLibraryFilterPhoto,
                 vm.selectedRecordType == 'photo_ocr',
                 isDark,
                 () => vm.setSelectedRecordType('photo_ocr'),

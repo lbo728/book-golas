@@ -247,10 +247,49 @@
   "bookDetailLater": "나중에",
   "@bookDetailLater": {"description": "Later button"},
   
-  "myLibraryTitle": "나의 서재",
-  "@myLibraryTitle": {"description": "My library title"},
-  
-  "chartTitle": "나의 독서 상태",
+   "myLibraryTitle": "나의 서재",
+   "@myLibraryTitle": {"description": "My library title"},
+   
+   "myLibraryTabReading": "독서",
+   "@myLibraryTabReading": {"description": "Reading tab in my library"},
+   
+   "myLibraryTabReview": "독후감",
+   "@myLibraryTabReview": {"description": "Review tab in my library"},
+   
+   "myLibraryTabRecord": "기록",
+   "@myLibraryTabRecord": {"description": "Record tab in my library"},
+   
+   "myLibrarySearchHint": "제목, 저자로 검색",
+   "@myLibrarySearchHint": {"description": "Search hint text"},
+   
+   "myLibraryNoSearchResults": "검색 결과가 없습니다",
+   "@myLibraryNoSearchResults": {"description": "No search results message"},
+   
+   "myLibraryNoBooks": "등록된 책이 없습니다",
+   "@myLibraryNoBooks": {"description": "No books registered message"},
+   
+   "myLibraryNoReviewBooks": "독후감이 있는 책이 없습니다",
+   "@myLibraryNoReviewBooks": {"description": "No books with reviews message"},
+   
+   "myLibraryNoRecords": "기록이 없습니다",
+   "@myLibraryNoRecords": {"description": "No records message"},
+   
+   "myLibraryAiSearch": "모든 기록에서 AI 검색",
+   "@myLibraryAiSearch": {"description": "AI search all records button"},
+   
+   "myLibraryFilterAll": "전체",
+   "@myLibraryFilterAll": {"description": "All filter option"},
+   
+   "myLibraryFilterHighlight": "✨ 하이라이트",
+   "@myLibraryFilterHighlight": {"description": "Highlight filter option"},
+   
+   "myLibraryFilterMemo": "📝 메모",
+   "@myLibraryFilterMemo": {"description": "Memo filter option"},
+   
+   "myLibraryFilterPhoto": "📷 사진",
+   "@myLibraryFilterPhoto": {"description": "Photo filter option"},
+   
+   "chartTitle": "나의 독서 상태",
   "@chartTitle": {"description": "Reading chart title"},
   
   "chartTabOverview": "개요",

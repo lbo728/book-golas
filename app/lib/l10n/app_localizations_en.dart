@@ -269,6 +269,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myLibraryTitle => 'My Library';
 
   @override
+  String get myLibraryTabReading => 'Reading';
+
+  @override
+  String get myLibraryTabReview => 'Review';
+
+  @override
+  String get myLibraryTabRecord => 'Record';
+
+  @override
+  String get myLibrarySearchHint => 'Search by title or author';
+
+  @override
+  String get myLibraryNoSearchResults => 'No search results';
+
+  @override
+  String get myLibraryNoBooks => 'No books registered';
+
+  @override
+  String get myLibraryNoReviewBooks => 'No books with reviews';
+
+  @override
+  String get myLibraryNoRecords => 'No records';
+
+  @override
+  String get myLibraryAiSearch => 'AI Search All Records';
+
+  @override
+  String get myLibraryFilterAll => 'All';
+
+  @override
+  String get myLibraryFilterHighlight => '✨ Highlight';
+
+  @override
+  String get myLibraryFilterMemo => '📝 Memo';
+
+  @override
+  String get myLibraryFilterPhoto => '📷 Photo';
+
+  @override
   String get chartTitle => 'My Reading Stats';
 
   @override

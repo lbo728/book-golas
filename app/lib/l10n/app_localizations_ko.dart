@@ -249,6 +249,45 @@ class AppLocalizationsKo extends AppLocalizations {
   String get myLibraryTitle => '나의 서재';
 
   @override
+  String get myLibraryTabReading => '독서';
+
+  @override
+  String get myLibraryTabReview => '독후감';
+
+  @override
+  String get myLibraryTabRecord => '기록';
+
+  @override
+  String get myLibrarySearchHint => '제목, 저자로 검색';
+
+  @override
+  String get myLibraryNoSearchResults => '검색 결과가 없습니다';
+
+  @override
+  String get myLibraryNoBooks => '등록된 책이 없습니다';
+
+  @override
+  String get myLibraryNoReviewBooks => '독후감이 있는 책이 없습니다';
+
+  @override
+  String get myLibraryNoRecords => '기록이 없습니다';
+
+  @override
+  String get myLibraryAiSearch => '모든 기록에서 AI 검색';
+
+  @override
+  String get myLibraryFilterAll => '전체';
+
+  @override
+  String get myLibraryFilterHighlight => '✨ 하이라이트';
+
+  @override
+  String get myLibraryFilterMemo => '📝 메모';
+
+  @override
+  String get myLibraryFilterPhoto => '📷 사진';
+
+  @override
   String get chartTitle => '나의 독서 상태';
 
   @override
