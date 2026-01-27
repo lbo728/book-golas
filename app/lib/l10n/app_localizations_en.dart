@@ -1,0 +1,406 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
+class AppLocalizationsEn extends AppLocalizations {
+  AppLocalizationsEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get appTitle => 'BookGolas';
+
+  @override
+  String get commonCancel => 'Cancel';
+
+  @override
+  String get commonConfirm => 'OK';
+
+  @override
+  String get commonSave => 'Save';
+
+  @override
+  String get commonDelete => 'Delete';
+
+  @override
+  String get commonChange => 'Change';
+
+  @override
+  String get commonComplete => 'Done';
+
+  @override
+  String get commonClose => 'Close';
+
+  @override
+  String get commonRetry => 'Retry';
+
+  @override
+  String get commonNext => 'Next';
+
+  @override
+  String get commonSkip => 'Skip';
+
+  @override
+  String get commonStart => 'Get Started';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navLibrary => 'Library';
+
+  @override
+  String get navStats => 'Stats';
+
+  @override
+  String get navCalendar => 'Calendar';
+
+  @override
+  String booksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count books',
+      one: '1 book',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String daysCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pages',
+      one: '1 page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get weekdayMon => 'Mon';
+
+  @override
+  String get weekdayTue => 'Tue';
+
+  @override
+  String get weekdayWed => 'Wed';
+
+  @override
+  String get weekdayThu => 'Thu';
+
+  @override
+  String get weekdayFri => 'Fri';
+
+  @override
+  String get weekdaySat => 'Sat';
+
+  @override
+  String get weekdaySun => 'Sun';
+
+  @override
+  String get timeAm => 'AM';
+
+  @override
+  String get timePm => 'PM';
+
+  @override
+  String get unitYear => '';
+
+  @override
+  String get unitMonth => '';
+
+  @override
+  String get unitDay => '';
+
+  @override
+  String get unitHour => '';
+
+  @override
+  String get unitMinute => '';
+
+  @override
+  String get statusReading => 'Reading';
+
+  @override
+  String get statusPlanned => 'To Read';
+
+  @override
+  String get statusCompleted => 'Completed';
+
+  @override
+  String get statusReread => 'Reread';
+
+  @override
+  String get priorityUrgent => 'Urgent';
+
+  @override
+  String get priorityHigh => 'High';
+
+  @override
+  String get priorityMedium => 'Medium';
+
+  @override
+  String get priorityLow => 'Low';
+
+  @override
+  String get contentTypeHighlight => 'Highlight';
+
+  @override
+  String get contentTypeMemo => 'Memo';
+
+  @override
+  String get contentTypePhoto => 'Photo';
+
+  @override
+  String get languageSettingLabel => 'Language';
+
+  @override
+  String get homeBookList => 'Book List';
+
+  @override
+  String get bookListTabReading => 'Reading';
+
+  @override
+  String get bookListTabPlanned => 'To Read';
+
+  @override
+  String get bookListTabCompleted => 'Completed';
+
+  @override
+  String get bookListTabReread => 'Reread';
+
+  @override
+  String get bookListTabAll => 'All';
+
+  @override
+  String get bookListFilterAll => 'All';
+
+  @override
+  String get bookDetailTabRecord => 'Record';
+
+  @override
+  String get bookDetailTabHistory => 'History';
+
+  @override
+  String get bookDetailTabReview => 'Review';
+
+  @override
+  String get bookDetailTabDetail => 'Details';
+
+  @override
+  String get bookDetailStartDate => 'Start Date';
+
+  @override
+  String get bookDetailTargetDate => 'Target Date';
+
+  @override
+  String get bookDetailReviewWritten => 'Written';
+
+  @override
+  String get bookDetailReviewNotWritten => 'Not written yet';
+
+  @override
+  String get bookDetailLegendAchieved => 'Achieved';
+
+  @override
+  String get bookDetailLegendMissed => 'Missed';
+
+  @override
+  String get bookDetailLegendScheduled => 'Scheduled';
+
+  @override
+  String get bookDetailLater => 'Later';
+
+  @override
+  String get myLibraryTitle => 'My Library';
+
+  @override
+  String get chartTitle => 'My Reading Stats';
+
+  @override
+  String get chartTabOverview => 'Overview';
+
+  @override
+  String get chartTabAnalysis => 'Analysis';
+
+  @override
+  String get chartTabActivity => 'Activity';
+
+  @override
+  String get chartPeriodDaily => 'Daily';
+
+  @override
+  String get chartPeriodWeekly => 'Weekly';
+
+  @override
+  String get chartPeriodMonthly => 'Monthly';
+
+  @override
+  String get chartDailyAverage => 'Daily Avg';
+
+  @override
+  String get chartIncrease => 'Change';
+
+  @override
+  String get chartLess => 'Less';
+
+  @override
+  String get chartMore => 'More';
+
+  @override
+  String get myPageTitle => 'My Page';
+
+  @override
+  String get myPageSettings => 'Settings';
+
+  @override
+  String get myPageChangeAvatar => 'Change';
+
+  @override
+  String get myPageLogout => 'Logout';
+
+  @override
+  String get loginAppName => 'BookGolas';
+
+  @override
+  String get loginEmailLabel => 'Email';
+
+  @override
+  String get loginPasswordLabel => 'Password';
+
+  @override
+  String get loginNicknameLabel => 'Nickname';
+
+  @override
+  String get loginOrDivider => 'or';
+
+  @override
+  String get loginButton => 'Login';
+
+  @override
+  String get loginSignupButton => 'Sign Up';
+
+  @override
+  String get reviewTitle => 'Book Review';
+
+  @override
+  String get reviewSave => 'Save';
+
+  @override
+  String get reviewReplace => 'Replace';
+
+  @override
+  String get reviewExit => 'Exit';
+
+  @override
+  String get readingStartSetDate => 'Set Start Date';
+
+  @override
+  String get readingStartUndetermined => 'TBD';
+
+  @override
+  String get dialogOpacity => 'Opacity';
+
+  @override
+  String get dialogThickness => 'Thickness';
+
+  @override
+  String get dialogTakePhoto => 'Take Photo';
+
+  @override
+  String get dialogReplaceImage => 'Replace';
+
+  @override
+  String get dialogViewFull => 'View Full';
+
+  @override
+  String get dialogCopy => 'Copy';
+
+  @override
+  String get dialogEdit => 'Edit';
+
+  @override
+  String get dialogSaved => 'Saved';
+
+  @override
+  String get dialogSaving => 'Saving...';
+
+  @override
+  String get dialogUpload => 'Upload';
+
+  @override
+  String get dialogSelect => 'Select';
+
+  @override
+  String get dialogApply => 'Apply';
+
+  @override
+  String get dialogExtract => 'Extract';
+
+  @override
+  String get dialogOkay => 'Okay';
+
+  @override
+  String get dialogExtractIt => 'Extract It';
+
+  @override
+  String get dialogThinkAboutIt => 'Think About It';
+
+  @override
+  String get genreNovel => 'Novel';
+
+  @override
+  String get genreLiterature => 'Literature';
+
+  @override
+  String get genreSelfHelp => 'Self-Help';
+
+  @override
+  String get genreBusiness => 'Business';
+
+  @override
+  String get genreHumanities => 'Humanities';
+
+  @override
+  String get genreScience => 'Science';
+
+  @override
+  String get genreHistory => 'History';
+
+  @override
+  String get genreEssay => 'Essay';
+
+  @override
+  String get genrePoetry => 'Poetry';
+
+  @override
+  String get genreComic => 'Comic';
+
+  @override
+  String get genreUncategorized => 'Uncategorized';
+
+  @override
+  String get errorInitFailed => 'Initialization failed';
+
+  @override
+  String get errorLoadFailed => 'Failed to load';
+
+  @override
+  String get errorNoRecords => 'No records';
+
+  @override
+  String get loadingInit => 'Initializing app...';
+}
