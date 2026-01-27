@@ -13,6 +13,7 @@ class AiInsightCard extends StatelessWidget {
   final int bookCount;
   final VoidCallback onGenerate;
   final VoidCallback? onRetry;
+  final VoidCallback? onClearMemory;
 
   const AiInsightCard({
     super.key,
@@ -23,6 +24,7 @@ class AiInsightCard extends StatelessWidget {
     required this.bookCount,
     required this.onGenerate,
     this.onRetry,
+    this.onClearMemory,
   });
 
   @override
@@ -90,7 +92,59 @@ class AiInsightCard extends StatelessWidget {
             color: isDark ? Colors.white : Colors.black87,
           ),
         ),
+        const Spacer(),
+        if (onClearMemory != null && insights != null && insights!.isNotEmpty)
+          PopupMenuButton<String>(
+            icon: Icon(
+              Icons.more_vert,
+              color: isDark ? Colors.white70 : Colors.black54,
+            ),
+            onSelected: (value) {
+              if (value == 'clear') {
+                _showClearMemoryDialog(context);
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'clear',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete_outline, size: 20),
+                    SizedBox(width: 8),
+                    Text('인사이트 기록 삭제'),
+                  ],
+                ),
+              ),
+            ],
+          ),
       ],
+    );
+  }
+
+  void _showClearMemoryDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('인사이트 기록 삭제'),
+        content: const Text(
+          '지금까지의 인사이트 기록을 모두 삭제하시겠습니까?\n'
+          '삭제 후에는 복구할 수 없습니다.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              onClearMemory?.call();
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('삭제'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -308,10 +362,7 @@ class AiInsightCard extends StatelessWidget {
           ),
           child: const Text(
             '분석하기',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
           ),
         ),
       );
@@ -339,8 +390,9 @@ class AiInsightCard extends StatelessWidget {
   }
 
   Icon _getCategoryIcon(String category, bool isDark) {
-    final color =
-        isDark ? AppColors.primary.withOpacity(0.8) : AppColors.primary;
+    final color = isDark
+        ? AppColors.primary.withOpacity(0.8)
+        : AppColors.primary;
 
     switch (category) {
       case 'pattern':

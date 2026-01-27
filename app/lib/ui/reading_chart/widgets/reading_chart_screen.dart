@@ -114,16 +114,20 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         .order('created_at', ascending: true);
 
     return (response as List)
-        .map((e) => {
-              'page': e['page'] as int,
-              'book_id': e['book_id'] as String?,
-              'created_at': DateTime.parse(e['created_at'] as String),
-            })
+        .map(
+          (e) => {
+            'page': e['page'] as int,
+            'book_id': e['book_id'] as String?,
+            'created_at': DateTime.parse(e['created_at'] as String),
+          },
+        )
         .toList();
   }
 
   List<Map<String, dynamic>> aggregateByDate(
-      List<Map<String, dynamic>> data, TimeFilter filter) {
+    List<Map<String, dynamic>> data,
+    TimeFilter filter,
+  ) {
     if (data.isEmpty) return [];
 
     final SplayTreeMap<DateTime, Map<String, int>> dateData = SplayTreeMap();
@@ -139,8 +143,11 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         case TimeFilter.weekly:
           final weekday = createdAt.weekday;
           final diff = weekday - 1;
-          key = DateTime(createdAt.year, createdAt.month, createdAt.day)
-              .subtract(Duration(days: diff));
+          key = DateTime(
+            createdAt.year,
+            createdAt.month,
+            createdAt.day,
+          ).subtract(Duration(days: diff));
           break;
         case TimeFilter.monthly:
           key = DateTime(createdAt.year, createdAt.month, 1);
@@ -165,8 +172,10 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     final result = <Map<String, dynamic>>[];
 
     for (final entry in dateData.entries) {
-      final dailyTotal =
-          entry.value.values.fold<int>(0, (sum, page) => sum + page);
+      final dailyTotal = entry.value.values.fold<int>(
+        0,
+        (sum, page) => sum + page,
+      );
       cumulativePages += dailyTotal;
 
       result.add({
@@ -212,10 +221,9 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     final today = DateTime.now();
     final todayNormalized = DateTime(today.year, today.month, today.day);
 
-    final sortedDates = aggregatedData
-        .map((e) => e['date'] as DateTime)
-        .toList()
-      ..sort((a, b) => b.compareTo(a));
+    final sortedDates =
+        aggregatedData.map((e) => e['date'] as DateTime).toList()
+          ..sort((a, b) => b.compareTo(a));
 
     DateTime expectedDate = todayNormalized;
 
@@ -255,10 +263,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     );
 
     if (result != null && mounted) {
-      await _goalService.setYearlyGoal(
-        year: currentYear,
-        targetBooks: result,
-      );
+      await _goalService.setYearlyGoal(year: currentYear, targetBooks: result);
       _loadData();
     }
   }
@@ -290,11 +295,13 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+      backgroundColor: isDark
+          ? AppColors.scaffoldDark
+          : AppColors.scaffoldLight,
       appBar: AppBar(
-        backgroundColor:
-            isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+        backgroundColor: isDark
+            ? AppColors.scaffoldDark
+            : AppColors.scaffoldLight,
         elevation: 0,
         title: const Text('나의 독서 상태'),
         centerTitle: false,
@@ -308,9 +315,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
           tabs: const ['개요', '분석', '활동'],
         ),
       ),
-      body: SafeArea(
-        child: _buildContent(isDark),
-      ),
+      body: SafeArea(child: _buildContent(isDark)),
     );
   }
 
@@ -331,24 +336,14 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.error_outline,
-                size: 48,
-                color: Colors.red,
-              ),
+              const Icon(Icons.error_outline, size: 48, color: Colors.red),
               const SizedBox(height: 16),
               Text(
                 '데이터를 불러올 수 없습니다',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[700],
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.grey[700]),
               ),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _loadData,
-                child: const Text('다시 시도'),
-              ),
+              ElevatedButton(onPressed: _loadData, child: const Text('다시 시도')),
             ],
           ),
         ),
@@ -378,10 +373,8 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     int currentYear,
   ) {
     final monthlyDataForChart = _monthlyBookCount.map(
-      (month, count) => MapEntry(
-        '$currentYear-${month.toString().padLeft(2, '0')}',
-        count,
-      ),
+      (month, count) =>
+          MapEntry('$currentYear-${month.toString().padLeft(2, '0')}', count),
     );
 
     return SingleChildScrollView(
@@ -411,8 +404,9 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     Map<String, dynamic> stats,
     int streak,
   ) {
-    final genreMessage =
-        _progressService.getTopGenreMessage(_genreDistribution);
+    final genreMessage = _progressService.getTopGenreMessage(
+      _genreDistribution,
+    );
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -430,6 +424,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 bookCount: viewModel.bookCount,
                 onGenerate: viewModel.generateInsight,
                 onRetry: viewModel.generateInsight,
+                onClearMemory: viewModel.clearMemory,
               );
             },
           ),
@@ -452,11 +447,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
             totalHighlights: 45,
             totalNotes: 12,
             totalPhotos: 3,
-            genreDistribution: {
-              '자기계발': 20,
-              '소설': 15,
-              '에세이': 10,
-            },
+            genreDistribution: {'자기계발': 20, '소설': 15, '에세이': 10},
             topKeywords: ['성장', '습관', '목표', '동기부여', '실천'],
           ),
           const SizedBox(height: 16),
@@ -665,8 +656,9 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                             '페이지',
                             style: TextStyle(
                               fontSize: 12,
-                              color:
-                                  isDark ? Colors.grey[400] : Colors.grey[600],
+                              color: isDark
+                                  ? Colors.grey[400]
+                                  : Colors.grey[600],
                             ),
                           ),
                         ],
@@ -682,7 +674,9 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   }
 
   Widget _buildReadingProgressChart(
-      bool isDark, List<Map<String, dynamic>> aggregated) {
+    bool isDark,
+    List<Map<String, dynamic>> aggregated,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -738,8 +732,8 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                             color: isSelected
                                 ? Colors.white
                                 : (isDark
-                                    ? Colors.grey[400]
-                                    : Colors.grey[600]),
+                                      ? Colors.grey[400]
+                                      : Colors.grey[600]),
                           ),
                         ),
                       ),
@@ -756,8 +750,9 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color:
-                      isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+                  color: isDark
+                      ? AppColors.surfaceDark
+                      : AppColors.surfaceLight,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -799,18 +794,11 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.show_chart,
-                      size: 48,
-                      color: Colors.grey[400],
-                    ),
+                    Icon(Icons.show_chart, size: 48, color: Colors.grey[400]),
                     const SizedBox(height: 12),
                     Text(
                       '아직 데이터가 없어요',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
                   ],
                 ),
@@ -836,18 +824,11 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
       child: Center(
         child: Column(
           children: [
-            Icon(
-              Icons.list_alt,
-              size: 48,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.list_alt, size: 48, color: Colors.grey[400]),
             const SizedBox(height: 12),
             Text(
               '읽은 기록이 없어요',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Colors.grey[600], fontSize: 14),
             ),
           ],
         ),
@@ -856,7 +837,9 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   }
 
   Widget _buildCombinationChartContent(
-      bool isDark, List<Map<String, dynamic>> aggregated) {
+    bool isDark,
+    List<Map<String, dynamic>> aggregated,
+  ) {
     final maxDaily = aggregated
         .map((e) => e['daily_page'] as int)
         .reduce((a, b) => a > b ? a : b);
@@ -940,8 +923,10 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                         ),
                       );
                     },
-                    interval:
-                        (aggregated.length / 5).ceilToDouble().clamp(1, 999),
+                    interval: (aggregated.length / 5).ceilToDouble().clamp(
+                      1,
+                      999,
+                    ),
                   ),
                 ),
               ),
@@ -1072,11 +1057,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
               color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 18,
-            ),
+            child: Icon(icon, color: color, size: 18),
           ),
           Flexible(
             child: Column(
