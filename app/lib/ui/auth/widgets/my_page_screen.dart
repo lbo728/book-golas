@@ -83,15 +83,14 @@ class _MyPageContentState extends State<_MyPageContent> {
             borderRadius: BorderRadius.circular(16),
           ),
           title: Text(
-            '계정 삭제',
+            AppLocalizations.of(context)!.myPageDeleteAccount,
             style: TextStyle(
               color: isDark ? Colors.white : Colors.black,
               fontWeight: FontWeight.w600,
             ),
           ),
           content: Text(
-            '정말로 계정을 삭제하시겠습니까?\n\n'
-            '이 작업은 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.',
+            AppLocalizations.of(context)!.myPageDeleteAccountConfirm,
             style: TextStyle(
               color: isDark
                   ? Colors.white.withValues(alpha: 0.7)
@@ -102,7 +101,7 @@ class _MyPageContentState extends State<_MyPageContent> {
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
               child: Text(
-                '취소',
+                AppLocalizations.of(context)!.commonCancel,
                 style: TextStyle(
                   color: isDark ? Colors.white : Colors.black,
                 ),
@@ -116,7 +115,7 @@ class _MyPageContentState extends State<_MyPageContent> {
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.error,
               ),
-              child: const Text('삭제'),
+              child: Text(AppLocalizations.of(context)!.commonDelete),
             ),
           ],
         );
@@ -132,7 +131,7 @@ class _MyPageContentState extends State<_MyPageContent> {
       if (success && mounted) {
         CustomSnackbar.show(
           context,
-          message: '계정이 성공적으로 삭제되었습니다.',
+          message: AppLocalizations.of(context)!.myPageDeleteAccountSuccess,
           type: SnackbarType.success,
           bottomOffset: 32,
         );
@@ -144,7 +143,7 @@ class _MyPageContentState extends State<_MyPageContent> {
       } else if (mounted) {
         CustomSnackbar.show(
           context,
-          message: '계정 삭제에 실패했습니다. 다시 시도해주세요.',
+          message: AppLocalizations.of(context)!.myPageDeleteAccountFailed,
           type: SnackbarType.error,
           bottomOffset: 32,
         );
@@ -153,7 +152,8 @@ class _MyPageContentState extends State<_MyPageContent> {
       if (mounted) {
         CustomSnackbar.show(
           context,
-          message: '오류가 발생했습니다: $e',
+          message: AppLocalizations.of(context)!
+              .myPageDeleteAccountError(e.toString()),
           type: SnackbarType.error,
           bottomOffset: 32,
         );
@@ -202,9 +202,9 @@ class _MyPageContentState extends State<_MyPageContent> {
                   children: [
                     TextButton(
                       onPressed: () => Navigator.pop(sheetContext),
-                      child: const Text(
-                        '취소',
-                        style: TextStyle(
+                      child: Text(
+                        AppLocalizations.of(context)!.commonCancel,
+                        style: const TextStyle(
                           color: AppColors.error,
                           fontSize: 17,
                           fontWeight: FontWeight.w500,
@@ -212,7 +212,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                       ),
                     ),
                     Text(
-                      '알림 시간 설정',
+                      AppLocalizations.of(context)!.myPageNotificationTimeTitle,
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
@@ -225,9 +225,9 @@ class _MyPageContentState extends State<_MyPageContent> {
                         await _saveNotificationTime(
                             selectedHour, selectedMinute);
                       },
-                      child: const Text(
-                        '확인',
-                        style: TextStyle(
+                      child: Text(
+                        AppLocalizations.of(context)!.commonConfirm,
+                        style: const TextStyle(
                           color: AppColors.primary,
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
@@ -268,7 +268,8 @@ class _MyPageContentState extends State<_MyPageContent> {
       if (mounted) {
         CustomSnackbar.show(
           context,
-          message: '알림 시간이 ${settingsViewModel.getFormattedTime()}으로 변경되었습니다',
+          message: AppLocalizations.of(context)!
+              .myPageNotificationTime(settingsViewModel.getFormattedTime()),
           type: SnackbarType.success,
           bottomOffset: 32,
         );
@@ -276,7 +277,8 @@ class _MyPageContentState extends State<_MyPageContent> {
     } else if (mounted) {
       CustomSnackbar.show(
         context,
-        message: settingsViewModel.errorMessage ?? '알림 시간 변경에 실패했습니다',
+        message: settingsViewModel.errorMessage ??
+            AppLocalizations.of(context)!.myPageNotificationChangeFailed,
         type: SnackbarType.error,
         bottomOffset: 32,
       );
@@ -284,21 +286,22 @@ class _MyPageContentState extends State<_MyPageContent> {
   }
 
   String _formatTime(int hour, [int minute = 0]) {
+    final l10n = AppLocalizations.of(context)!;
     String hourStr;
     if (hour == 0) {
-      hourStr = '오전 12시';
+      hourStr = '${l10n.timeAm} 12${l10n.unitHour}';
     } else if (hour < 12) {
-      hourStr = '오전 $hour시';
+      hourStr = '${l10n.timeAm} $hour${l10n.unitHour}';
     } else if (hour == 12) {
-      hourStr = '오후 12시';
+      hourStr = '${l10n.timePm} 12${l10n.unitHour}';
     } else {
-      hourStr = '오후 ${hour - 12}시';
+      hourStr = '${l10n.timePm} ${hour - 12}${l10n.unitHour}';
     }
 
     if (minute == 0) {
       return hourStr;
     }
-    return '$hourStr $minute분';
+    return '$hourStr $minute${l10n.unitMinute}';
   }
 
   Widget _buildProfileCard(BuildContext context) {
@@ -431,7 +434,8 @@ class _MyPageContentState extends State<_MyPageContent> {
                               if (context.mounted) {
                                 CustomSnackbar.show(
                                   context,
-                                  message: '프로필 이미지가 변경되었습니다',
+                                  message: AppLocalizations.of(context)!
+                                      .myPageAvatarChanged,
                                   type: SnackbarType.success,
                                   bottomOffset: 32,
                                 );
@@ -442,7 +446,8 @@ class _MyPageContentState extends State<_MyPageContent> {
                               if (context.mounted) {
                                 CustomSnackbar.show(
                                   context,
-                                  message: '프로필 이미지 변경 실패: $e',
+                                  message: AppLocalizations.of(context)!
+                                      .myPageAvatarChangeFailed(e.toString()),
                                   type: SnackbarType.error,
                                   bottomOffset: 32,
                                 );
@@ -484,7 +489,8 @@ class _MyPageContentState extends State<_MyPageContent> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  user.nickname ?? '닉네임 없음',
+                  user.nickname ??
+                      AppLocalizations.of(context)!.myPageNoNickname,
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
@@ -521,7 +527,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                 Expanded(
                   child: LiquidGlassTextField(
                     controller: _nicknameController,
-                    hintText: '닉네임을 입력하세요',
+                    hintText: AppLocalizations.of(context)!.myPageNicknameHint,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -608,7 +614,7 @@ class _MyPageContentState extends State<_MyPageContent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '설정',
+            AppLocalizations.of(context)!.myPageSettings,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -623,7 +629,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                 icon: themeViewModel.isDarkMode
                     ? Icons.dark_mode
                     : Icons.light_mode,
-                title: '다크 모드',
+                title: AppLocalizations.of(context)!.myPageDarkMode,
                 trailing: Switch(
                   value: themeViewModel.isDarkMode,
                   onChanged: (value) {
@@ -677,10 +683,13 @@ class _MyPageContentState extends State<_MyPageContent> {
                   _buildSettingRow(
                     context: context,
                     icon: Icons.notifications,
-                    title: '매일 독서 목표 알림',
+                    title: AppLocalizations.of(context)!
+                        .myPageDailyReadingNotification,
                     subtitle: settings.notificationEnabled
-                        ? '매일 ${_formatTime(settings.preferredHour, settings.preferredMinute)}에 알림'
-                        : '알림을 받지 않습니다',
+                        ? AppLocalizations.of(context)!.myPageNotificationTime(
+                            _formatTime(settings.preferredHour,
+                                settings.preferredMinute))
+                        : AppLocalizations.of(context)!.myPageNoNotification,
                     trailing: isLoading
                         ? const SizedBox(
                             width: 24,
@@ -708,8 +717,10 @@ class _MyPageContentState extends State<_MyPageContent> {
                                   CustomSnackbar.show(
                                     context,
                                     message: value
-                                        ? '알림이 활성화되었습니다'
-                                        : '알림이 비활성화되었습니다',
+                                        ? AppLocalizations.of(context)!
+                                            .myPageNotificationEnabled
+                                        : AppLocalizations.of(context)!
+                                            .myPageNotificationDisabled,
                                     type: value
                                         ? SnackbarType.success
                                         : SnackbarType.info,
@@ -752,7 +763,7 @@ class _MyPageContentState extends State<_MyPageContent> {
           if (kDebugMode) ...[
             const SizedBox(height: 20),
             LiquidGlassButton(
-              text: '테스트 알림 (30초 후)',
+              text: AppLocalizations.of(context)!.myPageTestNotification,
               icon: Icons.notifications_active,
               variant: LiquidGlassButtonVariant.secondary,
               isFullWidth: true,
@@ -762,7 +773,8 @@ class _MyPageContentState extends State<_MyPageContent> {
                 if (mounted) {
                   CustomSnackbar.show(
                     context,
-                    message: '30초 후에 테스트 알림이 발송됩니다!',
+                    message: AppLocalizations.of(context)!
+                        .myPageTestNotificationSent,
                     type: SnackbarType.success,
                     bottomOffset: 32,
                     duration: const Duration(seconds: 3),
@@ -858,9 +870,9 @@ class _MyPageContentState extends State<_MyPageContent> {
             style: TextButton.styleFrom(
               foregroundColor: AppColors.error,
             ),
-            child: const Text(
-              '계정 삭제',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context)!.myPageDeleteAccount,
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -878,7 +890,7 @@ class _MyPageContentState extends State<_MyPageContent> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('마이페이지'),
+        title: Text(AppLocalizations.of(context)!.myPageTitle),
         centerTitle: false,
         titleTextStyle: TextStyle(
           fontSize: 20,

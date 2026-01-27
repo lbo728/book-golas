@@ -410,6 +410,74 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myPageLogout => 'Logout';
 
   @override
+  String get myPageDeleteAccount => 'Delete Account';
+
+  @override
+  String get myPageDeleteAccountConfirm =>
+      'Are you sure you want to delete your account?\n\nThis action cannot be undone, and all data will be permanently deleted.';
+
+  @override
+  String get myPageDeleteAccountSuccess => 'Account successfully deleted.';
+
+  @override
+  String get myPageDeleteAccountFailed =>
+      'Failed to delete account. Please try again.';
+
+  @override
+  String myPageDeleteAccountError(String error) {
+    return 'An error occurred: $error';
+  }
+
+  @override
+  String get myPageNotificationTimeTitle => 'Set Notification Time';
+
+  @override
+  String get myPageNoNickname => 'No nickname';
+
+  @override
+  String get myPageNicknameHint => 'Enter your nickname';
+
+  @override
+  String get myPageDarkMode => 'Dark Mode';
+
+  @override
+  String get myPageDailyReadingNotification =>
+      'Daily Reading Goal Notification';
+
+  @override
+  String myPageNotificationTime(String time) {
+    return 'Daily notification at $time';
+  }
+
+  @override
+  String get myPageNoNotification => 'No notifications';
+
+  @override
+  String get myPageNotificationEnabled => 'Notifications enabled';
+
+  @override
+  String get myPageNotificationDisabled => 'Notifications disabled';
+
+  @override
+  String get myPageNotificationChangeFailed =>
+      'Failed to change notification settings';
+
+  @override
+  String get myPageTestNotification => 'Test Notification (in 30 seconds)';
+
+  @override
+  String get myPageTestNotificationSent =>
+      'Test notification will be sent in 30 seconds!';
+
+  @override
+  String get myPageAvatarChanged => 'Profile image changed';
+
+  @override
+  String myPageAvatarChangeFailed(String error) {
+    return 'Failed to change profile image: $error';
+  }
+
+  @override
   String get loginAppName => 'BookGolas';
 
   @override

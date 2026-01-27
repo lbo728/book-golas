@@ -137,10 +137,47 @@
    "chartGenreAnalysis": "Genre Analysis",
    "chartNoReadingRecords": "No reading records",
   
-  "myPageTitle": "My Page",
-  "myPageSettings": "Settings",
-  "myPageChangeAvatar": "Change",
-  "myPageLogout": "Logout",
+   "myPageTitle": "My Page",
+   "myPageSettings": "Settings",
+   "myPageChangeAvatar": "Change",
+   "myPageLogout": "Logout",
+   "myPageDeleteAccount": "Delete Account",
+   "myPageDeleteAccountConfirm": "Are you sure you want to delete your account?\n\nThis action cannot be undone, and all data will be permanently deleted.",
+   "myPageDeleteAccountSuccess": "Account successfully deleted.",
+   "myPageDeleteAccountFailed": "Failed to delete account. Please try again.",
+   "myPageDeleteAccountError": "An error occurred: {error}",
+   "@myPageDeleteAccountError": {
+     "description": "Error message when deleting account",
+     "placeholders": {
+       "error": {"type": "String"}
+     }
+   },
+   "myPageNotificationTimeTitle": "Set Notification Time",
+   "myPageNoNickname": "No nickname",
+   "myPageNicknameHint": "Enter your nickname",
+   "myPageDarkMode": "Dark Mode",
+   "myPageDailyReadingNotification": "Daily Reading Goal Notification",
+   "myPageNotificationTime": "Daily notification at {time}",
+   "@myPageNotificationTime": {
+     "description": "Notification time display",
+     "placeholders": {
+       "time": {"type": "String"}
+     }
+   },
+   "myPageNoNotification": "No notifications",
+   "myPageNotificationEnabled": "Notifications enabled",
+   "myPageNotificationDisabled": "Notifications disabled",
+   "myPageNotificationChangeFailed": "Failed to change notification settings",
+   "myPageTestNotification": "Test Notification (in 30 seconds)",
+   "myPageTestNotificationSent": "Test notification will be sent in 30 seconds!",
+   "myPageAvatarChanged": "Profile image changed",
+   "myPageAvatarChangeFailed": "Failed to change profile image: {error}",
+   "@myPageAvatarChangeFailed": {
+     "description": "Error message when changing avatar",
+     "placeholders": {
+       "error": {"type": "String"}
+     }
+   },
   
   "loginAppName": "BookGolas",
   "loginEmailLabel": "Email",

@@ -390,6 +390,70 @@ class AppLocalizationsKo extends AppLocalizations {
   String get myPageLogout => '로그아웃';
 
   @override
+  String get myPageDeleteAccount => '계정 삭제';
+
+  @override
+  String get myPageDeleteAccountConfirm =>
+      '정말로 계정을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.';
+
+  @override
+  String get myPageDeleteAccountSuccess => '계정이 성공적으로 삭제되었습니다.';
+
+  @override
+  String get myPageDeleteAccountFailed => '계정 삭제에 실패했습니다. 다시 시도해주세요.';
+
+  @override
+  String myPageDeleteAccountError(String error) {
+    return '오류가 발생했습니다: $error';
+  }
+
+  @override
+  String get myPageNotificationTimeTitle => '알림 시간 설정';
+
+  @override
+  String get myPageNoNickname => '닉네임 없음';
+
+  @override
+  String get myPageNicknameHint => '닉네임을 입력하세요';
+
+  @override
+  String get myPageDarkMode => '다크 모드';
+
+  @override
+  String get myPageDailyReadingNotification => '매일 독서 목표 알림';
+
+  @override
+  String myPageNotificationTime(String time) {
+    return '매일 $time에 알림';
+  }
+
+  @override
+  String get myPageNoNotification => '알림을 받지 않습니다';
+
+  @override
+  String get myPageNotificationEnabled => '알림이 활성화되었습니다';
+
+  @override
+  String get myPageNotificationDisabled => '알림이 비활성화되었습니다';
+
+  @override
+  String get myPageNotificationChangeFailed => '알림 설정 변경에 실패했습니다';
+
+  @override
+  String get myPageTestNotification => '테스트 알림 (30초 후)';
+
+  @override
+  String get myPageTestNotificationSent => '30초 후에 테스트 알림이 발송됩니다!';
+
+  @override
+  String get myPageAvatarChanged => '프로필 이미지가 변경되었습니다';
+
+  @override
+  String myPageAvatarChangeFailed(String error) {
+    return '프로필 이미지 변경 실패: $error';
+  }
+
+  @override
   String get loginAppName => '북골라스';
 
   @override

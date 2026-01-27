@@ -848,6 +848,120 @@ abstract class AppLocalizations {
   /// **'로그아웃'**
   String get myPageLogout;
 
+  /// Delete account
+  ///
+  /// In ko, this message translates to:
+  /// **'계정 삭제'**
+  String get myPageDeleteAccount;
+
+  /// Delete account confirmation message
+  ///
+  /// In ko, this message translates to:
+  /// **'정말로 계정을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.'**
+  String get myPageDeleteAccountConfirm;
+
+  /// Account deleted successfully
+  ///
+  /// In ko, this message translates to:
+  /// **'계정이 성공적으로 삭제되었습니다.'**
+  String get myPageDeleteAccountSuccess;
+
+  /// Failed to delete account
+  ///
+  /// In ko, this message translates to:
+  /// **'계정 삭제에 실패했습니다. 다시 시도해주세요.'**
+  String get myPageDeleteAccountFailed;
+
+  /// Error message when deleting account
+  ///
+  /// In ko, this message translates to:
+  /// **'오류가 발생했습니다: {error}'**
+  String myPageDeleteAccountError(String error);
+
+  /// Set notification time
+  ///
+  /// In ko, this message translates to:
+  /// **'알림 시간 설정'**
+  String get myPageNotificationTimeTitle;
+
+  /// No nickname
+  ///
+  /// In ko, this message translates to:
+  /// **'닉네임 없음'**
+  String get myPageNoNickname;
+
+  /// Nickname hint
+  ///
+  /// In ko, this message translates to:
+  /// **'닉네임을 입력하세요'**
+  String get myPageNicknameHint;
+
+  /// Dark mode
+  ///
+  /// In ko, this message translates to:
+  /// **'다크 모드'**
+  String get myPageDarkMode;
+
+  /// Daily reading goal notification
+  ///
+  /// In ko, this message translates to:
+  /// **'매일 독서 목표 알림'**
+  String get myPageDailyReadingNotification;
+
+  /// Notification time display
+  ///
+  /// In ko, this message translates to:
+  /// **'매일 {time}에 알림'**
+  String myPageNotificationTime(String time);
+
+  /// No notifications
+  ///
+  /// In ko, this message translates to:
+  /// **'알림을 받지 않습니다'**
+  String get myPageNoNotification;
+
+  /// Notifications enabled
+  ///
+  /// In ko, this message translates to:
+  /// **'알림이 활성화되었습니다'**
+  String get myPageNotificationEnabled;
+
+  /// Notifications disabled
+  ///
+  /// In ko, this message translates to:
+  /// **'알림이 비활성화되었습니다'**
+  String get myPageNotificationDisabled;
+
+  /// Failed to change notification settings
+  ///
+  /// In ko, this message translates to:
+  /// **'알림 설정 변경에 실패했습니다'**
+  String get myPageNotificationChangeFailed;
+
+  /// Test notification
+  ///
+  /// In ko, this message translates to:
+  /// **'테스트 알림 (30초 후)'**
+  String get myPageTestNotification;
+
+  /// Test notification sent message
+  ///
+  /// In ko, this message translates to:
+  /// **'30초 후에 테스트 알림이 발송됩니다!'**
+  String get myPageTestNotificationSent;
+
+  /// Avatar changed
+  ///
+  /// In ko, this message translates to:
+  /// **'프로필 이미지가 변경되었습니다'**
+  String get myPageAvatarChanged;
+
+  /// Error message when changing avatar
+  ///
+  /// In ko, this message translates to:
+  /// **'프로필 이미지 변경 실패: {error}'**
+  String myPageAvatarChangeFailed(String error);
+
   /// App name on login screen
   ///
   /// In ko, this message translates to:
