@@ -40,10 +40,16 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_onTabChanged);
+    _readingSearchController.addListener(_onSearchTextChanged);
+    _reviewSearchController.addListener(_onSearchTextChanged);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<MyLibraryViewModel>().loadBooks();
     });
+  }
+
+  void _onSearchTextChanged() {
+    setState(() {});
   }
 
   void _onTabChanged() {
@@ -77,6 +83,8 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
   void dispose() {
     _readingDebounceTimer?.cancel();
     _reviewDebounceTimer?.cancel();
+    _readingSearchController.removeListener(_onSearchTextChanged);
+    _reviewSearchController.removeListener(_onSearchTextChanged);
     _readingSearchController.dispose();
     _reviewSearchController.dispose();
     _tabController.removeListener(_onTabChanged);
