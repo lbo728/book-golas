@@ -70,7 +70,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   final _sectionKeys = List.generate(5, (_) => GlobalKey());
   final ScrollController _analysisScrollController = ScrollController();
   final ScrollController _tabBarScrollController = ScrollController();
-  Timer? _scrollDebounce;
+  Timer? _tabScrollDebounce;
 
   @override
   void initState() {
@@ -82,7 +82,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
 
   @override
   void dispose() {
-    _scrollDebounce?.cancel();
+    _tabScrollDebounce?.cancel();
     _analysisScrollController.dispose();
     _tabBarScrollController.dispose();
     _tabController.dispose();
@@ -407,7 +407,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         setState(() {
           _selectedSectionIndex = _sectionKeys.length - 1;
         });
-        _scrollTabBarToIndex(_sectionKeys.length - 1);
+        _scrollTabBarToIndexDebounced(_sectionKeys.length - 1);
       }
       return;
     }
@@ -438,8 +438,15 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
       setState(() {
         _selectedSectionIndex = closestIndex;
       });
-      _scrollTabBarToIndex(closestIndex);
+      _scrollTabBarToIndexDebounced(closestIndex);
     }
+  }
+
+  void _scrollTabBarToIndexDebounced(int index) {
+    if (_tabScrollDebounce?.isActive ?? false) _tabScrollDebounce!.cancel();
+    _tabScrollDebounce = Timer(const Duration(milliseconds: 150), () {
+      _scrollTabBarToIndex(index);
+    });
   }
 
   void _scrollTabBarToIndex(int index) {
@@ -452,8 +459,8 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
 
     _tabBarScrollController.animateTo(
       targetPosition,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOut,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
     );
   }
 
