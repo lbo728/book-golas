@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:book_golas/ui/core/theme/design_system.dart';
-
 class LiquidGlassTabBar extends StatelessWidget implements PreferredSizeWidget {
   final TabController controller;
   final List<String> tabs;
@@ -33,7 +31,7 @@ class LiquidGlassTabBar extends StatelessWidget implements PreferredSizeWidget {
       labelColor: labelColor ?? (isDark ? Colors.white : Colors.black),
       unselectedLabelColor: unselectedLabelColor ??
           (isDark ? Colors.grey[600] : Colors.grey[400]),
-      indicatorColor: indicatorColor ?? AppColors.primary,
+      indicatorColor: indicatorColor ?? Colors.white,
       indicatorWeight: indicatorWeight,
       labelStyle: labelStyle ??
           const TextStyle(

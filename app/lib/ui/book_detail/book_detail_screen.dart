@@ -51,6 +51,7 @@ class BookDetailScreen extends StatelessWidget {
   final Book book;
   final bool showCelebration;
   final bool isEmbedded;
+  final int? initialTabIndex;
   final void Function(VoidCallback updatePage, VoidCallback addMemorable)?
       onCallbacksReady;
 
@@ -59,6 +60,7 @@ class BookDetailScreen extends StatelessWidget {
     required this.book,
     this.showCelebration = false,
     this.isEmbedded = false,
+    this.initialTabIndex,
     this.onCallbacksReady,
   });
 
@@ -90,6 +92,7 @@ class BookDetailScreen extends StatelessWidget {
       child: _BookDetailContent(
         showCelebration: showCelebration,
         isEmbedded: isEmbedded,
+        initialTabIndex: initialTabIndex,
         onCallbacksReady: onCallbacksReady,
       ),
     );
@@ -99,12 +102,14 @@ class BookDetailScreen extends StatelessWidget {
 class _BookDetailContent extends StatefulWidget {
   final bool showCelebration;
   final bool isEmbedded;
+  final int? initialTabIndex;
   final void Function(VoidCallback updatePage, VoidCallback addMemorable)?
       onCallbacksReady;
 
   const _BookDetailContent({
     this.showCelebration = false,
     this.isEmbedded = false,
+    this.initialTabIndex,
     this.onCallbacksReady,
   });
 
@@ -185,8 +190,12 @@ class _BookDetailContentState extends State<_BookDetailContent>
       // 탭 컨트롤러 업데이트 (완독 상태면 4탭)
       _updateTabControllerIfNeeded(bookVm.currentBook);
 
-      // 완독 상태면 히스토리 탭으로 이동
-      if (_isBookCompleted(bookVm.currentBook)) {
+      // 초기 탭 인덱스 설정
+      if (widget.initialTabIndex != null &&
+          widget.initialTabIndex! < _currentTabLength) {
+        _tabController?.animateTo(widget.initialTabIndex!);
+      } else if (_isBookCompleted(bookVm.currentBook)) {
+        // 기본값: 완독 상태면 히스토리 탭으로 이동
         _tabController?.animateTo(1);
       }
 
