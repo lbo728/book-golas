@@ -1657,6 +1657,180 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'카메라 오류가 발생했습니다\n다시 시도해주세요'**
   String get scannerErrorDefault;
+
+  /// Bookstore selection title
+  ///
+  /// In ko, this message translates to:
+  /// **'서점 선택'**
+  String get bookstoreSelectTitle;
+
+  /// Aladin bookstore
+  ///
+  /// In ko, this message translates to:
+  /// **'알라딘'**
+  String get bookstoreAladdin;
+
+  /// Kyobo bookstore
+  ///
+  /// In ko, this message translates to:
+  /// **'교보문고'**
+  String get bookstoreKyobo;
+
+  /// Back to reading detail menu
+  ///
+  /// In ko, this message translates to:
+  /// **'독서상세 메뉴로'**
+  String get expandedNavBackToDetail;
+
+  /// Extracted text title
+  ///
+  /// In ko, this message translates to:
+  /// **'추출된 텍스트'**
+  String get extractedTextTitle;
+
+  /// Extracted text subtitle
+  ///
+  /// In ko, this message translates to:
+  /// **'추출된 내용을 확인해주세요. 직접 수정도 가능해요!'**
+  String get extractedTextSubtitle;
+
+  /// Apply extracted text button
+  ///
+  /// In ko, this message translates to:
+  /// **'적용하기'**
+  String get extractedTextApplyButton;
+
+  /// Cancel extracted text button
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 선택'**
+  String get extractedTextCancelButton;
+
+  /// Extracted text input hint
+  ///
+  /// In ko, this message translates to:
+  /// **'텍스트를 입력하세요'**
+  String get extractedTextHint;
+
+  /// Full text view title
+  ///
+  /// In ko, this message translates to:
+  /// **'기록 문구'**
+  String get fullTextViewTitle;
+
+  /// Full text view input hint
+  ///
+  /// In ko, this message translates to:
+  /// **'텍스트를 입력하세요...'**
+  String get fullTextViewHint;
+
+  /// Text copied message
+  ///
+  /// In ko, this message translates to:
+  /// **'텍스트가 복사되었습니다.'**
+  String get fullTextViewCopied;
+
+  /// Highlight edit title
+  ///
+  /// In ko, this message translates to:
+  /// **'하이라이트 편집'**
+  String get highlightEditTitle;
+
+  /// Highlight opacity
+  ///
+  /// In ko, this message translates to:
+  /// **'투명도'**
+  String get highlightEditOpacity;
+
+  /// Highlight thickness
+  ///
+  /// In ko, this message translates to:
+  /// **'굵기'**
+  String get highlightEditThickness;
+
+  /// Year suffix in date picker
+  ///
+  /// In ko, this message translates to:
+  /// **'년'**
+  String get koreanDatePickerYear;
+
+  /// Month suffix in date picker
+  ///
+  /// In ko, this message translates to:
+  /// **'월'**
+  String get koreanDatePickerMonth;
+
+  /// Day suffix in date picker
+  ///
+  /// In ko, this message translates to:
+  /// **'일'**
+  String get koreanDatePickerDay;
+
+  /// Hour suffix in time picker
+  ///
+  /// In ko, this message translates to:
+  /// **'시'**
+  String get koreanTimePickerHour;
+
+  /// Minute suffix in time picker
+  ///
+  /// In ko, this message translates to:
+  /// **'분'**
+  String get koreanTimePickerMinute;
+
+  /// Year suffix in year-month picker
+  ///
+  /// In ko, this message translates to:
+  /// **'년'**
+  String get koreanYearMonthPickerYear;
+
+  /// Month suffix in year-month picker
+  ///
+  /// In ko, this message translates to:
+  /// **'월'**
+  String get koreanYearMonthPickerMonth;
+
+  /// Search hint in liquid glass overlay
+  ///
+  /// In ko, this message translates to:
+  /// **'책 제목을 입력해주세요.'**
+  String get liquidGlassSearchHint;
+
+  /// Page update button
+  ///
+  /// In ko, this message translates to:
+  /// **'페이지 업데이트'**
+  String get readingDetailPageUpdate;
+
+  /// View book detail action
+  ///
+  /// In ko, this message translates to:
+  /// **'책 내용 상세보기'**
+  String get recommendationViewDetail;
+
+  /// View book detail subtitle
+  ///
+  /// In ko, this message translates to:
+  /// **'서점에서 책 정보를 확인해요'**
+  String get recommendationViewDetailSubtitle;
+
+  /// Start reading action
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 시작'**
+  String get recommendationStartReading;
+
+  /// Start reading subtitle
+  ///
+  /// In ko, this message translates to:
+  /// **'이 책으로 독서를 시작합니다'**
+  String get recommendationStartReadingSubtitle;
+
+  /// Bookstore selection in recommendation
+  ///
+  /// In ko, this message translates to:
+  /// **'서점 선택'**
+  String get recommendationBookstoreSelect;
 }
 
 class _AppLocalizationsDelegate

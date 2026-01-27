@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 
 /// Apple HIG Liquid Glass 스타일 Bottom Navigation Bar
 ///
@@ -55,33 +56,39 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
   // 검색 버튼 위치 추적
   final GlobalKey _searchButtonKey = GlobalKey();
 
-  static const List<_TabItemData> _tabs = [
+  static const List<_TabItemData> _tabIcons = [
     _TabItemData(
       icon: CupertinoIcons.house,
       activeIcon: CupertinoIcons.house_fill,
-      label: '홈',
     ),
     _TabItemData(
       icon: CupertinoIcons.square_stack_3d_up,
       activeIcon: CupertinoIcons.square_stack_3d_up_fill,
-      label: '서재',
     ),
     _TabItemData(
       icon: CupertinoIcons.book,
       activeIcon: CupertinoIcons.book_fill,
-      label: '상태',
     ),
     _TabItemData(
       icon: CupertinoIcons.calendar,
       activeIcon: CupertinoIcons.calendar,
-      label: '캘린더',
     ),
     _TabItemData(
       icon: CupertinoIcons.person_crop_circle,
       activeIcon: CupertinoIcons.person_crop_circle_fill,
-      label: 'MY',
     ),
   ];
+
+  List<String> _getTabLabels(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      l10n.navHome,
+      l10n.navLibrary,
+      l10n.navStats,
+      l10n.navCalendar,
+      'MY',
+    ];
+  }
 
   @override
   void initState() {
@@ -100,13 +107,12 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
   void didUpdateWidget(LiquidGlassBottomBar oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.selectedIndex != widget.selectedIndex && !_isDragging) {
-      _slideAnimation =
-          Tween<double>(
-            begin: _slideAnimation.value,
-            end: widget.selectedIndex.toDouble(),
-          ).animate(
-            CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-          );
+      _slideAnimation = Tween<double>(
+        begin: _slideAnimation.value,
+        end: widget.selectedIndex.toDouble(),
+      ).animate(
+        CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+      );
       _controller.forward(from: 0);
     }
   }
@@ -133,7 +139,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
     final newPosition = details.localPosition.dx / _tabWidth;
     final clampedPosition = newPosition.clamp(
       0.0,
-      (_tabs.length - 1).toDouble(),
+      (_tabIcons.length - 1).toDouble(),
     );
 
     setState(() {
@@ -152,7 +158,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
   void _onLongPressEnd(LongPressEndDetails details) {
     if (!_isDragging) return;
 
-    final targetIndex = _dragPosition.round().clamp(0, _tabs.length - 1);
+    final targetIndex = _dragPosition.round().clamp(0, _tabIcons.length - 1);
 
     setState(() {
       _isDragging = false;
@@ -231,7 +237,8 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
             ),
             child: LayoutBuilder(
               builder: (context, constraints) {
-                _tabWidth = constraints.maxWidth / _tabs.length;
+                _tabWidth = constraints.maxWidth / _tabIcons.length;
+                final labels = _getTabLabels(context);
 
                 return Stack(
                   children: [
@@ -239,11 +246,12 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
                     _buildDropletIndicator(isDark, constraints.maxWidth, 0),
                     // 탭 아이템들
                     Row(
-                      children: List.generate(_tabs.length, (index) {
+                      children: List.generate(_tabIcons.length, (index) {
                         return Expanded(
                           child: _buildTabItem(
                             index,
-                            _tabs[index],
+                            _tabIcons[index],
+                            labels[index],
                             foregroundColor,
                             inactiveForegroundColor,
                           ),
@@ -279,10 +287,9 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
       animation: _slideAnimation,
       builder: (context, child) {
         // 드래그 중이면 드래그 위치, 아니면 애니메이션 값 사용
-        final currentPosition = _isDragging
-            ? _dragPosition
-            : _slideAnimation.value;
-        final tabWidth = maxWidth / _tabs.length;
+        final currentPosition =
+            _isDragging ? _dragPosition : _slideAnimation.value;
+        final tabWidth = maxWidth / _tabIcons.length;
 
         return Positioned(
           left: chevronWidth + currentPosition * tabWidth,
@@ -343,6 +350,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
   Widget _buildTabItem(
     int index,
     _TabItemData tab,
+    String label,
     Color foregroundColor,
     Color inactiveForegroundColor,
   ) {
@@ -358,9 +366,8 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
         animation: _slideAnimation,
         builder: (context, child) {
           // 현재 위치 (드래그 중이면 드래그 위치 사용)
-          final currentPosition = _isDragging
-              ? _dragPosition
-              : _slideAnimation.value;
+          final currentPosition =
+              _isDragging ? _dragPosition : _slideAnimation.value;
 
           // 물방울과의 거리 계산 (0~1 범위로 정규화)
           final distance = (currentPosition - index).abs();
@@ -371,6 +378,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
           return _buildTabContent(
             index,
             tab,
+            label,
             foregroundColor,
             inactiveForegroundColor,
             isSelected || overlap > 0.5,
@@ -385,6 +393,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
   Widget _buildTabContent(
     int index,
     _TabItemData tab,
+    String label,
     Color foregroundColor,
     Color inactiveForegroundColor,
     bool isHighlighted,
@@ -418,7 +427,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
           ),
           const SizedBox(height: 2),
           Text(
-            tab.label,
+            label,
             style: TextStyle(
               color: iconColor,
               fontSize: 10,
@@ -483,11 +492,9 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
 class _TabItemData {
   final IconData icon;
   final IconData activeIcon;
-  final String label;
 
   const _TabItemData({
     required this.icon,
     required this.activeIcon,
-    required this.label,
   });
 }

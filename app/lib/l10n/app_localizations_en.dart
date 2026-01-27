@@ -853,4 +853,93 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scannerErrorDefault => 'Camera error occurred\nPlease try again';
+
+  @override
+  String get bookstoreSelectTitle => 'Select Bookstore';
+
+  @override
+  String get bookstoreAladdin => 'Aladin';
+
+  @override
+  String get bookstoreKyobo => 'Kyobo';
+
+  @override
+  String get expandedNavBackToDetail => 'Back to Reading Detail';
+
+  @override
+  String get extractedTextTitle => 'Extracted Text';
+
+  @override
+  String get extractedTextSubtitle =>
+      'Check the extracted content. You can edit it directly!';
+
+  @override
+  String get extractedTextApplyButton => 'Apply';
+
+  @override
+  String get extractedTextCancelButton => 'Select Again';
+
+  @override
+  String get extractedTextHint => 'Enter text';
+
+  @override
+  String get fullTextViewTitle => 'Text Record';
+
+  @override
+  String get fullTextViewHint => 'Enter text...';
+
+  @override
+  String get fullTextViewCopied => 'Text copied.';
+
+  @override
+  String get highlightEditTitle => 'Edit Highlight';
+
+  @override
+  String get highlightEditOpacity => 'Opacity';
+
+  @override
+  String get highlightEditThickness => 'Thickness';
+
+  @override
+  String get koreanDatePickerYear => '';
+
+  @override
+  String get koreanDatePickerMonth => '';
+
+  @override
+  String get koreanDatePickerDay => '';
+
+  @override
+  String get koreanTimePickerHour => '';
+
+  @override
+  String get koreanTimePickerMinute => '';
+
+  @override
+  String get koreanYearMonthPickerYear => '';
+
+  @override
+  String get koreanYearMonthPickerMonth => '';
+
+  @override
+  String get liquidGlassSearchHint => 'Enter book title';
+
+  @override
+  String get readingDetailPageUpdate => 'Update Pages';
+
+  @override
+  String get recommendationViewDetail => 'View Book Details';
+
+  @override
+  String get recommendationViewDetailSubtitle =>
+      'Check book information at the bookstore';
+
+  @override
+  String get recommendationStartReading => 'Start Reading';
+
+  @override
+  String get recommendationStartReadingSubtitle => 'Start reading this book';
+
+  @override
+  String get recommendationBookstoreSelect => 'Select Bookstore';
 }

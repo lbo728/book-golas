@@ -823,6 +823,93 @@
      "scannerErrorInitializing": "카메라를 초기화하는 중입니다",
      "@scannerErrorInitializing": {"description": "Camera initializing message"},
      
-     "scannerErrorDefault": "카메라 오류가 발생했습니다\n다시 시도해주세요",
-     "@scannerErrorDefault": {"description": "Default camera error message"}
+      "scannerErrorDefault": "카메라 오류가 발생했습니다\n다시 시도해주세요",
+      "@scannerErrorDefault": {"description": "Default camera error message"},
+      
+      "bookstoreSelectTitle": "서점 선택",
+      "@bookstoreSelectTitle": {"description": "Bookstore selection title"},
+      
+      "bookstoreAladdin": "알라딘",
+      "@bookstoreAladdin": {"description": "Aladin bookstore"},
+      
+      "bookstoreKyobo": "교보문고",
+      "@bookstoreKyobo": {"description": "Kyobo bookstore"},
+      
+      "expandedNavBackToDetail": "독서상세 메뉴로",
+      "@expandedNavBackToDetail": {"description": "Back to reading detail menu"},
+      
+      "extractedTextTitle": "추출된 텍스트",
+      "@extractedTextTitle": {"description": "Extracted text title"},
+      
+      "extractedTextSubtitle": "추출된 내용을 확인해주세요. 직접 수정도 가능해요!",
+      "@extractedTextSubtitle": {"description": "Extracted text subtitle"},
+      
+      "extractedTextApplyButton": "적용하기",
+      "@extractedTextApplyButton": {"description": "Apply extracted text button"},
+      
+      "extractedTextCancelButton": "다시 선택",
+      "@extractedTextCancelButton": {"description": "Cancel extracted text button"},
+      
+      "extractedTextHint": "텍스트를 입력하세요",
+      "@extractedTextHint": {"description": "Extracted text input hint"},
+      
+      "fullTextViewTitle": "기록 문구",
+      "@fullTextViewTitle": {"description": "Full text view title"},
+      
+      "fullTextViewHint": "텍스트를 입력하세요...",
+      "@fullTextViewHint": {"description": "Full text view input hint"},
+      
+      "fullTextViewCopied": "텍스트가 복사되었습니다.",
+      "@fullTextViewCopied": {"description": "Text copied message"},
+      
+      "highlightEditTitle": "하이라이트 편집",
+      "@highlightEditTitle": {"description": "Highlight edit title"},
+      
+      "highlightEditOpacity": "투명도",
+      "@highlightEditOpacity": {"description": "Highlight opacity"},
+      
+      "highlightEditThickness": "굵기",
+      "@highlightEditThickness": {"description": "Highlight thickness"},
+      
+      "koreanDatePickerYear": "년",
+      "@koreanDatePickerYear": {"description": "Year suffix in date picker"},
+      
+      "koreanDatePickerMonth": "월",
+      "@koreanDatePickerMonth": {"description": "Month suffix in date picker"},
+      
+      "koreanDatePickerDay": "일",
+      "@koreanDatePickerDay": {"description": "Day suffix in date picker"},
+      
+      "koreanTimePickerHour": "시",
+      "@koreanTimePickerHour": {"description": "Hour suffix in time picker"},
+      
+      "koreanTimePickerMinute": "분",
+      "@koreanTimePickerMinute": {"description": "Minute suffix in time picker"},
+      
+      "koreanYearMonthPickerYear": "년",
+      "@koreanYearMonthPickerYear": {"description": "Year suffix in year-month picker"},
+      
+      "koreanYearMonthPickerMonth": "월",
+      "@koreanYearMonthPickerMonth": {"description": "Month suffix in year-month picker"},
+      
+      "liquidGlassSearchHint": "책 제목을 입력해주세요.",
+      "@liquidGlassSearchHint": {"description": "Search hint in liquid glass overlay"},
+      
+      "readingDetailPageUpdate": "페이지 업데이트",
+      "@readingDetailPageUpdate": {"description": "Page update button"},
+      
+      "recommendationViewDetail": "책 내용 상세보기",
+      "@recommendationViewDetail": {"description": "View book detail action"},
+      
+      "recommendationViewDetailSubtitle": "서점에서 책 정보를 확인해요",
+      "@recommendationViewDetailSubtitle": {"description": "View book detail subtitle"},
+      
+      "recommendationStartReading": "독서 시작",
+      "@recommendationStartReading": {"description": "Start reading action"},
+      
+      "recommendationStartReadingSubtitle": "이 책으로 독서를 시작합니다",
+      "@recommendationStartReadingSubtitle": {"description": "Start reading subtitle"},
+      
+      "recommendationBookstoreSelect": "서점 선택",
+      "@recommendationBookstoreSelect": {"description": "Bookstore selection in recommendation"}
 }

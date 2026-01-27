@@ -809,4 +809,91 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get scannerErrorDefault => '카메라 오류가 발생했습니다\n다시 시도해주세요';
+
+  @override
+  String get bookstoreSelectTitle => '서점 선택';
+
+  @override
+  String get bookstoreAladdin => '알라딘';
+
+  @override
+  String get bookstoreKyobo => '교보문고';
+
+  @override
+  String get expandedNavBackToDetail => '독서상세 메뉴로';
+
+  @override
+  String get extractedTextTitle => '추출된 텍스트';
+
+  @override
+  String get extractedTextSubtitle => '추출된 내용을 확인해주세요. 직접 수정도 가능해요!';
+
+  @override
+  String get extractedTextApplyButton => '적용하기';
+
+  @override
+  String get extractedTextCancelButton => '다시 선택';
+
+  @override
+  String get extractedTextHint => '텍스트를 입력하세요';
+
+  @override
+  String get fullTextViewTitle => '기록 문구';
+
+  @override
+  String get fullTextViewHint => '텍스트를 입력하세요...';
+
+  @override
+  String get fullTextViewCopied => '텍스트가 복사되었습니다.';
+
+  @override
+  String get highlightEditTitle => '하이라이트 편집';
+
+  @override
+  String get highlightEditOpacity => '투명도';
+
+  @override
+  String get highlightEditThickness => '굵기';
+
+  @override
+  String get koreanDatePickerYear => '년';
+
+  @override
+  String get koreanDatePickerMonth => '월';
+
+  @override
+  String get koreanDatePickerDay => '일';
+
+  @override
+  String get koreanTimePickerHour => '시';
+
+  @override
+  String get koreanTimePickerMinute => '분';
+
+  @override
+  String get koreanYearMonthPickerYear => '년';
+
+  @override
+  String get koreanYearMonthPickerMonth => '월';
+
+  @override
+  String get liquidGlassSearchHint => '책 제목을 입력해주세요.';
+
+  @override
+  String get readingDetailPageUpdate => '페이지 업데이트';
+
+  @override
+  String get recommendationViewDetail => '책 내용 상세보기';
+
+  @override
+  String get recommendationViewDetailSubtitle => '서점에서 책 정보를 확인해요';
+
+  @override
+  String get recommendationStartReading => '독서 시작';
+
+  @override
+  String get recommendationStartReadingSubtitle => '이 책으로 독서를 시작합니다';
+
+  @override
+  String get recommendationBookstoreSelect => '서점 선택';
 }
