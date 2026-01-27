@@ -1,0 +1,58 @@
+{
+  "@@locale": "en",
+  
+  "appTitle": "BookGolas",
+  "commonCancel": "Cancel",
+  "commonConfirm": "OK",
+  "commonSave": "Save",
+  "commonDelete": "Delete",
+  "commonChange": "Change",
+  "commonComplete": "Done",
+  "commonClose": "Close",
+  "commonRetry": "Retry",
+  "commonNext": "Next",
+  "commonSkip": "Skip",
+  "commonStart": "Get Started",
+  
+  "navHome": "Home",
+  "navLibrary": "Library",
+  "navStats": "Stats",
+  "navCalendar": "Calendar",
+  
+  "booksCount": "{count, plural, =1{1 book} other{{count} books}}",
+  "daysCount": "{count, plural, =1{1 day} other{{count} days}}",
+  "pagesCount": "{count, plural, =1{1 page} other{{count} pages}}",
+  
+  "weekdayMon": "Mon",
+  "weekdayTue": "Tue",
+  "weekdayWed": "Wed",
+  "weekdayThu": "Thu",
+  "weekdayFri": "Fri",
+  "weekdaySat": "Sat",
+  "weekdaySun": "Sun",
+  
+  "timeAm": "AM",
+  "timePm": "PM",
+  
+  "unitYear": "",
+  "unitMonth": "",
+  "unitDay": "",
+  "unitHour": "",
+  "unitMinute": "",
+  
+  "statusReading": "Reading",
+  "statusPlanned": "To Read",
+  "statusCompleted": "Completed",
+  "statusReread": "Reread",
+  
+  "priorityUrgent": "Urgent",
+  "priorityHigh": "High",
+  "priorityMedium": "Medium",
+  "priorityLow": "Low",
+  
+  "contentTypeHighlight": "Highlight",
+  "contentTypeMemo": "Memo",
+  "contentTypePhoto": "Photo",
+  
+  "languageSettingLabel": "Language"
+}

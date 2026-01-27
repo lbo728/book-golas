@@ -1,0 +1,153 @@
+{
+  "@@locale": "ko",
+  
+  "appTitle": "북골라스",
+  "@appTitle": {"description": "App title"},
+  
+  "commonCancel": "취소",
+  "@commonCancel": {"description": "Cancel button"},
+  
+  "commonConfirm": "확인",
+  "@commonConfirm": {"description": "Confirm button"},
+  
+  "commonSave": "저장",
+  "@commonSave": {"description": "Save button"},
+  
+  "commonDelete": "삭제",
+  "@commonDelete": {"description": "Delete button"},
+  
+  "commonChange": "변경",
+  "@commonChange": {"description": "Change button"},
+  
+  "commonComplete": "완료",
+  "@commonComplete": {"description": "Complete button"},
+  
+  "commonClose": "닫기",
+  "@commonClose": {"description": "Close button"},
+  
+  "commonRetry": "다시 시도",
+  "@commonRetry": {"description": "Retry button"},
+  
+  "commonNext": "다음",
+  "@commonNext": {"description": "Next button"},
+  
+  "commonSkip": "건너뛰기",
+  "@commonSkip": {"description": "Skip button"},
+  
+  "commonStart": "시작하기",
+  "@commonStart": {"description": "Start button"},
+  
+  "navHome": "홈",
+  "@navHome": {"description": "Home navigation"},
+  
+  "navLibrary": "서재",
+  "@navLibrary": {"description": "Library navigation"},
+  
+  "navStats": "상태",
+  "@navStats": {"description": "Stats navigation"},
+  
+  "navCalendar": "캘린더",
+  "@navCalendar": {"description": "Calendar navigation"},
+  
+  "booksCount": "{count}권",
+  "@booksCount": {
+    "description": "Book count with unit",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  
+  "daysCount": "{count}일",
+  "@daysCount": {
+    "description": "Day count with unit",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  
+  "pagesCount": "{count}페이지",
+  "@pagesCount": {
+    "description": "Page count with unit",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  
+  "weekdayMon": "월",
+  "@weekdayMon": {"description": "Monday short"},
+  
+  "weekdayTue": "화",
+  "@weekdayTue": {"description": "Tuesday short"},
+  
+  "weekdayWed": "수",
+  "@weekdayWed": {"description": "Wednesday short"},
+  
+  "weekdayThu": "목",
+  "@weekdayThu": {"description": "Thursday short"},
+  
+  "weekdayFri": "금",
+  "@weekdayFri": {"description": "Friday short"},
+  
+  "weekdaySat": "토",
+  "@weekdaySat": {"description": "Saturday short"},
+  
+  "weekdaySun": "일",
+  "@weekdaySun": {"description": "Sunday short"},
+  
+  "timeAm": "오전",
+  "@timeAm": {"description": "AM"},
+  
+  "timePm": "오후",
+  "@timePm": {"description": "PM"},
+  
+  "unitYear": "년",
+  "@unitYear": {"description": "Year unit"},
+  
+  "unitMonth": "월",
+  "@unitMonth": {"description": "Month unit"},
+  
+  "unitDay": "일",
+  "@unitDay": {"description": "Day unit"},
+  
+  "unitHour": "시",
+  "@unitHour": {"description": "Hour unit"},
+  
+  "unitMinute": "분",
+  "@unitMinute": {"description": "Minute unit"},
+  
+  "statusReading": "독서 중",
+  "@statusReading": {"description": "Reading status"},
+  
+  "statusPlanned": "읽을 예정",
+  "@statusPlanned": {"description": "Planned to read status"},
+  
+  "statusCompleted": "완독",
+  "@statusCompleted": {"description": "Completed status"},
+  
+  "statusReread": "다시 읽을 책",
+  "@statusReread": {"description": "Reread status"},
+  
+  "priorityUrgent": "긴급",
+  "@priorityUrgent": {"description": "Urgent priority"},
+  
+  "priorityHigh": "높음",
+  "@priorityHigh": {"description": "High priority"},
+  
+  "priorityMedium": "보통",
+  "@priorityMedium": {"description": "Medium priority"},
+  
+  "priorityLow": "낮음",
+  "@priorityLow": {"description": "Low priority"},
+  
+  "contentTypeHighlight": "하이라이트",
+  "@contentTypeHighlight": {"description": "Highlight type"},
+  
+  "contentTypeMemo": "메모",
+  "@contentTypeMemo": {"description": "Memo type"},
+  
+  "contentTypePhoto": "사진",
+  "@contentTypePhoto": {"description": "Photo type"},
+  
+  "languageSettingLabel": "언어",
+  "@languageSettingLabel": {"description": "Language setting label"}
+}
