@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:collection';
 import 'package:book_golas/data/services/reading_progress_service.dart';
 import 'package:book_golas/data/services/reading_goal_service.dart';
+import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/ui/reading_chart/widgets/cards/genre_analysis_card.dart';
 import 'package:book_golas/ui/reading_chart/widgets/cards/monthly_books_chart.dart';
 import 'package:book_golas/ui/reading_chart/widgets/cards/annual_goal_card.dart';
@@ -40,6 +41,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   TimeFilter _selectedFilter = TimeFilter.daily;
   final ReadingProgressService _progressService = ReadingProgressService();
   final ReadingGoalService _goalService = ReadingGoalService();
+  final BookService _bookService = BookService();
 
   List<Map<String, dynamic>>? _cachedRawData;
   bool _isLoading = true;
@@ -49,6 +51,14 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   Map<int, int> _monthlyBookCount = {};
   Map<String, dynamic> _goalProgress = {};
   Map<DateTime, int> _heatmapData = {};
+
+  int _totalStarted = 0;
+  int _completedBooks = 0;
+  int _abandonedBooks = 0;
+  int _inProgressBooks = 0;
+  double _completionRate = 0.0;
+  double _abandonRate = 0.0;
+  double _retrySuccessRate = 0.0;
 
   int _selectedSectionIndex = 0;
   final _sectionKeys = List.generate(5, (_) => GlobalKey());
@@ -90,6 +100,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         _progressService.getMonthlyBookCount(year: currentYear),
         _goalService.getYearlyProgress(year: currentYear),
         _progressService.getDailyReadingHeatmap(weeksToShow: 26),
+        _calculateCompletionStats(),
       ]);
 
       if (mounted) {
@@ -110,6 +121,29 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         });
       }
     }
+  }
+
+  Future<void> _calculateCompletionStats() async {
+    final books = await _bookService.fetchBooks();
+
+    final startedBooks = books.where((b) => b.status != 'planned').toList();
+    final completed = books.where((b) => b.status == 'completed').length;
+    final reading = books.where((b) => b.status == 'reading').length;
+    final willRetry = books.where((b) => b.status == 'will_retry').length;
+
+    final totalStarted = startedBooks.length;
+
+    _totalStarted = totalStarted;
+    _completedBooks = completed;
+    _abandonedBooks = willRetry;
+    _inProgressBooks = reading;
+    _completionRate = totalStarted > 0 ? (completed / totalStarted * 100) : 0.0;
+    _abandonRate = totalStarted > 0 ? (willRetry / totalStarted * 100) : 0.0;
+
+    final retriedBooks = books
+        .where((b) => b.status == 'completed' && b.attemptCount > 1)
+        .length;
+    _retrySuccessRate = willRetry > 0 ? (retriedBooks / willRetry * 100) : 0.0;
   }
 
   Future<List<Map<String, dynamic>>> fetchUserProgressHistory() async {
@@ -510,13 +544,13 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 Container(
                   key: _sectionKeys[1],
                   child: CompletionRateCard(
-                    totalStarted: 10,
-                    completed: 7,
-                    abandoned: 2,
-                    inProgress: 1,
-                    completionRate: 70.0,
-                    abandonRate: 20.0,
-                    retrySuccessRate: 50.0,
+                    totalStarted: _totalStarted,
+                    completed: _completedBooks,
+                    abandoned: _abandonedBooks,
+                    inProgress: _inProgressBooks,
+                    completionRate: _completionRate,
+                    abandonRate: _abandonRate,
+                    retrySuccessRate: _retrySuccessRate,
                   ),
                 ),
                 const SizedBox(height: 16),
