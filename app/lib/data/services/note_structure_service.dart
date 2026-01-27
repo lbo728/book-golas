@@ -25,6 +25,18 @@ class NoteStructureService {
     try {
       debugPrint('🧠 Structuring notes for book: $bookId');
 
+      // Debug: Check user session and JWT token
+      final user = Supabase.instance.client.auth.currentUser;
+      final session = Supabase.instance.client.auth.currentSession;
+      debugPrint('👤 Current user: ${user?.id}');
+      debugPrint('🔑 Session exists: ${session != null}');
+      if (session?.accessToken != null && session!.accessToken.length >= 20) {
+        debugPrint(
+            '🎫 JWT token (first 20): ${session.accessToken.substring(0, 20)}');
+      } else {
+        debugPrint('🎫 JWT token: NOT AVAILABLE');
+      }
+
       final response = await _supabase.functions.invoke(
         'structure-notes',
         body: {'bookId': bookId},
