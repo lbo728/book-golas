@@ -92,11 +92,14 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
     super.dispose();
   }
 
-  void _navigateToBookDetail(Book book) {
+  void _navigateToBookDetail(Book book, {int? initialTabIndex}) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => BookDetailScreen(book: book),
+        builder: (_) => BookDetailScreen(
+          book: book,
+          initialTabIndex: initialTabIndex,
+        ),
       ),
     );
   }
@@ -367,7 +370,8 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
                   final book = books[index];
                   return BookListCard(
                     book: book,
-                    onTap: () => _navigateToBookDetail(book),
+                    onTap: () =>
+                        _navigateToBookDetail(book, initialTabIndex: 2),
                   );
                 },
               );
