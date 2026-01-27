@@ -69,21 +69,19 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   int _selectedSectionIndex = 0;
   bool _isScrollingByTap = false;
   final _sectionKeys = List.generate(5, (_) => GlobalKey());
+  final _tabKeys = List.generate(5, (_) => GlobalKey());
   final ScrollController _analysisScrollController = ScrollController();
   final ScrollController _tabBarScrollController = ScrollController();
-  Timer? _tabScrollDebounce;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _analysisScrollController.addListener(_updateSelectedSectionOnScroll);
     _loadData();
   }
 
   @override
   void dispose() {
-    _tabScrollDebounce?.cancel();
     _analysisScrollController.dispose();
     _tabBarScrollController.dispose();
     _tabController.dispose();
@@ -475,7 +473,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     }
   }
 
-  void _updateSelectedSectionOnScroll() {
+  void _updateActiveSection() {
     if (_tabController.index != 1) return;
     if (_isScrollingByTap) return;
 
@@ -487,7 +485,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         setState(() {
           _selectedSectionIndex = _sectionKeys.length - 1;
         });
-        _scrollTabBarToIndexDebounced(_sectionKeys.length - 1);
       }
       return;
     }
@@ -518,30 +515,34 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
       setState(() {
         _selectedSectionIndex = closestIndex;
       });
-      _scrollTabBarToIndexDebounced(closestIndex);
     }
   }
 
-  void _scrollTabBarToIndexDebounced(int index) {
-    if (_tabScrollDebounce?.isActive ?? false) _tabScrollDebounce!.cancel();
-    _tabScrollDebounce = Timer(const Duration(milliseconds: 500), () {
-      _scrollTabBarToIndex(index);
-    });
+  bool _handleScrollNotification(ScrollNotification notification) {
+    if (_tabController.index != 1) return false;
+    if (_isScrollingByTap) return true;
+
+    if (notification is ScrollUpdateNotification) {
+      _updateActiveSection();
+    } else if (notification is ScrollEndNotification) {
+      _scrollTabBarToIndex(_selectedSectionIndex);
+    }
+
+    return false;
   }
 
   void _scrollTabBarToIndex(int index) {
     if (!_tabBarScrollController.hasClients) return;
 
-    final tabWidth = 100.0;
-    final tabSpacing = 12.0;
-    final padding = 16.0;
-    final targetPosition = padding + (index * (tabWidth + tabSpacing));
-
-    _tabBarScrollController.animateTo(
-      targetPosition,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutCubic,
-    );
+    final tabContext = _tabKeys[index].currentContext;
+    if (tabContext != null) {
+      Scrollable.ensureVisible(
+        tabContext,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        alignment: 0.5,
+      );
+    }
   }
 
   String _getFilterLabel(TimeFilter filter) {
@@ -690,162 +691,166 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
       '독서 통계',
     ];
 
-    return CustomScrollView(
-      controller: _analysisScrollController,
-      slivers: [
-        SliverPersistentHeader(
-          pinned: true,
-          delegate: _SectionTabBarDelegate(
-            sections: sections,
-            isDark: isDark,
-            selectedIndex: _selectedSectionIndex,
-            onTap: _scrollToSection,
-            scrollController: _tabBarScrollController,
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // AI Insight Card
-                Container(
-                  key: _sectionKeys[0],
-                  child: Consumer<ReadingInsightsViewModel>(
-                    builder: (context, viewModel, _) {
-                      return AiInsightCard(
-                        isLoading: viewModel.isLoading,
-                        insights: viewModel.insights,
-                        error: viewModel.error,
-                        canGenerate: viewModel.canGenerate,
-                        bookCount: viewModel.bookCount,
-                        onGenerate: viewModel.generateInsight,
-                        onRetry: viewModel.generateInsight,
-                        onClearMemory: viewModel.clearMemory,
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Completion Rate Card
-                Container(
-                  key: _sectionKeys[1],
-                  child: CompletionRateCard(
-                    totalStarted: _totalStarted,
-                    completed: _completedBooks,
-                    abandoned: _abandonedBooks,
-                    inProgress: _inProgressBooks,
-                    completionRate: _completionRate,
-                    abandonRate: _abandonRate,
-                    retrySuccessRate: _retrySuccessRate,
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Highlight Stats Card
-                Container(
-                  key: _sectionKeys[2],
-                  child: HighlightStatsCard(
-                    totalHighlights: _totalHighlights,
-                    totalNotes: _totalNotes,
-                    totalPhotos: _totalPhotos,
-                    genreDistribution: _highlightGenreDistribution,
-                    topKeywords: _topKeywords,
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Genre Analysis Card
-                Container(
-                  key: _sectionKeys[3],
-                  child: GenreAnalysisCard(
-                    genreDistribution: _genreDistribution,
-                    topGenreMessage: genreMessage,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  key: _sectionKeys[4],
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '독서 통계',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: isDark ? Colors.white : Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      GridView.count(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
-                        childAspectRatio: 1.3,
-                        children: [
-                          _buildStatCard(
-                            '총 읽은 페이지',
-                            '${stats['total_pages']}p',
-                            Icons.menu_book_rounded,
-                            AppColors.primary,
-                            isDark,
-                          ),
-                          _buildStatCard(
-                            '일평균',
-                            '${(stats['average_daily'] as double).toStringAsFixed(1)}p',
-                            Icons.calendar_today_rounded,
-                            AppColors.success,
-                            isDark,
-                          ),
-                          _buildStatCard(
-                            '최고 기록',
-                            '${stats['max_daily']}p',
-                            Icons.trending_up_rounded,
-                            AppColors.warningAlt,
-                            isDark,
-                          ),
-                          _buildStatCard(
-                            '연속 독서',
-                            '$streak일',
-                            Icons.local_fire_department_rounded,
-                            AppColors.destructive,
-                            isDark,
-                          ),
-                          _buildStatCard(
-                            '최저 기록',
-                            '${stats['min_daily']}p',
-                            Icons.trending_down_rounded,
-                            AppColors.info,
-                            isDark,
-                          ),
-                          FutureBuilder<double>(
-                            future: _calculateGoalRate(),
-                            builder: (context, snapshot) {
-                              final goalRate = snapshot.data ?? 0.0;
-                              return _buildStatCard(
-                                '오늘 목표',
-                                '${(goalRate * 100).toStringAsFixed(0)}%',
-                                Icons.flag_rounded,
-                                AppColors.info,
-                                isDark,
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+    return NotificationListener<ScrollNotification>(
+      onNotification: _handleScrollNotification,
+      child: CustomScrollView(
+        controller: _analysisScrollController,
+        slivers: [
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _SectionTabBarDelegate(
+              sections: sections,
+              isDark: isDark,
+              selectedIndex: _selectedSectionIndex,
+              onTap: _scrollToSection,
+              scrollController: _tabBarScrollController,
+              tabKeys: _tabKeys,
             ),
           ),
-        ),
-      ],
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // AI Insight Card
+                  Container(
+                    key: _sectionKeys[0],
+                    child: Consumer<ReadingInsightsViewModel>(
+                      builder: (context, viewModel, _) {
+                        return AiInsightCard(
+                          isLoading: viewModel.isLoading,
+                          insights: viewModel.insights,
+                          error: viewModel.error,
+                          canGenerate: viewModel.canGenerate,
+                          bookCount: viewModel.bookCount,
+                          onGenerate: viewModel.generateInsight,
+                          onRetry: viewModel.generateInsight,
+                          onClearMemory: viewModel.clearMemory,
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Completion Rate Card
+                  Container(
+                    key: _sectionKeys[1],
+                    child: CompletionRateCard(
+                      totalStarted: _totalStarted,
+                      completed: _completedBooks,
+                      abandoned: _abandonedBooks,
+                      inProgress: _inProgressBooks,
+                      completionRate: _completionRate,
+                      abandonRate: _abandonRate,
+                      retrySuccessRate: _retrySuccessRate,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Highlight Stats Card
+                  Container(
+                    key: _sectionKeys[2],
+                    child: HighlightStatsCard(
+                      totalHighlights: _totalHighlights,
+                      totalNotes: _totalNotes,
+                      totalPhotos: _totalPhotos,
+                      genreDistribution: _highlightGenreDistribution,
+                      topKeywords: _topKeywords,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Genre Analysis Card
+                  Container(
+                    key: _sectionKeys[3],
+                    child: GenreAnalysisCard(
+                      genreDistribution: _genreDistribution,
+                      topGenreMessage: genreMessage,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    key: _sectionKeys[4],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '독서 통계',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        GridView.count(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 1.3,
+                          children: [
+                            _buildStatCard(
+                              '총 읽은 페이지',
+                              '${stats['total_pages']}p',
+                              Icons.menu_book_rounded,
+                              AppColors.primary,
+                              isDark,
+                            ),
+                            _buildStatCard(
+                              '일평균',
+                              '${(stats['average_daily'] as double).toStringAsFixed(1)}p',
+                              Icons.calendar_today_rounded,
+                              AppColors.success,
+                              isDark,
+                            ),
+                            _buildStatCard(
+                              '최고 기록',
+                              '${stats['max_daily']}p',
+                              Icons.trending_up_rounded,
+                              AppColors.warningAlt,
+                              isDark,
+                            ),
+                            _buildStatCard(
+                              '연속 독서',
+                              '$streak일',
+                              Icons.local_fire_department_rounded,
+                              AppColors.destructive,
+                              isDark,
+                            ),
+                            _buildStatCard(
+                              '최저 기록',
+                              '${stats['min_daily']}p',
+                              Icons.trending_down_rounded,
+                              AppColors.info,
+                              isDark,
+                            ),
+                            FutureBuilder<double>(
+                              future: _calculateGoalRate(),
+                              builder: (context, snapshot) {
+                                final goalRate = snapshot.data ?? 0.0;
+                                return _buildStatCard(
+                                  '오늘 목표',
+                                  '${(goalRate * 100).toStringAsFixed(0)}%',
+                                  Icons.flag_rounded,
+                                  AppColors.info,
+                                  isDark,
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1417,6 +1422,7 @@ class _SectionTabBarDelegate extends SliverPersistentHeaderDelegate {
   final int selectedIndex;
   final Function(int) onTap;
   final ScrollController scrollController;
+  final List<GlobalKey> tabKeys;
 
   _SectionTabBarDelegate({
     required this.sections,
@@ -1424,6 +1430,7 @@ class _SectionTabBarDelegate extends SliverPersistentHeaderDelegate {
     required this.selectedIndex,
     required this.onTap,
     required this.scrollController,
+    required this.tabKeys,
   });
 
   @override
@@ -1446,6 +1453,7 @@ class _SectionTabBarDelegate extends SliverPersistentHeaderDelegate {
               final isSelected = index == selectedIndex;
 
               return Padding(
+                key: tabKeys[index],
                 padding: const EdgeInsets.only(right: 12),
                 child: GestureDetector(
                   onTap: () => onTap(index),
@@ -1496,6 +1504,7 @@ class _SectionTabBarDelegate extends SliverPersistentHeaderDelegate {
   bool shouldRebuild(_SectionTabBarDelegate oldDelegate) {
     return oldDelegate.sections != sections ||
         oldDelegate.isDark != isDark ||
-        oldDelegate.selectedIndex != selectedIndex;
+        oldDelegate.selectedIndex != selectedIndex ||
+        oldDelegate.tabKeys != tabKeys;
   }
 }
