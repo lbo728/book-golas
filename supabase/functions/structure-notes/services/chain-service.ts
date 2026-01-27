@@ -1,4 +1,4 @@
-import { ChatOpenAI } from "@langchain/openai";
+import { ChatOpenAI } from "https://esm.sh/@langchain/openai@0.3.0";
 import {
   classificationPrompt,
   ClassificationResult,
