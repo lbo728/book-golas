@@ -475,6 +475,75 @@ class AppLocalizationsKo extends AppLocalizations {
   String get loginSignupButton => '회원가입';
 
   @override
+  String get loginDescriptionSignIn => '오늘도 한 페이지,\n당신의 독서를 응원합니다';
+
+  @override
+  String get loginDescriptionSignUp => '북골라스와 함께\n독서 습관을 시작해보세요';
+
+  @override
+  String get loginDescriptionForgotPassword => '가입하신 이메일로\n재설정 링크를 보내드립니다';
+
+  @override
+  String get loginEmailHint => 'example@email.com';
+
+  @override
+  String get loginPasswordHint => '6자 이상 입력해주세요';
+
+  @override
+  String get loginNicknameHint => '앱에서 사용할 이름';
+
+  @override
+  String get loginEmailRequired => '이메일을 입력해주세요';
+
+  @override
+  String get loginEmailInvalid => '올바른 이메일 주소를 입력해주세요';
+
+  @override
+  String get loginPasswordRequired => '비밀번호를 입력해주세요';
+
+  @override
+  String get loginPasswordTooShort => '비밀번호는 6자 이상이어야 합니다';
+
+  @override
+  String get loginNicknameRequired => '닉네임을 입력해주세요';
+
+  @override
+  String get loginForgotPassword => '비밀번호를 잊으셨나요?';
+
+  @override
+  String get loginNoAccount => '계정이 없으신가요? 회원가입';
+
+  @override
+  String get loginHaveAccount => '이미 계정이 있으신가요? 로그인';
+
+  @override
+  String get loginBackToSignIn => '로그인으로 돌아가기';
+
+  @override
+  String get loginSaveEmail => '이메일 저장';
+
+  @override
+  String get loginSignupSuccess => '회원가입이 완료되었습니다. 이메일을 확인해주세요.';
+
+  @override
+  String get loginResetPasswordSuccess => '비밀번호 재설정 이메일을 보냈습니다.';
+
+  @override
+  String get loginUnexpectedError => '예상치 못한 오류가 발생했습니다.';
+
+  @override
+  String get loginErrorInvalidCredentials => '이메일 또는 비밀번호가 올바르지 않습니다.';
+
+  @override
+  String get loginErrorEmailNotConfirmed => '이메일 인증이 완료되지 않았습니다.';
+
+  @override
+  String get loginErrorEmailAlreadyRegistered => '이미 등록된 이메일입니다.';
+
+  @override
+  String get loginErrorPasswordTooShort => '비밀번호는 6자 이상이어야 합니다.';
+
+  @override
   String get reviewTitle => '독후감';
 
   @override

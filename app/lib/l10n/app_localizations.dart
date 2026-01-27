@@ -1004,6 +1004,144 @@ abstract class AppLocalizations {
   /// **'회원가입'**
   String get loginSignupButton;
 
+  /// Sign in description
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘도 한 페이지,\n당신의 독서를 응원합니다'**
+  String get loginDescriptionSignIn;
+
+  /// Sign up description
+  ///
+  /// In ko, this message translates to:
+  /// **'북골라스와 함께\n독서 습관을 시작해보세요'**
+  String get loginDescriptionSignUp;
+
+  /// Forgot password description
+  ///
+  /// In ko, this message translates to:
+  /// **'가입하신 이메일로\n재설정 링크를 보내드립니다'**
+  String get loginDescriptionForgotPassword;
+
+  /// Email hint
+  ///
+  /// In ko, this message translates to:
+  /// **'example@email.com'**
+  String get loginEmailHint;
+
+  /// Password hint
+  ///
+  /// In ko, this message translates to:
+  /// **'6자 이상 입력해주세요'**
+  String get loginPasswordHint;
+
+  /// Nickname hint
+  ///
+  /// In ko, this message translates to:
+  /// **'앱에서 사용할 이름'**
+  String get loginNicknameHint;
+
+  /// Email required error
+  ///
+  /// In ko, this message translates to:
+  /// **'이메일을 입력해주세요'**
+  String get loginEmailRequired;
+
+  /// Invalid email error
+  ///
+  /// In ko, this message translates to:
+  /// **'올바른 이메일 주소를 입력해주세요'**
+  String get loginEmailInvalid;
+
+  /// Password required error
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호를 입력해주세요'**
+  String get loginPasswordRequired;
+
+  /// Password too short error
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호는 6자 이상이어야 합니다'**
+  String get loginPasswordTooShort;
+
+  /// Nickname required error
+  ///
+  /// In ko, this message translates to:
+  /// **'닉네임을 입력해주세요'**
+  String get loginNicknameRequired;
+
+  /// Forgot password button
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호를 잊으셨나요?'**
+  String get loginForgotPassword;
+
+  /// No account sign up button
+  ///
+  /// In ko, this message translates to:
+  /// **'계정이 없으신가요? 회원가입'**
+  String get loginNoAccount;
+
+  /// Have account login button
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 계정이 있으신가요? 로그인'**
+  String get loginHaveAccount;
+
+  /// Back to sign in button
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인으로 돌아가기'**
+  String get loginBackToSignIn;
+
+  /// Save email checkbox
+  ///
+  /// In ko, this message translates to:
+  /// **'이메일 저장'**
+  String get loginSaveEmail;
+
+  /// Sign up success message
+  ///
+  /// In ko, this message translates to:
+  /// **'회원가입이 완료되었습니다. 이메일을 확인해주세요.'**
+  String get loginSignupSuccess;
+
+  /// Reset password success message
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호 재설정 이메일을 보냈습니다.'**
+  String get loginResetPasswordSuccess;
+
+  /// Unexpected error message
+  ///
+  /// In ko, this message translates to:
+  /// **'예상치 못한 오류가 발생했습니다.'**
+  String get loginUnexpectedError;
+
+  /// Invalid credentials error
+  ///
+  /// In ko, this message translates to:
+  /// **'이메일 또는 비밀번호가 올바르지 않습니다.'**
+  String get loginErrorInvalidCredentials;
+
+  /// Email not confirmed error
+  ///
+  /// In ko, this message translates to:
+  /// **'이메일 인증이 완료되지 않았습니다.'**
+  String get loginErrorEmailNotConfirmed;
+
+  /// Email already registered error
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 등록된 이메일입니다.'**
+  String get loginErrorEmailAlreadyRegistered;
+
+  /// Password too short error
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호는 6자 이상이어야 합니다.'**
+  String get loginErrorPasswordTooShort;
+
   /// Review title
   ///
   /// In ko, this message translates to:

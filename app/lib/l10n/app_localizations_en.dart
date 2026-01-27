@@ -499,6 +499,81 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginSignupButton => 'Sign Up';
 
   @override
+  String get loginDescriptionSignIn =>
+      'One page a day,\nwe support your reading';
+
+  @override
+  String get loginDescriptionSignUp =>
+      'Start your reading habit\nwith BookGolas';
+
+  @override
+  String get loginDescriptionForgotPassword =>
+      'We\'ll send a password reset link\nto your registered email';
+
+  @override
+  String get loginEmailHint => 'example@email.com';
+
+  @override
+  String get loginPasswordHint => 'Enter 6 or more characters';
+
+  @override
+  String get loginNicknameHint => 'Name to use in the app';
+
+  @override
+  String get loginEmailRequired => 'Please enter your email';
+
+  @override
+  String get loginEmailInvalid => 'Please enter a valid email address';
+
+  @override
+  String get loginPasswordRequired => 'Please enter your password';
+
+  @override
+  String get loginPasswordTooShort => 'Password must be at least 6 characters';
+
+  @override
+  String get loginNicknameRequired => 'Please enter your nickname';
+
+  @override
+  String get loginForgotPassword => 'Forgot your password?';
+
+  @override
+  String get loginNoAccount => 'Don\'t have an account? Sign Up';
+
+  @override
+  String get loginHaveAccount => 'Already have an account? Login';
+
+  @override
+  String get loginBackToSignIn => 'Back to Login';
+
+  @override
+  String get loginSaveEmail => 'Save email';
+
+  @override
+  String get loginSignupSuccess => 'Sign up complete. Please check your email.';
+
+  @override
+  String get loginResetPasswordSuccess => 'Password reset email sent.';
+
+  @override
+  String get loginUnexpectedError => 'An unexpected error occurred.';
+
+  @override
+  String get loginErrorInvalidCredentials => 'Invalid email or password.';
+
+  @override
+  String get loginErrorEmailNotConfirmed =>
+      'Email verification is not complete.';
+
+  @override
+  String get loginErrorEmailAlreadyRegistered =>
+      'This email is already registered.';
+
+  @override
+  String get loginErrorPasswordTooShort =>
+      'Password must be at least 6 characters.';
+
+  @override
   String get reviewTitle => 'Book Review';
 
   @override

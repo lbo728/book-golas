@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
@@ -157,9 +158,10 @@ class _LoginScreenState extends State<LoginScreen> {
             data: {'nickname': nickname},
           );
           if (mounted) {
+            final l10n = AppLocalizations.of(context)!;
             CustomSnackbar.show(
               context,
-              message: '회원가입이 완료되었습니다. 이메일을 확인해주세요.',
+              message: l10n.loginSignupSuccess,
               type: SnackbarType.success,
               bottomOffset: 32,
             );
@@ -170,9 +172,10 @@ class _LoginScreenState extends State<LoginScreen> {
         case AuthMode.forgotPassword:
           await supabase.auth.resetPasswordForEmail(email);
           if (mounted) {
+            final l10n = AppLocalizations.of(context)!;
             CustomSnackbar.show(
               context,
-              message: '비밀번호 재설정 이메일을 보냈습니다.',
+              message: l10n.loginResetPasswordSuccess,
               type: SnackbarType.success,
               bottomOffset: 32,
             );
@@ -182,18 +185,20 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } on AuthException catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         CustomSnackbar.show(
           context,
-          message: _getAuthErrorMessage(e.message),
+          message: _getAuthErrorMessage(e.message, l10n),
           type: SnackbarType.error,
           bottomOffset: 32,
         );
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         CustomSnackbar.show(
           context,
-          message: '예상치 못한 오류가 발생했습니다.',
+          message: l10n.loginUnexpectedError,
           type: SnackbarType.error,
           bottomOffset: 32,
         );
@@ -205,15 +210,15 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  String _getAuthErrorMessage(String message) {
+  String _getAuthErrorMessage(String message, AppLocalizations l10n) {
     if (message.contains('Invalid login credentials')) {
-      return '이메일 또는 비밀번호가 올바르지 않습니다.';
+      return l10n.loginErrorInvalidCredentials;
     } else if (message.contains('Email not confirmed')) {
-      return '이메일 인증이 완료되지 않았습니다.';
+      return l10n.loginErrorEmailNotConfirmed;
     } else if (message.contains('User already registered')) {
-      return '이미 등록된 이메일입니다.';
+      return l10n.loginErrorEmailAlreadyRegistered;
     } else if (message.contains('Password should be at least')) {
-      return '비밀번호는 6자 이상이어야 합니다.';
+      return l10n.loginErrorPasswordTooShort;
     }
     return message;
   }
@@ -309,7 +314,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         const SizedBox(height: 16),
         Text(
-          '북골라스',
+          AppLocalizations.of(context)!.loginAppName,
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w700,
@@ -319,7 +324,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          _getDescriptionText(),
+          _getDescriptionText(AppLocalizations.of(context)!),
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 15,
@@ -332,14 +337,14 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  String _getDescriptionText() {
+  String _getDescriptionText(AppLocalizations l10n) {
     switch (_authMode) {
       case AuthMode.signIn:
-        return '오늘도 한 페이지,\n당신의 독서를 응원합니다';
+        return l10n.loginDescriptionSignIn;
       case AuthMode.signUp:
-        return '북골라스와 함께\n독서 습관을 시작해보세요';
+        return l10n.loginDescriptionSignUp;
       case AuthMode.forgotPassword:
-        return '가입하신 이메일로\n재설정 링크를 보내드립니다';
+        return l10n.loginDescriptionForgotPassword;
     }
   }
 
@@ -386,11 +391,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _buildGlassTextField(
+                    context: context,
                     controller: _emailController,
                     fieldKey: _emailFieldKey,
                     focusNode: _emailFocusNode,
-                    label: '이메일',
-                    hint: 'example@email.com',
+                    label: AppLocalizations.of(context)!.loginEmailLabel,
+                    hint: AppLocalizations.of(context)!.loginEmailHint,
                     keyboardType: TextInputType.emailAddress,
                     prefixIcon: Icons.email_outlined,
                     isDark: isDark,
@@ -400,11 +406,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     autocorrect: false,
                     enableSuggestions: false,
                     validator: (value) {
+                      final l10n = AppLocalizations.of(context)!;
                       if (value == null || value.isEmpty) {
-                        return '이메일을 입력해주세요';
+                        return l10n.loginEmailRequired;
                       }
                       if (!value.contains('@')) {
-                        return '올바른 이메일 주소를 입력해주세요';
+                        return l10n.loginEmailInvalid;
                       }
                       return null;
                     },
@@ -412,11 +419,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   if (_authMode != AuthMode.forgotPassword) ...[
                     const SizedBox(height: 16),
                     _buildGlassTextField(
+                      context: context,
                       controller: _passwordController,
                       fieldKey: _passwordFieldKey,
                       focusNode: _passwordFocusNode,
-                      label: '비밀번호',
-                      hint: '6자 이상 입력해주세요',
+                      label: AppLocalizations.of(context)!.loginPasswordLabel,
+                      hint: AppLocalizations.of(context)!.loginPasswordHint,
                       obscureText: _obscurePassword,
                       prefixIcon: Icons.lock_outline,
                       isDark: isDark,
@@ -442,11 +450,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
                       validator: (value) {
+                        final l10n = AppLocalizations.of(context)!;
                         if (value == null || value.isEmpty) {
-                          return '비밀번호를 입력해주세요';
+                          return l10n.loginPasswordRequired;
                         }
                         if (value.length < 6) {
-                          return '비밀번호는 6자 이상이어야 합니다';
+                          return l10n.loginPasswordTooShort;
                         }
                         return null;
                       },
@@ -455,19 +464,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   if (_authMode == AuthMode.signUp) ...[
                     const SizedBox(height: 16),
                     _buildGlassTextField(
+                      context: context,
                       controller: _nicknameController,
                       fieldKey: _nicknameFieldKey,
                       focusNode: _nicknameFocusNode,
-                      label: '닉네임',
-                      hint: '앱에서 사용할 이름',
+                      label: AppLocalizations.of(context)!.loginNicknameLabel,
+                      hint: AppLocalizations.of(context)!.loginNicknameHint,
                       prefixIcon: Icons.person_outline,
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => _dismissKeyboard(),
                       isDark: isDark,
                       autofillHints: const [AutofillHints.nickname],
                       validator: (value) {
+                        final l10n = AppLocalizations.of(context)!;
                         if (value == null || value.isEmpty) {
-                          return '닉네임을 입력해주세요';
+                          return l10n.loginNicknameRequired;
                         }
                         return null;
                       },
@@ -493,7 +504,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           )
                         : Text(
-                            _getButtonText(),
+                            _getButtonText(AppLocalizations.of(context)!),
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -504,27 +515,27 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 16),
                   if (_authMode == AuthMode.signIn) ...[
                     _buildTextButton(
-                      '비밀번호를 잊으셨나요?',
+                      AppLocalizations.of(context)!.loginForgotPassword,
                       () => setState(() => _authMode = AuthMode.forgotPassword),
                       isDark,
                     ),
                     const SizedBox(height: 8),
-                    _buildDivider(isDark),
+                    _buildDivider(isDark, context),
                     const SizedBox(height: 8),
                     _buildTextButton(
-                      '계정이 없으신가요? 회원가입',
+                      AppLocalizations.of(context)!.loginNoAccount,
                       () => setState(() => _authMode = AuthMode.signUp),
                       isDark,
                     ),
                   ] else if (_authMode == AuthMode.signUp) ...[
                     _buildTextButton(
-                      '이미 계정이 있으신가요? 로그인',
+                      AppLocalizations.of(context)!.loginHaveAccount,
                       () => setState(() => _authMode = AuthMode.signIn),
                       isDark,
                     ),
                   ] else ...[
                     _buildTextButton(
-                      '로그인으로 돌아가기',
+                      AppLocalizations.of(context)!.loginBackToSignIn,
                       () => setState(() => _authMode = AuthMode.signIn),
                       isDark,
                     ),
@@ -539,6 +550,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildGlassTextField({
+    required BuildContext context,
     required TextEditingController controller,
     required String label,
     required String hint,
@@ -646,7 +658,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           const SizedBox(width: 10),
           Text(
-            '이메일 저장',
+            AppLocalizations.of(context)!.loginSaveEmail,
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -717,7 +729,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildDivider(bool isDark) {
+  Widget _buildDivider(bool isDark, BuildContext context) {
     return Row(
       children: [
         Expanded(
@@ -731,7 +743,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            '또는',
+            AppLocalizations.of(context)!.loginOrDivider,
             style: TextStyle(
               fontSize: 13,
               color: isDark ? Colors.grey[500] : Colors.grey[400],
@@ -750,14 +762,14 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  String _getButtonText() {
+  String _getButtonText(AppLocalizations l10n) {
     switch (_authMode) {
       case AuthMode.signIn:
-        return '로그인';
+        return l10n.loginButton;
       case AuthMode.signUp:
-        return '회원가입';
+        return l10n.loginSignupButton;
       case AuthMode.forgotPassword:
-        return '비밀번호 재설정 이메일 보내기';
+        return '${l10n.loginButton} ${l10n.loginPasswordLabel}';
     }
   }
 }
