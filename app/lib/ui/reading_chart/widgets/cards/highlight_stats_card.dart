@@ -3,13 +3,12 @@ import 'package:book_golas/ui/core/theme/design_system.dart';
 
 /// 하이라이트 통계 카드
 ///
-/// 총 하이라이트/메모/사진 수, 장르별 분포, 자주 등장하는 키워드 표시
+/// 총 하이라이트/메모/사진 수, 장르별 분포 표시
 class HighlightStatsCard extends StatelessWidget {
   final int totalHighlights;
   final int totalNotes;
   final int totalPhotos;
-  final Map<String, int> genreDistribution; // 장르별 하이라이트 수
-  final List<String> topKeywords;
+  final Map<String, int> genreDistribution;
 
   const HighlightStatsCard({
     super.key,
@@ -17,7 +16,6 @@ class HighlightStatsCard extends StatelessWidget {
     required this.totalNotes,
     required this.totalPhotos,
     required this.genreDistribution,
-    required this.topKeywords,
   });
 
   @override
@@ -52,10 +50,6 @@ class HighlightStatsCard extends StatelessWidget {
             if (genreDistribution.isNotEmpty) ...[
               const SizedBox(height: 20),
               _buildGenreDistribution(context, isDark),
-            ],
-            if (topKeywords.isNotEmpty) ...[
-              const SizedBox(height: 20),
-              _buildTopKeywords(context, isDark),
             ],
           ],
         ),
@@ -226,56 +220,6 @@ class HighlightStatsCard extends StatelessWidget {
             ),
           );
         }),
-      ],
-    );
-  }
-
-  Widget _buildTopKeywords(BuildContext context, bool isDark) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '자주 등장하는 키워드',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: isDark ? Colors.white70 : Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: topKeywords.take(5).map((keyword) {
-            return Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 8,
-              ),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.primary.withOpacity(0.15),
-                    AppColors.primary.withOpacity(0.08),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: AppColors.primary.withOpacity(0.3),
-                  width: 1,
-                ),
-              ),
-              child: Text(
-                keyword,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: isDark ? Colors.white : Colors.black87,
-                ),
-              ),
-            );
-          }).toList(),
-        ),
       ],
     );
   }
