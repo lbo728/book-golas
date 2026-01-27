@@ -69,6 +69,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   int _selectedSectionIndex = 0;
   final _sectionKeys = List.generate(5, (_) => GlobalKey());
   final ScrollController _analysisScrollController = ScrollController();
+  final ScrollController _tabBarScrollController = ScrollController();
   Timer? _scrollDebounce;
 
   @override
@@ -83,6 +84,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   void dispose() {
     _scrollDebounce?.cancel();
     _analysisScrollController.dispose();
+    _tabBarScrollController.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -397,48 +399,62 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   void _updateSelectedSectionOnScroll() {
     if (_tabController.index != 1) return;
 
-    if (_scrollDebounce?.isActive ?? false) _scrollDebounce!.cancel();
-    _scrollDebounce = Timer(const Duration(milliseconds: 10), () {
-      final scrollPosition = _analysisScrollController.position.pixels;
-      final maxScroll = _analysisScrollController.position.maxScrollExtent;
+    final scrollPosition = _analysisScrollController.position.pixels;
+    final maxScroll = _analysisScrollController.position.maxScrollExtent;
 
-      if (scrollPosition >= maxScroll - 50) {
-        if (_selectedSectionIndex != _sectionKeys.length - 1) {
-          setState(() {
-            _selectedSectionIndex = _sectionKeys.length - 1;
-          });
-        }
-        return;
-      }
-
-      int closestIndex = 0;
-      double closestDistance = double.infinity;
-      final screenCenter = 300.0;
-
-      for (int i = 0; i < _sectionKeys.length; i++) {
-        final context = _sectionKeys[i].currentContext;
-        if (context == null) continue;
-
-        final renderBox = context.findRenderObject() as RenderBox?;
-        if (renderBox == null) continue;
-
-        final position = renderBox.localToGlobal(Offset.zero);
-        final sectionTop = position.dy;
-        final sectionCenter = sectionTop + (renderBox.size.height / 2);
-        final distance = (sectionCenter - screenCenter).abs();
-
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestIndex = i;
-        }
-      }
-
-      if (_selectedSectionIndex != closestIndex) {
+    if (scrollPosition >= maxScroll - 50) {
+      if (_selectedSectionIndex != _sectionKeys.length - 1) {
         setState(() {
-          _selectedSectionIndex = closestIndex;
+          _selectedSectionIndex = _sectionKeys.length - 1;
         });
+        _scrollTabBarToIndex(_sectionKeys.length - 1);
       }
-    });
+      return;
+    }
+
+    int closestIndex = 0;
+    double closestDistance = double.infinity;
+    final screenCenter = 300.0;
+
+    for (int i = 0; i < _sectionKeys.length; i++) {
+      final context = _sectionKeys[i].currentContext;
+      if (context == null) continue;
+
+      final renderBox = context.findRenderObject() as RenderBox?;
+      if (renderBox == null) continue;
+
+      final position = renderBox.localToGlobal(Offset.zero);
+      final sectionTop = position.dy;
+      final sectionCenter = sectionTop + (renderBox.size.height / 2);
+      final distance = (sectionCenter - screenCenter).abs();
+
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestIndex = i;
+      }
+    }
+
+    if (_selectedSectionIndex != closestIndex) {
+      setState(() {
+        _selectedSectionIndex = closestIndex;
+      });
+      _scrollTabBarToIndex(closestIndex);
+    }
+  }
+
+  void _scrollTabBarToIndex(int index) {
+    if (!_tabBarScrollController.hasClients) return;
+
+    final tabWidth = 100.0;
+    final tabSpacing = 12.0;
+    final padding = 16.0;
+    final targetPosition = padding + (index * (tabWidth + tabSpacing));
+
+    _tabBarScrollController.animateTo(
+      targetPosition,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+    );
   }
 
   String _getFilterLabel(TimeFilter filter) {
@@ -597,6 +613,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
             isDark: isDark,
             selectedIndex: _selectedSectionIndex,
             onTap: _scrollToSection,
+            scrollController: _tabBarScrollController,
           ),
         ),
         SliverToBoxAdapter(
@@ -1312,12 +1329,14 @@ class _SectionTabBarDelegate extends SliverPersistentHeaderDelegate {
   final bool isDark;
   final int selectedIndex;
   final Function(int) onTap;
+  final ScrollController scrollController;
 
   _SectionTabBarDelegate({
     required this.sections,
     required this.isDark,
     required this.selectedIndex,
     required this.onTap,
+    required this.scrollController,
   });
 
   @override
@@ -1329,6 +1348,7 @@ class _SectionTabBarDelegate extends SliverPersistentHeaderDelegate {
     return Container(
       color: isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
       child: SingleChildScrollView(
+        controller: scrollController,
         scrollDirection: Axis.horizontal,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
