@@ -26,6 +26,7 @@ class ReadingStartViewModel extends BaseViewModel {
 
   BookStatus _readingStatus = BookStatus.reading;
   DateTime _plannedStartDate = DateTime.now().add(const Duration(days: 1));
+  bool _hasPlannedDate = true;
   int? _dailyTargetPages;
   Book? _createdBook;
   int? _priority;
@@ -48,6 +49,7 @@ class ReadingStartViewModel extends BaseViewModel {
 
   BookStatus get readingStatus => _readingStatus;
   DateTime get plannedStartDate => _plannedStartDate;
+  bool get hasPlannedDate => _hasPlannedDate;
   int? get dailyTargetPages => _dailyTargetPages;
   Book? get createdBook => _createdBook;
   int? get priority => _priority;
@@ -326,6 +328,7 @@ class ReadingStartViewModel extends BaseViewModel {
     _readingStatus = status;
     if (status == BookStatus.planned) {
       _targetDate = _plannedStartDate.add(const Duration(days: 14));
+      _hasPlannedDate = true;
     } else {
       _targetDate = DateTime.now().add(const Duration(days: 14));
     }
@@ -337,6 +340,11 @@ class ReadingStartViewModel extends BaseViewModel {
     if (_readingStatus == BookStatus.planned) {
       _targetDate = date.add(const Duration(days: 14));
     }
+    notifyListeners();
+  }
+
+  void setHasPlannedDate(bool value) {
+    _hasPlannedDate = value;
     notifyListeners();
   }
 
