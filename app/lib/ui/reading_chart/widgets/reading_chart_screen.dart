@@ -398,7 +398,23 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     if (_tabController.index != 1) return;
 
     if (_scrollDebounce?.isActive ?? false) _scrollDebounce!.cancel();
-    _scrollDebounce = Timer(const Duration(milliseconds: 100), () {
+    _scrollDebounce = Timer(const Duration(milliseconds: 10), () {
+      final scrollPosition = _analysisScrollController.position.pixels;
+      final maxScroll = _analysisScrollController.position.maxScrollExtent;
+
+      if (scrollPosition >= maxScroll - 50) {
+        if (_selectedSectionIndex != _sectionKeys.length - 1) {
+          setState(() {
+            _selectedSectionIndex = _sectionKeys.length - 1;
+          });
+        }
+        return;
+      }
+
+      int closestIndex = 0;
+      double closestDistance = double.infinity;
+      final screenCenter = 300.0;
+
       for (int i = 0; i < _sectionKeys.length; i++) {
         final context = _sectionKeys[i].currentContext;
         if (context == null) continue;
@@ -408,16 +424,19 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
 
         final position = renderBox.localToGlobal(Offset.zero);
         final sectionTop = position.dy;
-        final sectionBottom = sectionTop + renderBox.size.height;
+        final sectionCenter = sectionTop + (renderBox.size.height / 2);
+        final distance = (sectionCenter - screenCenter).abs();
 
-        if (sectionTop <= 300 && sectionBottom > 300) {
-          if (_selectedSectionIndex != i) {
-            setState(() {
-              _selectedSectionIndex = i;
-            });
-          }
-          break;
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = i;
         }
+      }
+
+      if (_selectedSectionIndex != closestIndex) {
+        setState(() {
+          _selectedSectionIndex = closestIndex;
+        });
       }
     });
   }
