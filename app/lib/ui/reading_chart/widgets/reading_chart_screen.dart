@@ -17,8 +17,6 @@ import 'package:book_golas/ui/reading_chart/widgets/cards/ai_insight_card.dart';
 import 'package:book_golas/ui/reading_chart/widgets/cards/completion_rate_card.dart';
 import 'package:book_golas/ui/reading_chart/widgets/cards/highlight_stats_card.dart';
 import 'package:book_golas/ui/reading_chart/view_model/reading_insights_view_model.dart';
-import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
-import 'package:book_golas/domain/models/book.dart';
 import 'package:provider/provider.dart';
 
 enum TimeFilter { daily, weekly, monthly }
@@ -396,38 +394,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     }
   }
 
-  Future<void> _navigateToMemorablePages(BuildContext context) async {
-    final books = await _bookService.fetchBooks();
-    if (books.isEmpty) return;
-
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) return;
-
-    final response = await Supabase.instance.client
-        .from('book_images')
-        .select('book_id, created_at')
-        .eq('user_id', user.id)
-        .order('created_at', ascending: false)
-        .limit(1);
-
-    if (response.isEmpty) return;
-
-    final recentBookId = response.first['book_id'] as String;
-    final book = books.firstWhere(
-      (b) => b.id == recentBookId,
-      orElse: () => books.first,
-    );
-
-    if (!context.mounted) return;
-
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => BookDetailScreen(book: book),
-      ),
-    );
-  }
-
   void _updateSelectedSectionOnScroll() {
     if (_tabController.index != 1) return;
 
@@ -683,9 +649,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                     totalPhotos: _totalPhotos,
                     genreDistribution: _highlightGenreDistribution,
                     topKeywords: _topKeywords,
-                    onHighlightsTap: () => _navigateToMemorablePages(context),
-                    onNotesTap: () => _navigateToMemorablePages(context),
-                    onPhotosTap: () => _navigateToMemorablePages(context),
                   ),
                 ),
                 const SizedBox(height: 16),
