@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 
 import 'package:book_golas/ui/core/theme/design_system.dart';
-import 'package:book_golas/ui/reading_chart/widgets/reading_chart_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:book_golas/ui/home/widgets/home_screen.dart';
@@ -11,6 +11,7 @@ import 'package:book_golas/ui/core/widgets/liquid_glass_bottom_bar.dart';
 import 'package:book_golas/ui/core/widgets/reading_detail_bottom_bar.dart';
 import 'package:book_golas/ui/core/widgets/expanded_navigation_bottom_bar.dart';
 import 'package:book_golas/domain/models/home_display_mode.dart';
+import 'package:book_golas/ui/reading_chart/widgets/reading_chart_screen.dart';
 import 'package:book_golas/ui/calendar/widgets/calendar_screen.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 import 'package:book_golas/config/app_config.dart';
@@ -114,6 +115,14 @@ class AppBootstrap extends StatelessWidget {
         ),
       );
       debugPrint('✅ Supabase 초기화 성공');
+
+      // RevenueCat 초기화
+      debugPrint('💳 RevenueCat 초기화 시작');
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      await Purchases.configure(
+          PurchasesConfiguration(AppConfig.revenueCatPublicKey)
+            ..appUserID = userId);
+      debugPrint('✅ RevenueCat 초기화 완료');
 
       // HomeViewModel preferences 프리로드
       debugPrint('📚 홈 화면 설정 프리로드 시작');
