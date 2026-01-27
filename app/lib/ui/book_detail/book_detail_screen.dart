@@ -254,6 +254,15 @@ class _BookDetailContentState extends State<_BookDetailContent>
       builder: (context, bookVm, _) {
         final book = bookVm.currentBook;
 
+        // TabController 길이 동기화 (책 완독 상태 변경 시)
+        final shouldHaveReviewTab = _isBookCompleted(book);
+        final targetLength = shouldHaveReviewTab ? 4 : 3;
+        if (_currentTabLength != targetLength) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _updateTabControllerIfNeeded(book);
+          });
+        }
+
         return Scaffold(
           backgroundColor:
               isDark ? AppColors.scaffoldDark : AppColors.elevatedLight,
@@ -377,6 +386,13 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                     child: Consumer<MemorablePageViewModel>(
                       builder: (context, memorableVm, _) {
+                        // TabController와 children 개수가 맞지 않으면 로딩 표시
+                        final expectedChildrenCount =
+                            _isBookCompleted(book) ? 4 : 3;
+                        if (_currentTabLength != expectedChildrenCount) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
                         return TabBarView(
                           controller: _tabController,
                           children: [
@@ -1660,15 +1676,16 @@ class _BookDetailContentState extends State<_BookDetailContent>
             ),
             const SizedBox(height: 12),
             Expanded(
-              child: Consumer<NoteStructureViewModel>(
-                builder: (context, vm, _) {
-                  if (vm.isLoading) {
+              child: ListenableBuilder(
+                listenable: noteStructureVm,
+                builder: (context, _) {
+                  if (noteStructureVm.isLoading) {
                     return const Center(
                       child: CircularProgressIndicator(),
                     );
                   }
 
-                  if (vm.errorMessage != null) {
+                  if (noteStructureVm.errorMessage != null) {
                     return Center(
                       child: Padding(
                         padding: const EdgeInsets.all(24.0),
@@ -1682,7 +1699,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              vm.errorMessage!,
+                              noteStructureVm.errorMessage!,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 15,
@@ -1697,7 +1714,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     );
                   }
 
-                  return NoteStructureMindmap(structure: vm.structure);
+                  return NoteStructureMindmap(
+                      structure: noteStructureVm.structure);
                 },
               ),
             ),

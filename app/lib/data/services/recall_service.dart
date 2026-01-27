@@ -86,7 +86,7 @@ class RecallService {
   }
 
   Future<RecallSearchResult?> search({
-    required String bookId,
+    String? bookId,
     required String query,
   }) async {
     try {
@@ -94,7 +94,7 @@ class RecallService {
       final response = await _supabase.functions.invoke(
         'recall-search',
         body: {
-          'bookId': bookId,
+          if (bookId != null) 'bookId': bookId,
           'query': query,
         },
       );
@@ -139,6 +139,31 @@ class RecallService {
           .toList();
     } catch (e) {
       debugPrint('🔴 Failed to get recent searches: $e');
+      return [];
+    }
+  }
+
+  Future<List<RecallSearchHistory>> getGlobalRecentSearches({
+    int limit = 10,
+  }) async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return [];
+
+      final response = await _supabase
+          .from('recall_search_history')
+          .select()
+          .eq('user_id', userId)
+          .isFilter('book_id', null)
+          .order('created_at', ascending: false)
+          .limit(limit);
+
+      return (response as List)
+          .map((json) =>
+              RecallSearchHistory.fromJson(json as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      debugPrint('🔴 Failed to get global recent searches: $e');
       return [];
     }
   }

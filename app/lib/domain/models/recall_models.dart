@@ -4,6 +4,8 @@ class RecallSource {
   final int? pageNumber;
   final String? sourceId;
   final DateTime? createdAt;
+  final String? bookId;
+  final String? bookTitle;
 
   RecallSource({
     required this.type,
@@ -11,6 +13,8 @@ class RecallSource {
     this.pageNumber,
     this.sourceId,
     this.createdAt,
+    this.bookId,
+    this.bookTitle,
   });
 
   factory RecallSource.fromJson(Map<String, dynamic> json) {
@@ -22,6 +26,8 @@ class RecallSource {
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : null,
+      bookId: json['bookId'] as String?,
+      bookTitle: json['bookTitle'] as String?,
     );
   }
 
@@ -42,18 +48,35 @@ class RecallSource {
 class RecallSearchResult {
   final String answer;
   final List<RecallSource> sources;
+  final Map<String, List<RecallSource>>? sourcesByBook;
 
   RecallSearchResult({
     required this.answer,
     required this.sources,
+    this.sourcesByBook,
   });
 
   factory RecallSearchResult.fromJson(Map<String, dynamic> json) {
+    final sourcesByBookJson = json['sourcesByBook'] as Map<String, dynamic>?;
+    Map<String, List<RecallSource>>? sourcesByBook;
+
+    if (sourcesByBookJson != null) {
+      sourcesByBook = sourcesByBookJson.map(
+        (key, value) => MapEntry(
+          key,
+          (value as List)
+              .map((s) => RecallSource.fromJson(s as Map<String, dynamic>))
+              .toList(),
+        ),
+      );
+    }
+
     return RecallSearchResult(
       answer: json['answer'] as String,
       sources: (json['sources'] as List)
           .map((s) => RecallSource.fromJson(s as Map<String, dynamic>))
           .toList(),
+      sourcesByBook: sourcesByBook,
     );
   }
 
@@ -67,8 +90,27 @@ class RecallSearchResult {
                 'pageNumber': s.pageNumber,
                 'sourceId': s.sourceId,
                 'createdAt': s.createdAt?.toIso8601String(),
+                'bookId': s.bookId,
+                'bookTitle': s.bookTitle,
               })
           .toList(),
+      if (sourcesByBook != null)
+        'sourcesByBook': sourcesByBook!.map(
+          (key, value) => MapEntry(
+            key,
+            value
+                .map((s) => {
+                      'type': s.type,
+                      'content': s.content,
+                      'pageNumber': s.pageNumber,
+                      'sourceId': s.sourceId,
+                      'createdAt': s.createdAt?.toIso8601String(),
+                      'bookId': s.bookId,
+                      'bookTitle': s.bookTitle,
+                    })
+                .toList(),
+          ),
+        ),
     };
   }
 }

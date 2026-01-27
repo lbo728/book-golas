@@ -534,8 +534,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                   : Container(
                       width: 48,
                       height: 64,
-                      color:
-                          isDark ? AppColors.elevatedDark : Colors.grey[200],
+                      color: isDark ? AppColors.elevatedDark : Colors.grey[200],
                       child: Icon(
                         Icons.menu_book_rounded,
                         color: isDark ? Colors.white38 : Colors.grey[400],
@@ -592,8 +591,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary
-                                      .withValues(alpha: 0.12),
+                                  color:
+                                      AppColors.primary.withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
@@ -727,8 +726,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color:
-                      isSelected ? AppColors.primary : Colors.transparent,
+                  color: isSelected ? AppColors.primary : Colors.transparent,
                   shape: BoxShape.circle,
                 ),
                 child: isSelected
@@ -1130,8 +1128,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color:
-                          isDark ? AppColors.subtleDark : Colors.grey[100],
+                      color: isDark ? AppColors.subtleDark : Colors.grey[100],
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Center(
@@ -1150,8 +1147,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                   Container(
                     height: 180,
                     decoration: BoxDecoration(
-                      color:
-                          isDark ? AppColors.subtleDark : Colors.grey[100],
+                      color: isDark ? AppColors.subtleDark : Colors.grey[100],
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: KoreanDatePicker(
@@ -1283,6 +1279,36 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
 
               if (vm.readingStatus == BookStatus.planned) ...[
                 Text(
+                  '시작일 설정',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white70 : Colors.black54,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SegmentedButton<bool>(
+                  segments: const <ButtonSegment<bool>>[
+                    ButtonSegment<bool>(
+                      value: true,
+                      label: Text('시작일 지정'),
+                    ),
+                    ButtonSegment<bool>(
+                      value: false,
+                      label: Text('미정'),
+                    ),
+                  ],
+                  selected: <bool>{vm.hasPlannedDate},
+                  onSelectionChanged: (Set<bool> newSelection) {
+                    vm.setHasPlannedDate(newSelection.first);
+                  },
+                ),
+                const SizedBox(height: 20),
+              ],
+
+              if (vm.readingStatus == BookStatus.planned &&
+                  vm.hasPlannedDate) ...[
+                Text(
                   '독서 시작 예정일',
                   style: TextStyle(
                     fontSize: 14,
@@ -1383,9 +1409,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                     vertical: 14,
                   ),
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? AppColors.subtleDark
-                        : AppColors.elevatedLight,
+                    color:
+                        isDark ? AppColors.subtleDark : AppColors.elevatedLight,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
