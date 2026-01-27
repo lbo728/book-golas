@@ -79,6 +79,14 @@ class PlannedBookCard extends StatelessWidget {
                         fontSize: 13,
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
                       ),
+                    )
+                  else
+                    Text(
+                      '시작일 미정',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDark ? Colors.grey[500] : Colors.grey[500],
+                      ),
                     ),
                   const SizedBox(height: 4),
                   if (book.priority != null)
