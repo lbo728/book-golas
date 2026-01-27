@@ -6,7 +6,9 @@ import 'package:provider/provider.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/my_library/view_model/my_library_view_model.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_tab_bar.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
+import 'package:book_golas/ui/book_list/widgets/book_list_card.dart';
 
 class MyLibraryScreen extends StatefulWidget {
   const MyLibraryScreen({super.key});
@@ -15,13 +17,43 @@ class MyLibraryScreen extends StatefulWidget {
   State<MyLibraryScreen> createState() => _MyLibraryScreenState();
 }
 
-class _MyLibraryScreenState extends State<MyLibraryScreen> {
+class _MyLibraryScreenState extends State<MyLibraryScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(_onTabChanged);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<MyLibraryViewModel>().loadBooks();
     });
+  }
+
+  void _onTabChanged() {
+    if (!_tabController.indexIsChanging) {
+      context
+          .read<MyLibraryViewModel>()
+          .setSelectedTabIndex(_tabController.index);
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController.removeListener(_onTabChanged);
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void _navigateToBookDetail(Book book) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BookDetailScreen(book: book),
+      ),
+    );
   }
 
   @override
@@ -42,78 +74,35 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
           fontWeight: FontWeight.w600,
           color: isDark ? Colors.white : Colors.black,
         ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: Selector<MyLibraryViewModel, (int, int)>(
+            selector: (_, vm) =>
+                (vm.allBooks.length, vm.booksWithReview.length),
+            builder: (context, counts, _) {
+              final (allCount, reviewCount) = counts;
+              return LiquidGlassTabBar(
+                controller: _tabController,
+                tabs: ['전체 ($allCount)', '독후감 ($reviewCount)'],
+              );
+            },
+          ),
+        ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTabBar(isDark),
           _buildFilterSection(isDark),
-          Expanded(child: _buildBookList(isDark)),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildAllBooksTab(isDark),
+                _buildReviewBooksTab(isDark),
+              ],
+            ),
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildTabBar(bool isDark) {
-    return Consumer<MyLibraryViewModel>(
-      builder: (context, vm, _) {
-        final completedCount = vm.completedBooks.length;
-        final reviewCount = vm.booksWithReview.length;
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          child: Row(
-            children: [
-              _buildTabButton(
-                '전체 ($completedCount)',
-                vm.selectedTabIndex == 0,
-                isDark,
-                () => vm.setSelectedTabIndex(0),
-              ),
-              const SizedBox(width: 12),
-              _buildTabButton(
-                '독후감 ($reviewCount)',
-                vm.selectedTabIndex == 1,
-                isDark,
-                () => vm.setSelectedTabIndex(1),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildTabButton(
-    String label,
-    bool isSelected,
-    bool isDark,
-    VoidCallback onTap,
-  ) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? (isDark
-                  ? Colors.white.withValues(alpha: 0.15)
-                  : Colors.black.withValues(alpha: 0.08))
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-            color: isSelected
-                ? (isDark ? Colors.white : Colors.black)
-                : (isDark
-                    ? Colors.white.withValues(alpha: 0.5)
-                    : Colors.black.withValues(alpha: 0.5)),
-          ),
-        ),
       ),
     );
   }
@@ -191,41 +180,17 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
     );
   }
 
-  Widget _buildBookList(bool isDark) {
+  Widget _buildAllBooksTab(bool isDark) {
     return Consumer<MyLibraryViewModel>(
       builder: (context, vm, _) {
         if (vm.isLoading) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final books =
-            vm.selectedTabIndex == 0 ? vm.filteredBooks : vm.booksWithReview;
+        final books = vm.filteredBooks;
 
         if (books.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  CupertinoIcons.book,
-                  size: 48,
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.3)
-                      : Colors.black.withValues(alpha: 0.3),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  vm.selectedTabIndex == 0 ? '완독한 책이 없습니다' : '독후감이 있는 책이 없습니다',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: isDark
-                        ? Colors.white.withValues(alpha: 0.5)
-                        : Colors.black.withValues(alpha: 0.5),
-                  ),
-                ),
-              ],
-            ),
-          );
+          return _buildEmptyState(isDark, '등록된 책이 없습니다');
         }
 
         return ListView.builder(
@@ -233,126 +198,67 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
           itemCount: books.length,
           itemBuilder: (context, index) {
             final book = books[index];
-            return _buildBookCard(book, isDark);
+            return BookListCard(
+              book: book,
+              onTap: () => _navigateToBookDetail(book),
+            );
           },
         );
       },
     );
   }
 
-  Widget _buildBookCard(Book book, bool isDark) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => BookDetailScreen(book: book),
-          ),
+  Widget _buildReviewBooksTab(bool isDark) {
+    return Consumer<MyLibraryViewModel>(
+      builder: (context, vm, _) {
+        if (vm.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final books = vm.booksWithReview;
+
+        if (books.isEmpty) {
+          return _buildEmptyState(isDark, '독후감이 있는 책이 없습니다');
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
+          itemCount: books.length,
+          itemBuilder: (context, index) {
+            final book = books[index];
+            return BookListCard(
+              book: book,
+              onTap: () => _navigateToBookDetail(book),
+            );
+          },
         );
       },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: isDark
-              ? null
-              : [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-        ),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: book.imageUrl != null
-                  ? Image.network(
-                      book.imageUrl!,
-                      width: 60,
-                      height: 80,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) =>
-                          _buildPlaceholderCover(isDark),
-                    )
-                  : _buildPlaceholderCover(isDark),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    book.title,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (book.author != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      book.author!,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: isDark
-                            ? Colors.white.withValues(alpha: 0.6)
-                            : Colors.black.withValues(alpha: 0.6),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                  if (book.rating != null) ...[
-                    const SizedBox(height: 6),
-                    Row(
-                      children: List.generate(
-                        5,
-                        (i) => Icon(
-                          i < book.rating!
-                              ? CupertinoIcons.star_fill
-                              : CupertinoIcons.star,
-                          size: 14,
-                          color: i < book.rating!
-                              ? Colors.amber
-                              : (isDark
-                                  ? Colors.white.withValues(alpha: 0.3)
-                                  : Colors.black.withValues(alpha: 0.3)),
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
-  Widget _buildPlaceholderCover(bool isDark) {
-    return Container(
-      width: 60,
-      height: 80,
-      decoration: BoxDecoration(
-        color: isDark
-            ? Colors.white.withValues(alpha: 0.1)
-            : Colors.grey.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Icon(
-        CupertinoIcons.book,
-        color: isDark
-            ? Colors.white.withValues(alpha: 0.3)
-            : Colors.black.withValues(alpha: 0.3),
+  Widget _buildEmptyState(bool isDark, String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            CupertinoIcons.book,
+            size: 48,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.3)
+                : Colors.black.withValues(alpha: 0.3),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            style: TextStyle(
+              fontSize: 16,
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.5)
+                  : Colors.black.withValues(alpha: 0.5),
+            ),
+          ),
+        ],
       ),
     );
   }

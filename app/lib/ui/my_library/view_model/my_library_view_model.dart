@@ -20,16 +20,10 @@ class MyLibraryViewModel extends ChangeNotifier {
   String? get selectedGenre => _selectedGenre;
   int? get selectedRating => _selectedRating;
 
-  List<Book> get completedBooks => _books
-      .where(
-        (b) =>
-            b.status == BookStatus.completed.value ||
-            (b.currentPage >= b.totalPages && b.totalPages > 0),
-      )
-      .toList();
+  List<Book> get allBooks => _books;
 
   List<Book> get filteredBooks {
-    var result = completedBooks;
+    var result = allBooks;
     if (_selectedYear != null) {
       result = result.where((b) => b.startDate.year == _selectedYear).toList();
     }
@@ -42,7 +36,7 @@ class MyLibraryViewModel extends ChangeNotifier {
     return result;
   }
 
-  List<Book> get booksWithReview => completedBooks
+  List<Book> get booksWithReview => _books
       .where(
         (b) =>
             (b.review != null && b.review!.isNotEmpty) ||
@@ -51,13 +45,13 @@ class MyLibraryViewModel extends ChangeNotifier {
       .toList();
 
   List<int> get availableYears {
-    final years = completedBooks.map((b) => b.startDate.year).toSet().toList();
+    final years = allBooks.map((b) => b.startDate.year).toSet().toList();
     years.sort((a, b) => b.compareTo(a));
     return years;
   }
 
   List<String> get availableGenres {
-    final genres = completedBooks
+    final genres = allBooks
         .where((b) => b.genre != null && b.genre!.isNotEmpty)
         .map((b) => b.genre!)
         .toSet()
