@@ -3,9 +3,12 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/domain/models/recall_models.dart';
+import 'package:book_golas/domain/models/reading_record.dart';
 import 'package:book_golas/ui/my_library/view_model/my_library_view_model.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_tab_bar.dart';
@@ -13,6 +16,7 @@ import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/book_list/widgets/book_list_card.dart';
 import 'package:book_golas/ui/my_library/widgets/record_list_item.dart';
 import 'package:book_golas/ui/recall/widgets/global_recall_search_sheet.dart';
+import 'package:book_golas/ui/recall/widgets/record_detail_sheet.dart';
 
 class MyLibraryScreen extends StatefulWidget {
   const MyLibraryScreen({super.key});
@@ -123,6 +127,30 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
           _navigateToBookDetailById(source.bookId!, initialTabIndex: 1);
         }
       },
+    );
+  }
+
+  RecallSource _recordToSource(ReadingRecord record) {
+    return RecallSource(
+      type: record.contentType,
+      content: record.contentText,
+      pageNumber: record.pageNumber,
+      sourceId: record.sourceId,
+      createdAt: record.createdAt,
+      bookId: record.bookId,
+      bookTitle: record.bookTitle,
+    );
+  }
+
+  void _showRecordDetail(ReadingRecord record) {
+    final source = _recordToSource(record);
+    showRecordDetailSheet(
+      context: context,
+      source: source,
+      onGoToBook: () => _navigateToBookDetailById(
+        record.bookId,
+        initialTabIndex: 1,
+      ),
     );
   }
 
@@ -443,10 +471,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
                       group.bookId,
                       initialTabIndex: 1,
                     ),
-                    onRecordTap: (record) => _navigateToBookDetailById(
-                      record.bookId,
-                      initialTabIndex: 1,
-                    ),
+                    onRecordTap: _showRecordDetail,
                   );
                 },
               );
@@ -499,8 +524,8 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
                       ),
                     ),
                     const Spacer(),
-                    Icon(
-                      CupertinoIcons.search,
+                    FaIcon(
+                      FontAwesomeIcons.circleArrowUp,
                       size: 18,
                       color: isDark
                           ? Colors.white.withValues(alpha: 0.4)

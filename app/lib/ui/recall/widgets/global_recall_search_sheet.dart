@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_golas/domain/models/recall_models.dart';
@@ -8,6 +9,7 @@ import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 import 'package:book_golas/ui/recall/view_model/global_recall_view_model.dart';
+import 'package:book_golas/ui/recall/widgets/record_detail_sheet.dart';
 
 Future<void> showGlobalRecallSearchSheet({
   required BuildContext context,
@@ -216,14 +218,26 @@ class _GlobalRecallSearchSheetContentState
                               color:
                                   isDark ? Colors.grey[500] : Colors.grey[400],
                             ),
-                            prefixIcon: Icon(
-                              Icons.search,
-                              color:
-                                  isDark ? Colors.grey[400] : Colors.grey[600],
+                            prefixIcon: Container(
+                              padding: const EdgeInsets.all(8),
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color:
+                                      AppColors.primary.withValues(alpha: 0.15),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.auto_awesome,
+                                  color: AppColors.primary,
+                                  size: 16,
+                                ),
+                              ),
                             ),
                             suffixIcon: IconButton(
-                              icon: Icon(
-                                Icons.send,
+                              icon: FaIcon(
+                                FontAwesomeIcons.circleArrowUp,
+                                size: 20,
                                 color: _controller.text.isEmpty
                                     ? (isDark
                                         ? Colors.grey[600]
@@ -250,7 +264,8 @@ class _GlobalRecallSearchSheetContentState
                         GestureDetector(
                           onTap: _goToHome,
                           child: Container(
-                            padding: const EdgeInsets.all(12),
+                            height: 48,
+                            width: 48,
                             decoration: BoxDecoration(
                               color: isDark
                                   ? AppColors.elevatedDark
@@ -737,9 +752,18 @@ class _GlobalRecallSearchSheetContentState
     );
   }
 
+  void _showRecordDetail(RecallSource source) {
+    showRecordDetailSheet(
+      context: context,
+      source: source,
+      onGoToBook:
+          widget.onSourceTap != null ? () => widget.onSourceTap!(source) : null,
+    );
+  }
+
   Widget _buildSourceItem(RecallSource source, bool isDark) {
     return GestureDetector(
-      onTap: () => widget.onSourceTap?.call(source),
+      onTap: () => _showRecordDetail(source),
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(12),
