@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:book_golas/ui/onboarding/widgets/onboarding_page.dart';
 
@@ -18,23 +19,34 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<OnboardingPageData> _pages = const [
-    OnboardingPageData(
-      icon: Icons.menu_book_outlined,
-      title: '나만의 독서 여정을 기록하세요',
-      description: '읽고 싶은 책을 등록하고,\n독서 목표와 진행 상황을 한눈에 관리하세요.',
-    ),
-    OnboardingPageData(
-      icon: Icons.search,
-      title: 'AI로 독서 기록을 검색하세요',
-      description: '기억나는 내용을 검색하면\nAI가 관련된 메모와 책을 찾아드립니다.',
-    ),
-    OnboardingPageData(
-      icon: Icons.auto_awesome,
-      title: '다음 읽을 책을 추천받으세요',
-      description: '지금까지 읽은 책을 바탕으로\n당신의 취향에 맞는 책을 AI가 추천합니다.',
-    ),
-  ];
+  late List<OnboardingPageData> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializePages();
+  }
+
+  void _initializePages() {
+    final l10n = AppLocalizations.of(context)!;
+    _pages = [
+      OnboardingPageData(
+        icon: Icons.menu_book_outlined,
+        title: l10n.onboardingTitle1,
+        description: l10n.onboardingDescription1,
+      ),
+      OnboardingPageData(
+        icon: Icons.search,
+        title: l10n.onboardingTitle2,
+        description: l10n.onboardingDescription2,
+      ),
+      OnboardingPageData(
+        icon: Icons.auto_awesome,
+        title: l10n.onboardingTitle3,
+        description: l10n.onboardingDescription3,
+      ),
+    ];
+  }
 
   @override
   void dispose() {
@@ -92,6 +104,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Widget _buildBottomSection(bool isDark) {
     final isLastPage = _currentPage == _pages.length - 1;
+    final l10n = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
@@ -101,7 +114,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           TextButton(
             onPressed: widget.onComplete,
             child: Text(
-              '건너뛰기',
+              l10n.commonSkip,
               style: TextStyle(
                 color: isDark ? Colors.white54 : Colors.black45,
                 fontSize: 16,
@@ -125,7 +138,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
             child: Text(
-              isLastPage ? '시작하기' : '다음',
+              isLastPage ? l10n.commonStart : l10n.commonNext,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
