@@ -12,7 +12,8 @@ class MyLibraryViewModel extends ChangeNotifier {
   int? _selectedYear;
   String? _selectedGenre;
   int? _selectedRating;
-  String _searchQuery = '';
+  String _readingSearchQuery = '';
+  String _reviewSearchQuery = '';
 
   List<Book> get books => _books;
   bool get isLoading => _isLoading;
@@ -20,13 +21,14 @@ class MyLibraryViewModel extends ChangeNotifier {
   int? get selectedYear => _selectedYear;
   String? get selectedGenre => _selectedGenre;
   int? get selectedRating => _selectedRating;
-  String get searchQuery => _searchQuery;
+  String get readingSearchQuery => _readingSearchQuery;
+  String get reviewSearchQuery => _reviewSearchQuery;
 
   List<Book> get allBooks => _books;
 
-  List<Book> _applySearchFilter(List<Book> books) {
-    if (_searchQuery.isEmpty) return books;
-    final query = _searchQuery.toLowerCase();
+  List<Book> _applySearchFilter(List<Book> books, String searchQuery) {
+    if (searchQuery.isEmpty) return books;
+    final query = searchQuery.toLowerCase();
     return books.where((b) {
       final titleMatch = b.title.toLowerCase().contains(query);
       final authorMatch = b.author?.toLowerCase().contains(query) ?? false;
@@ -45,7 +47,7 @@ class MyLibraryViewModel extends ChangeNotifier {
     if (_selectedRating != null) {
       result = result.where((b) => b.rating == _selectedRating).toList();
     }
-    return _applySearchFilter(result);
+    return _applySearchFilter(result, _readingSearchQuery);
   }
 
   List<Book> get booksWithReview {
@@ -56,7 +58,7 @@ class MyLibraryViewModel extends ChangeNotifier {
               (b.longReview != null && b.longReview!.isNotEmpty),
         )
         .toList();
-    return _applySearchFilter(reviewBooks);
+    return _applySearchFilter(reviewBooks, _reviewSearchQuery);
   }
 
   List<int> get availableYears {
@@ -102,8 +104,13 @@ class MyLibraryViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setSearchQuery(String query) {
-    _searchQuery = query;
+  void setReadingSearchQuery(String query) {
+    _readingSearchQuery = query;
+    notifyListeners();
+  }
+
+  void setReviewSearchQuery(String query) {
+    _reviewSearchQuery = query;
     notifyListeners();
   }
 

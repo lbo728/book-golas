@@ -29,8 +29,11 @@ class MyLibraryScreen extends StatefulWidget {
 class _MyLibraryScreenState extends State<MyLibraryScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final TextEditingController _searchController = TextEditingController();
-  Timer? _debounceTimer;
+  final TextEditingController _readingSearchController =
+      TextEditingController();
+  final TextEditingController _reviewSearchController = TextEditingController();
+  Timer? _readingDebounceTimer;
+  Timer? _reviewDebounceTimer;
 
   @override
   void initState() {
@@ -56,17 +59,26 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
     _tabController.animateTo(nextIndex);
   }
 
-  void _onSearchChanged(String query) {
-    _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
-      context.read<MyLibraryViewModel>().setSearchQuery(query);
+  void _onReadingSearchChanged(String query) {
+    _readingDebounceTimer?.cancel();
+    _readingDebounceTimer = Timer(const Duration(milliseconds: 300), () {
+      context.read<MyLibraryViewModel>().setReadingSearchQuery(query);
+    });
+  }
+
+  void _onReviewSearchChanged(String query) {
+    _reviewDebounceTimer?.cancel();
+    _reviewDebounceTimer = Timer(const Duration(milliseconds: 300), () {
+      context.read<MyLibraryViewModel>().setReviewSearchQuery(query);
     });
   }
 
   @override
   void dispose() {
-    _debounceTimer?.cancel();
-    _searchController.dispose();
+    _readingDebounceTimer?.cancel();
+    _reviewDebounceTimer?.cancel();
+    _readingSearchController.dispose();
+    _reviewSearchController.dispose();
     _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     super.dispose();
@@ -114,31 +126,27 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
           ),
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: TabBarView(
+        controller: _tabController,
         children: [
-          _buildSearchBar(isDark),
-          _buildFilterSection(isDark),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildAllBooksTab(isDark),
-                _buildReviewBooksTab(isDark),
-              ],
-            ),
-          ),
+          _buildReadingTab(isDark),
+          _buildReviewTab(isDark),
         ],
       ),
     );
   }
 
-  Widget _buildSearchBar(bool isDark) {
+  Widget _buildSearchBar({
+    required bool isDark,
+    required TextEditingController controller,
+    required ValueChanged<String> onChanged,
+    required VoidCallback onClear,
+  }) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
       child: TextField(
-        controller: _searchController,
-        onChanged: _onSearchChanged,
+        controller: controller,
+        onChanged: onChanged,
         decoration: InputDecoration(
           hintText: '제목, 저자로 검색',
           hintStyle: TextStyle(
@@ -154,11 +162,11 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
                 : Colors.black.withValues(alpha: 0.5),
             size: 20,
           ),
-          suffixIcon: _searchController.text.isNotEmpty
+          suffixIcon: controller.text.isNotEmpty
               ? GestureDetector(
                   onTap: () {
-                    _searchController.clear();
-                    context.read<MyLibraryViewModel>().setSearchQuery('');
+                    controller.clear();
+                    onClear();
                   },
                   child: Icon(
                     CupertinoIcons.xmark_circle_fill,
@@ -273,63 +281,92 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
     );
   }
 
-  Widget _buildAllBooksTab(bool isDark) {
-    return Consumer<MyLibraryViewModel>(
-      builder: (context, vm, _) {
-        if (vm.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
+  Widget _buildReadingTab(bool isDark) {
+    return Column(
+      children: [
+        _buildSearchBar(
+          isDark: isDark,
+          controller: _readingSearchController,
+          onChanged: _onReadingSearchChanged,
+          onClear: () =>
+              context.read<MyLibraryViewModel>().setReadingSearchQuery(''),
+        ),
+        _buildFilterSection(isDark),
+        Expanded(
+          child: Consumer<MyLibraryViewModel>(
+            builder: (context, vm, _) {
+              if (vm.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-        final books = vm.filteredBooks;
+              final books = vm.filteredBooks;
 
-        if (books.isEmpty) {
-          final emptyMessage =
-              vm.searchQuery.isNotEmpty ? '검색 결과가 없습니다' : '등록된 책이 없습니다';
-          return _buildEmptyState(isDark, emptyMessage);
-        }
+              if (books.isEmpty) {
+                final emptyMessage = vm.readingSearchQuery.isNotEmpty
+                    ? '검색 결과가 없습니다'
+                    : '등록된 책이 없습니다';
+                return _buildEmptyState(isDark, emptyMessage);
+              }
 
-        return ListView.builder(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
-          itemCount: books.length,
-          itemBuilder: (context, index) {
-            final book = books[index];
-            return BookListCard(
-              book: book,
-              onTap: () => _navigateToBookDetail(book),
-            );
-          },
-        );
-      },
+              return ListView.builder(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
+                itemCount: books.length,
+                itemBuilder: (context, index) {
+                  final book = books[index];
+                  return BookListCard(
+                    book: book,
+                    onTap: () => _navigateToBookDetail(book),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildReviewBooksTab(bool isDark) {
-    return Consumer<MyLibraryViewModel>(
-      builder: (context, vm, _) {
-        if (vm.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
+  Widget _buildReviewTab(bool isDark) {
+    return Column(
+      children: [
+        _buildSearchBar(
+          isDark: isDark,
+          controller: _reviewSearchController,
+          onChanged: _onReviewSearchChanged,
+          onClear: () =>
+              context.read<MyLibraryViewModel>().setReviewSearchQuery(''),
+        ),
+        Expanded(
+          child: Consumer<MyLibraryViewModel>(
+            builder: (context, vm, _) {
+              if (vm.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-        final books = vm.booksWithReview;
+              final books = vm.booksWithReview;
 
-        if (books.isEmpty) {
-          final emptyMessage =
-              vm.searchQuery.isNotEmpty ? '검색 결과가 없습니다' : '독후감이 있는 책이 없습니다';
-          return _buildEmptyState(isDark, emptyMessage);
-        }
+              if (books.isEmpty) {
+                final emptyMessage = vm.reviewSearchQuery.isNotEmpty
+                    ? '검색 결과가 없습니다'
+                    : '독후감이 있는 책이 없습니다';
+                return _buildEmptyState(isDark, emptyMessage);
+              }
 
-        return ListView.builder(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
-          itemCount: books.length,
-          itemBuilder: (context, index) {
-            final book = books[index];
-            return BookListCard(
-              book: book,
-              onTap: () => _navigateToBookDetail(book),
-            );
-          },
-        );
-      },
+              return ListView.builder(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
+                itemCount: books.length,
+                itemBuilder: (context, index) {
+                  final book = books[index];
+                  return BookListCard(
+                    book: book,
+                    onTap: () => _navigateToBookDetail(book),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
