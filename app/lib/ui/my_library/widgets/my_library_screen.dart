@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/my_library/view_model/my_library_view_model.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 
 class MyLibraryScreen extends StatefulWidget {
   const MyLibraryScreen({super.key});
@@ -28,33 +29,27 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? AppColors.scaffoldDark
-          : AppColors.scaffoldLight,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(isDark),
-            _buildTabBar(isDark),
-            _buildFilterSection(isDark),
-            Expanded(child: _buildBookList(isDark)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-      child: Text(
-        '나의 서재',
-        style: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.bold,
+      backgroundColor:
+          isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+      appBar: AppBar(
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
+        title: const Text('나의 서재'),
+        centerTitle: false,
+        titleTextStyle: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
           color: isDark ? Colors.white : Colors.black,
         ),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTabBar(isDark),
+          _buildFilterSection(isDark),
+          Expanded(child: _buildBookList(isDark)),
+        ],
       ),
     );
   }
@@ -102,8 +97,8 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
         decoration: BoxDecoration(
           color: isSelected
               ? (isDark
-                    ? Colors.white.withValues(alpha: 0.15)
-                    : Colors.black.withValues(alpha: 0.08))
+                  ? Colors.white.withValues(alpha: 0.15)
+                  : Colors.black.withValues(alpha: 0.08))
               : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
@@ -115,8 +110,8 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
             color: isSelected
                 ? (isDark ? Colors.white : Colors.black)
                 : (isDark
-                      ? Colors.white.withValues(alpha: 0.5)
-                      : Colors.black.withValues(alpha: 0.5)),
+                    ? Colors.white.withValues(alpha: 0.5)
+                    : Colors.black.withValues(alpha: 0.5)),
           ),
         ),
       ),
@@ -170,17 +165,17 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
         decoration: BoxDecoration(
           color: isSelected
               ? (isDark
-                    ? Colors.white.withValues(alpha: 0.2)
-                    : Colors.black.withValues(alpha: 0.1))
+                  ? Colors.white.withValues(alpha: 0.2)
+                  : Colors.black.withValues(alpha: 0.1))
               : (isDark
-                    ? Colors.white.withValues(alpha: 0.08)
-                    : Colors.black.withValues(alpha: 0.04)),
+                  ? Colors.white.withValues(alpha: 0.08)
+                  : Colors.black.withValues(alpha: 0.04)),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
                 ? (isDark
-                      ? Colors.white.withValues(alpha: 0.3)
-                      : Colors.black.withValues(alpha: 0.2))
+                    ? Colors.white.withValues(alpha: 0.3)
+                    : Colors.black.withValues(alpha: 0.2))
                 : Colors.transparent,
           ),
         ),
@@ -203,9 +198,8 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final books = vm.selectedTabIndex == 0
-            ? vm.filteredBooks
-            : vm.booksWithReview;
+        final books =
+            vm.selectedTabIndex == 0 ? vm.filteredBooks : vm.booksWithReview;
 
         if (books.isEmpty) {
           return Center(
@@ -247,89 +241,99 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
   }
 
   Widget _buildBookCard(Book book, bool isDark) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-      ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: book.imageUrl != null
-                ? Image.network(
-                    book.imageUrl!,
-                    width: 60,
-                    height: 80,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) =>
-                        _buildPlaceholderCover(isDark),
-                  )
-                : _buildPlaceholderCover(isDark),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => BookDetailScreen(book: book),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  book.title,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : Colors.black,
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: isDark
+              ? null
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                if (book.author != null) ...[
-                  const SizedBox(height: 4),
+                ],
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: book.imageUrl != null
+                  ? Image.network(
+                      book.imageUrl!,
+                      width: 60,
+                      height: 80,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) =>
+                          _buildPlaceholderCover(isDark),
+                    )
+                  : _buildPlaceholderCover(isDark),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    book.author!,
+                    book.title,
                     style: TextStyle(
-                      fontSize: 13,
-                      color: isDark
-                          ? Colors.white.withValues(alpha: 0.6)
-                          : Colors.black.withValues(alpha: 0.6),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Colors.black,
                     ),
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                ],
-                if (book.rating != null) ...[
-                  const SizedBox(height: 6),
-                  Row(
-                    children: List.generate(
-                      5,
-                      (i) => Icon(
-                        i < book.rating!
-                            ? CupertinoIcons.star_fill
-                            : CupertinoIcons.star,
-                        size: 14,
-                        color: i < book.rating!
-                            ? Colors.amber
-                            : (isDark
+                  if (book.author != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      book.author!,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.6)
+                            : Colors.black.withValues(alpha: 0.6),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                  if (book.rating != null) ...[
+                    const SizedBox(height: 6),
+                    Row(
+                      children: List.generate(
+                        5,
+                        (i) => Icon(
+                          i < book.rating!
+                              ? CupertinoIcons.star_fill
+                              : CupertinoIcons.star,
+                          size: 14,
+                          color: i < book.rating!
+                              ? Colors.amber
+                              : (isDark
                                   ? Colors.white.withValues(alpha: 0.3)
                                   : Colors.black.withValues(alpha: 0.3)),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
