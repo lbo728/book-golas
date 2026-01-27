@@ -184,13 +184,34 @@
   "bookListTabReread": "다시 읽을 책",
   "@bookListTabReread": {"description": "Reread tab"},
   
-  "bookListTabAll": "전체",
-  "@bookListTabAll": {"description": "All tab"},
-  
-  "bookListFilterAll": "전체",
-  "@bookListFilterAll": {"description": "All filter"},
-  
-  "bookDetailTabRecord": "기록",
+   "bookListTabAll": "전체",
+   "@bookListTabAll": {"description": "All tab"},
+   
+   "bookListFilterAll": "전체",
+   "@bookListFilterAll": {"description": "All filter"},
+   
+   "bookListErrorLoadFailed": "데이터를 불러올 수 없습니다",
+   "@bookListErrorLoadFailed": {"description": "Error loading data"},
+   
+   "bookListErrorNetworkCheck": "네트워크 연결을 확인해주세요",
+   "@bookListErrorNetworkCheck": {"description": "Network check message"},
+   
+   "bookListEmptyReading": "현재 읽고 있는 책이 없습니다",
+   "@bookListEmptyReading": {"description": "No reading books"},
+   
+   "bookListEmptyPlanned": "읽을 예정인 책이 없습니다",
+   "@bookListEmptyPlanned": {"description": "No planned books"},
+   
+   "bookListEmptyCompleted": "완독한 책이 없습니다",
+   "@bookListEmptyCompleted": {"description": "No completed books"},
+   
+   "bookListEmptyPaused": "잠시 쉬어가는 책이 없습니다",
+   "@bookListEmptyPaused": {"description": "No paused books"},
+   
+   "bookListEmptyAll": "아직 시작한 독서가 없습니다",
+   "@bookListEmptyAll": {"description": "No reading started"},
+   
+   "bookDetailTabRecord": "기록",
   "@bookDetailTabRecord": {"description": "Record tab"},
   
   "bookDetailTabHistory": "히스토리",

@@ -153,6 +153,24 @@ class AppLocalizationsKo extends AppLocalizations {
   String get homeBookList => '독서 목록';
 
   @override
+  String get homeNoReadingBooks => '진행 중인 독서가 없습니다. 먼저 책을 등록해주세요.';
+
+  @override
+  String get homeNoReadingBooksShort => '진행 중인 독서가 없습니다';
+
+  @override
+  String get homeViewAllBooks => '전체 독서 보기';
+
+  @override
+  String get homeViewReadingOnly => '진행 중인 독서만 보기';
+
+  @override
+  String get homeViewAllBooksMessage => '전체 독서 보기로 전환되었습니다.';
+
+  @override
+  String get homeViewReadingMessage => '진행 중인 독서 보기로 전환되었습니다.';
+
+  @override
   String get bookListTabReading => '독서 중';
 
   @override
@@ -169,6 +187,27 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get bookListFilterAll => '전체';
+
+  @override
+  String get bookListErrorLoadFailed => '데이터를 불러올 수 없습니다';
+
+  @override
+  String get bookListErrorNetworkCheck => '네트워크 연결을 확인해주세요';
+
+  @override
+  String get bookListEmptyReading => '현재 읽고 있는 책이 없습니다';
+
+  @override
+  String get bookListEmptyPlanned => '읽을 예정인 책이 없습니다';
+
+  @override
+  String get bookListEmptyCompleted => '완독한 책이 없습니다';
+
+  @override
+  String get bookListEmptyPaused => '잠시 쉬어가는 책이 없습니다';
+
+  @override
+  String get bookListEmptyAll => '아직 시작한 독서가 없습니다';
 
   @override
   String get bookDetailTabRecord => '기록';

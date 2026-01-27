@@ -374,6 +374,42 @@ abstract class AppLocalizations {
   /// **'독서 목록'**
   String get homeBookList;
 
+  /// No reading books message
+  ///
+  /// In ko, this message translates to:
+  /// **'진행 중인 독서가 없습니다. 먼저 책을 등록해주세요.'**
+  String get homeNoReadingBooks;
+
+  /// No reading books short message
+  ///
+  /// In ko, this message translates to:
+  /// **'진행 중인 독서가 없습니다'**
+  String get homeNoReadingBooksShort;
+
+  /// View all books button
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 독서 보기'**
+  String get homeViewAllBooks;
+
+  /// View reading only button
+  ///
+  /// In ko, this message translates to:
+  /// **'진행 중인 독서만 보기'**
+  String get homeViewReadingOnly;
+
+  /// Switched to view all books message
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 독서 보기로 전환되었습니다.'**
+  String get homeViewAllBooksMessage;
+
+  /// Switched to view reading books message
+  ///
+  /// In ko, this message translates to:
+  /// **'진행 중인 독서 보기로 전환되었습니다.'**
+  String get homeViewReadingMessage;
+
   /// Reading tab
   ///
   /// In ko, this message translates to:
@@ -409,6 +445,48 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'전체'**
   String get bookListFilterAll;
+
+  /// Error loading data
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터를 불러올 수 없습니다'**
+  String get bookListErrorLoadFailed;
+
+  /// Network check message
+  ///
+  /// In ko, this message translates to:
+  /// **'네트워크 연결을 확인해주세요'**
+  String get bookListErrorNetworkCheck;
+
+  /// No reading books
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 읽고 있는 책이 없습니다'**
+  String get bookListEmptyReading;
+
+  /// No planned books
+  ///
+  /// In ko, this message translates to:
+  /// **'읽을 예정인 책이 없습니다'**
+  String get bookListEmptyPlanned;
+
+  /// No completed books
+  ///
+  /// In ko, this message translates to:
+  /// **'완독한 책이 없습니다'**
+  String get bookListEmptyCompleted;
+
+  /// No paused books
+  ///
+  /// In ko, this message translates to:
+  /// **'잠시 쉬어가는 책이 없습니다'**
+  String get bookListEmptyPaused;
+
+  /// No reading started
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 시작한 독서가 없습니다'**
+  String get bookListEmptyAll;
 
   /// Record tab
   ///

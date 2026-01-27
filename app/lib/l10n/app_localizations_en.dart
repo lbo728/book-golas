@@ -171,6 +171,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeBookList => 'Book List';
 
   @override
+  String get homeNoReadingBooks =>
+      'No books in progress. Please register a book first.';
+
+  @override
+  String get homeNoReadingBooksShort => 'No books in progress';
+
+  @override
+  String get homeViewAllBooks => 'View all books';
+
+  @override
+  String get homeViewReadingOnly => 'View reading only';
+
+  @override
+  String get homeViewAllBooksMessage => 'Switched to view all books.';
+
+  @override
+  String get homeViewReadingMessage => 'Switched to view reading books.';
+
+  @override
   String get bookListTabReading => 'Reading';
 
   @override
@@ -187,6 +206,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bookListFilterAll => 'All';
+
+  @override
+  String get bookListErrorLoadFailed => 'Unable to load data';
+
+  @override
+  String get bookListErrorNetworkCheck =>
+      'Please check your network connection';
+
+  @override
+  String get bookListEmptyReading => 'No books in progress';
+
+  @override
+  String get bookListEmptyPlanned => 'No books to read';
+
+  @override
+  String get bookListEmptyCompleted => 'No completed books';
+
+  @override
+  String get bookListEmptyPaused => 'No paused books';
+
+  @override
+  String get bookListEmptyAll => 'No reading started yet';
 
   @override
   String get bookDetailTabRecord => 'Record';
