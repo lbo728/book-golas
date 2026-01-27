@@ -395,8 +395,14 @@ class ReadingStartViewModel extends BaseViewModel {
     try {
       // 상태에 따라 시작일 결정
       final actualStartDate = _readingStatus == BookStatus.planned
-          ? _plannedStartDate
+          ? (_hasPlannedDate ? _plannedStartDate : DateTime.now())
           : DateTime.now();
+
+      // plannedStartDate: 읽을 예정 상태이고 날짜가 정해진 경우만 설정
+      final actualPlannedStartDate =
+          _readingStatus == BookStatus.planned && _hasPlannedDate
+              ? _plannedStartDate
+              : null;
 
       final book = Book(
         title: _selectedBook?.title ?? fallbackTitle ?? '',
@@ -408,8 +414,7 @@ class ReadingStartViewModel extends BaseViewModel {
         status: _readingStatus.value,
         dailyTargetPages: _dailyTargetPages,
         priority: _priority,
-        plannedStartDate:
-            _readingStatus == BookStatus.planned ? _plannedStartDate : null,
+        plannedStartDate: actualPlannedStartDate,
       );
 
       final bookData = book.toJson();
