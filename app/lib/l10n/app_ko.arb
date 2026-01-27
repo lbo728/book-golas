@@ -610,13 +610,74 @@
    "reviewHint": "이 책을 읽고 느낀 점, 인상 깊었던 부분, 나에게 준 영감 등을 자유롭게 적어보세요.",
    "@reviewHint": {"description": "Review text field hint"},
   
-  "readingStartSetDate": "시작일 지정",
-  "@readingStartSetDate": {"description": "Set start date"},
-  
-  "readingStartUndetermined": "미정",
-  "@readingStartUndetermined": {"description": "Undetermined"},
-  
-  "dialogOpacity": "투명도",
+   "readingStartSetDate": "시작일 지정",
+   "@readingStartSetDate": {"description": "Set start date"},
+   
+   "readingStartUndetermined": "미정",
+   "@readingStartUndetermined": {"description": "Undetermined"},
+   
+   "readingStartTitle": "독서 시작하기",
+   "@readingStartTitle": {"description": "Start reading title"},
+   
+   "readingStartSubtitle": "독서를 시작할 책을 검색해보세요.",
+   "@readingStartSubtitle": {"description": "Start reading subtitle"},
+   
+   "readingStartNoResults": "검색 결과가 없습니다",
+   "@readingStartNoResults": {"description": "No search results"},
+   
+   "readingStartAnalyzing": "독서 패턴을 분석하고 있어요...",
+   "@readingStartAnalyzing": {"description": "Analyzing reading patterns"},
+   
+   "readingStartAiRecommendation": "AI 맞춤 추천",
+   "@readingStartAiRecommendation": {"description": "AI personalized recommendation"},
+   
+   "readingStartAiRecommendationDesc": "{userName}님의 독서 패턴을 분석하여 추천하는 책들이에요",
+   "@readingStartAiRecommendationDesc": {
+     "description": "AI recommendation description",
+     "placeholders": {
+       "userName": {"type": "String"}
+     }
+   },
+   
+   "readingStartSearchHint": "책 제목을 입력해주세요.",
+   "@readingStartSearchHint": {"description": "Search hint"},
+   
+   "readingStartSelectionComplete": "선택 완료",
+   "@readingStartSelectionComplete": {"description": "Selection complete"},
+   
+   "readingStartConfirm": "확인",
+   "@readingStartConfirm": {"description": "Confirm button"},
+   
+   "readingStartPages": "{totalPages}페이지",
+   "@readingStartPages": {
+     "description": "Total pages display",
+     "placeholders": {
+       "totalPages": {"type": "int"}
+     }
+   },
+   
+   "readingStartPlannedDate": "독서 시작 예정일",
+   "@readingStartPlannedDate": {"description": "Planned reading start date"},
+   
+   "readingStartToday": "오늘부터 시작합니다",
+   "@readingStartToday": {"description": "Starting today"},
+   
+   "readingStartTargetDate": "목표 마감일",
+   "@readingStartTargetDate": {"description": "Target deadline"},
+   
+   "readingStartTargetDateNote": "독서 시작 후에도 목표일을 변경할 수 있습니다",
+   "@readingStartTargetDateNote": {"description": "Target date note"},
+   
+   "readingStartSaveError": "독서 정보 저장에 실패했습니다.",
+   "@readingStartSaveError": {"description": "Save error"},
+   
+   "readingStartReserve": "독서 예약하기",
+   "@readingStartReserve": {"description": "Reserve reading"},
+   
+   "readingStartBegin": "독서 시작",
+   "@readingStartBegin": {"description": "Begin reading"},
+   
+   "dialogOpacity": "투명도",
   "@dialogOpacity": {"description": "Opacity"},
   
   "dialogThickness": "굵기",

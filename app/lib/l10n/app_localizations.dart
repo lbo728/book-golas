@@ -1268,6 +1268,108 @@ abstract class AppLocalizations {
   /// **'미정'**
   String get readingStartUndetermined;
 
+  /// Start reading title
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 시작하기'**
+  String get readingStartTitle;
+
+  /// Start reading subtitle
+  ///
+  /// In ko, this message translates to:
+  /// **'독서를 시작할 책을 검색해보세요.'**
+  String get readingStartSubtitle;
+
+  /// No search results
+  ///
+  /// In ko, this message translates to:
+  /// **'검색 결과가 없습니다'**
+  String get readingStartNoResults;
+
+  /// Analyzing reading patterns
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 패턴을 분석하고 있어요...'**
+  String get readingStartAnalyzing;
+
+  /// AI personalized recommendation
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 맞춤 추천'**
+  String get readingStartAiRecommendation;
+
+  /// AI recommendation description
+  ///
+  /// In ko, this message translates to:
+  /// **'{userName}님의 독서 패턴을 분석하여 추천하는 책들이에요'**
+  String readingStartAiRecommendationDesc(String userName);
+
+  /// Search hint
+  ///
+  /// In ko, this message translates to:
+  /// **'책 제목을 입력해주세요.'**
+  String get readingStartSearchHint;
+
+  /// Selection complete
+  ///
+  /// In ko, this message translates to:
+  /// **'선택 완료'**
+  String get readingStartSelectionComplete;
+
+  /// Confirm button
+  ///
+  /// In ko, this message translates to:
+  /// **'확인'**
+  String get readingStartConfirm;
+
+  /// Total pages display
+  ///
+  /// In ko, this message translates to:
+  /// **'{totalPages}페이지'**
+  String readingStartPages(int totalPages);
+
+  /// Planned reading start date
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 시작 예정일'**
+  String get readingStartPlannedDate;
+
+  /// Starting today
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘부터 시작합니다'**
+  String get readingStartToday;
+
+  /// Target deadline
+  ///
+  /// In ko, this message translates to:
+  /// **'목표 마감일'**
+  String get readingStartTargetDate;
+
+  /// Target date note
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 시작 후에도 목표일을 변경할 수 있습니다'**
+  String get readingStartTargetDateNote;
+
+  /// Save error
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 정보 저장에 실패했습니다.'**
+  String get readingStartSaveError;
+
+  /// Reserve reading
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 예약하기'**
+  String get readingStartReserve;
+
+  /// Begin reading
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 시작'**
+  String get readingStartBegin;
+
   /// Opacity
   ///
   /// In ko, this message translates to:

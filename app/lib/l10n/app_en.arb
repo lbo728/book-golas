@@ -230,10 +230,39 @@
    "reviewExitMessage": "Your draft will be saved automatically.",
    "reviewHint": "Write freely about your thoughts, impressive parts, and inspiration from this book.",
   
-  "readingStartSetDate": "Set Start Date",
-  "readingStartUndetermined": "TBD",
-  
-  "dialogOpacity": "Opacity",
+   "readingStartSetDate": "Set Start Date",
+   "readingStartUndetermined": "TBD",
+   "readingStartTitle": "Start Reading",
+   "readingStartSubtitle": "Search for a book to start reading",
+   "readingStartNoResults": "No search results",
+   "readingStartAnalyzing": "Analyzing reading patterns...",
+   "readingStartAiRecommendation": "AI Personalized Recommendations",
+   "readingStartAiRecommendationDesc": "Books recommended based on {userName}'s reading patterns",
+   "@readingStartAiRecommendationDesc": {
+     "description": "AI recommendation description",
+     "placeholders": {
+       "userName": {"type": "String"}
+     }
+   },
+   "readingStartSearchHint": "Enter book title",
+   "readingStartSelectionComplete": "Selection Complete",
+   "readingStartConfirm": "OK",
+   "readingStartPages": "{totalPages} pages",
+   "@readingStartPages": {
+     "description": "Total pages display",
+     "placeholders": {
+       "totalPages": {"type": "int"}
+     }
+   },
+   "readingStartPlannedDate": "Planned Reading Start Date",
+   "readingStartToday": "Starting today",
+   "readingStartTargetDate": "Target Deadline",
+   "readingStartTargetDateNote": "You can change the target date even after starting to read",
+   "readingStartSaveError": "Failed to save reading information",
+   "readingStartReserve": "Reserve Reading",
+   "readingStartBegin": "Start Reading",
+   
+   "dialogOpacity": "Opacity",
   "dialogThickness": "Thickness",
   "dialogTakePhoto": "Take Photo",
   "dialogReplaceImage": "Replace",

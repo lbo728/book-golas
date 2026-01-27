@@ -21,6 +21,7 @@ import 'package:book_golas/ui/reading_start/widgets/schedule_change_modal.dart';
 import 'package:book_golas/ui/reading_start/widgets/schedule_preview_widget.dart';
 import 'package:book_golas/ui/reading_start/widgets/status_selector_widget.dart';
 import 'package:book_golas/ui/core/widgets/korean_date_picker.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 
 class ReadingStartScreen extends StatelessWidget {
   final String? title;
@@ -291,7 +292,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
             const SizedBox(height: 8),
             // 제목
             Text(
-              '독서 시작하기',
+              AppLocalizations.of(context)!.readingStartTitle,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -302,7 +303,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
             // 부제목 (검색 페이지일 때만)
             if (vm.currentPageIndex == 0)
               Text(
-                '독서를 시작할 책을 검색해보세요.',
+                AppLocalizations.of(context)!.readingStartSubtitle,
                 style: TextStyle(
                   fontSize: 14,
                   color: isDark ? Colors.white54 : Colors.grey[600],
@@ -381,7 +382,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
     if (_titleController.text.trim().isNotEmpty) {
       return Center(
         child: Text(
-          '검색 결과가 없습니다',
+          AppLocalizations.of(context)!.readingStartNoResults,
           style: TextStyle(
             color: isDark ? Colors.white54 : Colors.grey[600],
             fontSize: 14,
@@ -415,7 +416,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
             ),
             const SizedBox(height: 16),
             Text(
-              '독서 패턴을 분석하고 있어요...',
+              AppLocalizations.of(context)!.readingStartAnalyzing,
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.white54 : Colors.grey[600],
@@ -451,7 +452,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'AI 맞춤 추천',
+                    AppLocalizations.of(context)!.readingStartAiRecommendation,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -462,7 +463,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
               ),
               const SizedBox(height: 6),
               Text(
-                '$userName님의 독서 패턴을 분석하여 추천하는 책들이에요',
+                AppLocalizations.of(context)!
+                    .readingStartAiRecommendationDesc(userName),
                 style: TextStyle(
                   fontSize: 13,
                   color: isDark ? Colors.white38 : Colors.grey[500],
@@ -896,7 +898,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                             cursorColor: foregroundColor,
                             textAlignVertical: TextAlignVertical.center,
                             decoration: InputDecoration(
-                              hintText: '책 제목을 입력해주세요.',
+                              hintText: AppLocalizations.of(context)!
+                                  .readingStartSearchHint,
                               hintStyle: TextStyle(
                                 color: hintColor,
                                 fontSize: 16,
@@ -1072,7 +1075,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
               ),
               child: Center(
                 child: Text(
-                  '선택 완료',
+                  AppLocalizations.of(context)!.readingStartSelectionComplete,
                   style: TextStyle(
                     color: Colors.black.withValues(alpha: 0.9),
                     fontSize: 16,
@@ -1180,9 +1183,9 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                         ),
                         elevation: 0,
                       ),
-                      child: const Text(
-                        '확인',
-                        style: TextStyle(
+                      child: Text(
+                        AppLocalizations.of(context)!.readingStartConfirm,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1251,7 +1254,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                 const SizedBox(height: 4),
                 Center(
                   child: Text(
-                    '$totalPages 페이지',
+                    AppLocalizations.of(context)!.readingStartPages(totalPages),
                     style: TextStyle(
                       fontSize: 14,
                       color: isDark ? Colors.white54 : Colors.grey[600],
@@ -1279,7 +1282,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
 
               if (vm.readingStatus == BookStatus.planned) ...[
                 Text(
-                  '시작일 설정',
+                  AppLocalizations.of(context)!.readingStartSetDate,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -1288,14 +1291,16 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                 ),
                 const SizedBox(height: 8),
                 SegmentedButton<bool>(
-                  segments: const <ButtonSegment<bool>>[
+                  segments: <ButtonSegment<bool>>[
                     ButtonSegment<bool>(
                       value: true,
-                      label: Text('시작일 지정'),
+                      label: Text(
+                          AppLocalizations.of(context)!.readingStartSetDate),
                     ),
                     ButtonSegment<bool>(
                       value: false,
-                      label: Text('미정'),
+                      label: Text(AppLocalizations.of(context)!
+                          .readingStartUndetermined),
                     ),
                   ],
                   selected: <bool>{vm.hasPlannedDate},
@@ -1309,7 +1314,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
               if (vm.readingStatus == BookStatus.planned &&
                   vm.hasPlannedDate) ...[
                 Text(
-                  '독서 시작 예정일',
+                  AppLocalizations.of(context)!.readingStartPlannedDate,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -1364,17 +1369,17 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                     color: AppColors.success.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.check_circle_outline,
                         color: AppColors.success,
                         size: 18,
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
-                        '오늘부터 시작합니다',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.readingStartToday,
+                        style: const TextStyle(
                           fontSize: 14,
                           color: AppColors.success,
                           fontWeight: FontWeight.w500,
@@ -1387,7 +1392,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
               ],
 
               Text(
-                '목표 마감일',
+                AppLocalizations.of(context)!.readingStartTargetDate,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -1434,7 +1439,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '독서 시작 후에도 목표일을 변경할 수 있습니다',
+                        AppLocalizations.of(context)!
+                            .readingStartTargetDateNote,
                         style: TextStyle(
                           fontSize: 12,
                           color: isDark ? Colors.grey[500] : Colors.grey[500],
@@ -1500,7 +1506,9 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  vm.errorMessage ?? '독서 정보 저장에 실패했습니다.',
+                                  vm.errorMessage ??
+                                      AppLocalizations.of(context)!
+                                          .readingStartSaveError,
                                 ),
                                 backgroundColor: Colors.red,
                               ),
@@ -1526,8 +1534,9 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                         )
                       : Text(
                           vm.readingStatus == BookStatus.planned
-                              ? '독서 예약하기'
-                              : '독서 시작',
+                              ? AppLocalizations.of(context)!
+                                  .readingStartReserve
+                              : AppLocalizations.of(context)!.readingStartBegin,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

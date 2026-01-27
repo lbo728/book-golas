@@ -642,6 +642,62 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readingStartUndetermined => 'TBD';
 
   @override
+  String get readingStartTitle => 'Start Reading';
+
+  @override
+  String get readingStartSubtitle => 'Search for a book to start reading';
+
+  @override
+  String get readingStartNoResults => 'No search results';
+
+  @override
+  String get readingStartAnalyzing => 'Analyzing reading patterns...';
+
+  @override
+  String get readingStartAiRecommendation => 'AI Personalized Recommendations';
+
+  @override
+  String readingStartAiRecommendationDesc(String userName) {
+    return 'Books recommended based on $userName\'s reading patterns';
+  }
+
+  @override
+  String get readingStartSearchHint => 'Enter book title';
+
+  @override
+  String get readingStartSelectionComplete => 'Selection Complete';
+
+  @override
+  String get readingStartConfirm => 'OK';
+
+  @override
+  String readingStartPages(int totalPages) {
+    return '$totalPages pages';
+  }
+
+  @override
+  String get readingStartPlannedDate => 'Planned Reading Start Date';
+
+  @override
+  String get readingStartToday => 'Starting today';
+
+  @override
+  String get readingStartTargetDate => 'Target Deadline';
+
+  @override
+  String get readingStartTargetDateNote =>
+      'You can change the target date even after starting to read';
+
+  @override
+  String get readingStartSaveError => 'Failed to save reading information';
+
+  @override
+  String get readingStartReserve => 'Reserve Reading';
+
+  @override
+  String get readingStartBegin => 'Start Reading';
+
+  @override
   String get dialogOpacity => 'Opacity';
 
   @override

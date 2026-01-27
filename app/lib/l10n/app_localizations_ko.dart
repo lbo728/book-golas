@@ -608,6 +608,61 @@ class AppLocalizationsKo extends AppLocalizations {
   String get readingStartUndetermined => '미정';
 
   @override
+  String get readingStartTitle => '독서 시작하기';
+
+  @override
+  String get readingStartSubtitle => '독서를 시작할 책을 검색해보세요.';
+
+  @override
+  String get readingStartNoResults => '검색 결과가 없습니다';
+
+  @override
+  String get readingStartAnalyzing => '독서 패턴을 분석하고 있어요...';
+
+  @override
+  String get readingStartAiRecommendation => 'AI 맞춤 추천';
+
+  @override
+  String readingStartAiRecommendationDesc(String userName) {
+    return '$userName님의 독서 패턴을 분석하여 추천하는 책들이에요';
+  }
+
+  @override
+  String get readingStartSearchHint => '책 제목을 입력해주세요.';
+
+  @override
+  String get readingStartSelectionComplete => '선택 완료';
+
+  @override
+  String get readingStartConfirm => '확인';
+
+  @override
+  String readingStartPages(int totalPages) {
+    return '$totalPages페이지';
+  }
+
+  @override
+  String get readingStartPlannedDate => '독서 시작 예정일';
+
+  @override
+  String get readingStartToday => '오늘부터 시작합니다';
+
+  @override
+  String get readingStartTargetDate => '목표 마감일';
+
+  @override
+  String get readingStartTargetDateNote => '독서 시작 후에도 목표일을 변경할 수 있습니다';
+
+  @override
+  String get readingStartSaveError => '독서 정보 저장에 실패했습니다.';
+
+  @override
+  String get readingStartReserve => '독서 예약하기';
+
+  @override
+  String get readingStartBegin => '독서 시작';
+
+  @override
   String get dialogOpacity => '투명도';
 
   @override
