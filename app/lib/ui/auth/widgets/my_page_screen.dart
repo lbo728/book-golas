@@ -12,8 +12,10 @@ import 'package:book_golas/ui/auth/view_model/my_page_view_model.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
 import 'package:book_golas/ui/core/view_model/notification_settings_view_model.dart';
+import 'package:book_golas/ui/core/view_model/locale_view_model.dart';
 import 'package:book_golas/ui/core/view_model/theme_view_model.dart';
 import 'package:book_golas/ui/core/widgets/korean_time_picker.dart';
+import '../../../l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_button.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_card.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
@@ -629,6 +631,32 @@ class _MyPageContentState extends State<_MyPageContent> {
                     themeViewModel.toggleTheme();
                   },
                   activeTrackColor: AppColors.primary,
+                ),
+              );
+            },
+          ),
+          Divider(
+            height: 32,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.1),
+          ),
+          Consumer<LocaleViewModel>(
+            builder: (context, localeViewModel, child) {
+              return _buildSettingRow(
+                context: context,
+                icon: Icons.language,
+                title: AppLocalizations.of(context)!.languageSettingLabel,
+                trailing: SegmentedButton<String>(
+                  segments: const [
+                    ButtonSegment(value: 'ko', label: Text('한국어')),
+                    ButtonSegment(value: 'en', label: Text('English')),
+                  ],
+                  selected: {localeViewModel.locale.languageCode},
+                  onSelectionChanged: (selection) {
+                    HapticFeedback.selectionClick();
+                    localeViewModel.setLocale(Locale(selection.first));
+                  },
                 ),
               );
             },
