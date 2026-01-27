@@ -290,37 +290,94 @@
    "@myLibraryFilterPhoto": {"description": "Photo filter option"},
    
    "chartTitle": "나의 독서 상태",
-  "@chartTitle": {"description": "Reading chart title"},
-  
-  "chartTabOverview": "개요",
-  "@chartTabOverview": {"description": "Overview tab"},
-  
-  "chartTabAnalysis": "분석",
-  "@chartTabAnalysis": {"description": "Analysis tab"},
-  
-  "chartTabActivity": "활동",
-  "@chartTabActivity": {"description": "Activity tab"},
-  
-  "chartPeriodDaily": "일별",
-  "@chartPeriodDaily": {"description": "Daily period"},
-  
-  "chartPeriodWeekly": "주별",
-  "@chartPeriodWeekly": {"description": "Weekly period"},
-  
-  "chartPeriodMonthly": "월별",
-  "@chartPeriodMonthly": {"description": "Monthly period"},
-  
-  "chartDailyAverage": "일평균",
-  "@chartDailyAverage": {"description": "Daily average"},
-  
-  "chartIncrease": "증감",
-  "@chartIncrease": {"description": "Increase/decrease"},
-  
-  "chartLess": "적음",
-  "@chartLess": {"description": "Less"},
-  
-  "chartMore": "많음",
-  "@chartMore": {"description": "More"},
+   "@chartTitle": {"description": "Reading chart title"},
+   
+   "chartTabOverview": "개요",
+   "@chartTabOverview": {"description": "Overview tab"},
+   
+   "chartTabAnalysis": "분석",
+   "@chartTabAnalysis": {"description": "Analysis tab"},
+   
+   "chartTabActivity": "활동",
+   "@chartTabActivity": {"description": "Activity tab"},
+   
+   "chartPeriodDaily": "일별",
+   "@chartPeriodDaily": {"description": "Daily period"},
+   
+   "chartPeriodWeekly": "주별",
+   "@chartPeriodWeekly": {"description": "Weekly period"},
+   
+   "chartPeriodMonthly": "월별",
+   "@chartPeriodMonthly": {"description": "Monthly period"},
+   
+   "chartDailyAverage": "일평균",
+   "@chartDailyAverage": {"description": "Daily average"},
+   
+   "chartIncrease": "증감",
+   "@chartIncrease": {"description": "Increase/decrease"},
+   
+   "chartLess": "적음",
+   "@chartLess": {"description": "Less"},
+   
+   "chartMore": "많음",
+   "@chartMore": {"description": "More"},
+   
+   "chartErrorLoadFailed": "데이터를 불러올 수 없습니다",
+   "@chartErrorLoadFailed": {"description": "Error loading data"},
+   
+   "chartErrorRetry": "다시 시도",
+   "@chartErrorRetry": {"description": "Retry button"},
+   
+   "chartTotalPages": "총 읽은 페이지",
+   "@chartTotalPages": {"description": "Total pages read"},
+   
+   "chartDailyAvgPages": "일평균",
+   "@chartDailyAvgPages": {"description": "Daily average pages"},
+   
+   "chartMaxDaily": "최고 기록",
+   "@chartMaxDaily": {"description": "Best record"},
+   
+   "chartMinDaily": "최저 기록",
+   "@chartMinDaily": {"description": "Lowest record"},
+   
+   "chartConsecutiveDays": "연속 독서",
+   "@chartConsecutiveDays": {"description": "Consecutive reading days"},
+   
+   "chartTodayGoal": "오늘 목표",
+   "@chartTodayGoal": {"description": "Today's goal"},
+   
+   "chartReadingProgress": "독서 진행 차트",
+   "@chartReadingProgress": {"description": "Reading progress chart"},
+   
+   "chartDailyPages": "일별 페이지",
+   "@chartDailyPages": {"description": "Daily pages"},
+   
+   "chartCumulativePages": "누적 페이지",
+   "@chartCumulativePages": {"description": "Cumulative pages"},
+   
+   "chartNoData": "아직 데이터가 없어요",
+   "@chartNoData": {"description": "No data yet"},
+   
+   "chartDailyReadPages": "페이지",
+   "@chartDailyReadPages": {"description": "Pages"},
+   
+   "chartReadingStats": "독서 통계",
+   "@chartReadingStats": {"description": "Reading statistics"},
+   
+   "chartAiInsight": "AI 인사이트",
+   "@chartAiInsight": {"description": "AI insight"},
+   
+   "chartCompletionRate": "완독률",
+   "@chartCompletionRate": {"description": "Completion rate"},
+   
+   "chartRecordsHighlights": "기록/하이라이트",
+   "@chartRecordsHighlights": {"description": "Records/highlights"},
+   
+   "chartGenreAnalysis": "장르 분석",
+   "@chartGenreAnalysis": {"description": "Genre analysis"},
+   
+   "chartNoReadingRecords": "읽은 기록이 없어요",
+   "@chartNoReadingRecords": {"description": "No reading records"},
   
   "myPageTitle": "마이페이지",
   "@myPageTitle": {"description": "My page title"},

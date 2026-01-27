@@ -341,6 +341,63 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartMore => 'More';
 
   @override
+  String get chartErrorLoadFailed => 'Unable to load data';
+
+  @override
+  String get chartErrorRetry => 'Retry';
+
+  @override
+  String get chartTotalPages => 'Total Pages Read';
+
+  @override
+  String get chartDailyAvgPages => 'Daily Average';
+
+  @override
+  String get chartMaxDaily => 'Best Record';
+
+  @override
+  String get chartMinDaily => 'Lowest Record';
+
+  @override
+  String get chartConsecutiveDays => 'Consecutive Days';
+
+  @override
+  String get chartTodayGoal => 'Today\'s Goal';
+
+  @override
+  String get chartReadingProgress => 'Reading Progress';
+
+  @override
+  String get chartDailyPages => 'Daily Pages';
+
+  @override
+  String get chartCumulativePages => 'Cumulative Pages';
+
+  @override
+  String get chartNoData => 'No data yet';
+
+  @override
+  String get chartDailyReadPages => 'Pages Read';
+
+  @override
+  String get chartReadingStats => 'Reading Statistics';
+
+  @override
+  String get chartAiInsight => 'AI Insight';
+
+  @override
+  String get chartCompletionRate => 'Completion Rate';
+
+  @override
+  String get chartRecordsHighlights => 'Records/Highlights';
+
+  @override
+  String get chartGenreAnalysis => 'Genre Analysis';
+
+  @override
+  String get chartNoReadingRecords => 'No reading records';
+
+  @override
   String get myPageTitle => 'My Page';
 
   @override

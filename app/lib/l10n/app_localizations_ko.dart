@@ -321,6 +321,63 @@ class AppLocalizationsKo extends AppLocalizations {
   String get chartMore => '많음';
 
   @override
+  String get chartErrorLoadFailed => '데이터를 불러올 수 없습니다';
+
+  @override
+  String get chartErrorRetry => '다시 시도';
+
+  @override
+  String get chartTotalPages => '총 읽은 페이지';
+
+  @override
+  String get chartDailyAvgPages => '일평균';
+
+  @override
+  String get chartMaxDaily => '최고 기록';
+
+  @override
+  String get chartMinDaily => '최저 기록';
+
+  @override
+  String get chartConsecutiveDays => '연속 독서';
+
+  @override
+  String get chartTodayGoal => '오늘 목표';
+
+  @override
+  String get chartReadingProgress => '독서 진행 차트';
+
+  @override
+  String get chartDailyPages => '일별 페이지';
+
+  @override
+  String get chartCumulativePages => '누적 페이지';
+
+  @override
+  String get chartNoData => '아직 데이터가 없어요';
+
+  @override
+  String get chartDailyReadPages => '페이지';
+
+  @override
+  String get chartReadingStats => '독서 통계';
+
+  @override
+  String get chartAiInsight => 'AI 인사이트';
+
+  @override
+  String get chartCompletionRate => '완독률';
+
+  @override
+  String get chartRecordsHighlights => '기록/하이라이트';
+
+  @override
+  String get chartGenreAnalysis => '장르 분석';
+
+  @override
+  String get chartNoReadingRecords => '읽은 기록이 없어요';
+
+  @override
   String get myPageTitle => '마이페이지';
 
   @override

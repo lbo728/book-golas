@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:collection';
@@ -482,13 +483,14 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   }
 
   String _getFilterLabel(TimeFilter filter) {
+    final l10n = AppLocalizations.of(context)!;
     switch (filter) {
       case TimeFilter.daily:
-        return '일별';
+        return l10n.chartPeriodDaily;
       case TimeFilter.weekly:
-        return '주별';
+        return l10n.chartPeriodWeekly;
       case TimeFilter.monthly:
-        return '월별';
+        return l10n.chartPeriodMonthly;
     }
   }
 
@@ -514,7 +516,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         backgroundColor:
             isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
         elevation: 0,
-        title: const Text('나의 독서 상태'),
+        title: Text(AppLocalizations.of(context)!.chartTitle),
         centerTitle: false,
         titleTextStyle: TextStyle(
           fontSize: 20,
@@ -523,7 +525,11 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         ),
         bottom: LiquidGlassTabBar(
           controller: _tabController,
-          tabs: const ['개요', '분석', '활동'],
+          tabs: [
+            AppLocalizations.of(context)!.chartTabOverview,
+            AppLocalizations.of(context)!.chartTabAnalysis,
+            AppLocalizations.of(context)!.chartTabActivity,
+          ],
         ),
       ),
       body: SafeArea(child: _buildContent(isDark)),
@@ -550,11 +556,13 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
               const Icon(Icons.error_outline, size: 48, color: Colors.red),
               const SizedBox(height: 16),
               Text(
-                '데이터를 불러올 수 없습니다',
+                AppLocalizations.of(context)!.chartErrorLoadFailed,
                 style: TextStyle(fontSize: 16, color: Colors.grey[700]),
               ),
               const SizedBox(height: 16),
-              ElevatedButton(onPressed: _loadData, child: const Text('다시 시도')),
+              ElevatedButton(
+                  onPressed: _loadData,
+                  child: Text(AppLocalizations.of(context)!.chartErrorRetry)),
             ],
           ),
         ),
@@ -619,12 +627,13 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
       _genreDistribution,
     );
 
+    final l10n = AppLocalizations.of(context)!;
     final sections = [
-      'AI 인사이트',
-      '완독률',
-      '기록/하이라이트',
-      '장르 분석',
-      '독서 통계',
+      l10n.chartAiInsight,
+      l10n.chartCompletionRate,
+      l10n.chartRecordsHighlights,
+      l10n.chartGenreAnalysis,
+      l10n.chartReadingStats,
     ];
 
     return NotificationListener<ScrollNotification>(
@@ -712,7 +721,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '독서 통계',
+                          AppLocalizations.of(context)!.chartReadingStats,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
@@ -729,35 +738,36 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                           childAspectRatio: 1.3,
                           children: [
                             _buildStatCard(
-                              '총 읽은 페이지',
+                              AppLocalizations.of(context)!.chartTotalPages,
                               '${stats['total_pages']}p',
                               Icons.menu_book_rounded,
                               AppColors.primary,
                               isDark,
                             ),
                             _buildStatCard(
-                              '일평균',
+                              AppLocalizations.of(context)!.chartDailyAvgPages,
                               '${(stats['average_daily'] as double).toStringAsFixed(1)}p',
                               Icons.calendar_today_rounded,
                               AppColors.success,
                               isDark,
                             ),
                             _buildStatCard(
-                              '최고 기록',
+                              AppLocalizations.of(context)!.chartMaxDaily,
                               '${stats['max_daily']}p',
                               Icons.trending_up_rounded,
                               AppColors.warningAlt,
                               isDark,
                             ),
                             _buildStatCard(
-                              '연속 독서',
-                              '$streak일',
+                              AppLocalizations.of(context)!
+                                  .chartConsecutiveDays,
+                              '$streak${AppLocalizations.of(context)!.unitDay}',
                               Icons.local_fire_department_rounded,
                               AppColors.destructive,
                               isDark,
                             ),
                             _buildStatCard(
-                              '최저 기록',
+                              AppLocalizations.of(context)!.chartMinDaily,
                               '${stats['min_daily']}p',
                               Icons.trending_down_rounded,
                               AppColors.info,
@@ -768,7 +778,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                               builder: (context, snapshot) {
                                 final goalRate = snapshot.data ?? 0.0;
                                 return _buildStatCard(
-                                  '오늘 목표',
+                                  AppLocalizations.of(context)!.chartTodayGoal,
                                   '${(goalRate * 100).toStringAsFixed(0)}%',
                                   Icons.flag_rounded,
                                   AppColors.info,
@@ -810,7 +820,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
           _buildReadingProgressChart(isDark, aggregated),
           const SizedBox(height: 24),
           Text(
-            '일별 읽은 페이지',
+            AppLocalizations.of(context)!.chartDailyPages,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
@@ -868,7 +878,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '${date.year}년 ${date.month}월 ${date.day}일',
+                              '${date.year}${AppLocalizations.of(context)!.unitYear} ${date.month}${AppLocalizations.of(context)!.unitMonth} ${date.day}${AppLocalizations.of(context)!.unitDay}',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,
@@ -877,7 +887,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '누적: $cumulativePage 페이지',
+                              '${AppLocalizations.of(context)!.chartCumulativePages}: $cumulativePage ${AppLocalizations.of(context)!.chartDailyReadPages}',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: isDark
@@ -913,7 +923,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                             ],
                           ),
                           Text(
-                            '페이지',
+                            AppLocalizations.of(context)!.chartDailyReadPages,
                             style: TextStyle(
                               fontSize: 12,
                               color:
@@ -952,7 +962,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '독서 진행 차트',
+                AppLocalizations.of(context)!.chartReadingProgress,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -1019,7 +1029,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
               ),
               const SizedBox(width: 6),
               Text(
-                '일별 페이지',
+                AppLocalizations.of(context)!.chartDailyPages,
                 style: TextStyle(
                   fontSize: 12,
                   color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1036,7 +1046,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
               ),
               const SizedBox(width: 6),
               Text(
-                '누적 페이지',
+                AppLocalizations.of(context)!.chartCumulativePages,
                 style: TextStyle(
                   fontSize: 12,
                   color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1055,7 +1065,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                     Icon(Icons.show_chart, size: 48, color: Colors.grey[400]),
                     const SizedBox(height: 12),
                     Text(
-                      '아직 데이터가 없어요',
+                      AppLocalizations.of(context)!.chartNoData,
                       style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
                   ],
@@ -1085,7 +1095,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
             Icon(Icons.list_alt, size: 48, color: Colors.grey[400]),
             const SizedBox(height: 12),
             Text(
-              '읽은 기록이 없어요',
+              AppLocalizations.of(context)!.chartNoReadingRecords,
               style: TextStyle(color: Colors.grey[600], fontSize: 14),
             ),
           ],
@@ -1259,7 +1269,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                           final cumulativePage =
                               aggregated[idx]['cumulative_page'] as int;
                           return LineTooltipItem(
-                            '일별: ${dailyPage}p\n누적: ${cumulativePage}p',
+                            '${AppLocalizations.of(context)!.chartDailyPages}: ${dailyPage}p\n${AppLocalizations.of(context)!.chartCumulativePages}: ${cumulativePage}p',
                             const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,

@@ -710,6 +710,120 @@ abstract class AppLocalizations {
   /// **'많음'**
   String get chartMore;
 
+  /// Error loading data
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터를 불러올 수 없습니다'**
+  String get chartErrorLoadFailed;
+
+  /// Retry button
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 시도'**
+  String get chartErrorRetry;
+
+  /// Total pages read
+  ///
+  /// In ko, this message translates to:
+  /// **'총 읽은 페이지'**
+  String get chartTotalPages;
+
+  /// Daily average pages
+  ///
+  /// In ko, this message translates to:
+  /// **'일평균'**
+  String get chartDailyAvgPages;
+
+  /// Best record
+  ///
+  /// In ko, this message translates to:
+  /// **'최고 기록'**
+  String get chartMaxDaily;
+
+  /// Lowest record
+  ///
+  /// In ko, this message translates to:
+  /// **'최저 기록'**
+  String get chartMinDaily;
+
+  /// Consecutive reading days
+  ///
+  /// In ko, this message translates to:
+  /// **'연속 독서'**
+  String get chartConsecutiveDays;
+
+  /// Today's goal
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 목표'**
+  String get chartTodayGoal;
+
+  /// Reading progress chart
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 진행 차트'**
+  String get chartReadingProgress;
+
+  /// Daily pages
+  ///
+  /// In ko, this message translates to:
+  /// **'일별 페이지'**
+  String get chartDailyPages;
+
+  /// Cumulative pages
+  ///
+  /// In ko, this message translates to:
+  /// **'누적 페이지'**
+  String get chartCumulativePages;
+
+  /// No data yet
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 데이터가 없어요'**
+  String get chartNoData;
+
+  /// Pages
+  ///
+  /// In ko, this message translates to:
+  /// **'페이지'**
+  String get chartDailyReadPages;
+
+  /// Reading statistics
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 통계'**
+  String get chartReadingStats;
+
+  /// AI insight
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 인사이트'**
+  String get chartAiInsight;
+
+  /// Completion rate
+  ///
+  /// In ko, this message translates to:
+  /// **'완독률'**
+  String get chartCompletionRate;
+
+  /// Records/highlights
+  ///
+  /// In ko, this message translates to:
+  /// **'기록/하이라이트'**
+  String get chartRecordsHighlights;
+
+  /// Genre analysis
+  ///
+  /// In ko, this message translates to:
+  /// **'장르 분석'**
+  String get chartGenreAnalysis;
+
+  /// No reading records
+  ///
+  /// In ko, this message translates to:
+  /// **'읽은 기록이 없어요'**
+  String get chartNoReadingRecords;
+
   /// My page title
   ///
   /// In ko, this message translates to:
