@@ -356,19 +356,19 @@ class _MainScreenState extends State<MainScreen>
 
     _readingDetailBarSlide =
         Tween<Offset>(begin: Offset.zero, end: const Offset(-1.0, 0.0)).animate(
-          CurvedAnimation(
-            parent: _barSwitchController,
-            curve: Curves.easeOutCubic,
-          ),
-        );
+      CurvedAnimation(
+        parent: _barSwitchController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
 
     _regularBarSlide =
         Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(
-          CurvedAnimation(
-            parent: _barSwitchController,
-            curve: Curves.easeOutCubic,
-          ),
-        );
+      CurvedAnimation(
+        parent: _barSwitchController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
 
     // 인증 완료 후 BookListViewModel 초기화 및 FCM 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -471,22 +471,25 @@ class _MainScreenState extends State<MainScreen>
   }
 
   List<Widget> get _pages => [
-    HomeScreen(
-      onCallbacksReady: (updatePage, addMemorable) {
-        _updatePageCallback = updatePage;
-        _addMemorablePageCallback = addMemorable;
-      },
-    ),
-    const MyLibraryScreen(),
-    ReadingChartScreen(key: ReadingChartScreen.globalKey),
-    const CalendarScreen(),
-    const MyPageScreen(),
-  ];
+        HomeScreen(
+          onCallbacksReady: (updatePage, addMemorable) {
+            _updatePageCallback = updatePage;
+            _addMemorablePageCallback = addMemorable;
+          },
+        ),
+        MyLibraryScreen(key: MyLibraryScreen.globalKey),
+        ReadingChartScreen(key: ReadingChartScreen.globalKey),
+        const CalendarScreen(),
+        const MyPageScreen(),
+      ];
 
   void _onItemTapped(int index) {
     if (index == 0 && _selectedIndex == 0) {
       HapticFeedback.lightImpact();
       context.read<BookListViewModel>().cycleToNextTab();
+    } else if (index == 1 && _selectedIndex == 1) {
+      HapticFeedback.lightImpact();
+      MyLibraryScreen.cycleToNextTab();
     } else if (index == 2 && _selectedIndex == 2) {
       HapticFeedback.lightImpact();
       ReadingChartScreen.cycleToNextTab();
@@ -558,9 +561,8 @@ class _MainScreenState extends State<MainScreen>
 
     return Scaffold(
       body: body,
-      backgroundColor: isDark
-          ? AppColors.scaffoldDark
-          : AppColors.scaffoldLight,
+      backgroundColor:
+          isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
       extendBody: true,
       bottomNavigationBar: _buildAnimatedBottomBar(isInReadingDetailContext),
     );

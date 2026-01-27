@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -13,6 +15,13 @@ import 'package:book_golas/ui/book_list/widgets/book_list_card.dart';
 class MyLibraryScreen extends StatefulWidget {
   const MyLibraryScreen({super.key});
 
+  static final GlobalKey<_MyLibraryScreenState> globalKey =
+      GlobalKey<_MyLibraryScreenState>();
+
+  static void cycleToNextTab() {
+    globalKey.currentState?.cycleToNextTab();
+  }
+
   @override
   State<MyLibraryScreen> createState() => _MyLibraryScreenState();
 }
@@ -20,6 +29,8 @@ class MyLibraryScreen extends StatefulWidget {
 class _MyLibraryScreenState extends State<MyLibraryScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _debounceTimer;
 
   @override
   void initState() {
@@ -40,8 +51,22 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
     }
   }
 
+  void cycleToNextTab() {
+    final nextIndex = (_tabController.index + 1) % 2;
+    _tabController.animateTo(nextIndex);
+  }
+
+  void _onSearchChanged(String query) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      context.read<MyLibraryViewModel>().setSearchQuery(query);
+    });
+  }
+
   @override
   void dispose() {
+    _debounceTimer?.cancel();
+    _searchController.dispose();
     _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     super.dispose();
@@ -83,7 +108,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
               final (allCount, reviewCount) = counts;
               return LiquidGlassTabBar(
                 controller: _tabController,
-                tabs: ['전체 ($allCount)', '독후감 ($reviewCount)'],
+                tabs: ['독서 ($allCount)', '독후감 ($reviewCount)'],
               );
             },
           ),
@@ -92,6 +117,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          _buildSearchBar(isDark),
           _buildFilterSection(isDark),
           Expanded(
             child: TabBarView(
@@ -103,6 +129,73 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSearchBar(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
+      child: TextField(
+        controller: _searchController,
+        onChanged: _onSearchChanged,
+        decoration: InputDecoration(
+          hintText: '제목, 저자로 검색',
+          hintStyle: TextStyle(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.4)
+                : Colors.black.withValues(alpha: 0.4),
+            fontSize: 14,
+          ),
+          prefixIcon: Icon(
+            CupertinoIcons.search,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.5)
+                : Colors.black.withValues(alpha: 0.5),
+            size: 20,
+          ),
+          suffixIcon: _searchController.text.isNotEmpty
+              ? GestureDetector(
+                  onTap: () {
+                    _searchController.clear();
+                    context.read<MyLibraryViewModel>().setSearchQuery('');
+                  },
+                  child: Icon(
+                    CupertinoIcons.xmark_circle_fill,
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.4)
+                        : Colors.black.withValues(alpha: 0.4),
+                    size: 18,
+                  ),
+                )
+              : null,
+          filled: true,
+          fillColor: isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : Colors.black.withValues(alpha: 0.04),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.2)
+                  : Colors.black.withValues(alpha: 0.1),
+            ),
+          ),
+        ),
+        style: TextStyle(
+          color: isDark ? Colors.white : Colors.black,
+          fontSize: 14,
+        ),
       ),
     );
   }
@@ -190,7 +283,9 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
         final books = vm.filteredBooks;
 
         if (books.isEmpty) {
-          return _buildEmptyState(isDark, '등록된 책이 없습니다');
+          final emptyMessage =
+              vm.searchQuery.isNotEmpty ? '검색 결과가 없습니다' : '등록된 책이 없습니다';
+          return _buildEmptyState(isDark, emptyMessage);
         }
 
         return ListView.builder(
@@ -218,7 +313,9 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
         final books = vm.booksWithReview;
 
         if (books.isEmpty) {
-          return _buildEmptyState(isDark, '독후감이 있는 책이 없습니다');
+          final emptyMessage =
+              vm.searchQuery.isNotEmpty ? '검색 결과가 없습니다' : '독후감이 있는 책이 없습니다';
+          return _buildEmptyState(isDark, emptyMessage);
         }
 
         return ListView.builder(

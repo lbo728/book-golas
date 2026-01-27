@@ -12,6 +12,7 @@ class MyLibraryViewModel extends ChangeNotifier {
   int? _selectedYear;
   String? _selectedGenre;
   int? _selectedRating;
+  String _searchQuery = '';
 
   List<Book> get books => _books;
   bool get isLoading => _isLoading;
@@ -19,8 +20,19 @@ class MyLibraryViewModel extends ChangeNotifier {
   int? get selectedYear => _selectedYear;
   String? get selectedGenre => _selectedGenre;
   int? get selectedRating => _selectedRating;
+  String get searchQuery => _searchQuery;
 
   List<Book> get allBooks => _books;
+
+  List<Book> _applySearchFilter(List<Book> books) {
+    if (_searchQuery.isEmpty) return books;
+    final query = _searchQuery.toLowerCase();
+    return books.where((b) {
+      final titleMatch = b.title.toLowerCase().contains(query);
+      final authorMatch = b.author?.toLowerCase().contains(query) ?? false;
+      return titleMatch || authorMatch;
+    }).toList();
+  }
 
   List<Book> get filteredBooks {
     var result = allBooks;
@@ -33,16 +45,19 @@ class MyLibraryViewModel extends ChangeNotifier {
     if (_selectedRating != null) {
       result = result.where((b) => b.rating == _selectedRating).toList();
     }
-    return result;
+    return _applySearchFilter(result);
   }
 
-  List<Book> get booksWithReview => _books
-      .where(
-        (b) =>
-            (b.review != null && b.review!.isNotEmpty) ||
-            (b.longReview != null && b.longReview!.isNotEmpty),
-      )
-      .toList();
+  List<Book> get booksWithReview {
+    final reviewBooks = _books
+        .where(
+          (b) =>
+              (b.review != null && b.review!.isNotEmpty) ||
+              (b.longReview != null && b.longReview!.isNotEmpty),
+        )
+        .toList();
+    return _applySearchFilter(reviewBooks);
+  }
 
   List<int> get availableYears {
     final years = allBooks.map((b) => b.startDate.year).toSet().toList();
@@ -84,6 +99,11 @@ class MyLibraryViewModel extends ChangeNotifier {
     _selectedYear = null;
     _selectedGenre = null;
     _selectedRating = null;
+    notifyListeners();
+  }
+
+  void setSearchQuery(String query) {
+    _searchQuery = query;
     notifyListeners();
   }
 
