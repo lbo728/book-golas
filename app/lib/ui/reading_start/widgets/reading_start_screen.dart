@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_golas/data/services/book_service.dart';
@@ -96,6 +97,14 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
     final vm = context.read<ReadingStartViewModel>();
     vm.setTitleController(_titleController);
 
+    // Load recommendation images with locale
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final locale = Localizations.localeOf(context);
+        vm.loadRecommendationImagesWithLocale(locale);
+      }
+    });
+
     if (widget.title != null) {
       _titleController.text = widget.title!;
       _hasSearchText = true;
@@ -125,7 +134,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
 
   void _onSearchTextChanged() {
     final vm = context.read<ReadingStartViewModel>();
-    vm.onSearchQueryChanged(_titleController.text);
+    final locale = Localizations.localeOf(context);
+    vm.onSearchQueryChanged(_titleController.text, locale);
 
     final hasText = _titleController.text.isNotEmpty;
     if (_hasSearchText != hasText) {
@@ -142,6 +152,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
 
   Future<void> _openBarcodeScanner() async {
     final vm = context.read<ReadingStartViewModel>();
+    final locale = Localizations.localeOf(context);
 
     final String? isbn = await Navigator.of(context).push<String>(
       MaterialPageRoute(
@@ -151,7 +162,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
     );
 
     if (isbn != null && mounted) {
-      await vm.searchByISBN(isbn);
+      await vm.searchByISBN(isbn, locale);
 
       if (vm.scanError != null) {
         if (mounted) {
@@ -192,6 +203,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
     dynamic recommendation,
     ReadingStartViewModel vm,
   ) {
+    final locale = Localizations.localeOf(context);
     showRecommendationActionSheet(
       context: context,
       title: recommendation.title,
@@ -200,7 +212,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
       onViewDetail: () {},
       onStartReading: () async {
         final success =
-            await vm.searchAndSelectFirstResult(recommendation.title);
+            await vm.searchAndSelectFirstResult(recommendation.title, locale);
         if (success && mounted) {
           _nextPage(vm);
         }
@@ -1136,7 +1148,9 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                     ),
                     child: Center(
                       child: Text(
-                        '${pickedDate.year}년 ${pickedDate.month}월 ${pickedDate.day}일',
+                        DateFormat.yMMMd(
+                                Localizations.localeOf(context).languageCode)
+                            .format(pickedDate),
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -1345,7 +1359,9 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '${vm.plannedStartDate.year}년 ${vm.plannedStartDate.month}월 ${vm.plannedStartDate.day}일',
+                          DateFormat.yMMMd(
+                                  Localizations.localeOf(context).languageCode)
+                              .format(vm.plannedStartDate),
                           style: TextStyle(
                             fontSize: 15,
                             color: isDark ? Colors.white : Colors.black87,
@@ -1424,7 +1440,9 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            '${vm.targetDate.year}년 ${vm.targetDate.month}월 ${vm.targetDate.day}일',
+                            DateFormat.yMMMd(Localizations.localeOf(context)
+                                    .languageCode)
+                                .format(vm.targetDate),
                             style: TextStyle(
                               fontSize: 15,
                               color: isDark ? Colors.white : Colors.black87,

@@ -1,9 +1,10 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 
 import 'package:book_golas/ui/core/view_model/base_view_model.dart';
-import 'package:book_golas/data/services/aladin_api_service.dart';
+import 'package:book_golas/data/services/book_search_service.dart';
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/data/services/recommendation_service.dart';
 import 'package:book_golas/domain/models/book.dart';
@@ -98,7 +99,6 @@ class ReadingStartViewModel extends BaseViewModel {
         _recommendationStats = cached.stats;
         _isLoadingRecommendations = false;
         notifyListeners();
-        _loadRecommendationImages();
         return;
       }
 
@@ -106,7 +106,6 @@ class ReadingStartViewModel extends BaseViewModel {
       if (result.success) {
         _recommendations = result.recommendations;
         _recommendationStats = result.stats;
-        _loadRecommendationImages();
       } else {
         _recommendationError = result.error;
       }
@@ -120,7 +119,7 @@ class ReadingStartViewModel extends BaseViewModel {
 
   /// 추천 도서들의 이미지를 백그라운드에서 로드 (캐시 사용)
   /// 배치 업데이트로 notifyListeners() 호출 최소화 (iOS 키보드 유지)
-  Future<void> _loadRecommendationImages() async {
+  Future<void> _loadRecommendationImages(Locale locale) async {
     bool hasUpdates = false;
 
     for (int i = 0; i < _recommendations.length; i++) {
@@ -138,7 +137,8 @@ class ReadingStartViewModel extends BaseViewModel {
       // API 호출 (제목 정규화: 콜론/대시 이전 부분만 사용)
       try {
         final normalizedTitle = _normalizeBookTitle(rec.title);
-        final results = await AladinApiService.searchBooks(normalizedTitle);
+        final results =
+            await BookSearchService.searchBooks(normalizedTitle, locale);
         if (results.isNotEmpty && results.first.imageUrl != null) {
           final imageUrl = results.first.imageUrl!;
           RecommendationService.cacheImageUrl(rec.title, imageUrl);
@@ -200,20 +200,25 @@ class ReadingStartViewModel extends BaseViewModel {
     }
   }
 
-  void selectRecommendation(BookRecommendation recommendation) {
+  /// Public method to load recommendation images (called from UI with locale)
+  void loadRecommendationImagesWithLocale(Locale locale) {
+    _loadRecommendationImages(locale);
+  }
+
+  void selectRecommendation(BookRecommendation recommendation, Locale locale) {
     _titleController?.text = recommendation.title;
-    _searchBooks(recommendation.title);
+    _searchBooks(recommendation.title, locale);
   }
 
   /// 추천 도서 검색 후 첫 번째 결과를 자동 선택
   /// 검색 완료 후 selectedBook이 설정되면 true 반환
-  Future<bool> searchAndSelectFirstResult(String title) async {
+  Future<bool> searchAndSelectFirstResult(String title, Locale locale) async {
     _titleController?.text = title;
     _isSearching = true;
     notifyListeners();
 
     try {
-      final results = await AladinApiService.searchBooks(title);
+      final results = await BookSearchService.searchBooks(title, locale);
       _searchResults = results;
 
       if (results.isNotEmpty) {
@@ -235,7 +240,7 @@ class ReadingStartViewModel extends BaseViewModel {
     _titleController = controller;
   }
 
-  void onSearchQueryChanged(String query) {
+  void onSearchQueryChanged(String query, Locale locale) {
     if (_selectedBook != null) {
       _selectedBook = null;
       notifyListeners();
@@ -250,16 +255,16 @@ class ReadingStartViewModel extends BaseViewModel {
         notifyListeners();
         return;
       }
-      _searchBooks(trimmed);
+      _searchBooks(trimmed, locale);
     });
   }
 
-  Future<void> _searchBooks(String query) async {
+  Future<void> _searchBooks(String query, Locale locale) async {
     _isSearching = true;
     notifyListeners();
 
     try {
-      final results = await AladinApiService.searchBooks(query);
+      final results = await BookSearchService.searchBooks(query, locale);
       _searchResults = results;
     } catch (e) {
       _searchResults = [];
@@ -279,7 +284,7 @@ class ReadingStartViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  Future<void> searchByISBN(String isbn13) async {
+  Future<void> searchByISBN(String isbn13, Locale locale) async {
     _isSearching = true;
     _scanError = null;
     notifyListeners();
@@ -291,7 +296,7 @@ class ReadingStartViewModel extends BaseViewModel {
         return;
       }
 
-      final result = await AladinApiService.lookupByISBN(isbn13);
+      final result = await BookSearchService.lookupByISBN(isbn13, locale);
 
       if (result != null) {
         _searchResults = [result];

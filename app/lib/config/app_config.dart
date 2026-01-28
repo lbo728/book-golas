@@ -35,6 +35,10 @@ class AppConfig {
   static String get googleCloudVisionApiKey =>
       dotenv.env['GOOGLE_CLOUD_VISION_API_KEY'] ?? '';
 
+  // Google Books API 설정 (optional - works without key but has rate limit)
+  static String get googleBooksApiKey =>
+      dotenv.env['GOOGLE_BOOKS_API_KEY'] ?? '';
+
   static const int maxSearchResults = 10;
   static const String apiVersion = '20131101';
 
