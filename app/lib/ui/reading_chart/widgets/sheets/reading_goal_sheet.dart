@@ -56,7 +56,8 @@ class ReadingGoalSheet {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        AppLocalizations.of(context)!.readingGoalSheetTitle(year),
+                        AppLocalizations.of(context)!
+                            .readingGoalSheetTitle(year),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
@@ -133,7 +134,8 @@ class ReadingGoalSheet {
                                     ),
                                   ),
                                   Text(
-                                    AppLocalizations.of(context)!.readingGoalSheetBooks,
+                                    AppLocalizations.of(context)!
+                                        .readingGoalSheetBooks,
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: isSelected
@@ -164,7 +166,7 @@ class ReadingGoalSheet {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        _getGoalMessage(selectedGoal),
+                        _getGoalMessage(context, selectedGoal),
                         style: TextStyle(
                           fontSize: 12,
                           color: isDark ? Colors.grey[500] : Colors.grey[600],
@@ -190,8 +192,10 @@ class ReadingGoalSheet {
                       });
                     },
                     decoration: InputDecoration(
-                      hintText: AppLocalizations.of(context)!.readingGoalSheetHint,
-                      suffixText: AppLocalizations.of(context)!.readingGoalSheetBooks,
+                      hintText:
+                          AppLocalizations.of(context)!.readingGoalSheetHint,
+                      suffixText:
+                          AppLocalizations.of(context)!.readingGoalSheetBooks,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -223,7 +227,7 @@ class ReadingGoalSheet {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            _getMotivationMessage(selectedGoal),
+                            _getMotivationMessage(context, selectedGoal),
                             style: TextStyle(
                               fontSize: 13,
                               color:
@@ -244,7 +248,8 @@ class ReadingGoalSheet {
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                           child: Text(
-                            AppLocalizations.of(context)!.readingGoalSheetCancel,
+                            AppLocalizations.of(context)!
+                                .readingGoalSheetCancel,
                             style: TextStyle(
                               color:
                                   isDark ? Colors.grey[400] : Colors.grey[600],
@@ -269,7 +274,11 @@ class ReadingGoalSheet {
                             ),
                           ),
                           child: Text(
-                            currentGoal != null ? AppLocalizations.of(context)!.readingGoalSheetUpdate : AppLocalizations.of(context)!.readingGoalSheetSet,
+                            currentGoal != null
+                                ? AppLocalizations.of(context)!
+                                    .readingGoalSheetUpdate
+                                : AppLocalizations.of(context)!
+                                    .readingGoalSheetSet,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
@@ -288,12 +297,13 @@ class ReadingGoalSheet {
     );
   }
 
-  static String _getGoalMessage(int goal) {
+  static String _getGoalMessage(BuildContext context, int goal) {
     final booksPerMonth = (goal / 12).toStringAsFixed(1);
-    return AppLocalizations.of(context)!.readingGoalSheetBooksPerMonth(booksPerMonth);
+    return AppLocalizations.of(context)!
+        .readingGoalSheetBooksPerMonth(booksPerMonth);
   }
 
-  static String _getMotivationMessage(int goal) {
+  static String _getMotivationMessage(BuildContext context, int goal) {
     if (goal <= 12) {
       return AppLocalizations.of(context)!.readingGoalSheetMotivation1;
     } else if (goal <= 24) {

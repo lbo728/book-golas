@@ -36,6 +36,8 @@ import 'data/services/reading_progress_service.dart';
 import 'ui/auth/widgets/login_screen.dart';
 import 'ui/calendar/view_model/calendar_view_model.dart';
 import 'ui/auth/widgets/my_page_screen.dart';
+import 'ui/my_library/widgets/my_library_screen.dart';
+import 'ui/my_library/view_model/my_library_view_model.dart';
 import 'domain/models/book.dart';
 import 'ui/book_detail/book_detail_screen.dart';
 import 'ui/onboarding/view_model/onboarding_view_model.dart';
@@ -263,6 +265,7 @@ class MyApp extends StatelessWidget {
             userId: Supabase.instance.client.auth.currentUser!.id,
           ),
         ),
+        ChangeNotifierProvider(create: (_) => MyLibraryViewModel()),
       ],
       child: Consumer2<ThemeViewModel, LocaleViewModel>(
         builder: (context, themeViewModel, localeViewModel, child) {
@@ -499,6 +502,7 @@ class _MainScreenState extends State<MainScreen>
             _addMemorablePageCallback = addMemorable;
           },
         ),
+        const MyLibraryScreen(),
         ReadingChartScreen(key: ReadingChartScreen.globalKey),
         const CalendarScreen(),
         const MyPageScreen(),

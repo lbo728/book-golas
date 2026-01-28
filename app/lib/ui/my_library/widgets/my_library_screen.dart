@@ -298,7 +298,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
                 (year) => Padding(
                   padding: const EdgeInsets.only(left: 8),
                   child: _buildFilterChip(
-                    '$year년',
+                    '$year',
                     vm.selectedYear == year,
                     isDark,
                     () => vm.setSelectedYear(year),

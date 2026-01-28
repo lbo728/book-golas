@@ -655,5 +655,26 @@
     "readingStartPriority": "Priority (Optional)",
     "@readingStartPriority": {
       "description": "Priority selector label"
+    },
+    "languageChangeConfirmTitle": "Change Language?",
+    "@languageChangeConfirmTitle": {
+      "description": "Language change confirmation dialog title"
+    },
+    "languageChangeConfirmMessage": "Would you like to change the language to {language}?",
+    "@languageChangeConfirmMessage": {
+      "description": "Language change confirmation dialog message",
+      "placeholders": {
+        "language": {
+          "type": "String"
+        }
+      }
+    },
+    "languageKorean": "Korean",
+    "@languageKorean": {
+      "description": "Korean language name"
+    },
+    "languageEnglish": "English",
+    "@languageEnglish": {
+      "description": "English language name"
     }
 }

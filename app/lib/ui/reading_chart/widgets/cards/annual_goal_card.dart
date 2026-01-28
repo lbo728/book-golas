@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/utils/number_format_utils.dart';
 
 /// 연간 목표 진행률 카드
 ///
@@ -132,7 +133,7 @@ class AnnualGoalCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8, left: 4),
                   child: Text(
-                    '/ $targetBooks권',
+                    '/ ${formatBooksCount(targetBooks!, context)}',
                     style: TextStyle(
                       fontSize: 20,
                       color: isAchieved
@@ -168,7 +169,8 @@ class AnnualGoalCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  AppLocalizations.of(context)!.chartAnnualGoalAchieved((progress * 100).toInt()),
+                  AppLocalizations.of(context)!
+                      .chartAnnualGoalAchieved((progress * 100).toInt()),
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -179,7 +181,8 @@ class AnnualGoalCard extends StatelessWidget {
                 ),
                 if (!isAchieved)
                   Text(
-                    AppLocalizations.of(context)!.chartAnnualGoalRemaining(remaining),
+                    AppLocalizations.of(context)!
+                        .chartAnnualGoalRemaining(remaining),
                     style: TextStyle(
                       fontSize: 14,
                       color: isDark ? Colors.grey[500] : Colors.grey[600],
@@ -206,10 +209,14 @@ class AnnualGoalCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       isAchieved
-                          ? AppLocalizations.of(context)!.chartAnnualGoalAchievedMessage
+                          ? AppLocalizations.of(context)!
+                              .chartAnnualGoalAchievedMessage
                           : (isAhead
-                              ? AppLocalizations.of(context)!.chartAnnualGoalAheadMessage(completedBooks - expectedBooks)
-                              : AppLocalizations.of(context)!.chartAnnualGoalMotivationMessage),
+                              ? AppLocalizations.of(context)!
+                                  .chartAnnualGoalAheadMessage(
+                                      completedBooks - expectedBooks)
+                              : AppLocalizations.of(context)!
+                                  .chartAnnualGoalMotivationMessage),
                       style: TextStyle(
                         fontSize: 13,
                         color: isAchieved
@@ -292,9 +299,9 @@ class AnnualGoalCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 AppLocalizations.of(context)!.chartAnnualGoalSetGoal,
-                style: TextStyle(
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),

@@ -950,12 +950,12 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
           color: Colors.black54,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(CupertinoIcons.arrow_2_squarepath,
+            const Icon(CupertinoIcons.arrow_2_squarepath,
                 size: 14, color: Colors.white),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             Text(AppLocalizations.of(context)!.dialogReplaceImage,
                 style: const TextStyle(fontSize: 12, color: Colors.white)),
           ],

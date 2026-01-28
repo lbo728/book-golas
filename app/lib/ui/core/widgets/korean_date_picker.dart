@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:book_golas/l10n/app_localizations.dart';
+
 class KoreanDatePicker extends StatefulWidget {
   final bool isDark;
   final DateTime selectedDate;
@@ -116,6 +118,7 @@ class _KoreanDatePickerState extends State<KoreanDatePicker> {
   @override
   Widget build(BuildContext context) {
     final daysInCurrentMonth = _getDaysInMonth(_currentYear, _currentMonth);
+    final localizations = AppLocalizations.of(context);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -123,7 +126,7 @@ class _KoreanDatePickerState extends State<KoreanDatePicker> {
         _buildWheel(
           items: _years,
           controller: _yearController,
-          suffix: '년',
+          suffix: localizations.koreanDatePickerYear,
           width: 90,
           onSelected: (year) {
             setState(() {
@@ -135,7 +138,7 @@ class _KoreanDatePickerState extends State<KoreanDatePicker> {
         _buildWheel(
           items: _months,
           controller: _monthController,
-          suffix: '월',
+          suffix: localizations.koreanDatePickerMonth,
           width: 70,
           onSelected: (month) {
             setState(() {
@@ -147,7 +150,7 @@ class _KoreanDatePickerState extends State<KoreanDatePicker> {
         _buildWheel(
           items: List.generate(daysInCurrentMonth, (i) => i + 1),
           controller: _dayController,
-          suffix: '일',
+          suffix: localizations.koreanDatePickerDay,
           width: 70,
           onSelected: (day) {
             setState(() {

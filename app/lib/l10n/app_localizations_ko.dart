@@ -1324,4 +1324,18 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get readingStartPriority => '우선순위 (선택사항)';
+
+  @override
+  String get languageChangeConfirmTitle => '언어를 변경하시겠습니까?';
+
+  @override
+  String languageChangeConfirmMessage(String language) {
+    return '언어를 $language(으)로 변경하시겠습니까?';
+  }
+
+  @override
+  String get languageKorean => '한국어';
+
+  @override
+  String get languageEnglish => '영어';
 }

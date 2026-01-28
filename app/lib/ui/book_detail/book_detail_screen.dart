@@ -2,6 +2,7 @@ import 'package:confetti/confetti.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -1139,7 +1140,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       const SizedBox(height: 2),
                       Text(
                         book.plannedStartDate != null
-                            ? '${book.plannedStartDate!.year}년 ${book.plannedStartDate!.month}월 ${book.plannedStartDate!.day}일${daysUntilStart != null ? " (D${daysUntilStart >= 0 ? '-' : '+'}${daysUntilStart.abs()})" : ""}'
+                            ? '${DateFormat.yMMMd(Localizations.localeOf(context).languageCode).format(book.plannedStartDate!)}${daysUntilStart != null ? " (D${daysUntilStart >= 0 ? '-' : '+'}${daysUntilStart.abs()})" : ""}'
                             : 'TBD',
                         style: TextStyle(
                           fontSize: 13,

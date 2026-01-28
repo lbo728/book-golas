@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/utils/number_format_utils.dart';
 
 /// 장르 분석 카드
 ///
@@ -194,8 +195,9 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildStatItem(
-                  label: AppLocalizations.of(context)!.chartGenreAnalysisTotalCompleted,
-                  value: '$total권',
+                  label: AppLocalizations.of(context)!
+                      .chartGenreAnalysisTotalCompleted,
+                  value: formatBooksCount(total, context),
                   isDark: isDark,
                 ),
                 Container(
@@ -204,7 +206,8 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
                   color: isDark ? Colors.grey[700] : Colors.grey[300],
                 ),
                 _buildStatItem(
-                  label: AppLocalizations.of(context)!.chartGenreAnalysisDiversity,
+                  label:
+                      AppLocalizations.of(context)!.chartGenreAnalysisDiversity,
                   value: '${widget.genreDistribution.length}개',
                   isDark: isDark,
                 ),
@@ -232,7 +235,9 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
       return PieChartSectionData(
         color: _chartColors[index % _chartColors.length],
         value: count.toDouble(),
-        title: isTouched ? '$genre\n$count권' : '$percentage%',
+        title: isTouched
+            ? '$genre\n${formatBooksCount(count, context)}'
+            : '$percentage%',
         radius: radius,
         titleStyle: TextStyle(
           fontSize: fontSize,

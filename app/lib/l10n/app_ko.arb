@@ -1394,5 +1394,26 @@
     "readingStartPriority": "우선순위 (선택사항)",
     "@readingStartPriority": {
       "description": "Priority selector label"
+    },
+    "languageChangeConfirmTitle": "언어를 변경하시겠습니까?",
+    "@languageChangeConfirmTitle": {
+      "description": "Language change confirmation dialog title"
+    },
+    "languageChangeConfirmMessage": "언어를 {language}(으)로 변경하시겠습니까?",
+    "@languageChangeConfirmMessage": {
+      "description": "Language change confirmation dialog message",
+      "placeholders": {
+        "language": {
+          "type": "String"
+        }
+      }
+    },
+    "languageKorean": "한국어",
+    "@languageKorean": {
+      "description": "Korean language name"
+    },
+    "languageEnglish": "영어",
+    "@languageEnglish": {
+      "description": "English language name"
     }
 }

@@ -2563,6 +2563,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Priority (Optional)'**
   String get readingStartPriority;
+
+  /// Language change confirmation dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Change Language?'**
+  String get languageChangeConfirmTitle;
+
+  /// Language change confirmation dialog message
+  ///
+  /// In en, this message translates to:
+  /// **'Would you like to change the language to {language}?'**
+  String languageChangeConfirmMessage(String language);
+
+  /// Korean language name
+  ///
+  /// In en, this message translates to:
+  /// **'Korean'**
+  String get languageKorean;
+
+  /// English language name
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
 }
 
 class _AppLocalizationsDelegate

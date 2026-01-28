@@ -659,9 +659,128 @@ class _MyPageContentState extends State<_MyPageContent> {
                     ButtonSegment(value: 'en', label: Text('English')),
                   ],
                   selected: {localeViewModel.locale.languageCode},
-                  onSelectionChanged: (selection) {
+                  onSelectionChanged: (selection) async {
+                    final newLocale = selection.first;
+                    if (newLocale == localeViewModel.locale.languageCode) {
+                      return;
+                    }
+
                     HapticFeedback.selectionClick();
-                    localeViewModel.setLocale(Locale(selection.first));
+
+                    final localizations = AppLocalizations.of(context)!;
+                    final languageName = newLocale == 'ko'
+                        ? localizations.languageKorean
+                        : localizations.languageEnglish;
+
+                    final confirmed = await showModalBottomSheet<bool>(
+                      context: context,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => Container(
+                        decoration: BoxDecoration(
+                          color: isDark ? AppColors.surfaceDark : Colors.white,
+                          borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(24)),
+                        ),
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 4,
+                              margin: const EdgeInsets.only(bottom: 20),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[400],
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                            Text(
+                              localizations.languageChangeConfirmTitle,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              localizations
+                                  .languageChangeConfirmMessage(languageName),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: isDark
+                                    ? Colors.grey[400]
+                                    : Colors.grey[600],
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 14),
+                                      side: BorderSide(
+                                        color: isDark
+                                            ? Colors.white
+                                                .withValues(alpha: 0.2)
+                                            : Colors.black
+                                                .withValues(alpha: 0.2),
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      localizations.commonCancel,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: isDark
+                                            ? Colors.white
+                                            : Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, true),
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 14),
+                                      backgroundColor: AppColors.primary,
+                                      foregroundColor: Colors.white,
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      localizations.commonConfirm,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+
+                    if (confirmed == true) {
+                      localeViewModel.setLocale(Locale(newLocale));
+                    }
                   },
                 ),
               );

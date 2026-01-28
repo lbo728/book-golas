@@ -1,5 +1,6 @@
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 
 import 'package:book_golas/ui/core/widgets/korean_date_picker.dart';
@@ -128,7 +129,8 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            '${_selectedDate.year}년 ${_selectedDate.month}월 ${_selectedDate.day}일',
+            DateFormat.yMMMd(Localizations.localeOf(context).languageCode)
+                .format(_selectedDate),
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,

@@ -1371,4 +1371,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readingStartPriority => 'Priority (Optional)';
+
+  @override
+  String get languageChangeConfirmTitle => 'Change Language?';
+
+  @override
+  String languageChangeConfirmMessage(String language) {
+    return 'Would you like to change the language to $language?';
+  }
+
+  @override
+  String get languageKorean => 'Korean';
+
+  @override
+  String get languageEnglish => 'English';
 }
