@@ -97,10 +97,11 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
     final vm = context.read<ReadingStartViewModel>();
     vm.setTitleController(_titleController);
 
-    // Load recommendation images with locale
+    // Load recommendations and images with locale
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final locale = Localizations.localeOf(context);
+        vm.loadRecommendationsWithLocale(locale.languageCode);
         vm.loadRecommendationImagesWithLocale(locale);
       }
     });

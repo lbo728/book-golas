@@ -72,11 +72,10 @@ class ReadingStartViewModel extends BaseViewModel {
 
   bool get canProceedToSchedule => _selectedBook != null;
 
-  ReadingStartViewModel(this._bookService) {
-    _loadRecommendationsIfNeeded();
-  }
+  ReadingStartViewModel(this._bookService);
 
-  Future<void> _loadRecommendationsIfNeeded() async {
+  /// Load recommendations with locale (called from UI after widget build)
+  Future<void> loadRecommendationsWithLocale(String locale) async {
     if (_hasLoadedRecommendations) return;
     _hasLoadedRecommendations = true;
 
@@ -102,7 +101,8 @@ class ReadingStartViewModel extends BaseViewModel {
         return;
       }
 
-      final result = await _recommendationService.getRecommendations();
+      final result =
+          await _recommendationService.getRecommendations(locale: locale);
       if (result.success) {
         _recommendations = result.recommendations;
         _recommendationStats = result.stats;
@@ -179,13 +179,14 @@ class ReadingStartViewModel extends BaseViewModel {
     return title;
   }
 
-  Future<void> refreshRecommendations() async {
+  Future<void> refreshRecommendations(String locale) async {
     _isLoadingRecommendations = true;
     _recommendationError = null;
     notifyListeners();
 
     try {
-      final result = await _recommendationService.getRecommendations();
+      final result =
+          await _recommendationService.getRecommendations(locale: locale);
       if (result.success) {
         _recommendations = result.recommendations;
         _recommendationStats = result.stats;
