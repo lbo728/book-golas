@@ -1338,4 +1338,60 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get languageEnglish => '영어';
+
+  @override
+  String get readingStatusLabel => '독서 상태';
+
+  @override
+  String get readingStatusPlanned => '읽을 예정';
+
+  @override
+  String get readingStatusStartNow => '바로 시작';
+
+  @override
+  String get scheduleTargetDays => '목표 일수';
+
+  @override
+  String scheduleTargetDaysValue(int count) {
+    return '$count일';
+  }
+
+  @override
+  String get scheduleDailyGoal => '하루 목표';
+
+  @override
+  String get datePickerMonthJan => '1월';
+
+  @override
+  String get datePickerMonthFeb => '2월';
+
+  @override
+  String get datePickerMonthMar => '3월';
+
+  @override
+  String get datePickerMonthApr => '4월';
+
+  @override
+  String get datePickerMonthMay => '5월';
+
+  @override
+  String get datePickerMonthJun => '6월';
+
+  @override
+  String get datePickerMonthJul => '7월';
+
+  @override
+  String get datePickerMonthAug => '8월';
+
+  @override
+  String get datePickerMonthSep => '9월';
+
+  @override
+  String get datePickerMonthOct => '10월';
+
+  @override
+  String get datePickerMonthNov => '11월';
+
+  @override
+  String get datePickerMonthDec => '12월';
 }

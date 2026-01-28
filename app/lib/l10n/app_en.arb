@@ -676,5 +676,46 @@
     "languageEnglish": "English",
     "@languageEnglish": {
       "description": "English language name"
-    }
+    },
+    "readingStatusLabel": "Reading Status",
+    "@readingStatusLabel": {
+      "description": "Reading status section label"
+    },
+    "readingStatusPlanned": "Plan to Read",
+    "@readingStatusPlanned": {
+      "description": "Plan to read option"
+    },
+    "readingStatusStartNow": "Start Now",
+    "@readingStatusStartNow": {
+      "description": "Start now option"
+    },
+    "scheduleTargetDays": "Target Days",
+    "@scheduleTargetDays": {
+      "description": "Target days label"
+    },
+    "scheduleTargetDaysValue": "{count} days",
+    "@scheduleTargetDaysValue": {
+      "description": "Target days value",
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "scheduleDailyGoal": "Daily Goal",
+    "@scheduleDailyGoal": {
+      "description": "Daily goal label"
+    },
+    "datePickerMonthJan": "Jan",
+    "datePickerMonthFeb": "Feb",
+    "datePickerMonthMar": "Mar",
+    "datePickerMonthApr": "Apr",
+    "datePickerMonthMay": "May",
+    "datePickerMonthJun": "Jun",
+    "datePickerMonthJul": "Jul",
+    "datePickerMonthAug": "Aug",
+    "datePickerMonthSep": "Sep",
+    "datePickerMonthOct": "Oct",
+    "datePickerMonthNov": "Nov",
+    "datePickerMonthDec": "Dec"
 }

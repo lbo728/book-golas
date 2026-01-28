@@ -2587,6 +2587,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'English'**
   String get languageEnglish;
+
+  /// Reading status section label
+  ///
+  /// In en, this message translates to:
+  /// **'Reading Status'**
+  String get readingStatusLabel;
+
+  /// Plan to read option
+  ///
+  /// In en, this message translates to:
+  /// **'Plan to Read'**
+  String get readingStatusPlanned;
+
+  /// Start now option
+  ///
+  /// In en, this message translates to:
+  /// **'Start Now'**
+  String get readingStatusStartNow;
+
+  /// Target days label
+  ///
+  /// In en, this message translates to:
+  /// **'Target Days'**
+  String get scheduleTargetDays;
+
+  /// Target days value
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days'**
+  String scheduleTargetDaysValue(int count);
+
+  /// Daily goal label
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Goal'**
+  String get scheduleDailyGoal;
+
+  /// No description provided for @datePickerMonthJan.
+  ///
+  /// In en, this message translates to:
+  /// **'Jan'**
+  String get datePickerMonthJan;
+
+  /// No description provided for @datePickerMonthFeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Feb'**
+  String get datePickerMonthFeb;
+
+  /// No description provided for @datePickerMonthMar.
+  ///
+  /// In en, this message translates to:
+  /// **'Mar'**
+  String get datePickerMonthMar;
+
+  /// No description provided for @datePickerMonthApr.
+  ///
+  /// In en, this message translates to:
+  /// **'Apr'**
+  String get datePickerMonthApr;
+
+  /// No description provided for @datePickerMonthMay.
+  ///
+  /// In en, this message translates to:
+  /// **'May'**
+  String get datePickerMonthMay;
+
+  /// No description provided for @datePickerMonthJun.
+  ///
+  /// In en, this message translates to:
+  /// **'Jun'**
+  String get datePickerMonthJun;
+
+  /// No description provided for @datePickerMonthJul.
+  ///
+  /// In en, this message translates to:
+  /// **'Jul'**
+  String get datePickerMonthJul;
+
+  /// No description provided for @datePickerMonthAug.
+  ///
+  /// In en, this message translates to:
+  /// **'Aug'**
+  String get datePickerMonthAug;
+
+  /// No description provided for @datePickerMonthSep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sep'**
+  String get datePickerMonthSep;
+
+  /// No description provided for @datePickerMonthOct.
+  ///
+  /// In en, this message translates to:
+  /// **'Oct'**
+  String get datePickerMonthOct;
+
+  /// No description provided for @datePickerMonthNov.
+  ///
+  /// In en, this message translates to:
+  /// **'Nov'**
+  String get datePickerMonthNov;
+
+  /// No description provided for @datePickerMonthDec.
+  ///
+  /// In en, this message translates to:
+  /// **'Dec'**
+  String get datePickerMonthDec;
 }
 
 class _AppLocalizationsDelegate

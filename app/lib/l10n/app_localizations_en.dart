@@ -1385,4 +1385,60 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageEnglish => 'English';
+
+  @override
+  String get readingStatusLabel => 'Reading Status';
+
+  @override
+  String get readingStatusPlanned => 'Plan to Read';
+
+  @override
+  String get readingStatusStartNow => 'Start Now';
+
+  @override
+  String get scheduleTargetDays => 'Target Days';
+
+  @override
+  String scheduleTargetDaysValue(int count) {
+    return '$count days';
+  }
+
+  @override
+  String get scheduleDailyGoal => 'Daily Goal';
+
+  @override
+  String get datePickerMonthJan => 'Jan';
+
+  @override
+  String get datePickerMonthFeb => 'Feb';
+
+  @override
+  String get datePickerMonthMar => 'Mar';
+
+  @override
+  String get datePickerMonthApr => 'Apr';
+
+  @override
+  String get datePickerMonthMay => 'May';
+
+  @override
+  String get datePickerMonthJun => 'Jun';
+
+  @override
+  String get datePickerMonthJul => 'Jul';
+
+  @override
+  String get datePickerMonthAug => 'Aug';
+
+  @override
+  String get datePickerMonthSep => 'Sep';
+
+  @override
+  String get datePickerMonthOct => 'Oct';
+
+  @override
+  String get datePickerMonthNov => 'Nov';
+
+  @override
+  String get datePickerMonthDec => 'Dec';
 }

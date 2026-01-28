@@ -1415,5 +1415,46 @@
     "languageEnglish": "영어",
     "@languageEnglish": {
       "description": "English language name"
-    }
+    },
+    "readingStatusLabel": "독서 상태",
+    "@readingStatusLabel": {
+      "description": "Reading status section label"
+    },
+    "readingStatusPlanned": "읽을 예정",
+    "@readingStatusPlanned": {
+      "description": "Plan to read option"
+    },
+    "readingStatusStartNow": "바로 시작",
+    "@readingStatusStartNow": {
+      "description": "Start now option"
+    },
+    "scheduleTargetDays": "목표 일수",
+    "@scheduleTargetDays": {
+      "description": "Target days label"
+    },
+    "scheduleTargetDaysValue": "{count}일",
+    "@scheduleTargetDaysValue": {
+      "description": "Target days value",
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "scheduleDailyGoal": "하루 목표",
+    "@scheduleDailyGoal": {
+      "description": "Daily goal label"
+    },
+    "datePickerMonthJan": "1월",
+    "datePickerMonthFeb": "2월",
+    "datePickerMonthMar": "3월",
+    "datePickerMonthApr": "4월",
+    "datePickerMonthMay": "5월",
+    "datePickerMonthJun": "6월",
+    "datePickerMonthJul": "7월",
+    "datePickerMonthAug": "8월",
+    "datePickerMonthSep": "9월",
+    "datePickerMonthOct": "10월",
+    "datePickerMonthNov": "11월",
+    "datePickerMonthDec": "12월"
 }
