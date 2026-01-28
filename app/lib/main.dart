@@ -117,14 +117,6 @@ class AppBootstrap extends StatelessWidget {
       );
       debugPrint('✅ Supabase 초기화 성공');
 
-      // RevenueCat 초기화
-      debugPrint('💳 RevenueCat 초기화 시작');
-      final userId = Supabase.instance.client.auth.currentUser?.id;
-      await Purchases.configure(
-          PurchasesConfiguration(AppConfig.revenueCatPublicKey)
-            ..appUserID = userId);
-      debugPrint('✅ RevenueCat 초기화 완료');
-
       // HomeViewModel preferences 프리로드
       debugPrint('📚 홈 화면 설정 프리로드 시작');
       await HomeViewModel.preloadPreferences();
@@ -396,6 +388,22 @@ class _MainScreenState extends State<MainScreen>
     // 인증 완료 후 BookListViewModel 초기화 및 FCM 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       context.read<BookListViewModel>().initialize();
+
+      // RevenueCat 초기화 (인증 후)
+      try {
+        debugPrint('💳 RevenueCat 초기화 시작 (인증 후)');
+        final userId = Supabase.instance.client.auth.currentUser?.id;
+        if (userId != null) {
+          await Purchases.configure(
+              PurchasesConfiguration(AppConfig.revenueCatPublicKey)
+                ..appUserID = userId);
+          debugPrint('✅ RevenueCat 초기화 완료 (userId: $userId)');
+        } else {
+          debugPrint('⚠️ RevenueCat 초기화 스킵: 사용자 미인증');
+        }
+      } catch (e) {
+        debugPrint('❌ RevenueCat 초기화 실패: $e');
+      }
 
       await FCMService().initialize();
       debugPrint('FCM 서비스 초기화 완료');
