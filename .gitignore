@@ -3,7 +3,8 @@ book-golas-*.json
 *-firebase-adminsdk-*.json
 firebase-service-account*.json
 
-# Supabase
+# Environment Variables
+.env
 supabase/.env
 
 # OS
