@@ -717,5 +717,54 @@
     "datePickerMonthSep": "Sep",
     "datePickerMonthOct": "Oct",
     "datePickerMonthNov": "Nov",
-    "datePickerMonthDec": "Dec"
+    "datePickerMonthDec": "Dec",
+    "bookDetailSchedule": "Reading Schedule",
+    "bookDetailGoalProgress": "Goal Progress",
+    "bookDetailGoalAchieved": "Goal Achieved",
+    "bookDetailDeleteReading": "Delete Reading",
+    "bookDetailNoPhotos": "No photos added yet",
+    "bookDetailAddPhotoHint": "Add photos using the + button below",
+    "editReadingPlanTitle": "Edit Reading Plan",
+    "editPlannedStartDate": "Planned Start Date",
+    "changeTargetDateTitle": "Change Target Date",
+    "attemptChangeMessage": "This will be attempt #{count}",
+    "@attemptChangeMessage": {
+      "description": "Attempt change message",
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "confirmChange": "Confirm",
+    "bookDetailAchievementStatus": "{achieved} of {passed} days achieved",
+    "@bookDetailAchievementStatus": {
+      "description": "Achievement status message",
+      "placeholders": {
+        "passed": {
+          "type": "int"
+        },
+        "achieved": {
+          "type": "int"
+        }
+      }
+    },
+    "attemptOrdinal": "Attempt #{count}",
+    "@attemptOrdinal": {
+      "description": "Ordinal attempt number",
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "totalDaysFormat": "({count} days)",
+    "@totalDaysFormat": {
+      "description": "Total days in parentheses",
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    }
 }

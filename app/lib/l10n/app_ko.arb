@@ -1456,5 +1456,84 @@
     "datePickerMonthSep": "9월",
     "datePickerMonthOct": "10월",
     "datePickerMonthNov": "11월",
-    "datePickerMonthDec": "12월"
+    "datePickerMonthDec": "12월",
+    "bookDetailSchedule": "독서 일정",
+    "@bookDetailSchedule": {
+      "description": "Reading schedule section title"
+    },
+    "bookDetailGoalProgress": "목표 달성 현황",
+    "@bookDetailGoalProgress": {
+      "description": "Goal progress section title"
+    },
+    "bookDetailGoalAchieved": "목표 달성",
+    "@bookDetailGoalAchieved": {
+      "description": "Goal achieved message"
+    },
+    "bookDetailDeleteReading": "독서 삭제",
+    "@bookDetailDeleteReading": {
+      "description": "Delete reading button"
+    },
+    "bookDetailNoPhotos": "아직 추가된 사진이 없습니다",
+    "@bookDetailNoPhotos": {
+      "description": "No photos added message"
+    },
+    "bookDetailAddPhotoHint": "하단 + 버튼으로 추가해보세요",
+    "@bookDetailAddPhotoHint": {
+      "description": "Add photo hint message"
+    },
+    "editReadingPlanTitle": "독서 계획 수정",
+    "@editReadingPlanTitle": {
+      "description": "Edit reading plan dialog title"
+    },
+    "editPlannedStartDate": "시작 예정일",
+    "@editPlannedStartDate": {
+      "description": "Planned start date label"
+    },
+    "changeTargetDateTitle": "목표일 변경",
+    "@changeTargetDateTitle": {
+      "description": "Change target date dialog title"
+    },
+    "attemptChangeMessage": "{count}번째 도전으로 변경됩니다",
+    "@attemptChangeMessage": {
+      "description": "Attempt change message",
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "confirmChange": "변경하기",
+    "@confirmChange": {
+      "description": "Confirm change button"
+    },
+    "bookDetailAchievementStatus": "{passed}일 중 {achieved}일 달성",
+    "@bookDetailAchievementStatus": {
+      "description": "Achievement status message",
+      "placeholders": {
+        "passed": {
+          "type": "int"
+        },
+        "achieved": {
+          "type": "int"
+        }
+      }
+    },
+    "attemptOrdinal": "{count}번째",
+    "@attemptOrdinal": {
+      "description": "Ordinal attempt number",
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "totalDaysFormat": "({count}일)",
+    "@totalDaysFormat": {
+      "description": "Total days in parentheses",
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    }
 }
