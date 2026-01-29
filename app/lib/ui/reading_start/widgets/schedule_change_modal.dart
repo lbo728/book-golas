@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 
@@ -50,8 +51,17 @@ class ScheduleChangeModal {
         }
         pagesToRead = pagesToRead.clamp(1, remainingPages);
 
-        final weekday =
-            ['월', '화', '수', '목', '금', '토', '일'][currentDate.weekday - 1];
+        final l10n = AppLocalizations.of(context)!;
+        final weekdays = [
+          l10n.weekdayMon,
+          l10n.weekdayTue,
+          l10n.weekdayWed,
+          l10n.weekdayThu,
+          l10n.weekdayFri,
+          l10n.weekdaySat,
+          l10n.weekdaySun,
+        ];
+        final weekday = weekdays[currentDate.weekday - 1];
 
         schedule.add({
           'date': currentDate,
@@ -142,8 +152,7 @@ class ScheduleChangeModal {
                     builder: (context, scrollController) {
                       return Container(
                         decoration: BoxDecoration(
-                          color:
-                              isDark ? AppColors.surfaceDark : Colors.white,
+                          color: isDark ? AppColors.surfaceDark : Colors.white,
                           borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(24)),
                         ),
@@ -179,6 +188,7 @@ class ScheduleChangeModal {
                                             children: [
                                               // 헤더
                                               _buildHeader(
+                                                context: context,
                                                 isDark: isDark,
                                                 pagesLeft: pagesLeft,
                                                 daysLeft: daysLeft,
@@ -219,7 +229,8 @@ class ScheduleChangeModal {
                                               const SizedBox(height: 16),
                                               // 예상 스케줄 헤더
                                               Text(
-                                                '예상 스케줄',
+                                                AppLocalizations.of(context)!
+                                                    .expectedSchedule,
                                                 style: TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w600,
@@ -296,10 +307,12 @@ class ScheduleChangeModal {
   }
 
   static Widget _buildHeader({
+    required BuildContext context,
     required bool isDark,
     required int pagesLeft,
     required int daysLeft,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         Container(
@@ -320,7 +333,7 @@ class ScheduleChangeModal {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '하루 목표 페이지 변경',
+                l10n.dailyTargetChangeTitle,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
@@ -331,7 +344,7 @@ class ScheduleChangeModal {
                 text: TextSpan(
                   children: [
                     TextSpan(
-                      text: '$pagesLeft페이지',
+                      text: l10n.pagesRemainingShort(pagesLeft),
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -339,7 +352,7 @@ class ScheduleChangeModal {
                       ),
                     ),
                     TextSpan(
-                      text: ' · D-$daysLeft',
+                      text: l10n.pagesRemainingWithDays(daysLeft),
                       style: TextStyle(
                         fontSize: 13,
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -426,7 +439,7 @@ class ScheduleChangeModal {
                             ),
                             if (isSelected)
                               Text(
-                                '페이지/일',
+                                AppLocalizations.of(context)!.pagesPerDay,
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: isDark
@@ -582,6 +595,7 @@ class ScheduleChangeModal {
     required bool isDark,
     required int newDailyTarget,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.fromLTRB(
         24,
@@ -597,7 +611,7 @@ class ScheduleChangeModal {
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              child: const Text('취소'),
+              child: Text(l10n.commonCancel),
             ),
           ),
           const SizedBox(width: 12),
@@ -614,9 +628,9 @@ class ScheduleChangeModal {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
-                '변경',
-                style: TextStyle(
+              child: Text(
+                l10n.commonChange,
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),

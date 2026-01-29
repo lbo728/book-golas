@@ -654,9 +654,15 @@ class _MyPageContentState extends State<_MyPageContent> {
                 icon: Icons.language,
                 title: AppLocalizations.of(context)!.languageSettingLabel,
                 trailing: SegmentedButton<String>(
-                  segments: const [
-                    ButtonSegment(value: 'ko', label: Text('한국어')),
-                    ButtonSegment(value: 'en', label: Text('English')),
+                  segments: [
+                    ButtonSegment(
+                        value: 'ko',
+                        label:
+                            Text(AppLocalizations.of(context)!.languageKorean)),
+                    ButtonSegment(
+                        value: 'en',
+                        label: Text(
+                            AppLocalizations.of(context)!.languageEnglish)),
                   ],
                   selected: {localeViewModel.locale.languageCode},
                   onSelectionChanged: (selection) async {
@@ -969,7 +975,7 @@ class _MyPageContentState extends State<_MyPageContent> {
       child: Column(
         children: [
           LiquidGlassButton(
-            text: '로그아웃',
+            text: AppLocalizations.of(context)!.myPageLogout,
             icon: Icons.logout,
             variant: LiquidGlassButtonVariant.destructive,
             isFullWidth: true,

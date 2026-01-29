@@ -766,5 +766,361 @@
           "type": "int"
         }
       }
+    },
+    "pagesRemaining": "{count, plural, =1{1 page remaining} other{{count} pages remaining}}",
+    "@pagesRemaining": {
+      "description": "Pages remaining message",
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "todayGoalWithPages": "Today's goal: {count}p",
+    "@todayGoalWithPages": {
+      "description": "Today's goal with page count",
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "streakDaysAchieved": "{count, plural, =1{1 day streak!} other{{count} day streak!}}",
+    "@streakDaysAchieved": {
+      "description": "Streak days achievement message",
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "streakFirstRecord": "Leave your first record today",
+    "@streakFirstRecord": {
+      "description": "Prompt to leave first record"
+    },
+    "dailyTargetChangeTitle": "Change Daily Page Goal",
+    "@dailyTargetChangeTitle": {
+      "description": "Daily target change dialog title"
+    },
+    "pagesRemainingShort": "{count, plural, =1{1 page} other{{count} pages}}",
+    "@pagesRemainingShort": {
+      "description": "Pages count short format",
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "pagesRemainingWithDays": " remaining · D-{days}",
+    "@pagesRemainingWithDays": {
+      "description": "Remaining pages with D-day",
+      "placeholders": {
+        "days": {
+          "type": "int"
+        }
+      }
+    },
+    "expectedSchedule": "Expected Schedule",
+    "@expectedSchedule": {
+      "description": "Expected schedule section title"
+    },
+    "pagesPerDay": "pages/day",
+    "@pagesPerDay": {
+      "description": "Pages per day unit"
+    },
+    "dailyTargetConfirmTitle": "Change Daily Goal",
+    "@dailyTargetConfirmTitle": {
+      "description": "Daily target confirm dialog title"
+    },
+    "dailyTargetConfirmMessage": "Today's goal cannot be modified,\nbut changes will apply from tomorrow.",
+    "@dailyTargetConfirmMessage": {
+      "description": "Daily target confirm message"
+    },
+    "dailyTargetConfirmQuestion": "Would you like to change it?",
+    "@dailyTargetConfirmQuestion": {
+      "description": "Daily target confirm question"
+    },
+    "updatePageTitle": "Update Current Page",
+    "@updatePageTitle": {
+      "description": "Update page dialog title"
+    },
+    "currentPageLabel": "Current {page}p",
+    "@currentPageLabel": {
+      "description": "Current page label",
+      "placeholders": {
+        "page": {
+          "type": "int"
+        }
+      }
+    },
+    "totalPageLabel": " / Total {page}p",
+    "@totalPageLabel": {
+      "description": "Total page label",
+      "placeholders": {
+        "page": {
+          "type": "int"
+        }
+      }
+    },
+    "newPageNumber": "New Page Number",
+    "@newPageNumber": {
+      "description": "New page number label"
+    },
+    "updateButton": "Update",
+    "@updateButton": {
+      "description": "Update button"
+    },
+    "validationEnterNumber": "Please enter a number",
+    "@validationEnterNumber": {
+      "description": "Validation: enter number"
+    },
+    "validationPageMinimum": "Please enter a page number of 0 or higher",
+    "@validationPageMinimum": {
+      "description": "Validation: page minimum"
+    },
+    "validationPageExceedsTotal": "Cannot exceed total pages ({total})",
+    "@validationPageExceedsTotal": {
+      "description": "Validation: page exceeds total",
+      "placeholders": {
+        "total": {
+          "type": "int"
+        }
+      }
+    },
+    "validationPageBelowCurrent": "Must be higher than current page ({current})",
+    "@validationPageBelowCurrent": {
+      "description": "Validation: page below current",
+      "placeholders": {
+        "current": {
+          "type": "int"
+        }
+      }
+    },
+    "addRecordTitle": "Add Record",
+    "@addRecordTitle": {
+      "description": "Add record title"
+    },
+    "tapToAddImage": "Tap to add image",
+    "@tapToAddImage": {
+      "description": "Tap to add image hint"
+    },
+    "optionalLabel": "(Optional)",
+    "@optionalLabel": {
+      "description": "Optional label"
+    },
+    "recordTextLabel": "Record Text",
+    "@recordTextLabel": {
+      "description": "Record text label"
+    },
+    "clearAllButton": "Clear All",
+    "@clearAllButton": {
+      "description": "Clear all button"
+    },
+    "recordHint": "Record a memorable passage.",
+    "@recordHint": {
+      "description": "Record text hint"
+    },
+    "uploadButton": "Upload",
+    "@uploadButton": {
+      "description": "Upload button"
+    },
+    "resetButton": "Reset",
+    "@resetButton": {
+      "description": "Reset button"
+    },
+    "highlightLabel": "Highlight",
+    "@highlightLabel": {
+      "description": "Highlight label"
+    },
+    "highlightWithCount": "Highlight ({count})",
+    "@highlightWithCount": {
+      "description": "Highlight with count",
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "replaceButton": "Replace",
+    "@replaceButton": {
+      "description": "Replace button"
+    },
+    "extractTextButton": "Extract Text",
+    "@extractTextButton": {
+      "description": "Extract text button"
+    },
+    "viewFullButton": "View Full",
+    "@viewFullButton": {
+      "description": "View full button"
+    },
+    "resetConfirmMessage": "Are you sure you want to reset?",
+    "@resetConfirmMessage": {
+      "description": "Reset confirm message"
+    },
+    "uploading": "Uploading...",
+    "@uploading": {
+      "description": "Uploading message"
+    },
+    "extractTextConfirmTitle": "Extract text?",
+    "@extractTextConfirmTitle": {
+      "description": "Extract text confirm title"
+    },
+    "extractTextCreditsMessage": "This will use credits.",
+    "@extractTextCreditsMessage": {
+      "description": "Extract text credits message"
+    },
+    "extractTextOverwriteMessage": "This will overwrite your text.\nThis will use credits.",
+    "@extractTextOverwriteMessage": {
+      "description": "Extract text overwrite message"
+    },
+    "noThanksButton": "No thanks",
+    "@noThanksButton": {
+      "description": "No thanks button"
+    },
+    "extractButton": "Extract",
+    "@extractButton": {
+      "description": "Extract button"
+    },
+    "extractingText": "Extracting text...",
+    "@extractingText": {
+      "description": "Extracting text message"
+    },
+    "extractedTextTitle": "Extracted Text",
+    "@extractedTextTitle": {
+      "description": "Extracted text title"
+    },
+    "reselectButton": "Reselect",
+    "@reselectButton": {
+      "description": "Reselect button"
+    },
+    "applyButton": "Apply",
+    "@applyButton": {
+      "description": "Apply button"
+    },
+    "aiFeaturesTitle": "AI Features",
+    "@aiFeaturesTitle": {
+      "description": "AI features section title"
+    },
+    "searchRecordsButton": "Search Records",
+    "@searchRecordsButton": {
+      "description": "Search records button"
+    },
+    "bookRecommendButton": "Book Recommendations",
+    "@bookRecommendButton": {
+      "description": "Book recommendation button"
+    },
+    "calendarFilterAll": "All",
+    "@calendarFilterAll": {
+      "description": "Calendar filter: all"
+    },
+    "calendarFilterReading": "Currently Reading",
+    "@calendarFilterReading": {
+      "description": "Calendar filter: reading"
+    },
+    "calendarFilterCompleted": "Completed",
+    "@calendarFilterCompleted": {
+      "description": "Calendar filter: completed"
+    },
+    "pageUpdateButton": "Update Page",
+    "@pageUpdateButton": {
+      "description": "Page update button"
+    },
+    "noProgressRecords": "No progress records",
+    "@noProgressRecords": {
+      "description": "No progress records message"
+    },
+    "oneLineReviewOptional": "One-line review (Optional)",
+    "@oneLineReviewOptional": {
+      "description": "One line review optional label"
+    },
+    "todayGoalChanged": "Today's goal changed to {pages}p",
+    "@todayGoalChanged": {
+      "description": "Today goal changed message",
+      "placeholders": {
+        "pages": {
+          "type": "int"
+        }
+      }
+    },
+    "bookInfoNotFound": "Book information not found",
+    "@bookInfoNotFound": {
+      "description": "Book info not found error"
+    },
+    "goalChangeFailed": "Failed to change goal",
+    "@goalChangeFailed": {
+      "description": "Goal change failed error"
+    },
+    "unsavedChangesMessage": "You have unsaved changes.",
+    "@unsavedChangesMessage": {
+      "description": "Unsaved changes warning message"
+    },
+    "discardChangesButton": "Discard Changes",
+    "@discardChangesButton": {
+      "description": "Discard changes button"
+    },
+    "continueEditingButton": "Continue Editing",
+    "@continueEditingButton": {
+      "description": "Continue editing button"
+    },
+    "pageNotSet": "Page not set",
+    "@pageNotSet": {
+      "description": "Page not set label"
+    },
+    "textInputHint": "Enter text...",
+    "@textInputHint": {
+      "description": "Text input hint"
+    },
+    "noRecordedText": "No recorded text.",
+    "@noRecordedText": {
+      "description": "No recorded text message"
+    },
+    "textCopied": "Text copied.",
+    "@textCopied": {
+      "description": "Text copied message"
+    },
+    "copyButton": "Copy",
+    "@copyButton": {
+      "description": "Copy button"
+    },
+    "editButton": "Edit",
+    "@editButton": {
+      "description": "Edit button"
+    },
+    "loadingImage": "Loading image...",
+    "@loadingImage": {
+      "description": "Loading image message"
+    },
+    "ocrAreaSelectTitle": "Select Text Extraction Area",
+    "@ocrAreaSelectTitle": {
+      "description": "OCR area select title"
+    },
+    "ocrExtractionFailed": "Failed to extract text. Try selecting a different area.",
+    "@ocrExtractionFailed": {
+      "description": "OCR extraction failed message"
+    },
+    "imageLoadFailed": "Failed to load image.",
+    "@imageLoadFailed": {
+      "description": "Image load failed message"
+    },
+    "ocrReExtractionFailed": "Failed to re-extract text.",
+    "@ocrReExtractionFailed": {
+      "description": "OCR re-extraction failed message"
+    },
+    "documentScanFailed": "Document scan failed.",
+    "@documentScanFailed": {
+      "description": "Document scan failed message"
+    },
+    "reScanButton": "Rescan",
+    "@reScanButton": {
+      "description": "Re-scan button"
+    },
+    "pageExceedsTotalError": "Cannot exceed total pages ({total})",
+    "@pageExceedsTotalError": {
+      "description": "Page exceeds total error message",
+      "placeholders": {
+        "total": {
+          "type": "int"
+        }
+      }
     }
 }

@@ -1444,4 +1444,248 @@ class AppLocalizationsKo extends AppLocalizations {
   String totalDaysFormat(int count) {
     return '($count일)';
   }
+
+  @override
+  String pagesRemaining(int count) {
+    return '$count페이지 남았어요';
+  }
+
+  @override
+  String todayGoalWithPages(int count) {
+    return '오늘 목표: ${count}p';
+  }
+
+  @override
+  String streakDaysAchieved(int count) {
+    return '$count일 연속 달성!';
+  }
+
+  @override
+  String get streakFirstRecord => '오늘 첫 기록을 남겨보세요';
+
+  @override
+  String get dailyTargetChangeTitle => '일일 목표 페이지 변경';
+
+  @override
+  String pagesRemainingShort(int count) {
+    return '$count페이지';
+  }
+
+  @override
+  String pagesRemainingWithDays(int days) {
+    return ' 남았어요 · D-$days';
+  }
+
+  @override
+  String get expectedSchedule => '예상 스케줄';
+
+  @override
+  String get pagesPerDay => '페이지/일';
+
+  @override
+  String get dailyTargetConfirmTitle => '일일 목표 변경';
+
+  @override
+  String get dailyTargetConfirmMessage =>
+      '오늘의 목표는 수정할 수 없지만,\n내일부터 변경된 목표가 적용됩니다.';
+
+  @override
+  String get dailyTargetConfirmQuestion => '변경하시겠어요?';
+
+  @override
+  String get updatePageTitle => '현재 페이지 업데이트';
+
+  @override
+  String currentPageLabel(int page) {
+    return '현재 ${page}p';
+  }
+
+  @override
+  String totalPageLabel(int page) {
+    return ' / 총 ${page}p';
+  }
+
+  @override
+  String get newPageNumber => '새 페이지 번호';
+
+  @override
+  String get updateButton => '업데이트';
+
+  @override
+  String get validationEnterNumber => '숫자를 입력해주세요';
+
+  @override
+  String get validationPageMinimum => '0 이상의 페이지를 입력해주세요';
+
+  @override
+  String validationPageExceedsTotal(int total) {
+    return '총 페이지($total)를 초과할 수 없습니다';
+  }
+
+  @override
+  String validationPageBelowCurrent(int current) {
+    return '현재 페이지($current) 이하입니다';
+  }
+
+  @override
+  String get addRecordTitle => '기록 추가';
+
+  @override
+  String get tapToAddImage => '터치하여 이미지 추가';
+
+  @override
+  String get optionalLabel => '(선택사항)';
+
+  @override
+  String get recordTextLabel => '기록 문구';
+
+  @override
+  String get clearAllButton => '모두 지우기';
+
+  @override
+  String get recordHint => '인상 깊은 대목을 기록해보세요.';
+
+  @override
+  String get uploadButton => '업로드';
+
+  @override
+  String get resetButton => '초기화';
+
+  @override
+  String get highlightLabel => '하이라이트';
+
+  @override
+  String highlightWithCount(int count) {
+    return '하이라이트 ($count)';
+  }
+
+  @override
+  String get replaceButton => '교체하기';
+
+  @override
+  String get extractTextButton => '텍스트 추출';
+
+  @override
+  String get viewFullButton => '전체보기';
+
+  @override
+  String get resetConfirmMessage => '내용을 정말 초기화하시겠어요?';
+
+  @override
+  String get uploading => '업로드 중...';
+
+  @override
+  String get extractTextConfirmTitle => '텍스트를 추출하시겠어요?';
+
+  @override
+  String get extractTextCreditsMessage => '크레딧을 소모합니다.';
+
+  @override
+  String get extractTextOverwriteMessage => '작성하신 텍스트를 덮어씁니다.\n크레딧을 소모합니다.';
+
+  @override
+  String get noThanksButton => '괜찮아요';
+
+  @override
+  String get extractButton => '추출할게요';
+
+  @override
+  String get extractingText => '텍스트 추출 중...';
+
+  @override
+  String get reselectButton => '다시 선택';
+
+  @override
+  String get applyButton => '적용하기';
+
+  @override
+  String get aiFeaturesTitle => 'AI 기능';
+
+  @override
+  String get searchRecordsButton => '기록 검색';
+
+  @override
+  String get bookRecommendButton => '책 추천';
+
+  @override
+  String get calendarFilterAll => '전체';
+
+  @override
+  String get calendarFilterReading => '읽고 있는 책';
+
+  @override
+  String get calendarFilterCompleted => '완독한 책';
+
+  @override
+  String get pageUpdateButton => '페이지 업데이트';
+
+  @override
+  String get noProgressRecords => '진행률 기록이 없습니다';
+
+  @override
+  String get oneLineReviewOptional => '한줄평 (선택사항)';
+
+  @override
+  String todayGoalChanged(int pages) {
+    return '오늘 목표: ${pages}p로 변경되었습니다';
+  }
+
+  @override
+  String get bookInfoNotFound => '도서 정보를 찾을 수 없습니다';
+
+  @override
+  String get goalChangeFailed => '목표 변경에 실패했습니다';
+
+  @override
+  String get unsavedChangesMessage => '수정 중인 내용이 있습니다.';
+
+  @override
+  String get discardChangesButton => '변경사항 무시';
+
+  @override
+  String get continueEditingButton => '이어서 하기';
+
+  @override
+  String get pageNotSet => '페이지 미설정';
+
+  @override
+  String get textInputHint => '텍스트를 입력하세요...';
+
+  @override
+  String get noRecordedText => '기록된 문구가 없습니다.';
+
+  @override
+  String get textCopied => '텍스트가 복사되었습니다.';
+
+  @override
+  String get copyButton => '복사하기';
+
+  @override
+  String get editButton => '수정하기';
+
+  @override
+  String get loadingImage => '이미지 불러오는 중...';
+
+  @override
+  String get ocrAreaSelectTitle => '텍스트 추출 영역 선택';
+
+  @override
+  String get ocrExtractionFailed => '텍스트를 추출하지 못했습니다. 다른 영역을 선택해보세요.';
+
+  @override
+  String get imageLoadFailed => '이미지를 불러오지 못했습니다.';
+
+  @override
+  String get ocrReExtractionFailed => '텍스트 다시 추출에 실패했습니다.';
+
+  @override
+  String get documentScanFailed => '문서 스캔에 실패했습니다.';
+
+  @override
+  String get reScanButton => '다시 스캔';
+
+  @override
+  String pageExceedsTotalError(int total) {
+    return '총 페이지 수($total)를 초과할 수 없습니다';
+  }
 }

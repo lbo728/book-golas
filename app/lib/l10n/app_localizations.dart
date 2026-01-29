@@ -1688,7 +1688,7 @@ abstract class AppLocalizations {
   /// **'Back to Reading Detail'**
   String get expandedNavBackToDetail;
 
-  /// No description provided for @extractedTextTitle.
+  /// Extracted text title
   ///
   /// In en, this message translates to:
   /// **'Extracted Text'**
@@ -2779,6 +2779,444 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'({count} days)'**
   String totalDaysFormat(int count);
+
+  /// Pages remaining message
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 page remaining} other{{count} pages remaining}}'**
+  String pagesRemaining(int count);
+
+  /// Today's goal with page count
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s goal: {count}p'**
+  String todayGoalWithPages(int count);
+
+  /// Streak days achievement message
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day streak!} other{{count} day streak!}}'**
+  String streakDaysAchieved(int count);
+
+  /// Prompt to leave first record
+  ///
+  /// In en, this message translates to:
+  /// **'Leave your first record today'**
+  String get streakFirstRecord;
+
+  /// Daily target change dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Change Daily Page Goal'**
+  String get dailyTargetChangeTitle;
+
+  /// Pages count short format
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 page} other{{count} pages}}'**
+  String pagesRemainingShort(int count);
+
+  /// Remaining pages with D-day
+  ///
+  /// In en, this message translates to:
+  /// **' remaining · D-{days}'**
+  String pagesRemainingWithDays(int days);
+
+  /// Expected schedule section title
+  ///
+  /// In en, this message translates to:
+  /// **'Expected Schedule'**
+  String get expectedSchedule;
+
+  /// Pages per day unit
+  ///
+  /// In en, this message translates to:
+  /// **'pages/day'**
+  String get pagesPerDay;
+
+  /// Daily target confirm dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Change Daily Goal'**
+  String get dailyTargetConfirmTitle;
+
+  /// Daily target confirm message
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s goal cannot be modified,\nbut changes will apply from tomorrow.'**
+  String get dailyTargetConfirmMessage;
+
+  /// Daily target confirm question
+  ///
+  /// In en, this message translates to:
+  /// **'Would you like to change it?'**
+  String get dailyTargetConfirmQuestion;
+
+  /// Update page dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Update Current Page'**
+  String get updatePageTitle;
+
+  /// Current page label
+  ///
+  /// In en, this message translates to:
+  /// **'Current {page}p'**
+  String currentPageLabel(int page);
+
+  /// Total page label
+  ///
+  /// In en, this message translates to:
+  /// **' / Total {page}p'**
+  String totalPageLabel(int page);
+
+  /// New page number label
+  ///
+  /// In en, this message translates to:
+  /// **'New Page Number'**
+  String get newPageNumber;
+
+  /// Update button
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get updateButton;
+
+  /// Validation: enter number
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a number'**
+  String get validationEnterNumber;
+
+  /// Validation: page minimum
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a page number of 0 or higher'**
+  String get validationPageMinimum;
+
+  /// Validation: page exceeds total
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot exceed total pages ({total})'**
+  String validationPageExceedsTotal(int total);
+
+  /// Validation: page below current
+  ///
+  /// In en, this message translates to:
+  /// **'Must be higher than current page ({current})'**
+  String validationPageBelowCurrent(int current);
+
+  /// Add record title
+  ///
+  /// In en, this message translates to:
+  /// **'Add Record'**
+  String get addRecordTitle;
+
+  /// Tap to add image hint
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to add image'**
+  String get tapToAddImage;
+
+  /// Optional label
+  ///
+  /// In en, this message translates to:
+  /// **'(Optional)'**
+  String get optionalLabel;
+
+  /// Record text label
+  ///
+  /// In en, this message translates to:
+  /// **'Record Text'**
+  String get recordTextLabel;
+
+  /// Clear all button
+  ///
+  /// In en, this message translates to:
+  /// **'Clear All'**
+  String get clearAllButton;
+
+  /// Record text hint
+  ///
+  /// In en, this message translates to:
+  /// **'Record a memorable passage.'**
+  String get recordHint;
+
+  /// Upload button
+  ///
+  /// In en, this message translates to:
+  /// **'Upload'**
+  String get uploadButton;
+
+  /// Reset button
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get resetButton;
+
+  /// Highlight label
+  ///
+  /// In en, this message translates to:
+  /// **'Highlight'**
+  String get highlightLabel;
+
+  /// Highlight with count
+  ///
+  /// In en, this message translates to:
+  /// **'Highlight ({count})'**
+  String highlightWithCount(int count);
+
+  /// Replace button
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get replaceButton;
+
+  /// Extract text button
+  ///
+  /// In en, this message translates to:
+  /// **'Extract Text'**
+  String get extractTextButton;
+
+  /// View full button
+  ///
+  /// In en, this message translates to:
+  /// **'View Full'**
+  String get viewFullButton;
+
+  /// Reset confirm message
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to reset?'**
+  String get resetConfirmMessage;
+
+  /// Uploading message
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading...'**
+  String get uploading;
+
+  /// Extract text confirm title
+  ///
+  /// In en, this message translates to:
+  /// **'Extract text?'**
+  String get extractTextConfirmTitle;
+
+  /// Extract text credits message
+  ///
+  /// In en, this message translates to:
+  /// **'This will use credits.'**
+  String get extractTextCreditsMessage;
+
+  /// Extract text overwrite message
+  ///
+  /// In en, this message translates to:
+  /// **'This will overwrite your text.\nThis will use credits.'**
+  String get extractTextOverwriteMessage;
+
+  /// No thanks button
+  ///
+  /// In en, this message translates to:
+  /// **'No thanks'**
+  String get noThanksButton;
+
+  /// Extract button
+  ///
+  /// In en, this message translates to:
+  /// **'Extract'**
+  String get extractButton;
+
+  /// Extracting text message
+  ///
+  /// In en, this message translates to:
+  /// **'Extracting text...'**
+  String get extractingText;
+
+  /// Reselect button
+  ///
+  /// In en, this message translates to:
+  /// **'Reselect'**
+  String get reselectButton;
+
+  /// Apply button
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get applyButton;
+
+  /// AI features section title
+  ///
+  /// In en, this message translates to:
+  /// **'AI Features'**
+  String get aiFeaturesTitle;
+
+  /// Search records button
+  ///
+  /// In en, this message translates to:
+  /// **'Search Records'**
+  String get searchRecordsButton;
+
+  /// Book recommendation button
+  ///
+  /// In en, this message translates to:
+  /// **'Book Recommendations'**
+  String get bookRecommendButton;
+
+  /// Calendar filter: all
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get calendarFilterAll;
+
+  /// Calendar filter: reading
+  ///
+  /// In en, this message translates to:
+  /// **'Currently Reading'**
+  String get calendarFilterReading;
+
+  /// Calendar filter: completed
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get calendarFilterCompleted;
+
+  /// Page update button
+  ///
+  /// In en, this message translates to:
+  /// **'Update Page'**
+  String get pageUpdateButton;
+
+  /// No progress records message
+  ///
+  /// In en, this message translates to:
+  /// **'No progress records'**
+  String get noProgressRecords;
+
+  /// One line review optional label
+  ///
+  /// In en, this message translates to:
+  /// **'One-line review (Optional)'**
+  String get oneLineReviewOptional;
+
+  /// Today goal changed message
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s goal changed to {pages}p'**
+  String todayGoalChanged(int pages);
+
+  /// Book info not found error
+  ///
+  /// In en, this message translates to:
+  /// **'Book information not found'**
+  String get bookInfoNotFound;
+
+  /// Goal change failed error
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to change goal'**
+  String get goalChangeFailed;
+
+  /// Unsaved changes warning message
+  ///
+  /// In en, this message translates to:
+  /// **'You have unsaved changes.'**
+  String get unsavedChangesMessage;
+
+  /// Discard changes button
+  ///
+  /// In en, this message translates to:
+  /// **'Discard Changes'**
+  String get discardChangesButton;
+
+  /// Continue editing button
+  ///
+  /// In en, this message translates to:
+  /// **'Continue Editing'**
+  String get continueEditingButton;
+
+  /// Page not set label
+  ///
+  /// In en, this message translates to:
+  /// **'Page not set'**
+  String get pageNotSet;
+
+  /// Text input hint
+  ///
+  /// In en, this message translates to:
+  /// **'Enter text...'**
+  String get textInputHint;
+
+  /// No recorded text message
+  ///
+  /// In en, this message translates to:
+  /// **'No recorded text.'**
+  String get noRecordedText;
+
+  /// Text copied message
+  ///
+  /// In en, this message translates to:
+  /// **'Text copied.'**
+  String get textCopied;
+
+  /// Copy button
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copyButton;
+
+  /// Edit button
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get editButton;
+
+  /// Loading image message
+  ///
+  /// In en, this message translates to:
+  /// **'Loading image...'**
+  String get loadingImage;
+
+  /// OCR area select title
+  ///
+  /// In en, this message translates to:
+  /// **'Select Text Extraction Area'**
+  String get ocrAreaSelectTitle;
+
+  /// OCR extraction failed message
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to extract text. Try selecting a different area.'**
+  String get ocrExtractionFailed;
+
+  /// Image load failed message
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load image.'**
+  String get imageLoadFailed;
+
+  /// OCR re-extraction failed message
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to re-extract text.'**
+  String get ocrReExtractionFailed;
+
+  /// Document scan failed message
+  ///
+  /// In en, this message translates to:
+  /// **'Document scan failed.'**
+  String get documentScanFailed;
+
+  /// Re-scan button
+  ///
+  /// In en, this message translates to:
+  /// **'Rescan'**
+  String get reScanButton;
+
+  /// Page exceeds total error message
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot exceed total pages ({total})'**
+  String pageExceedsTotalError(int total);
 }
 
 class _AppLocalizationsDelegate

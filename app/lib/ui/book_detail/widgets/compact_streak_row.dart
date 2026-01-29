@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class CompactStreakRow extends StatelessWidget {
@@ -10,10 +12,23 @@ class CompactStreakRow extends StatelessWidget {
     required this.dailyAchievements,
   });
 
+  List<String> _getDayLabels(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      l10n.weekdaySun,
+      l10n.weekdayMon,
+      l10n.weekdayTue,
+      l10n.weekdayWed,
+      l10n.weekdayThu,
+      l10n.weekdayFri,
+      l10n.weekdaySat,
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    const dayLabels = ['일', '월', '화', '수', '목', '금', '토'];
+    final dayLabels = _getDayLabels(context);
 
     final now = DateTime.now();
     final recentDays = <Map<String, dynamic>>[];
@@ -57,7 +72,7 @@ class CompactStreakRow extends StatelessWidget {
         children: [
           _buildDaysRow(recentDays, isDark),
           const SizedBox(height: 10),
-          _buildStreakInfo(streak, isDark),
+          _buildStreakInfo(context, streak, isDark),
         ],
       ),
     );
@@ -121,7 +136,8 @@ class CompactStreakRow extends StatelessWidget {
     );
   }
 
-  Widget _buildStreakInfo(int streak, bool isDark) {
+  Widget _buildStreakInfo(BuildContext context, int streak, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -134,7 +150,7 @@ class CompactStreakRow extends StatelessWidget {
         ),
         const SizedBox(width: 4),
         Text(
-          streak > 0 ? '$streak일 연속 달성!' : '오늘 첫 기록을 남겨보세요',
+          streak > 0 ? l10n.streakDaysAchieved(streak) : l10n.streakFirstRecord,
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,

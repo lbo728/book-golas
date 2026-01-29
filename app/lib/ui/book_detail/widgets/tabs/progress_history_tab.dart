@@ -4,6 +4,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
+
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class ProgressHistoryTab extends StatelessWidget {
@@ -40,7 +42,7 @@ class ProgressHistoryTab extends StatelessWidget {
         final rawData = snapshot.data ?? [];
 
         if (rawData.isEmpty) {
-          return _buildEmptyState(isDark);
+          return _buildEmptyState(context, isDark);
         }
 
         final aggregatedData = _aggregateByDate(rawData);
@@ -49,7 +51,7 @@ class ProgressHistoryTab extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState(bool isDark) {
+  Widget _buildEmptyState(BuildContext context, bool isDark) {
     return SizedBox(
       height: 200,
       child: Center(
@@ -63,7 +65,7 @@ class ProgressHistoryTab extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              '진행률 기록이 없습니다',
+              AppLocalizations.of(context)!.noProgressRecords,
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -488,8 +490,7 @@ class ProgressHistoryTab extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 5, vertical: 1),
                         decoration: BoxDecoration(
-                          color:
-                              AppColors.warning.withValues(alpha: 0.15),
+                          color: AppColors.warning.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(

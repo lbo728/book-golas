@@ -60,8 +60,20 @@ class DailyTargetDialog {
         }
         pagesToRead = pagesToRead.clamp(1, remainingPages);
 
-        final weekday =
-            ['월', '화', '수', '목', '금', '토', '일'][currentDate.weekday - 1];
+        List<String> getWeekdayLabels(BuildContext context) {
+          final l10n = AppLocalizations.of(context)!;
+          return [
+            l10n.weekdayMon,
+            l10n.weekdayTue,
+            l10n.weekdayWed,
+            l10n.weekdayThu,
+            l10n.weekdayFri,
+            l10n.weekdaySat,
+            l10n.weekdaySun,
+          ];
+        }
+
+        final weekday = getWeekdayLabels(context)[currentDate.weekday - 1];
 
         schedule.add({
           'date': currentDate,
@@ -186,8 +198,8 @@ class DailyTargetDialog {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              // 헤더
                                               _buildHeader(
+                                                context: context,
                                                 isDark: isDark,
                                                 pagesLeft: pagesLeft,
                                                 daysLeft: daysLeft,
@@ -226,9 +238,9 @@ class DailyTargetDialog {
                                                 },
                                               ),
                                               const SizedBox(height: 16),
-                                              // 예상 스케줄 헤더
                                               Text(
-                                                '예상 스케줄',
+                                                AppLocalizations.of(context)!
+                                                    .expectedSchedule,
                                                 style: TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w600,
@@ -308,10 +320,12 @@ class DailyTargetDialog {
   }
 
   static Widget _buildHeader({
+    required BuildContext context,
     required bool isDark,
     required int pagesLeft,
     required int daysLeft,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         Container(
@@ -332,7 +346,7 @@ class DailyTargetDialog {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '일일 목표 페이지 변경',
+                l10n.dailyTargetChangeTitle,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
@@ -343,7 +357,7 @@ class DailyTargetDialog {
                 text: TextSpan(
                   children: [
                     TextSpan(
-                      text: '$pagesLeft페이지',
+                      text: l10n.pagesRemainingShort(pagesLeft),
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -351,7 +365,7 @@ class DailyTargetDialog {
                       ),
                     ),
                     TextSpan(
-                      text: ' 남았어요 · D-$daysLeft',
+                      text: l10n.pagesRemainingWithDays(daysLeft),
                       style: TextStyle(
                         fontSize: 13,
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -437,13 +451,15 @@ class DailyTargetDialog {
                               ),
                             ),
                             if (isSelected)
-                              Text(
-                                '페이지/일',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: isDark
-                                      ? Colors.grey[400]
-                                      : Colors.grey[600],
+                              Builder(
+                                builder: (context) => Text(
+                                  AppLocalizations.of(context)!.pagesPerDay,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: isDark
+                                        ? Colors.grey[400]
+                                        : Colors.grey[600],
+                                  ),
                                 ),
                               ),
                           ],
@@ -621,19 +637,19 @@ class DailyTargetDialog {
             child: ElevatedButton(
               onPressed: () async {
                 // book id 확인
+                final l10n = AppLocalizations.of(context)!;
                 final bookId = book.id;
                 if (bookId == null) {
                   Navigator.pop(context);
                   CustomSnackbar.show(
                     parentContext,
-                    message: '도서 정보를 찾을 수 없습니다',
+                    message: l10n.bookInfoNotFound,
                     type: SnackbarType.error,
                     bottomOffset: 100,
                   );
                   return;
                 }
 
-                // DB에 일일 목표 페이지 업데이트
                 try {
                   await Supabase.instance.client.from('books').update(
                       {'daily_target_pages': newDailyTarget}).eq('id', bookId);
@@ -645,7 +661,7 @@ class DailyTargetDialog {
 
                   CustomSnackbar.show(
                     parentContext,
-                    message: '오늘 목표: ${newDailyTarget}p로 변경되었습니다',
+                    message: l10n.todayGoalChanged(newDailyTarget),
                     type: SnackbarType.success,
                     bottomOffset: 100,
                   );
@@ -654,7 +670,7 @@ class DailyTargetDialog {
                   Navigator.pop(context);
                   CustomSnackbar.show(
                     parentContext,
-                    message: '목표 변경에 실패했습니다: $e',
+                    message: '${l10n.goalChangeFailed}: $e',
                     type: SnackbarType.error,
                     bottomOffset: 100,
                   );
@@ -667,9 +683,9 @@ class DailyTargetDialog {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
-                '변경',
-                style: TextStyle(
+              child: Text(
+                AppLocalizations.of(context)!.commonChange,
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),

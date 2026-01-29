@@ -50,7 +50,7 @@ Future<bool?> showDailyTargetConfirmSheet({
             ),
             const SizedBox(height: 20),
             Text(
-              '일일 목표 변경',
+              AppLocalizations.of(context)!.dailyTargetConfirmTitle,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -59,7 +59,7 @@ Future<bool?> showDailyTargetConfirmSheet({
             ),
             const SizedBox(height: 12),
             Text(
-              '오늘의 목표는 수정할 수 없지만,\n내일부터 변경된 목표가 적용됩니다.',
+              AppLocalizations.of(context)!.dailyTargetConfirmMessage,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 15,
@@ -69,7 +69,7 @@ Future<bool?> showDailyTargetConfirmSheet({
             ),
             const SizedBox(height: 8),
             Text(
-              '변경하시겠어요?',
+              AppLocalizations.of(context)!.dailyTargetConfirmQuestion,
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
@@ -89,7 +89,7 @@ Future<bool?> showDailyTargetConfirmSheet({
                       ),
                     ),
                     child: Text(
-                      '취소',
+                      AppLocalizations.of(context)!.commonCancel,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,

@@ -121,26 +121,12 @@ class DashboardProgressWidget extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: '$pagesLeft페이지',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: isDark ? Colors.grey[300] : Colors.grey[700],
-                        ),
-                      ),
-                      TextSpan(
-                        text: ' 남았어요',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.grey[400] : Colors.grey[600],
-                        ),
-                      ),
-                    ],
+                Text(
+                  AppLocalizations.of(context)!.pagesRemaining(pagesLeft),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.grey[300] : Colors.grey[700],
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -173,7 +159,7 @@ class DashboardProgressWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  '오늘 목표: ${dailyTarget}p',
+                  AppLocalizations.of(context)!.todayGoalWithPages(dailyTarget),
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,

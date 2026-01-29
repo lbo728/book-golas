@@ -1491,4 +1491,269 @@ class AppLocalizationsEn extends AppLocalizations {
   String totalDaysFormat(int count) {
     return '($count days)';
   }
+
+  @override
+  String pagesRemaining(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pages remaining',
+      one: '1 page remaining',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String todayGoalWithPages(int count) {
+    return 'Today\'s goal: ${count}p';
+  }
+
+  @override
+  String streakDaysAchieved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count day streak!',
+      one: '1 day streak!',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get streakFirstRecord => 'Leave your first record today';
+
+  @override
+  String get dailyTargetChangeTitle => 'Change Daily Page Goal';
+
+  @override
+  String pagesRemainingShort(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pages',
+      one: '1 page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pagesRemainingWithDays(int days) {
+    return ' remaining · D-$days';
+  }
+
+  @override
+  String get expectedSchedule => 'Expected Schedule';
+
+  @override
+  String get pagesPerDay => 'pages/day';
+
+  @override
+  String get dailyTargetConfirmTitle => 'Change Daily Goal';
+
+  @override
+  String get dailyTargetConfirmMessage =>
+      'Today\'s goal cannot be modified,\nbut changes will apply from tomorrow.';
+
+  @override
+  String get dailyTargetConfirmQuestion => 'Would you like to change it?';
+
+  @override
+  String get updatePageTitle => 'Update Current Page';
+
+  @override
+  String currentPageLabel(int page) {
+    return 'Current ${page}p';
+  }
+
+  @override
+  String totalPageLabel(int page) {
+    return ' / Total ${page}p';
+  }
+
+  @override
+  String get newPageNumber => 'New Page Number';
+
+  @override
+  String get updateButton => 'Update';
+
+  @override
+  String get validationEnterNumber => 'Please enter a number';
+
+  @override
+  String get validationPageMinimum =>
+      'Please enter a page number of 0 or higher';
+
+  @override
+  String validationPageExceedsTotal(int total) {
+    return 'Cannot exceed total pages ($total)';
+  }
+
+  @override
+  String validationPageBelowCurrent(int current) {
+    return 'Must be higher than current page ($current)';
+  }
+
+  @override
+  String get addRecordTitle => 'Add Record';
+
+  @override
+  String get tapToAddImage => 'Tap to add image';
+
+  @override
+  String get optionalLabel => '(Optional)';
+
+  @override
+  String get recordTextLabel => 'Record Text';
+
+  @override
+  String get clearAllButton => 'Clear All';
+
+  @override
+  String get recordHint => 'Record a memorable passage.';
+
+  @override
+  String get uploadButton => 'Upload';
+
+  @override
+  String get resetButton => 'Reset';
+
+  @override
+  String get highlightLabel => 'Highlight';
+
+  @override
+  String highlightWithCount(int count) {
+    return 'Highlight ($count)';
+  }
+
+  @override
+  String get replaceButton => 'Replace';
+
+  @override
+  String get extractTextButton => 'Extract Text';
+
+  @override
+  String get viewFullButton => 'View Full';
+
+  @override
+  String get resetConfirmMessage => 'Are you sure you want to reset?';
+
+  @override
+  String get uploading => 'Uploading...';
+
+  @override
+  String get extractTextConfirmTitle => 'Extract text?';
+
+  @override
+  String get extractTextCreditsMessage => 'This will use credits.';
+
+  @override
+  String get extractTextOverwriteMessage =>
+      'This will overwrite your text.\nThis will use credits.';
+
+  @override
+  String get noThanksButton => 'No thanks';
+
+  @override
+  String get extractButton => 'Extract';
+
+  @override
+  String get extractingText => 'Extracting text...';
+
+  @override
+  String get reselectButton => 'Reselect';
+
+  @override
+  String get applyButton => 'Apply';
+
+  @override
+  String get aiFeaturesTitle => 'AI Features';
+
+  @override
+  String get searchRecordsButton => 'Search Records';
+
+  @override
+  String get bookRecommendButton => 'Book Recommendations';
+
+  @override
+  String get calendarFilterAll => 'All';
+
+  @override
+  String get calendarFilterReading => 'Currently Reading';
+
+  @override
+  String get calendarFilterCompleted => 'Completed';
+
+  @override
+  String get pageUpdateButton => 'Update Page';
+
+  @override
+  String get noProgressRecords => 'No progress records';
+
+  @override
+  String get oneLineReviewOptional => 'One-line review (Optional)';
+
+  @override
+  String todayGoalChanged(int pages) {
+    return 'Today\'s goal changed to ${pages}p';
+  }
+
+  @override
+  String get bookInfoNotFound => 'Book information not found';
+
+  @override
+  String get goalChangeFailed => 'Failed to change goal';
+
+  @override
+  String get unsavedChangesMessage => 'You have unsaved changes.';
+
+  @override
+  String get discardChangesButton => 'Discard Changes';
+
+  @override
+  String get continueEditingButton => 'Continue Editing';
+
+  @override
+  String get pageNotSet => 'Page not set';
+
+  @override
+  String get textInputHint => 'Enter text...';
+
+  @override
+  String get noRecordedText => 'No recorded text.';
+
+  @override
+  String get textCopied => 'Text copied.';
+
+  @override
+  String get copyButton => 'Copy';
+
+  @override
+  String get editButton => 'Edit';
+
+  @override
+  String get loadingImage => 'Loading image...';
+
+  @override
+  String get ocrAreaSelectTitle => 'Select Text Extraction Area';
+
+  @override
+  String get ocrExtractionFailed =>
+      'Failed to extract text. Try selecting a different area.';
+
+  @override
+  String get imageLoadFailed => 'Failed to load image.';
+
+  @override
+  String get ocrReExtractionFailed => 'Failed to re-extract text.';
+
+  @override
+  String get documentScanFailed => 'Document scan failed.';
+
+  @override
+  String get reScanButton => 'Rescan';
+
+  @override
+  String pageExceedsTotalError(int total) {
+    return 'Cannot exceed total pages ($total)';
+  }
 }
