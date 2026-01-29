@@ -97,7 +97,7 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '목표일 변경',
+                AppLocalizations.of(context)!.changeTargetDateTitle,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
@@ -105,7 +105,8 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
                 ),
               ),
               Text(
-                '${widget.nextAttemptCount}번째 도전으로 변경됩니다',
+                AppLocalizations.of(context)!
+                    .attemptChangeMessage(widget.nextAttemptCount),
                 style: TextStyle(
                   fontSize: 13,
                   color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -209,9 +210,9 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text(
-              '변경하기',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context)!.confirmChange,
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),

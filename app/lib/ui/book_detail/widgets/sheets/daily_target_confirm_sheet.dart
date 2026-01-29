@@ -1,3 +1,4 @@
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -109,9 +110,9 @@ Future<bool?> showDailyTargetConfirmSheet({
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      '변경하기',
-                      style: TextStyle(
+                    child: Text(
+                      AppLocalizations.of(context)!.confirmChange,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,

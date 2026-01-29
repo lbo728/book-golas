@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 import 'circular_progress_painter.dart';
@@ -142,7 +144,7 @@ class DashboardProgressWidget extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                _buildDailyTargetButton(isDark),
+                _buildDailyTargetButton(context, isDark),
               ],
             ),
           ),
@@ -151,7 +153,7 @@ class DashboardProgressWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDailyTargetButton(bool isDark) {
+  Widget _buildDailyTargetButton(BuildContext context, bool isDark) {
     final dailyTarget = dailyTargetPages ??
         (daysLeft > 0 ? (pagesLeft / daysLeft).ceil() : pagesLeft);
     if (dailyTarget <= 0) return const SizedBox.shrink();
@@ -196,18 +198,18 @@ class DashboardProgressWidget extends StatelessWidget {
               color: AppColors.gold.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(6),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
+                const Icon(
                   CupertinoIcons.checkmark_seal_fill,
                   size: 12,
                   color: AppColors.gold,
                 ),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 Text(
-                  '목표 달성',
-                  style: TextStyle(
+                  AppLocalizations.of(context)!.bookDetailGoalAchieved,
+                  style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: AppColors.gold,

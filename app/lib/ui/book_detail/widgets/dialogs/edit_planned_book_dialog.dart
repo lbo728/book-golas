@@ -86,7 +86,7 @@ class _EditPlannedBookDialogState extends State<EditPlannedBookDialog> {
                 const SizedBox(height: 20),
                 Center(
                   child: Text(
-                    '독서 계획 수정',
+                    AppLocalizations.of(context)!.editReadingPlanTitle,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -104,7 +104,7 @@ class _EditPlannedBookDialogState extends State<EditPlannedBookDialog> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  '시작 예정일',
+                  AppLocalizations.of(context)!.editPlannedStartDate,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,

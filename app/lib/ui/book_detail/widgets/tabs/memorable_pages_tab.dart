@@ -5,6 +5,7 @@ import 'package:shimmer/shimmer.dart';
 
 import 'package:book_golas/data/services/google_vision_ocr_service.dart';
 import 'package:book_golas/data/services/image_cache_manager.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class MemorablePagesTab extends StatefulWidget {
@@ -17,7 +18,8 @@ class MemorablePagesTab extends StatefulWidget {
   final void Function(bool isSelectionMode) onSelectionModeChanged;
   final void Function(String imageId, bool isSelected) onImageSelected;
   final VoidCallback onDeleteSelected;
-  final void Function(String imageId, String? imageUrl, String? extractedText, int? pageNumber) onImageTap;
+  final void Function(String imageId, String? imageUrl, String? extractedText,
+      int? pageNumber) onImageTap;
   final void Function(List<Map<String, dynamic>> images) onImagesLoaded;
 
   const MemorablePagesTab({
@@ -88,7 +90,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
         final images = _sortImages(rawImages);
 
         if (images.isEmpty) {
-          return _buildEmptyState(isDark);
+          return _buildEmptyState(context, isDark);
         }
 
         return Column(
@@ -101,7 +103,8 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
     );
   }
 
-  Widget _buildEmptyState(bool isDark) {
+  Widget _buildEmptyState(BuildContext context, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return SizedBox(
       height: 200,
       child: Center(
@@ -115,7 +118,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
             ),
             const SizedBox(height: 12),
             Text(
-              '아직 추가된 사진이 없습니다',
+              l10n.bookDetailNoPhotos,
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -124,7 +127,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
             ),
             const SizedBox(height: 4),
             Text(
-              '하단 + 버튼으로 추가해보세요',
+              l10n.bookDetailAddPhotoHint,
               style: TextStyle(
                 fontSize: 12,
                 color: isDark ? Colors.grey[500] : Colors.grey[500],
@@ -275,7 +278,8 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
     if (createdAt != null) {
       try {
         final date = DateTime.parse(createdAt);
-        formattedDate = '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
+        formattedDate =
+            '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
       } catch (_) {}
     }
 
