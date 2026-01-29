@@ -1441,4 +1441,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get datePickerMonthDec => 'Dec';
+
+  @override
+  String get bookDetailSchedule => 'Reading Schedule';
+
+  @override
+  String get bookDetailGoalProgress => 'Goal Progress';
+
+  @override
+  String get bookDetailGoalAchieved => 'Goal Achieved';
+
+  @override
+  String get bookDetailDeleteReading => 'Delete Reading';
+
+  @override
+  String get bookDetailNoPhotos => 'No photos added yet';
+
+  @override
+  String get bookDetailAddPhotoHint => 'Add photos using the + button below';
+
+  @override
+  String get editReadingPlanTitle => 'Edit Reading Plan';
+
+  @override
+  String get editPlannedStartDate => 'Planned Start Date';
+
+  @override
+  String get changeTargetDateTitle => 'Change Target Date';
+
+  @override
+  String attemptChangeMessage(int count) {
+    return 'This will be attempt #$count';
+  }
+
+  @override
+  String get confirmChange => 'Confirm';
+
+  @override
+  String bookDetailAchievementStatus(int passed, int achieved) {
+    return '$achieved of $passed days achieved';
+  }
+
+  @override
+  String attemptOrdinal(int count) {
+    return 'Attempt #$count';
+  }
+
+  @override
+  String totalDaysFormat(int count) {
+    return '($count days)';
+  }
 }

@@ -2695,6 +2695,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dec'**
   String get datePickerMonthDec;
+
+  /// No description provided for @bookDetailSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading Schedule'**
+  String get bookDetailSchedule;
+
+  /// No description provided for @bookDetailGoalProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal Progress'**
+  String get bookDetailGoalProgress;
+
+  /// No description provided for @bookDetailGoalAchieved.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal Achieved'**
+  String get bookDetailGoalAchieved;
+
+  /// No description provided for @bookDetailDeleteReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Reading'**
+  String get bookDetailDeleteReading;
+
+  /// No description provided for @bookDetailNoPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'No photos added yet'**
+  String get bookDetailNoPhotos;
+
+  /// No description provided for @bookDetailAddPhotoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add photos using the + button below'**
+  String get bookDetailAddPhotoHint;
+
+  /// No description provided for @editReadingPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Reading Plan'**
+  String get editReadingPlanTitle;
+
+  /// No description provided for @editPlannedStartDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned Start Date'**
+  String get editPlannedStartDate;
+
+  /// No description provided for @changeTargetDateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Target Date'**
+  String get changeTargetDateTitle;
+
+  /// Attempt change message
+  ///
+  /// In en, this message translates to:
+  /// **'This will be attempt #{count}'**
+  String attemptChangeMessage(int count);
+
+  /// No description provided for @confirmChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirmChange;
+
+  /// Achievement status message
+  ///
+  /// In en, this message translates to:
+  /// **'{achieved} of {passed} days achieved'**
+  String bookDetailAchievementStatus(int passed, int achieved);
+
+  /// Ordinal attempt number
+  ///
+  /// In en, this message translates to:
+  /// **'Attempt #{count}'**
+  String attemptOrdinal(int count);
+
+  /// Total days in parentheses
+  ///
+  /// In en, this message translates to:
+  /// **'({count} days)'**
+  String totalDaysFormat(int count);
 }
 
 class _AppLocalizationsDelegate

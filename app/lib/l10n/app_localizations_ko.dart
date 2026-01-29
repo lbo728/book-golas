@@ -1394,4 +1394,54 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get datePickerMonthDec => '12월';
+
+  @override
+  String get bookDetailSchedule => '독서 일정';
+
+  @override
+  String get bookDetailGoalProgress => '목표 달성 현황';
+
+  @override
+  String get bookDetailGoalAchieved => '목표 달성';
+
+  @override
+  String get bookDetailDeleteReading => '독서 삭제';
+
+  @override
+  String get bookDetailNoPhotos => '아직 추가된 사진이 없습니다';
+
+  @override
+  String get bookDetailAddPhotoHint => '하단 + 버튼으로 추가해보세요';
+
+  @override
+  String get editReadingPlanTitle => '독서 계획 수정';
+
+  @override
+  String get editPlannedStartDate => '시작 예정일';
+
+  @override
+  String get changeTargetDateTitle => '목표일 변경';
+
+  @override
+  String attemptChangeMessage(int count) {
+    return '$count번째 도전으로 변경됩니다';
+  }
+
+  @override
+  String get confirmChange => '변경하기';
+
+  @override
+  String bookDetailAchievementStatus(int passed, int achieved) {
+    return '$passed일 중 $achieved일 달성';
+  }
+
+  @override
+  String attemptOrdinal(int count) {
+    return '$count번째';
+  }
+
+  @override
+  String totalDaysFormat(int count) {
+    return '($count일)';
+  }
 }
