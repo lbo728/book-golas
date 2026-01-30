@@ -14,7 +14,7 @@ import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
 import 'package:book_golas/ui/core/view_model/notification_settings_view_model.dart';
 import 'package:book_golas/ui/core/view_model/locale_view_model.dart';
 import 'package:book_golas/ui/core/view_model/theme_view_model.dart';
-import 'package:book_golas/ui/core/widgets/korean_time_picker.dart';
+import 'package:book_golas/ui/core/widgets/locale_time_picker.dart';
 import '../../../l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_button.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_card.dart';
@@ -238,7 +238,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                 ),
               ),
               Expanded(
-                child: KoreanTimePicker(
+                child: LocaleTimePicker(
                   isDark: isDark,
                   initialHour: initialHour,
                   initialMinute: initialMinute,

@@ -3,13 +3,13 @@ import 'package:flutter/services.dart';
 
 import 'package:book_golas/l10n/app_localizations.dart';
 
-class KoreanTimePicker extends StatefulWidget {
+class LocaleTimePicker extends StatefulWidget {
   final bool isDark;
   final int initialHour;
   final int initialMinute;
   final void Function(int hour, int minute) onTimeChanged;
 
-  const KoreanTimePicker({
+  const LocaleTimePicker({
     super.key,
     required this.isDark,
     required this.initialHour,
@@ -18,10 +18,10 @@ class KoreanTimePicker extends StatefulWidget {
   });
 
   @override
-  State<KoreanTimePicker> createState() => _KoreanTimePickerState();
+  State<LocaleTimePicker> createState() => _LocaleTimePickerState();
 }
 
-class _KoreanTimePickerState extends State<KoreanTimePicker> {
+class _LocaleTimePickerState extends State<LocaleTimePicker> {
   late int _currentAmPmIndex;
   late int _currentHour12;
   late int _currentMinute;
