@@ -1903,5 +1903,12 @@
   "memorablePagesSortDateAsc": "오래된 기록순",
   "memorablePagesDelete": "삭제",
   "memorablePagesSelect": "선택",
-  "memorablePagesDone": "완료"
+  "memorablePagesDone": "완료",
+  "historyTabCumulativePages": "📈 누적 페이지",
+  "historyTabDailyPages": "일일 페이지",
+  "historyTabCompletionTitle": "완독 축하해요!",
+  "historyTabCompletionMessage": "목표를 달성했어요. 다음 책도 함께 읽어볼까요?",
+  "historyTabDailyRecords": "📅 일별 기록",
+  "historyTabCumulativeLabel": "누적: {page} 페이지",
+  "historyTabPagesUnit": "페이지"
 }

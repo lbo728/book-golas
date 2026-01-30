@@ -174,7 +174,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeBookList => 'Book List';
 
   @override
-  String get homeNoReadingBooks => 'No books in progress. Please register a book first.';
+  String get homeNoReadingBooks =>
+      'No books in progress. Please register a book first.';
 
   @override
   String get homeNoReadingBooksShort => 'No books in progress';
@@ -213,7 +214,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookListErrorLoadFailed => 'Unable to load data';
 
   @override
-  String get bookListErrorNetworkCheck => 'Please check your network connection';
+  String get bookListErrorNetworkCheck =>
+      'Please check your network connection';
 
   @override
   String get bookListEmptyReading => 'No books in progress';
@@ -414,13 +416,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myPageDeleteAccount => 'Delete Account';
 
   @override
-  String get myPageDeleteAccountConfirm => 'Are you sure you want to delete your account?\n\nThis action cannot be undone, and all data will be permanently deleted.';
+  String get myPageDeleteAccountConfirm =>
+      'Are you sure you want to delete your account?\n\nThis action cannot be undone, and all data will be permanently deleted.';
 
   @override
   String get myPageDeleteAccountSuccess => 'Account successfully deleted.';
 
   @override
-  String get myPageDeleteAccountFailed => 'Failed to delete account. Please try again.';
+  String get myPageDeleteAccountFailed =>
+      'Failed to delete account. Please try again.';
 
   @override
   String myPageDeleteAccountError(String error) {
@@ -440,7 +444,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myPageDarkMode => 'Dark Mode';
 
   @override
-  String get myPageDailyReadingNotification => 'Daily Reading Goal Notification';
+  String get myPageDailyReadingNotification =>
+      'Daily Reading Goal Notification';
 
   @override
   String myPageNotificationTime(String time) {
@@ -457,13 +462,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myPageNotificationDisabled => 'Notifications disabled';
 
   @override
-  String get myPageNotificationChangeFailed => 'Failed to change notification settings';
+  String get myPageNotificationChangeFailed =>
+      'Failed to change notification settings';
 
   @override
   String get myPageTestNotification => 'Test (30s)';
 
   @override
-  String get myPageTestNotificationSent => 'Test notification will be sent in 30 seconds!';
+  String get myPageTestNotificationSent =>
+      'Test notification will be sent in 30 seconds!';
 
   @override
   String get myPageAvatarChanged => 'Profile image changed';
@@ -495,13 +502,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginSignupButton => 'Sign Up';
 
   @override
-  String get loginDescriptionSignIn => 'One page a day,\nwe support your reading';
+  String get loginDescriptionSignIn =>
+      'One page a day,\nwe support your reading';
 
   @override
-  String get loginDescriptionSignUp => 'Start your reading habit\nwith BookGolas';
+  String get loginDescriptionSignUp =>
+      'Start your reading habit\nwith BookGolas';
 
   @override
-  String get loginDescriptionForgotPassword => 'We\'ll send a password reset link\nto your registered email';
+  String get loginDescriptionForgotPassword =>
+      'We\'ll send a password reset link\nto your registered email';
 
   @override
   String get loginEmailHint => 'example@email.com';
@@ -555,13 +565,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginErrorInvalidCredentials => 'Invalid email or password.';
 
   @override
-  String get loginErrorEmailNotConfirmed => 'Email verification is not complete.';
+  String get loginErrorEmailNotConfirmed =>
+      'Email verification is not complete.';
 
   @override
-  String get loginErrorEmailAlreadyRegistered => 'This email is already registered.';
+  String get loginErrorEmailAlreadyRegistered =>
+      'This email is already registered.';
 
   @override
-  String get loginErrorPasswordTooShort => 'Password must be at least 6 characters.';
+  String get loginErrorPasswordTooShort =>
+      'Password must be at least 6 characters.';
 
   @override
   String get reviewTitle => 'Book Review';
@@ -591,7 +604,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reviewSaveError => 'An error occurred while saving.';
 
   @override
-  String get reviewReplaceConfirm => 'You have unsaved content.\nDo you want to replace it with AI draft?';
+  String get reviewReplaceConfirm =>
+      'You have unsaved content.\nDo you want to replace it with AI draft?';
 
   @override
   String get reviewReplaceButton => 'Replace';
@@ -600,16 +614,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reviewAIDraftGenerated => 'AI draft generated. Feel free to edit!';
 
   @override
-  String get reviewAIDraftFailed => 'Failed to generate AI draft. Please try again.';
+  String get reviewAIDraftFailed =>
+      'Failed to generate AI draft. Please try again.';
 
   @override
-  String get reviewAIDraftError => 'An error occurred while generating AI draft.';
+  String get reviewAIDraftError =>
+      'An error occurred while generating AI draft.';
 
   @override
   String get reviewSaveComplete => 'Review saved!';
 
   @override
-  String get reviewSaveCompleteMessage => 'Your saved review can be found in the \'Review\' tab or\n\'My Library > Review\'.';
+  String get reviewSaveCompleteMessage =>
+      'Your saved review can be found in the \'Review\' tab or\n\'My Library > Review\'.';
 
   @override
   String get reviewExitConfirm => 'Stop writing and exit?';
@@ -618,7 +635,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reviewExitMessage => 'Your draft will be saved automatically.';
 
   @override
-  String get reviewHint => 'Write freely about your thoughts, impressive parts, and inspiration from this book.';
+  String get reviewHint =>
+      'Write freely about your thoughts, impressive parts, and inspiration from this book.';
 
   @override
   String get readingStartSetDate => 'Set Start Date';
@@ -670,7 +688,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readingStartTargetDate => 'Target Deadline';
 
   @override
-  String get readingStartTargetDateNote => 'You can change the target date even after starting to read';
+  String get readingStartTargetDateNote =>
+      'You can change the target date even after starting to read';
 
   @override
   String get readingStartSaveError => 'Failed to save reading information';
@@ -795,19 +814,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingTitle1 => 'Record Your Own Reading Journey';
 
   @override
-  String get onboardingDescription1 => 'Register books you want to read,\nand manage your reading goals and progress at a glance.';
+  String get onboardingDescription1 =>
+      'Register books you want to read,\nand manage your reading goals and progress at a glance.';
 
   @override
   String get onboardingTitle2 => 'Search Your Reading Records with AI';
 
   @override
-  String get onboardingDescription2 => 'Search for content you remember,\nand AI will find related notes and books for you.';
+  String get onboardingDescription2 =>
+      'Search for content you remember,\nand AI will find related notes and books for you.';
 
   @override
   String get onboardingTitle3 => 'Get Book Recommendations';
 
   @override
-  String get onboardingDescription3 => 'Based on the books you\'ve read so far,\nAI recommends books tailored to your taste.';
+  String get onboardingDescription3 =>
+      'Based on the books you\'ve read so far,\nAI recommends books tailored to your taste.';
 
   @override
   String get readingProgressTitle => 'Reading Progress History';
@@ -822,10 +844,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get barcodeScannerTitle => 'Scan ISBN Barcode';
 
   @override
-  String get barcodeScannerHint => 'Scan the ISBN barcode on the back of the book';
+  String get barcodeScannerHint =>
+      'Scan the ISBN barcode on the back of the book';
 
   @override
-  String get scannerErrorPermissionDenied => 'Camera permission required\nPlease allow camera access in settings';
+  String get scannerErrorPermissionDenied =>
+      'Camera permission required\nPlease allow camera access in settings';
 
   @override
   String get scannerErrorInitializing => 'Initializing camera';
@@ -849,7 +873,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get extractedTextTitle => 'Extracted Text';
 
   @override
-  String get extractedTextSubtitle => 'Check the extracted content. You can edit it directly!';
+  String get extractedTextSubtitle =>
+      'Check the extracted content. You can edit it directly!';
 
   @override
   String get extractedTextApplyButton => 'Apply';
@@ -909,7 +934,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recommendationViewDetail => 'View Book Details';
 
   @override
-  String get recommendationViewDetailSubtitle => 'Check book information at the bookstore';
+  String get recommendationViewDetailSubtitle =>
+      'Check book information at the bookstore';
 
   @override
   String get recommendationStartReading => 'Start Reading';
@@ -933,7 +959,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartAiInsightRetry => 'Retry';
 
   @override
-  String get chartAiInsightMinBooksRequired => 'Read more books to get AI insights';
+  String get chartAiInsightMinBooksRequired =>
+      'Read more books to get AI insights';
 
   @override
   String chartAiInsightMinBooksMessage(int count) {
@@ -947,10 +974,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartAiInsightGenerateButton => 'Analyze';
 
   @override
-  String get chartAiInsightEmptyState => 'Click the button below to generate insights';
+  String get chartAiInsightEmptyState =>
+      'Click the button below to generate insights';
 
   @override
-  String get chartAiInsightAlreadyAnalyzed => 'Already analyzed today. Try again tomorrow.';
+  String get chartAiInsightAlreadyAnalyzed =>
+      'Already analyzed today. Try again tomorrow.';
 
   @override
   String get chartAiInsightClearMemory => 'Clear Insight History';
@@ -959,7 +988,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartAiInsightClearMemoryTitle => 'Clear Insight History';
 
   @override
-  String get chartAiInsightClearMemoryMessage => 'Are you sure you want to delete all insight history?\nThis action cannot be undone.';
+  String get chartAiInsightClearMemoryMessage =>
+      'Are you sure you want to delete all insight history?\nThis action cannot be undone.';
 
   @override
   String get chartAiInsightClearMemoryCancel => 'Cancel';
@@ -986,7 +1016,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get chartAnnualGoalAchievedMessage => 'Congratulations! You\'ve achieved this year\'s goal!';
+  String get chartAnnualGoalAchievedMessage =>
+      'Congratulations! You\'ve achieved this year\'s goal!';
 
   @override
   String chartAnnualGoalAheadMessage(int count) {
@@ -994,13 +1025,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get chartAnnualGoalMotivationMessage => 'Keep going! You can reach your goal!';
+  String get chartAnnualGoalMotivationMessage =>
+      'Keep going! You can reach your goal!';
 
   @override
   String get chartAnnualGoalSetGoal => 'Set Goal';
 
   @override
-  String get chartAnnualGoalSetGoalMessage => 'Set your reading goal to see your progress at a glance';
+  String get chartAnnualGoalSetGoalMessage =>
+      'Set your reading goal to see your progress at a glance';
 
   @override
   String get chartAnnualGoalEditGoal => 'Edit Goal';
@@ -1046,7 +1079,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartCompletionRateEmptyMessage => 'No completed books yet';
 
   @override
-  String get chartCompletionRateEmptyHint => 'Read and complete books to see your completion rate';
+  String get chartCompletionRateEmptyHint =>
+      'Read and complete books to see your completion rate';
 
   @override
   String get chartGenreAnalysisTitle => 'Genre Analysis';
@@ -1061,7 +1095,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartGenreAnalysisEmptyMessage => 'No completed books yet';
 
   @override
-  String get chartGenreAnalysisEmptyHint => 'Complete books to see genre statistics!';
+  String get chartGenreAnalysisEmptyHint =>
+      'Complete books to see genre statistics!';
 
   @override
   String get chartHighlightStatsTitle => 'Highlights & Records';
@@ -1082,7 +1117,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartHighlightStatsEmptyMessage => 'No highlights yet';
 
   @override
-  String get chartHighlightStatsEmptyHint => 'Highlight important parts while reading';
+  String get chartHighlightStatsEmptyHint =>
+      'Highlight important parts while reading';
 
   @override
   String chartMonthlyBooksTitle(int year) {
@@ -1157,7 +1193,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get readingGoalSheetQuestion => 'How many books do you want to read this year?';
+  String get readingGoalSheetQuestion =>
+      'How many books do you want to read this year?';
 
   @override
   String get readingGoalSheetRecommended => 'Recommended Goals';
@@ -1177,19 +1214,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readingGoalSheetBooks => 'books';
 
   @override
-  String get readingGoalSheetMotivation1 => 'Reading 1 book per month consistently builds a reading habit. Enjoy reading without pressure!';
+  String get readingGoalSheetMotivation1 =>
+      'Reading 1 book per month consistently builds a reading habit. Enjoy reading without pressure!';
 
   @override
-  String get readingGoalSheetMotivation2 => 'Reading 1 book every 2 weeks is achievable! Experience the joy of reading with a reasonable goal.';
+  String get readingGoalSheetMotivation2 =>
+      'Reading 1 book every 2 weeks is achievable! Experience the joy of reading with a reasonable goal.';
 
   @override
-  String get readingGoalSheetMotivation3 => '1 book every 10 days! You love reading. Explore diverse genres!';
+  String get readingGoalSheetMotivation3 =>
+      '1 book every 10 days! You love reading. Explore diverse genres!';
 
   @override
-  String get readingGoalSheetMotivation4 => 'Almost 1 book per week! You\'re a true book lover. Keep the fire burning! 🔥';
+  String get readingGoalSheetMotivation4 =>
+      'Almost 1 book per week! You\'re a true book lover. Keep the fire burning! 🔥';
 
   @override
-  String get readingGoalSheetMotivation5 => 'An ambitious goal! More than 1 book per week. You\'re a reading master! 📚✨';
+  String get readingGoalSheetMotivation5 =>
+      'An ambitious goal! More than 1 book per week. You\'re a reading master! 📚✨';
 
   @override
   String get readingGoalSheetCancel => 'Cancel';
@@ -1216,7 +1258,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recallSearchAllReadingRecords => 'Search all your reading records';
 
   @override
-  String get recallAiFindsScatteredRecords => 'AI finds scattered records across books\nand brings them together for you';
+  String get recallAiFindsScatteredRecords =>
+      'AI finds scattered records across books\nand brings them together for you';
 
   @override
   String get recallAiAnswer => 'AI Answer';
@@ -1508,7 +1551,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dailyTargetConfirmTitle => 'Change Daily Goal';
 
   @override
-  String get dailyTargetConfirmMessage => 'Today\'s goal cannot be modified,\nbut changes will apply from tomorrow.';
+  String get dailyTargetConfirmMessage =>
+      'Today\'s goal cannot be modified,\nbut changes will apply from tomorrow.';
 
   @override
   String get dailyTargetConfirmQuestion => 'Would you like to change it?';
@@ -1536,7 +1580,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validationEnterNumber => 'Please enter a number';
 
   @override
-  String get validationPageMinimum => 'Please enter a page number of 0 or higher';
+  String get validationPageMinimum =>
+      'Please enter a page number of 0 or higher';
 
   @override
   String validationPageExceedsTotal(int total) {
@@ -1602,7 +1647,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get extractTextCreditsMessage => 'This will use credits.';
 
   @override
-  String get extractTextOverwriteMessage => 'This will overwrite your text.\nThis will use credits.';
+  String get extractTextOverwriteMessage =>
+      'This will overwrite your text.\nThis will use credits.';
 
   @override
   String get noThanksButton => 'No thanks';
@@ -1691,7 +1737,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ocrAreaSelectTitle => 'Select Text Extraction Area';
 
   @override
-  String get ocrExtractionFailed => 'Failed to extract text. Try selecting a different area.';
+  String get ocrExtractionFailed =>
+      'Failed to extract text. Try selecting a different area.';
 
   @override
   String get imageLoadFailed => 'Failed to load image.';
@@ -1744,4 +1791,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get memorablePagesDone => 'Done';
+
+  @override
+  String get historyTabCumulativePages => '📈 Cumulative Pages';
+
+  @override
+  String get historyTabDailyPages => 'Daily Pages';
+
+  @override
+  String get historyTabCompletionTitle => 'Congratulations on finishing!';
+
+  @override
+  String get historyTabCompletionMessage =>
+      'You\'ve reached your goal. Ready for the next book?';
+
+  @override
+  String get historyTabDailyRecords => '📅 Daily Records';
+
+  @override
+  String historyTabCumulativeLabel(int page) {
+    return 'Cumulative: $page pages';
+  }
+
+  @override
+  String get historyTabPagesUnit => 'pages';
 }

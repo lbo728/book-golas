@@ -100,23 +100,26 @@ class ProgressHistoryTab extends StatelessWidget {
         ? dailyPagesSpots.map((spot) => spot.y).reduce((a, b) => a > b ? a : b)
         : 50.0;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 100),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildChartCard(
-              data, spots, maxPage, dailyPagesSpots, maxDailyPage, isDark),
-          const SizedBox(height: 16),
-          _buildReadingStateAnalysis(isDark, data),
-          const SizedBox(height: 16),
-          _buildDailyRecords(data, isDark),
-        ],
+    return Builder(
+      builder: (context) => SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 100),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildChartCard(context, data, spots, maxPage, dailyPagesSpots,
+                maxDailyPage, isDark),
+            const SizedBox(height: 16),
+            _buildReadingStateAnalysis(isDark, data),
+            const SizedBox(height: 16),
+            _buildDailyRecords(data, isDark),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildChartCard(
+    BuildContext context,
     List<Map<String, dynamic>> data,
     List<FlSpot> spots,
     double maxPage,
@@ -136,9 +139,9 @@ class ProgressHistoryTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildChartHeader(data.length, isDark),
+          _buildChartHeader(context, data.length, isDark),
           const SizedBox(height: 16),
-          _buildLegendRow(isDark),
+          _buildLegendRow(context, isDark),
           const SizedBox(height: 20),
           _buildChart(
               data, spots, maxPage, dailyPagesSpots, maxDailyPage, isDark),
@@ -147,14 +150,15 @@ class ProgressHistoryTab extends StatelessWidget {
     );
   }
 
-  Widget _buildChartHeader(int recordCount, bool isDark) {
+  Widget _buildChartHeader(BuildContext context, int recordCount, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           children: [
             Text(
-              '📈 누적 페이지',
+              l10n.historyTabCumulativePages,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -200,13 +204,15 @@ class ProgressHistoryTab extends StatelessWidget {
     );
   }
 
-  Widget _buildLegendRow(bool isDark) {
+  Widget _buildLegendRow(BuildContext context, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildLegendItem('누적 페이지', AppColors.primary, isDark),
+        _buildLegendItem(
+            l10n.historyTabCumulativePages, AppColors.primary, isDark),
         const SizedBox(width: 24),
-        _buildLegendItem('일일 페이지', AppColors.success, isDark),
+        _buildLegendItem(l10n.historyTabDailyPages, AppColors.success, isDark),
       ],
     );
   }
