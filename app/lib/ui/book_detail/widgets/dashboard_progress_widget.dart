@@ -158,12 +158,16 @@ class DashboardProgressWidget extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  AppLocalizations.of(context)!.todayGoalWithPages(dailyTarget),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.success,
+                Flexible(
+                  child: Text(
+                    AppLocalizations.of(context)!
+                        .todayGoalWithPages(dailyTarget),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.success,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 const SizedBox(width: 6),

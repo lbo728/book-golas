@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:book_golas/domain/models/highlight_data.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/book_detail/widgets/highlight/highlight_overlay.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
@@ -70,7 +71,7 @@ class _HighlightEditViewState extends State<HighlightEditView> {
 
     return Column(
       children: [
-        _buildHeader(isDark),
+        _buildHeader(context, isDark),
         Expanded(
           child: Stack(
             children: [
@@ -89,14 +90,15 @@ class _HighlightEditViewState extends State<HighlightEditView> {
     );
   }
 
-  Widget _buildHeader(bool isDark) {
+  Widget _buildHeader(BuildContext context, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            '하이라이트 편집',
+            l10n.highlightEditTitle,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -111,9 +113,9 @@ class _HighlightEditViewState extends State<HighlightEditView> {
                 color: AppColors.primary,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text(
-                '완료',
-                style: TextStyle(
+              child: Text(
+                l10n.highlightEditDone,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,

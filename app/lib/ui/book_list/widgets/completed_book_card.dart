@@ -255,12 +255,15 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                         color: isDark ? Colors.grey[500] : Colors.grey[400],
                       ),
                       const SizedBox(width: 4),
-                      Text(
-                        l10n.bookListCompletedDate(
-                            '${completedDate.year}.${completedDate.month.toString().padLeft(2, '0')}.${completedDate.day.toString().padLeft(2, '0')}'),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      Flexible(
+                        child: Text(
+                          l10n.bookListCompletedDate(
+                              '${completedDate.year}.${completedDate.month.toString().padLeft(2, '0')}.${completedDate.day.toString().padLeft(2, '0')}'),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
