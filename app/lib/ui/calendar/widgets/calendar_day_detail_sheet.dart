@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
@@ -66,8 +67,7 @@ class CalendarDayDetailSheet extends StatelessWidget {
   }
 
   Widget _buildHeader(bool isDark) {
-    final formattedDate =
-        '${date.year}. ${date.month.toString().padLeft(2, '0')}. ${date.day.toString().padLeft(2, '0')}';
+    final formattedDate = DateFormat('MMMM d, yyyy').format(date);
 
     return Padding(
       padding: const EdgeInsets.all(20),
