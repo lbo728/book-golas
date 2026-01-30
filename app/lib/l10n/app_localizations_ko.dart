@@ -1746,4 +1746,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get historyTabPagesUnit => '페이지';
+
+  @override
+  String get bookReviewTabTitle => '나의 독후감';
+
+  @override
+  String get bookReviewTabEditButton => '독후감 수정하기';
 }

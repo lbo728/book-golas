@@ -1910,5 +1910,7 @@
   "historyTabCompletionMessage": "목표를 달성했어요. 다음 책도 함께 읽어볼까요?",
   "historyTabDailyRecords": "📅 일별 기록",
   "historyTabCumulativeLabel": "누적: {page} 페이지",
-  "historyTabPagesUnit": "페이지"
+  "historyTabPagesUnit": "페이지",
+  "bookReviewTabTitle": "나의 독후감",
+  "bookReviewTabEditButton": "독후감 수정하기"
 }

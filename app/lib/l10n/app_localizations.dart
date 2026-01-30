@@ -3325,6 +3325,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'pages'**
   String get historyTabPagesUnit;
+
+  /// No description provided for @bookReviewTabTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Book Review'**
+  String get bookReviewTabTitle;
+
+  /// No description provided for @bookReviewTabEditButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Review'**
+  String get bookReviewTabEditButton;
 }
 
 class _AppLocalizationsDelegate

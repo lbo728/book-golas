@@ -1815,4 +1815,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get historyTabPagesUnit => 'pages';
+
+  @override
+  String get bookReviewTabTitle => 'My Book Review';
+
+  @override
+  String get bookReviewTabEditButton => 'Edit Review';
 }

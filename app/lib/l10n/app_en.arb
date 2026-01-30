@@ -1155,5 +1155,7 @@
       }
     }
   },
-  "historyTabPagesUnit": "pages"
+  "historyTabPagesUnit": "pages",
+  "bookReviewTabTitle": "My Book Review",
+  "bookReviewTabEditButton": "Edit Review"
 }
