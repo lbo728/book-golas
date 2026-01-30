@@ -466,7 +466,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Failed to change notification settings';
 
   @override
-  String get myPageTestNotification => 'Test Notification (in 30 seconds)';
+  String get myPageTestNotification => 'Test (30s)';
 
   @override
   String get myPageTestNotificationSent =>
@@ -1358,7 +1358,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String bookListAchievementRate(int rate) {
-    return 'Achievement rate $rate%';
+    return 'Rate $rate%';
   }
 
   @override
@@ -1669,10 +1669,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiFeaturesTitle => 'AI Features';
 
   @override
-  String get searchRecordsButton => 'Search Records';
+  String get searchRecordsButton => 'Search';
 
   @override
-  String get bookRecommendButton => 'Book Recommendations';
+  String get bookRecommendButton => 'Recommend';
 
   @override
   String get calendarFilterAll => 'All';

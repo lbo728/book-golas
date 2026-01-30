@@ -157,7 +157,7 @@
   "myPageNotificationEnabled": "Notifications enabled",
   "myPageNotificationDisabled": "Notifications disabled",
   "myPageNotificationChangeFailed": "Failed to change notification settings",
-  "myPageTestNotification": "Test Notification (in 30 seconds)",
+  "myPageTestNotification": "Test (30s)",
   "myPageTestNotificationSent": "Test notification will be sent in 30 seconds!",
   "myPageAvatarChanged": "Profile image changed",
   "myPageAvatarChangeFailed": "Failed to change profile image: {error}",
@@ -630,7 +630,7 @@
     "@bookListCompletedSameDay": {
       "description": "Book completed on the same day"
     },
-    "bookListAchievementRate": "Achievement rate {rate}%",
+    "bookListAchievementRate": "Rate {rate}%",
     "@bookListAchievementRate": {
       "description": "Achievement rate percentage",
       "placeholders": {
@@ -1001,11 +1001,11 @@
     "@aiFeaturesTitle": {
       "description": "AI features section title"
     },
-    "searchRecordsButton": "Search Records",
+    "searchRecordsButton": "Search",
     "@searchRecordsButton": {
       "description": "Search records button"
     },
-    "bookRecommendButton": "Book Recommendations",
+    "bookRecommendButton": "Recommend",
     "@bookRecommendButton": {
       "description": "Book recommendation button"
     },

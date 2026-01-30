@@ -947,7 +947,7 @@ abstract class AppLocalizations {
   /// No description provided for @myPageTestNotification.
   ///
   /// In en, this message translates to:
-  /// **'Test Notification (in 30 seconds)'**
+  /// **'Test (30s)'**
   String get myPageTestNotification;
 
   /// No description provided for @myPageTestNotificationSent.
@@ -2543,7 +2543,7 @@ abstract class AppLocalizations {
   /// Achievement rate percentage
   ///
   /// In en, this message translates to:
-  /// **'Achievement rate {rate}%'**
+  /// **'Rate {rate}%'**
   String bookListAchievementRate(int rate);
 
   /// Unknown value
@@ -3053,13 +3053,13 @@ abstract class AppLocalizations {
   /// Search records button
   ///
   /// In en, this message translates to:
-  /// **'Search Records'**
+  /// **'Search'**
   String get searchRecordsButton;
 
   /// Book recommendation button
   ///
   /// In en, this message translates to:
-  /// **'Book Recommendations'**
+  /// **'Recommend'**
   String get bookRecommendButton;
 
   /// Calendar filter: all

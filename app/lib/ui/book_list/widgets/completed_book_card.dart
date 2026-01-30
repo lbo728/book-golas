@@ -153,7 +153,9 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
-                  Row(
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -184,8 +186,7 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                           ],
                         ),
                       ),
-                      if (_achievementRate != null) ...[
-                        const SizedBox(width: 8),
+                      if (_achievementRate != null)
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 6),
@@ -229,7 +230,6 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                             ],
                           ),
                         ),
-                      ],
                     ],
                   ),
                   const SizedBox(height: 6),
