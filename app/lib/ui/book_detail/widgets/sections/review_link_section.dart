@@ -68,7 +68,7 @@ class ReviewLinkSection extends StatelessWidget {
               icon: Icons.store_rounded,
               iconColor: Colors.blue,
               title: '알라딘에서 보기',
-              subtitle: '도서 상세 정보',
+              subtitle: AppLocalizations.of(context)!.bookInfoDetail,
               url: aladinUrl!,
               isDark: isDark,
             ),
@@ -249,7 +249,7 @@ class ReviewLinkSection extends StatelessWidget {
                     onChanged: (value) {
                       setModalState(() {
                         if (value.isNotEmpty && !_isValidUrl(value)) {
-                          errorText = '올바른 URL을 입력해주세요';
+                          errorText = AppLocalizations.of(context)!.invalidUrl;
                         } else {
                           errorText = null;
                         }

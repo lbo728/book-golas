@@ -1912,5 +1912,12 @@
   "historyTabCumulativeLabel": "누적: {page} 페이지",
   "historyTabPagesUnit": "페이지",
   "bookReviewTabTitle": "나의 독후감",
-  "bookReviewTabEditButton": "독후감 수정하기"
+  "bookReviewTabEditButton": "독후감 수정하기",
+  "authorLabel": "지은이",
+  "aiDraftGenerating": "AI가 초안을 작성하고 있어요...",
+  "aiDraftGenerate": "AI로 독후감 초안 작성하기",
+  "bookInfoDetail": "도서 상세 정보",
+  "invalidUrl": "올바른 URL을 입력해주세요",
+  "daysRecorded": "{count}일 기록",
+  "startDateLabel": "시작일"
 }

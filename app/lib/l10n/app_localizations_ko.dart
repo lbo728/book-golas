@@ -1752,4 +1752,27 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get bookReviewTabEditButton => '독후감 수정하기';
+
+  @override
+  String get authorLabel => '지은이';
+
+  @override
+  String get aiDraftGenerating => 'AI가 초안을 작성하고 있어요...';
+
+  @override
+  String get aiDraftGenerate => 'AI로 독후감 초안 작성하기';
+
+  @override
+  String get bookInfoDetail => '도서 상세 정보';
+
+  @override
+  String get invalidUrl => '올바른 URL을 입력해주세요';
+
+  @override
+  String daysRecorded(int count) {
+    return '$count일 기록';
+  }
+
+  @override
+  String get startDateLabel => '시작일';
 }

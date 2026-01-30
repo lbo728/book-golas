@@ -3337,6 +3337,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit Review'**
   String get bookReviewTabEditButton;
+
+  /// No description provided for @authorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Author'**
+  String get authorLabel;
+
+  /// No description provided for @aiDraftGenerating.
+  ///
+  /// In en, this message translates to:
+  /// **'AI is drafting...'**
+  String get aiDraftGenerating;
+
+  /// No description provided for @aiDraftGenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate Draft with AI'**
+  String get aiDraftGenerate;
+
+  /// No description provided for @bookInfoDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Book Detail'**
+  String get bookInfoDetail;
+
+  /// No description provided for @invalidUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid URL'**
+  String get invalidUrl;
+
+  /// No description provided for @daysRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days recorded'**
+  String daysRecorded(int count);
+
+  /// No description provided for @startDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Date'**
+  String get startDateLabel;
 }
 
 class _AppLocalizationsDelegate

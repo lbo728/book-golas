@@ -958,28 +958,25 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Flexible(
-                child: Text(
-                  AppLocalizations.of(context)!.chartReadingProgress,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: isDark ? Colors.white : Colors.black,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+              Text(
+                AppLocalizations.of(context)!.chartReadingProgress,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: isDark ? Colors.white : Colors.black,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(height: 12),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: TimeFilter.values.map((filter) {
                     final isSelected = _selectedFilter == filter;
                     return Padding(
-                      padding: const EdgeInsets.only(left: 4),
+                      padding: const EdgeInsets.only(right: 8),
                       child: GestureDetector(
                         onTap: () {
                           setState(() {

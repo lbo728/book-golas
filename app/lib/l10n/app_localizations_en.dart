@@ -1821,4 +1821,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bookReviewTabEditButton => 'Edit Review';
+
+  @override
+  String get authorLabel => 'Author';
+
+  @override
+  String get aiDraftGenerating => 'AI is drafting...';
+
+  @override
+  String get aiDraftGenerate => 'Generate Draft with AI';
+
+  @override
+  String get bookInfoDetail => 'Book Detail';
+
+  @override
+  String get invalidUrl => 'Please enter a valid URL';
+
+  @override
+  String daysRecorded(int count) {
+    return '$count days recorded';
+  }
+
+  @override
+  String get startDateLabel => 'Start Date';
 }

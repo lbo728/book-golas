@@ -1157,5 +1157,19 @@
   },
   "historyTabPagesUnit": "pages",
   "bookReviewTabTitle": "My Book Review",
-  "bookReviewTabEditButton": "Edit Review"
+  "bookReviewTabEditButton": "Edit Review",
+  "authorLabel": "Author",
+  "aiDraftGenerating": "AI is drafting...",
+  "aiDraftGenerate": "Generate Draft with AI",
+  "bookInfoDetail": "Book Detail",
+  "invalidUrl": "Please enter a valid URL",
+  "daysRecorded": "{count} days recorded",
+  "@daysRecorded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "startDateLabel": "Start Date"
 }

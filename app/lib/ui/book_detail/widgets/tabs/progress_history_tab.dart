@@ -193,7 +193,7 @@ class ProgressHistoryTab extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
-            '$recordCount일 기록',
+            l10n.daysRecorded(recordCount),
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,

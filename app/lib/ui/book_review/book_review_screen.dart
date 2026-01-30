@@ -679,7 +679,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
               ),
               const SizedBox(width: 10),
               Text(
-                'AI가 초안을 작성하고 있어요...',
+                AppLocalizations.of(context)!.aiDraftGenerating,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -694,7 +694,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                'AI로 독후감 초안 작성하기',
+                AppLocalizations.of(context)!.aiDraftGenerate,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
