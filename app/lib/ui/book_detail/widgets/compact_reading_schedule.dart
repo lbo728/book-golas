@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
@@ -20,16 +21,21 @@ class CompactReadingSchedule extends StatelessWidget {
     this.showEditButton = true,
   });
 
-  String _formatDate(DateTime date) {
-    return date.toString().substring(0, 10).replaceAll('-', '.');
+  String _formatDate(DateTime date, BuildContext context) {
+    final locale = Localizations.localeOf(context);
+    if (locale.languageCode == 'en') {
+      return DateFormat('MM/dd/yyyy').format(date);
+    } else {
+      return DateFormat('yyyy.MM.dd').format(date);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
-    final startDateStr = _formatDate(startDate);
-    final targetDateStr = _formatDate(targetDate);
+    final startDateStr = _formatDate(startDate, context);
+    final targetDateStr = _formatDate(targetDate, context);
     final totalDays = targetDate.difference(startDate).inDays + 1;
 
     return Container(
