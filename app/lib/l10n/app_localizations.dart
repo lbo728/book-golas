@@ -62,8 +62,7 @@ import 'app_localizations_ko.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -71,8 +70,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -84,8 +82,7 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
     delegate,
     GlobalMaterialLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
@@ -3217,10 +3214,75 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cannot exceed total pages ({total})'**
   String pageExceedsTotalError(int total);
+
+  /// No description provided for @highlightEditDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get highlightEditDone;
+
+  /// No description provided for @memorablePagesSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String memorablePagesSelected(int count);
+
+  /// No description provided for @memorablePagesSortByPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Page'**
+  String get memorablePagesSortByPage;
+
+  /// No description provided for @memorablePagesSortByDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get memorablePagesSortByDate;
+
+  /// No description provided for @memorablePagesSortPageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Page (High to Low)'**
+  String get memorablePagesSortPageDesc;
+
+  /// No description provided for @memorablePagesSortPageAsc.
+  ///
+  /// In en, this message translates to:
+  /// **'Page (Low to High)'**
+  String get memorablePagesSortPageAsc;
+
+  /// No description provided for @memorablePagesSortDateDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent First'**
+  String get memorablePagesSortDateDesc;
+
+  /// No description provided for @memorablePagesSortDateAsc.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest First'**
+  String get memorablePagesSortDateAsc;
+
+  /// No description provided for @memorablePagesDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get memorablePagesDelete;
+
+  /// No description provided for @memorablePagesSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get memorablePagesSelect;
+
+  /// No description provided for @memorablePagesDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get memorablePagesDone;
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -3229,25 +3291,25 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en', 'ko'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'ko'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en':
-      return AppLocalizationsEn();
-    case 'ko':
-      return AppLocalizationsKo();
+    case 'en': return AppLocalizationsEn();
+    case 'ko': return AppLocalizationsKo();
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.'
+  );
 }

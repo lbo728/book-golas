@@ -396,8 +396,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get myPageDeleteAccount => '계정 삭제';
 
   @override
-  String get myPageDeleteAccountConfirm =>
-      '정말로 계정을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.';
+  String get myPageDeleteAccountConfirm => '정말로 계정을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.';
 
   @override
   String get myPageDeleteAccountSuccess => '계정이 성공적으로 삭제되었습니다.';
@@ -592,8 +591,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get reviewSaveComplete => '독후감이 저장되었습니다!';
 
   @override
-  String get reviewSaveCompleteMessage =>
-      '저장한 독후감은 \'독후감\' 탭 또는\n\'나의 서재 > 독후감\'에서 확인할 수 있어요.';
+  String get reviewSaveCompleteMessage => '저장한 독후감은 \'독후감\' 탭 또는\n\'나의 서재 > 독후감\'에서 확인할 수 있어요.';
 
   @override
   String get reviewExitConfirm => '작성 중단하고 나가시겠어요?';
@@ -773,8 +771,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get onboardingTitle1 => '나만의 독서 여정을 기록하세요';
 
   @override
-  String get onboardingDescription1 =>
-      '읽고 싶은 책을 등록하고,\n독서 목표와 진행 상황을 한눈에 관리하세요.';
+  String get onboardingDescription1 => '읽고 싶은 책을 등록하고,\n독서 목표와 진행 상황을 한눈에 관리하세요.';
 
   @override
   String get onboardingTitle2 => 'AI로 독서 기록을 검색하세요';
@@ -786,8 +783,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get onboardingTitle3 => '다음 읽을 책을 추천받으세요';
 
   @override
-  String get onboardingDescription3 =>
-      '지금까지 읽은 책을 바탕으로\n당신의 취향에 맞는 책을 AI가 추천합니다.';
+  String get onboardingDescription3 => '지금까지 읽은 책을 바탕으로\n당신의 취향에 맞는 책을 AI가 추천합니다.';
 
   @override
   String get readingProgressTitle => '진행률 히스토리';
@@ -913,8 +909,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get chartAiInsightRetry => 'Retry';
 
   @override
-  String get chartAiInsightMinBooksRequired =>
-      'Read more books to get AI insights';
+  String get chartAiInsightMinBooksRequired => 'Read more books to get AI insights';
 
   @override
   String chartAiInsightMinBooksMessage(int count) {
@@ -928,12 +923,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get chartAiInsightGenerateButton => 'Analyze';
 
   @override
-  String get chartAiInsightEmptyState =>
-      'Click the button below to generate insights';
+  String get chartAiInsightEmptyState => 'Click the button below to generate insights';
 
   @override
-  String get chartAiInsightAlreadyAnalyzed =>
-      'Already analyzed today. Try again tomorrow.';
+  String get chartAiInsightAlreadyAnalyzed => 'Already analyzed today. Try again tomorrow.';
 
   @override
   String get chartAiInsightClearMemory => 'Clear Insight History';
@@ -942,8 +935,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get chartAiInsightClearMemoryTitle => 'Clear Insight History';
 
   @override
-  String get chartAiInsightClearMemoryMessage =>
-      'Are you sure you want to delete all insight history?\nThis action cannot be undone.';
+  String get chartAiInsightClearMemoryMessage => 'Are you sure you want to delete all insight history?\nThis action cannot be undone.';
 
   @override
   String get chartAiInsightClearMemoryCancel => 'Cancel';
@@ -970,8 +962,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get chartAnnualGoalAchievedMessage =>
-      'Congratulations! You\'ve achieved this year\'s goal!';
+  String get chartAnnualGoalAchievedMessage => 'Congratulations! You\'ve achieved this year\'s goal!';
 
   @override
   String chartAnnualGoalAheadMessage(int count) {
@@ -979,15 +970,13 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get chartAnnualGoalMotivationMessage =>
-      'Keep going! You can reach your goal!';
+  String get chartAnnualGoalMotivationMessage => 'Keep going! You can reach your goal!';
 
   @override
   String get chartAnnualGoalSetGoal => 'Set Goal';
 
   @override
-  String get chartAnnualGoalSetGoalMessage =>
-      'Set your reading goal to see your progress at a glance';
+  String get chartAnnualGoalSetGoalMessage => 'Set your reading goal to see your progress at a glance';
 
   @override
   String get chartAnnualGoalEditGoal => 'Edit Goal';
@@ -1033,8 +1022,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get chartCompletionRateEmptyMessage => 'No completed books yet';
 
   @override
-  String get chartCompletionRateEmptyHint =>
-      'Read and complete books to see your completion rate';
+  String get chartCompletionRateEmptyHint => 'Read and complete books to see your completion rate';
 
   @override
   String get chartGenreAnalysisTitle => 'Genre Analysis';
@@ -1049,8 +1037,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get chartGenreAnalysisEmptyMessage => 'No completed books yet';
 
   @override
-  String get chartGenreAnalysisEmptyHint =>
-      'Complete books to see genre statistics!';
+  String get chartGenreAnalysisEmptyHint => 'Complete books to see genre statistics!';
 
   @override
   String get chartHighlightStatsTitle => 'Highlights & Records';
@@ -1071,8 +1058,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get chartHighlightStatsEmptyMessage => 'No highlights yet';
 
   @override
-  String get chartHighlightStatsEmptyHint =>
-      'Highlight important parts while reading';
+  String get chartHighlightStatsEmptyHint => 'Highlight important parts while reading';
 
   @override
   String chartMonthlyBooksTitle(int year) {
@@ -1147,8 +1133,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get readingGoalSheetQuestion =>
-      'How many books do you want to read this year?';
+  String get readingGoalSheetQuestion => 'How many books do you want to read this year?';
 
   @override
   String get readingGoalSheetRecommended => 'Recommended Goals';
@@ -1168,24 +1153,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get readingGoalSheetBooks => 'books';
 
   @override
-  String get readingGoalSheetMotivation1 =>
-      'Reading 1 book per month consistently builds a reading habit. Enjoy reading without pressure!';
+  String get readingGoalSheetMotivation1 => 'Reading 1 book per month consistently builds a reading habit. Enjoy reading without pressure!';
 
   @override
-  String get readingGoalSheetMotivation2 =>
-      'Reading 1 book every 2 weeks is achievable! Experience the joy of reading with a reasonable goal.';
+  String get readingGoalSheetMotivation2 => 'Reading 1 book every 2 weeks is achievable! Experience the joy of reading with a reasonable goal.';
 
   @override
-  String get readingGoalSheetMotivation3 =>
-      '1 book every 10 days! You love reading. Explore diverse genres!';
+  String get readingGoalSheetMotivation3 => '1 book every 10 days! You love reading. Explore diverse genres!';
 
   @override
-  String get readingGoalSheetMotivation4 =>
-      'Almost 1 book per week! You\'re a true book lover. Keep the fire burning! 🔥';
+  String get readingGoalSheetMotivation4 => 'Almost 1 book per week! You\'re a true book lover. Keep the fire burning! 🔥';
 
   @override
-  String get readingGoalSheetMotivation5 =>
-      'An ambitious goal! More than 1 book per week. You\'re a reading master! 📚✨';
+  String get readingGoalSheetMotivation5 => 'An ambitious goal! More than 1 book per week. You\'re a reading master! 📚✨';
 
   @override
   String get readingGoalSheetCancel => 'Cancel';
@@ -1486,8 +1466,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dailyTargetConfirmTitle => '일일 목표 변경';
 
   @override
-  String get dailyTargetConfirmMessage =>
-      '오늘의 목표는 수정할 수 없지만,\n내일부터 변경된 목표가 적용됩니다.';
+  String get dailyTargetConfirmMessage => '오늘의 목표는 수정할 수 없지만,\n내일부터 변경된 목표가 적용됩니다.';
 
   @override
   String get dailyTargetConfirmQuestion => '변경하시겠어요?';
@@ -1688,4 +1667,39 @@ class AppLocalizationsKo extends AppLocalizations {
   String pageExceedsTotalError(int total) {
     return '총 페이지 수($total)를 초과할 수 없습니다';
   }
+
+  @override
+  String get highlightEditDone => '완료';
+
+  @override
+  String memorablePagesSelected(int count) {
+    return '$count개 선택됨';
+  }
+
+  @override
+  String get memorablePagesSortByPage => '페이지';
+
+  @override
+  String get memorablePagesSortByDate => '날짜';
+
+  @override
+  String get memorablePagesSortPageDesc => '페이지 높은순';
+
+  @override
+  String get memorablePagesSortPageAsc => '페이지 낮은순';
+
+  @override
+  String get memorablePagesSortDateDesc => '최근 기록순';
+
+  @override
+  String get memorablePagesSortDateAsc => '오래된 기록순';
+
+  @override
+  String get memorablePagesDelete => '삭제';
+
+  @override
+  String get memorablePagesSelect => '선택';
+
+  @override
+  String get memorablePagesDone => '완료';
 }

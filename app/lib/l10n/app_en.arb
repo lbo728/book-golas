@@ -136,8 +136,8 @@
     "placeholders": {
       "error": {
         "type": "String"
-      },
-    },
+      }
+    }
   },
   "myPageNotificationTimeTitle": "Set Notification Time",
   "myPageNoNickname": "No nickname",
@@ -150,8 +150,8 @@
     "placeholders": {
       "time": {
         "type": "String"
-      },
-    },
+      }
+    }
   },
   "myPageNoNotification": "No notifications",
   "myPageNotificationEnabled": "Notifications enabled",
@@ -166,8 +166,8 @@
     "placeholders": {
       "error": {
         "type": "String"
-      },
-    },
+      }
+    }
   },
   "loginAppName": "BookGolas",
   "loginEmailLabel": "Email",
@@ -231,8 +231,8 @@
     "placeholders": {
       "userName": {
         "type": "String"
-      },
-    },
+      }
+    }
   },
   "readingStartSearchHint": "Enter book title",
   "readingStartSelectionComplete": "Selection Complete",
@@ -243,8 +243,8 @@
     "placeholders": {
       "totalPages": {
         "type": "num"
-      },
-    },
+      }
+    }
   },
   "readingStartPlannedDate": "Planned Reading Start Date",
   "readingStartToday": "Starting today",
@@ -341,8 +341,8 @@
     "placeholders": {
       "count": {
         "type": "int"
-      },
-    },
+      }
+    }
   },
   "chartAiInsightMinBooksHint": "Minimum 3 books, recommended 5+",
   "chartAiInsightGenerateButton": "Analyze",
@@ -360,8 +360,8 @@
     "placeholders": {
       "year": {
         "type": "int"
-      },
-    },
+      }
+    }
   },
   "chartAnnualGoalAchieved": "{percent}% Achieved",
   "@chartAnnualGoalAchieved": {
@@ -369,8 +369,8 @@
     "placeholders": {
       "percent": {
         "type": "int"
-      },
-    },
+      }
+    }
   },
   "chartAnnualGoalRemaining": "{count} books remaining",
   "@chartAnnualGoalRemaining": {
@@ -378,8 +378,8 @@
     "placeholders": {
       "count": {
         "type": "int"
-      },
-    },
+      }
+    }
   },
   "chartAnnualGoalAchievedMessage": "Congratulations! You've achieved this year's goal!",
   "chartAnnualGoalAheadMessage": "You've read {count} more books than expected!",
@@ -388,8 +388,8 @@
     "placeholders": {
       "count": {
         "type": "int"
-      },
-    },
+      }
+    }
   },
   "chartAnnualGoalMotivationMessage": "Keep going! You can reach your goal!",
   "chartAnnualGoalSetGoal": "Set Goal",
@@ -403,8 +403,8 @@
     "placeholders": {
       "count": {
         "type": "int"
-      },
-    },
+      }
+    }
   },
   "chartAbandonRateLabel": "Abandon Rate",
   "chartAbandonRateBooks": "{count} books abandoned",
@@ -413,8 +413,8 @@
     "placeholders": {
       "count": {
         "type": "int"
-      },
-    },
+      }
+    }
   },
   "chartRetrySuccessRateLabel": "Retry Success Rate",
   "chartRetrySuccessRateBooks": "Completed after retry",
@@ -442,8 +442,8 @@
     "placeholders": {
       "year": {
         "type": "int"
-      },
-    },
+      }
+    }
   },
   "chartMonthlyBooksThisMonth": "This Month",
   "chartMonthlyBooksLastMonth": "Last Month",
@@ -454,8 +454,8 @@
     "placeholders": {
       "month": {
         "type": "int"
-      },
-    },
+      }
+    }
   },
   "chartMonthlyBooksTooltip": "{month} month\n{count} books",
   "@chartMonthlyBooksTooltip": {
@@ -463,11 +463,11 @@
     "placeholders": {
       "month": {
         "type": "int"
-      },,
+      },
       "count": {
         "type": "int"
-      },
-    },
+      }
+    }
   },
   "chartReadingStreakTitle": "{year} Reading Heatmap",
   "@chartReadingStreakTitle": {
@@ -475,8 +475,8 @@
     "placeholders": {
       "year": {
         "type": "int"
-      },
-    },
+      }
+    }
   },
   "chartReadingStreakDaysRead": "Days Read",
   "chartReadingStreakTotalPages": "Total Pages",
@@ -489,14 +489,14 @@
     "placeholders": {
       "month": {
         "type": "int"
-      },,
+      },
       "day": {
         "type": "int"
-      },,
+      },
       "pages": {
         "type": "int"
-      },
-    },
+      }
+    }
   },
   "chartReadingStreakMonthJan": "Jan",
   "chartReadingStreakMonthMar": "Mar",
@@ -510,8 +510,8 @@
     "placeholders": {
       "year": {
         "type": "int"
-      },
-    },
+      }
+    }
   },
   "readingGoalSheetQuestion": "How many books do you want to read this year?",
   "readingGoalSheetRecommended": "Recommended Goals",
@@ -522,8 +522,8 @@
     "placeholders": {
       "count": {
         "type": "String"
-      },
-    },
+      }
+    }
   },
   "readingGoalSheetHint": "Enter goal number",
   "readingGoalSheetBooks": "books",
@@ -549,8 +549,8 @@
      "placeholders": {
        "count": {
          "type": "int"
-       },
-     },
+       }
+     }
    },
    "recallRecordCount": "{count} records",
    "@recallRecordCount": {
@@ -558,8 +558,8 @@
      "placeholders": {
        "count": {
          "type": "int"
-       },
-     },
+       }
+     }
    },
    "recallSearchMyRecords": "Search My Records",
    "recallSearchingYourRecords": "Searching your records...",
@@ -571,8 +571,8 @@
      "placeholders": {
        "count": {
          "type": "int"
-       },
-     },
+       }
+     }
    },
    "recallHoursAgo": "{count} hours ago",
    "@recallHoursAgo": {
@@ -580,8 +580,8 @@
      "placeholders": {
        "count": {
          "type": "int"
-       },
-     },
+       }
+     }
    },
    "recallDaysAgo": "{count} days ago",
    "@recallDaysAgo": {
@@ -589,8 +589,8 @@
      "placeholders": {
        "count": {
          "type": "int"
-       },
-     },
+       }
+     }
    },
     "recallSuggestedQuestions": "Suggested Questions",
     "recallSuggestedQuestion1": "What impressed me the most?",
@@ -610,102 +610,102 @@
       "placeholders": {
         "date": {
           "type": "String"
-        },
-      },
-    },,
+        }
+      }
+    },
     "bookListUndetermined": "Undetermined",
     "@bookListUndetermined": {
       "description": "Undetermined start date"
-    },,
+    },
     "bookListCompletedIn": "{days} days to complete",
     "@bookListCompletedIn": {
       "description": "Days taken to complete a book",
       "placeholders": {
         "days": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "bookListCompletedSameDay": "Completed same day",
     "@bookListCompletedSameDay": {
       "description": "Book completed on the same day"
-    },,
+    },
     "bookListAchievementRate": "Rate {rate}%",
     "@bookListAchievementRate": {
       "description": "Achievement rate percentage",
       "placeholders": {
         "rate": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "bookListUnknown": "Unknown",
     "@bookListUnknown": {
       "description": "Unknown value"
-    },,
+    },
     "bookListCompletedDate": "Completed {date}",
     "@bookListCompletedDate": {
       "description": "Completed date",
       "placeholders": {
         "date": {
           "type": "String"
-        },
-      },
-    },,
+        }
+      }
+    },
     "readingStartPriority": "Priority (Optional)",
     "@readingStartPriority": {
       "description": "Priority selector label"
-    },,
+    },
     "languageChangeConfirmTitle": "Change Language?",
     "@languageChangeConfirmTitle": {
       "description": "Language change confirmation dialog title"
-    },,
+    },
     "languageChangeConfirmMessage": "Would you like to change the language to {language}?",
     "@languageChangeConfirmMessage": {
       "description": "Language change confirmation dialog message",
       "placeholders": {
         "language": {
           "type": "String"
-        },
-      },
-    },,
+        }
+      }
+    },
     "languageKorean": "Korean",
     "@languageKorean": {
       "description": "Korean language name"
-    },,
+    },
     "languageEnglish": "English",
     "@languageEnglish": {
       "description": "English language name"
-    },,
+    },
     "readingStatusLabel": "Reading Status",
     "@readingStatusLabel": {
       "description": "Reading status section label"
-    },,
+    },
     "readingStatusPlanned": "Plan to Read",
     "@readingStatusPlanned": {
       "description": "Plan to read option"
-    },,
+    },
     "readingStatusStartNow": "Start Now",
     "@readingStatusStartNow": {
       "description": "Start now option"
-    },,
+    },
     "scheduleTargetDays": "Target Days",
     "@scheduleTargetDays": {
       "description": "Target days label"
-    },,
+    },
     "scheduleTargetDaysValue": "{count} days",
     "@scheduleTargetDaysValue": {
       "description": "Target days value",
       "placeholders": {
         "count": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "scheduleDailyGoal": "Daily Goal",
     "@scheduleDailyGoal": {
       "description": "Daily goal label"
-    },,
+    },
     "datePickerMonthJan": "Jan",
     "datePickerMonthFeb": "Feb",
     "datePickerMonthMar": "Mar",
@@ -733,9 +733,9 @@
       "placeholders": {
         "count": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "confirmChange": "Confirm",
     "bookDetailAchievementStatus": "{achieved} of {passed} days achieved",
     "@bookDetailAchievementStatus": {
@@ -743,385 +743,385 @@
       "placeholders": {
         "passed": {
           "type": "int"
-        },,
+        },
         "achieved": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "attemptOrdinal": "Attempt #{count}",
     "@attemptOrdinal": {
       "description": "Ordinal attempt number",
       "placeholders": {
         "count": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "totalDaysFormat": "({count} days)",
     "@totalDaysFormat": {
       "description": "Total days in parentheses",
       "placeholders": {
         "count": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "pagesRemaining": "{count, plural, =1{1 page remaining} other{{count} pages remaining}}",
     "@pagesRemaining": {
       "description": "Pages remaining message",
       "placeholders": {
         "count": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "todayGoalWithPages": "Today's goal: {count}p",
     "@todayGoalWithPages": {
       "description": "Today's goal with page count",
       "placeholders": {
         "count": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "streakDaysAchieved": "{count, plural, =1{1 day streak!} other{{count} day streak!}}",
     "@streakDaysAchieved": {
       "description": "Streak days achievement message",
       "placeholders": {
         "count": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "streakFirstRecord": "Leave your first record today",
     "@streakFirstRecord": {
       "description": "Prompt to leave first record"
-    },,
+    },
     "dailyTargetChangeTitle": "Change Daily Page Goal",
     "@dailyTargetChangeTitle": {
       "description": "Daily target change dialog title"
-    },,
+    },
     "pagesRemainingShort": "{count, plural, =1{1 page} other{{count} pages}}",
     "@pagesRemainingShort": {
       "description": "Pages count short format",
       "placeholders": {
         "count": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "pagesRemainingWithDays": " remaining · D-{days}",
     "@pagesRemainingWithDays": {
       "description": "Remaining pages with D-day",
       "placeholders": {
         "days": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "expectedSchedule": "Expected Schedule",
     "@expectedSchedule": {
       "description": "Expected schedule section title"
-    },,
+    },
     "pagesPerDay": "pages/day",
     "@pagesPerDay": {
       "description": "Pages per day unit"
-    },,
+    },
     "dailyTargetConfirmTitle": "Change Daily Goal",
     "@dailyTargetConfirmTitle": {
       "description": "Daily target confirm dialog title"
-    },,
+    },
     "dailyTargetConfirmMessage": "Today's goal cannot be modified,\nbut changes will apply from tomorrow.",
     "@dailyTargetConfirmMessage": {
       "description": "Daily target confirm message"
-    },,
+    },
     "dailyTargetConfirmQuestion": "Would you like to change it?",
     "@dailyTargetConfirmQuestion": {
       "description": "Daily target confirm question"
-    },,
+    },
     "updatePageTitle": "Update Current Page",
     "@updatePageTitle": {
       "description": "Update page dialog title"
-    },,
+    },
     "currentPageLabel": "Current {page}p",
     "@currentPageLabel": {
       "description": "Current page label",
       "placeholders": {
         "page": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "totalPageLabel": " / Total {page}p",
     "@totalPageLabel": {
       "description": "Total page label",
       "placeholders": {
         "page": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "newPageNumber": "New Page Number",
     "@newPageNumber": {
       "description": "New page number label"
-    },,
+    },
     "updateButton": "Update",
     "@updateButton": {
       "description": "Update button"
-    },,
+    },
     "validationEnterNumber": "Please enter a number",
     "@validationEnterNumber": {
       "description": "Validation: enter number"
-    },,
+    },
     "validationPageMinimum": "Please enter a page number of 0 or higher",
     "@validationPageMinimum": {
       "description": "Validation: page minimum"
-    },,
+    },
     "validationPageExceedsTotal": "Cannot exceed total pages ({total})",
     "@validationPageExceedsTotal": {
       "description": "Validation: page exceeds total",
       "placeholders": {
         "total": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "validationPageBelowCurrent": "Must be higher than current page ({current})",
     "@validationPageBelowCurrent": {
       "description": "Validation: page below current",
       "placeholders": {
         "current": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "addRecordTitle": "Add Record",
     "@addRecordTitle": {
       "description": "Add record title"
-    },,
+    },
     "tapToAddImage": "Tap to add image",
     "@tapToAddImage": {
       "description": "Tap to add image hint"
-    },,
+    },
     "optionalLabel": "(Optional)",
     "@optionalLabel": {
       "description": "Optional label"
-    },,
+    },
     "recordTextLabel": "Record Text",
     "@recordTextLabel": {
       "description": "Record text label"
-    },,
+    },
     "clearAllButton": "Clear All",
     "@clearAllButton": {
       "description": "Clear all button"
-    },,
+    },
     "recordHint": "Record a memorable passage.",
     "@recordHint": {
       "description": "Record text hint"
-    },,
+    },
     "uploadButton": "Upload",
     "@uploadButton": {
       "description": "Upload button"
-    },,
+    },
     "resetButton": "Reset",
     "@resetButton": {
       "description": "Reset button"
-    },,
+    },
     "highlightLabel": "Highlight",
     "@highlightLabel": {
       "description": "Highlight label"
-    },,
+    },
     "highlightWithCount": "Highlight ({count})",
     "@highlightWithCount": {
       "description": "Highlight with count",
       "placeholders": {
         "count": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "replaceButton": "Replace",
     "@replaceButton": {
       "description": "Replace button"
-    },,
+    },
     "extractTextButton": "Extract Text",
     "@extractTextButton": {
       "description": "Extract text button"
-    },,
+    },
     "viewFullButton": "View Full",
     "@viewFullButton": {
       "description": "View full button"
-    },,
+    },
     "resetConfirmMessage": "Are you sure you want to reset?",
     "@resetConfirmMessage": {
       "description": "Reset confirm message"
-    },,
+    },
     "uploading": "Uploading...",
     "@uploading": {
       "description": "Uploading message"
-    },,
+    },
     "extractTextConfirmTitle": "Extract text?",
     "@extractTextConfirmTitle": {
       "description": "Extract text confirm title"
-    },,
+    },
     "extractTextCreditsMessage": "This will use credits.",
     "@extractTextCreditsMessage": {
       "description": "Extract text credits message"
-    },,
+    },
     "extractTextOverwriteMessage": "This will overwrite your text.\nThis will use credits.",
     "@extractTextOverwriteMessage": {
       "description": "Extract text overwrite message"
-    },,
+    },
     "noThanksButton": "No thanks",
     "@noThanksButton": {
       "description": "No thanks button"
-    },,
+    },
     "extractButton": "Extract",
     "@extractButton": {
       "description": "Extract button"
-    },,
+    },
     "extractingText": "Extracting text...",
     "@extractingText": {
       "description": "Extracting text message"
-    },,
+    },
     "extractedTextTitle": "Extracted Text",
     "@extractedTextTitle": {
       "description": "Extracted text title"
-    },,
+    },
     "reselectButton": "Reselect",
     "@reselectButton": {
       "description": "Reselect button"
-    },,
+    },
     "applyButton": "Apply",
     "@applyButton": {
       "description": "Apply button"
-    },,
+    },
     "aiFeaturesTitle": "AI Features",
     "@aiFeaturesTitle": {
       "description": "AI features section title"
-    },,
+    },
     "searchRecordsButton": "Search",
     "@searchRecordsButton": {
       "description": "Search records button"
-    },,
+    },
     "bookRecommendButton": "Recommend",
     "@bookRecommendButton": {
       "description": "Book recommendation button"
-    },,
+    },
     "calendarFilterAll": "All",
     "@calendarFilterAll": {
       "description": "Calendar filter: all"
-    },,
+    },
     "calendarFilterReading": "Currently Reading",
     "@calendarFilterReading": {
       "description": "Calendar filter: reading"
-    },,
+    },
     "calendarFilterCompleted": "Completed",
     "@calendarFilterCompleted": {
       "description": "Calendar filter: completed"
-    },,
+    },
     "pageUpdateButton": "Update Page",
     "@pageUpdateButton": {
       "description": "Page update button"
-    },,
+    },
     "noProgressRecords": "No progress records",
     "@noProgressRecords": {
       "description": "No progress records message"
-    },,
+    },
     "oneLineReviewOptional": "One-line review (Optional)",
     "@oneLineReviewOptional": {
       "description": "One line review optional label"
-    },,
+    },
     "todayGoalChanged": "Today's goal changed to {pages}p",
     "@todayGoalChanged": {
       "description": "Today goal changed message",
       "placeholders": {
         "pages": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "bookInfoNotFound": "Book information not found",
     "@bookInfoNotFound": {
       "description": "Book info not found error"
-    },,
+    },
     "goalChangeFailed": "Failed to change goal",
     "@goalChangeFailed": {
       "description": "Goal change failed error"
-    },,
+    },
     "unsavedChangesMessage": "You have unsaved changes.",
     "@unsavedChangesMessage": {
       "description": "Unsaved changes warning message"
-    },,
+    },
     "discardChangesButton": "Discard Changes",
     "@discardChangesButton": {
       "description": "Discard changes button"
-    },,
+    },
     "continueEditingButton": "Continue Editing",
     "@continueEditingButton": {
       "description": "Continue editing button"
-    },,
+    },
     "pageNotSet": "Page not set",
     "@pageNotSet": {
       "description": "Page not set label"
-    },,
+    },
     "textInputHint": "Enter text...",
     "@textInputHint": {
       "description": "Text input hint"
-    },,
+    },
     "noRecordedText": "No recorded text.",
     "@noRecordedText": {
       "description": "No recorded text message"
-    },,
+    },
     "textCopied": "Text copied.",
     "@textCopied": {
       "description": "Text copied message"
-    },,
+    },
     "copyButton": "Copy",
     "@copyButton": {
       "description": "Copy button"
-    },,
+    },
     "editButton": "Edit",
     "@editButton": {
       "description": "Edit button"
-    },,
+    },
     "loadingImage": "Loading image...",
     "@loadingImage": {
       "description": "Loading image message"
-    },,
+    },
     "ocrAreaSelectTitle": "Select Text Extraction Area",
     "@ocrAreaSelectTitle": {
       "description": "OCR area select title"
-    },,
+    },
     "ocrExtractionFailed": "Failed to extract text. Try selecting a different area.",
     "@ocrExtractionFailed": {
       "description": "OCR extraction failed message"
-    },,
+    },
     "imageLoadFailed": "Failed to load image.",
     "@imageLoadFailed": {
       "description": "Image load failed message"
-    },,
+    },
     "ocrReExtractionFailed": "Failed to re-extract text.",
     "@ocrReExtractionFailed": {
       "description": "OCR re-extraction failed message"
-    },,
+    },
     "documentScanFailed": "Document scan failed.",
     "@documentScanFailed": {
       "description": "Document scan failed message"
-    },,
+    },
     "reScanButton": "Rescan",
     "@reScanButton": {
       "description": "Re-scan button"
-    },,
+    },
     "pageExceedsTotalError": "Cannot exceed total pages ({total})",
     "@pageExceedsTotalError": {
       "description": "Page exceeds total error message",
       "placeholders": {
         "total": {
           "type": "int"
-        },
-      },
+        }
+      }
     },
   "highlightEditTitle": "Edit Highlight",
   "highlightEditDone": "Done",

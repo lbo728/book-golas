@@ -70,8 +70,8 @@
     "placeholders": {
       "count": {
         "type": "num"
-      },
-    },
+      }
+    }
   },
   "daysCount": "{count}일",
   "@daysCount": {
@@ -79,8 +79,8 @@
     "placeholders": {
       "count": {
         "type": "num"
-      },
-    },
+      }
+    }
   },
    "pagesCount": "{count}페이지",
     "@pagesCount": {
@@ -88,9 +88,9 @@
       "placeholders": {
         "count": {
           "type": "num"
-        },
-      },
-    },,
+        }
+      }
+    },
    "unitPages": "페이지",
    "weekdayMon": "월",
   "@weekdayMon": {
@@ -538,8 +538,8 @@
     "placeholders": {
       "error": {
         "type": "String"
-      },
-    },
+      }
+    }
   },
   "myPageNotificationTimeTitle": "알림 시간 설정",
   "@myPageNotificationTimeTitle": {
@@ -567,8 +567,8 @@
     "placeholders": {
       "time": {
         "type": "String"
-      },
-    },
+      }
+    }
   },
   "myPageNoNotification": "알림을 받지 않습니다",
   "@myPageNoNotification": {
@@ -604,8 +604,8 @@
     "placeholders": {
       "error": {
         "type": "String"
-      },
-    },
+      }
+    }
   },
   "loginAppName": "북골라스",
   "@loginAppName": {
@@ -837,8 +837,8 @@
     "placeholders": {
       "userName": {
         "type": "String"
-      },
-    },
+      }
+    }
   },
   "readingStartSearchHint": "책 제목을 입력해주세요.",
   "@readingStartSearchHint": {
@@ -858,8 +858,8 @@
     "placeholders": {
       "totalPages": {
         "type": "num"
-      },
-    },
+      }
+    }
   },
   "readingStartPlannedDate": "독서 시작 예정일",
   "@readingStartPlannedDate": {
@@ -1023,8 +1023,8 @@
     "placeholders": {
       "count": {
         "type": "num"
-      },
-    },
+      }
+    }
   },
   "calendarCompleted": "완독",
   "@calendarCompleted": {
@@ -1240,8 +1240,8 @@
      "placeholders": {
        "count": {
          "type": "int"
-       },
-     },
+       }
+     }
    },
    "recallRecordCount": "{count}개 기록",
    "@recallRecordCount": {
@@ -1249,8 +1249,8 @@
      "placeholders": {
        "count": {
          "type": "int"
-       },
-     },
+       }
+     }
    },
    "recallSearchMyRecords": "내 기록 검색",
    "@recallSearchMyRecords": {
@@ -1274,8 +1274,8 @@
      "placeholders": {
        "count": {
          "type": "int"
-       },
-     },
+       }
+     }
    },
    "recallHoursAgo": "{count}시간 전",
    "@recallHoursAgo": {
@@ -1283,8 +1283,8 @@
      "placeholders": {
        "count": {
          "type": "int"
-       },
-     },
+       }
+     }
    },
    "recallDaysAgo": "{count}일 전",
    "@recallDaysAgo": {
@@ -1292,8 +1292,8 @@
      "placeholders": {
        "count": {
          "type": "int"
-       },
-     },
+       }
+     }
    },
    "recallSuggestedQuestions": "추천 질문",
    "@recallSuggestedQuestions": {
@@ -1342,109 +1342,109 @@
     "recallSuggestedQuestion4": "공감했던 부분은?",
     "@recallSuggestedQuestion4": {
       "description": "Suggested question 4"
-    },,
+    },
     "bookListPlannedStartDate": "시작 예정: {date}",
     "@bookListPlannedStartDate": {
       "description": "Planned start date for a book",
       "placeholders": {
         "date": {
           "type": "String"
-        },
-      },
-    },,
+        }
+      }
+    },
     "bookListUndetermined": "시작일 미정",
     "@bookListUndetermined": {
       "description": "Undetermined start date"
-    },,
+    },
     "bookListCompletedIn": "{days}일만에 완독",
     "@bookListCompletedIn": {
       "description": "Days taken to complete a book",
       "placeholders": {
         "days": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "bookListCompletedSameDay": "당일 완독",
     "@bookListCompletedSameDay": {
       "description": "Book completed on the same day"
-    },,
+    },
     "bookListAchievementRate": "달성률 {rate}%",
     "@bookListAchievementRate": {
       "description": "Achievement rate percentage",
       "placeholders": {
         "rate": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "bookListUnknown": "알 수 없음",
     "@bookListUnknown": {
       "description": "Unknown value"
-    },,
+    },
     "bookListCompletedDate": "완독일 {date}",
     "@bookListCompletedDate": {
       "description": "Completed date",
       "placeholders": {
         "date": {
           "type": "String"
-        },
-      },
-    },,
+        }
+      }
+    },
     "readingStartPriority": "우선순위 (선택사항)",
     "@readingStartPriority": {
       "description": "Priority selector label"
-    },,
+    },
     "languageChangeConfirmTitle": "언어를 변경하시겠습니까?",
     "@languageChangeConfirmTitle": {
       "description": "Language change confirmation dialog title"
-    },,
+    },
     "languageChangeConfirmMessage": "언어를 {language}(으)로 변경하시겠습니까?",
     "@languageChangeConfirmMessage": {
       "description": "Language change confirmation dialog message",
       "placeholders": {
         "language": {
           "type": "String"
-        },
-      },
-    },,
+        }
+      }
+    },
     "languageKorean": "한국어",
     "@languageKorean": {
       "description": "Korean language name"
-    },,
+    },
     "languageEnglish": "영어",
     "@languageEnglish": {
       "description": "English language name"
-    },,
+    },
     "readingStatusLabel": "독서 상태",
     "@readingStatusLabel": {
       "description": "Reading status section label"
-    },,
+    },
     "readingStatusPlanned": "읽을 예정",
     "@readingStatusPlanned": {
       "description": "Plan to read option"
-    },,
+    },
     "readingStatusStartNow": "바로 시작",
     "@readingStatusStartNow": {
       "description": "Start now option"
-    },,
+    },
     "scheduleTargetDays": "목표 일수",
     "@scheduleTargetDays": {
       "description": "Target days label"
-    },,
+    },
     "scheduleTargetDaysValue": "{count}일",
     "@scheduleTargetDaysValue": {
       "description": "Target days value",
       "placeholders": {
         "count": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "scheduleDailyGoal": "하루 목표",
     "@scheduleDailyGoal": {
       "description": "Daily goal label"
-    },,
+    },
     "datePickerMonthJan": "1월",
     "datePickerMonthFeb": "2월",
     "datePickerMonthMar": "3월",
@@ -1460,437 +1460,437 @@
     "bookDetailSchedule": "독서 일정",
     "@bookDetailSchedule": {
       "description": "Reading schedule section title"
-    },,
+    },
     "bookDetailGoalProgress": "목표 달성 현황",
     "@bookDetailGoalProgress": {
       "description": "Goal progress section title"
-    },,
+    },
     "bookDetailGoalAchieved": "목표 달성",
     "@bookDetailGoalAchieved": {
       "description": "Goal achieved message"
-    },,
+    },
     "bookDetailDeleteReading": "독서 삭제",
     "@bookDetailDeleteReading": {
       "description": "Delete reading button"
-    },,
+    },
     "bookDetailNoPhotos": "아직 추가된 사진이 없습니다",
     "@bookDetailNoPhotos": {
       "description": "No photos added message"
-    },,
+    },
     "bookDetailAddPhotoHint": "하단 + 버튼으로 추가해보세요",
     "@bookDetailAddPhotoHint": {
       "description": "Add photo hint message"
-    },,
+    },
     "editReadingPlanTitle": "독서 계획 수정",
     "@editReadingPlanTitle": {
       "description": "Edit reading plan dialog title"
-    },,
+    },
     "editPlannedStartDate": "시작 예정일",
     "@editPlannedStartDate": {
       "description": "Planned start date label"
-    },,
+    },
     "changeTargetDateTitle": "목표일 변경",
     "@changeTargetDateTitle": {
       "description": "Change target date dialog title"
-    },,
+    },
     "attemptChangeMessage": "{count}번째 도전으로 변경됩니다",
     "@attemptChangeMessage": {
       "description": "Attempt change message",
       "placeholders": {
         "count": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "confirmChange": "변경하기",
     "@confirmChange": {
       "description": "Confirm change button"
-    },,
+    },
     "bookDetailAchievementStatus": "{passed}일 중 {achieved}일 달성",
     "@bookDetailAchievementStatus": {
       "description": "Achievement status message",
       "placeholders": {
         "passed": {
           "type": "int"
-        },,
+        },
         "achieved": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "attemptOrdinal": "{count}번째",
     "@attemptOrdinal": {
       "description": "Ordinal attempt number",
       "placeholders": {
         "count": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "totalDaysFormat": "({count}일)",
     "@totalDaysFormat": {
       "description": "Total days in parentheses",
       "placeholders": {
         "count": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "pagesRemaining": "{count}페이지 남았어요",
     "@pagesRemaining": {
       "description": "Pages remaining message",
       "placeholders": {
         "count": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "todayGoalWithPages": "오늘 목표: {count}p",
     "@todayGoalWithPages": {
       "description": "Today's goal with page count",
       "placeholders": {
         "count": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "streakDaysAchieved": "{count}일 연속 달성!",
     "@streakDaysAchieved": {
       "description": "Streak days achievement message",
       "placeholders": {
         "count": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "streakFirstRecord": "오늘 첫 기록을 남겨보세요",
     "@streakFirstRecord": {
       "description": "Prompt to leave first record"
-    },,
+    },
     "dailyTargetChangeTitle": "일일 목표 페이지 변경",
     "@dailyTargetChangeTitle": {
       "description": "Daily target change dialog title"
-    },,
+    },
     "pagesRemainingShort": "{count}페이지",
     "@pagesRemainingShort": {
       "description": "Pages count short format",
       "placeholders": {
         "count": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "pagesRemainingWithDays": " 남았어요 · D-{days}",
     "@pagesRemainingWithDays": {
       "description": "Remaining pages with D-day",
       "placeholders": {
         "days": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "expectedSchedule": "예상 스케줄",
     "@expectedSchedule": {
       "description": "Expected schedule section title"
-    },,
+    },
     "pagesPerDay": "페이지/일",
     "@pagesPerDay": {
       "description": "Pages per day unit"
-    },,
+    },
     "dailyTargetConfirmTitle": "일일 목표 변경",
     "@dailyTargetConfirmTitle": {
       "description": "Daily target confirm dialog title"
-    },,
+    },
     "dailyTargetConfirmMessage": "오늘의 목표는 수정할 수 없지만,\n내일부터 변경된 목표가 적용됩니다.",
     "@dailyTargetConfirmMessage": {
       "description": "Daily target confirm message"
-    },,
+    },
     "dailyTargetConfirmQuestion": "변경하시겠어요?",
     "@dailyTargetConfirmQuestion": {
       "description": "Daily target confirm question"
-    },,
+    },
     "updatePageTitle": "현재 페이지 업데이트",
     "@updatePageTitle": {
       "description": "Update page dialog title"
-    },,
+    },
     "currentPageLabel": "현재 {page}p",
     "@currentPageLabel": {
       "description": "Current page label",
       "placeholders": {
         "page": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "totalPageLabel": " / 총 {page}p",
     "@totalPageLabel": {
       "description": "Total page label",
       "placeholders": {
         "page": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "newPageNumber": "새 페이지 번호",
     "@newPageNumber": {
       "description": "New page number label"
-    },,
+    },
     "updateButton": "업데이트",
     "@updateButton": {
       "description": "Update button"
-    },,
+    },
     "validationEnterNumber": "숫자를 입력해주세요",
     "@validationEnterNumber": {
       "description": "Validation: enter number"
-    },,
+    },
     "validationPageMinimum": "0 이상의 페이지를 입력해주세요",
     "@validationPageMinimum": {
       "description": "Validation: page minimum"
-    },,
+    },
     "validationPageExceedsTotal": "총 페이지({total})를 초과할 수 없습니다",
     "@validationPageExceedsTotal": {
       "description": "Validation: page exceeds total",
       "placeholders": {
         "total": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "validationPageBelowCurrent": "현재 페이지({current}) 이하입니다",
     "@validationPageBelowCurrent": {
       "description": "Validation: page below current",
       "placeholders": {
         "current": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "addRecordTitle": "기록 추가",
     "@addRecordTitle": {
       "description": "Add record title"
-    },,
+    },
     "tapToAddImage": "터치하여 이미지 추가",
     "@tapToAddImage": {
       "description": "Tap to add image hint"
-    },,
+    },
     "optionalLabel": "(선택사항)",
     "@optionalLabel": {
       "description": "Optional label"
-    },,
+    },
     "recordTextLabel": "기록 문구",
     "@recordTextLabel": {
       "description": "Record text label"
-    },,
+    },
     "clearAllButton": "모두 지우기",
     "@clearAllButton": {
       "description": "Clear all button"
-    },,
+    },
     "recordHint": "인상 깊은 대목을 기록해보세요.",
     "@recordHint": {
       "description": "Record text hint"
-    },,
+    },
     "uploadButton": "업로드",
     "@uploadButton": {
       "description": "Upload button"
-    },,
+    },
     "resetButton": "초기화",
     "@resetButton": {
       "description": "Reset button"
-    },,
+    },
     "highlightLabel": "하이라이트",
     "@highlightLabel": {
       "description": "Highlight label"
-    },,
+    },
     "highlightWithCount": "하이라이트 ({count})",
     "@highlightWithCount": {
       "description": "Highlight with count",
       "placeholders": {
         "count": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "replaceButton": "교체하기",
     "@replaceButton": {
       "description": "Replace button"
-    },,
+    },
     "extractTextButton": "텍스트 추출",
     "@extractTextButton": {
       "description": "Extract text button"
-    },,
+    },
     "viewFullButton": "전체보기",
     "@viewFullButton": {
       "description": "View full button"
-    },,
+    },
     "resetConfirmMessage": "내용을 정말 초기화하시겠어요?",
     "@resetConfirmMessage": {
       "description": "Reset confirm message"
-    },,
+    },
     "uploading": "업로드 중...",
     "@uploading": {
       "description": "Uploading message"
-    },,
+    },
     "extractTextConfirmTitle": "텍스트를 추출하시겠어요?",
     "@extractTextConfirmTitle": {
       "description": "Extract text confirm title"
-    },,
+    },
     "extractTextCreditsMessage": "크레딧을 소모합니다.",
     "@extractTextCreditsMessage": {
       "description": "Extract text credits message"
-    },,
+    },
     "extractTextOverwriteMessage": "작성하신 텍스트를 덮어씁니다.\n크레딧을 소모합니다.",
     "@extractTextOverwriteMessage": {
       "description": "Extract text overwrite message"
-    },,
+    },
     "noThanksButton": "괜찮아요",
     "@noThanksButton": {
       "description": "No thanks button"
-    },,
+    },
     "extractButton": "추출할게요",
     "@extractButton": {
       "description": "Extract button"
-    },,
+    },
     "extractingText": "텍스트 추출 중...",
     "@extractingText": {
       "description": "Extracting text message"
-    },,
+    },
     "extractedTextTitle": "추출된 텍스트",
     "@extractedTextTitle": {
       "description": "Extracted text title"
-    },,
+    },
     "reselectButton": "다시 선택",
     "@reselectButton": {
       "description": "Reselect button"
-    },,
+    },
     "applyButton": "적용하기",
     "@applyButton": {
       "description": "Apply button"
-    },,
+    },
     "aiFeaturesTitle": "AI 기능",
     "@aiFeaturesTitle": {
       "description": "AI features section title"
-    },,
+    },
     "searchRecordsButton": "기록 검색",
     "@searchRecordsButton": {
       "description": "Search records button"
-    },,
+    },
     "bookRecommendButton": "책 추천",
     "@bookRecommendButton": {
       "description": "Book recommendation button"
-    },,
+    },
     "calendarFilterAll": "전체",
     "@calendarFilterAll": {
       "description": "Calendar filter: all"
-    },,
+    },
     "calendarFilterReading": "읽고 있는 책",
     "@calendarFilterReading": {
       "description": "Calendar filter: reading"
-    },,
+    },
     "calendarFilterCompleted": "완독한 책",
     "@calendarFilterCompleted": {
       "description": "Calendar filter: completed"
-    },,
+    },
     "pageUpdateButton": "페이지 업데이트",
     "@pageUpdateButton": {
       "description": "Page update button"
-    },,
+    },
     "noProgressRecords": "진행률 기록이 없습니다",
     "@noProgressRecords": {
       "description": "No progress records message"
-    },,
+    },
     "oneLineReviewOptional": "한줄평 (선택사항)",
     "@oneLineReviewOptional": {
       "description": "One line review optional label"
-    },,
+    },
     "todayGoalChanged": "오늘 목표: {pages}p로 변경되었습니다",
     "@todayGoalChanged": {
       "description": "Today goal changed message",
       "placeholders": {
         "pages": {
           "type": "int"
-        },
-      },
-    },,
+        }
+      }
+    },
     "bookInfoNotFound": "도서 정보를 찾을 수 없습니다",
     "@bookInfoNotFound": {
       "description": "Book info not found error"
-    },,
+    },
     "goalChangeFailed": "목표 변경에 실패했습니다",
     "@goalChangeFailed": {
       "description": "Goal change failed error"
-    },,
+    },
     "unsavedChangesMessage": "수정 중인 내용이 있습니다.",
     "@unsavedChangesMessage": {
       "description": "Unsaved changes warning message"
-    },,
+    },
     "discardChangesButton": "변경사항 무시",
     "@discardChangesButton": {
       "description": "Discard changes button"
-    },,
+    },
     "continueEditingButton": "이어서 하기",
     "@continueEditingButton": {
       "description": "Continue editing button"
-    },,
+    },
     "pageNotSet": "페이지 미설정",
     "@pageNotSet": {
       "description": "Page not set label"
-    },,
+    },
     "textInputHint": "텍스트를 입력하세요...",
     "@textInputHint": {
       "description": "Text input hint"
-    },,
+    },
     "noRecordedText": "기록된 문구가 없습니다.",
     "@noRecordedText": {
       "description": "No recorded text message"
-    },,
+    },
     "textCopied": "텍스트가 복사되었습니다.",
     "@textCopied": {
       "description": "Text copied message"
-    },,
+    },
     "copyButton": "복사하기",
     "@copyButton": {
       "description": "Copy button"
-    },,
+    },
     "editButton": "수정하기",
     "@editButton": {
       "description": "Edit button"
-    },,
+    },
     "loadingImage": "이미지 불러오는 중...",
     "@loadingImage": {
       "description": "Loading image message"
-    },,
+    },
     "ocrAreaSelectTitle": "텍스트 추출 영역 선택",
     "@ocrAreaSelectTitle": {
       "description": "OCR area select title"
-    },,
+    },
     "ocrExtractionFailed": "텍스트를 추출하지 못했습니다. 다른 영역을 선택해보세요.",
     "@ocrExtractionFailed": {
       "description": "OCR extraction failed message"
-    },,
+    },
     "imageLoadFailed": "이미지를 불러오지 못했습니다.",
     "@imageLoadFailed": {
       "description": "Image load failed message"
-    },,
+    },
     "ocrReExtractionFailed": "텍스트 다시 추출에 실패했습니다.",
     "@ocrReExtractionFailed": {
       "description": "OCR re-extraction failed message"
-    },,
+    },
     "documentScanFailed": "문서 스캔에 실패했습니다.",
     "@documentScanFailed": {
       "description": "Document scan failed message"
-    },,
+    },
     "reScanButton": "다시 스캔",
     "@reScanButton": {
       "description": "Re-scan button"
-    },,
+    },
     "pageExceedsTotalError": "총 페이지 수({total})를 초과할 수 없습니다",
     "@pageExceedsTotalError": {
       "description": "Page exceeds total error message",
       "placeholders": {
         "total": {
           "type": "int"
-        },
-      },
+        }
+      }
     },
   "highlightEditTitle": "하이라이트 편집",
   "highlightEditDone": "완료",
