@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:book_golas/data/services/google_vision_ocr_service.dart';
@@ -140,6 +141,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
   }
 
   Widget _buildToolbar(bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.only(left: 4, right: 4, bottom: 8),
       child: Row(
@@ -147,7 +149,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
         children: [
           if (widget.isSelectionMode)
             Text(
-              '${widget.selectedImageIds.length}개 선택됨',
+              l10n.memorablePagesSelected(widget.selectedImageIds.length),
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
@@ -155,21 +157,24 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
               ),
             )
           else
-            _buildSortButton(isDark),
-          _buildActionButtons(isDark),
+            _buildSortButton(context, isDark),
+          _buildActionButtons(context, isDark),
         ],
       ),
     );
   }
 
-  Widget _buildSortButton(bool isDark) {
+  Widget _buildSortButton(BuildContext context, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return PopupMenuButton<String>(
       onSelected: widget.onSortModeChanged,
       itemBuilder: (context) => [
-        _buildSortMenuItem('page_desc', '페이지 높은순'),
-        _buildSortMenuItem('page_asc', '페이지 낮은순'),
-        _buildSortMenuItem('date_desc', '최근 기록순'),
-        _buildSortMenuItem('date_asc', '오래된 기록순'),
+        _buildSortMenuItem(
+            context, 'page_desc', l10n.memorablePagesSortPageDesc),
+        _buildSortMenuItem(context, 'page_asc', l10n.memorablePagesSortPageAsc),
+        _buildSortMenuItem(
+            context, 'date_desc', l10n.memorablePagesSortDateDesc),
+        _buildSortMenuItem(context, 'date_asc', l10n.memorablePagesSortDateAsc),
       ],
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -187,7 +192,9 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
             ),
             const SizedBox(width: 4),
             Text(
-              widget.sortMode.contains('page') ? '페이지' : '날짜',
+              widget.sortMode.contains('page')
+                  ? l10n.memorablePagesSortByPage
+                  : l10n.memorablePagesSortByDate,
               style: TextStyle(
                 fontSize: 12,
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -199,7 +206,8 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
     );
   }
 
-  PopupMenuItem<String> _buildSortMenuItem(String value, String label) {
+  PopupMenuItem<String> _buildSortMenuItem(
+      BuildContext context, String value, String label) {
     return PopupMenuItem(
       value: value,
       child: Row(
@@ -215,7 +223,8 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
     );
   }
 
-  Widget _buildActionButtons(bool isDark) {
+  Widget _buildActionButtons(BuildContext context, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         if (widget.isSelectionMode && widget.selectedImageIds.isNotEmpty)
@@ -226,9 +235,9 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
               size: 18,
               color: AppColors.error,
             ),
-            label: const Text(
-              '삭제',
-              style: TextStyle(
+            label: Text(
+              l10n.memorablePagesDelete,
+              style: const TextStyle(
                 color: AppColors.error,
                 fontWeight: FontWeight.w600,
               ),
@@ -244,7 +253,9 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
             widget.onSelectionModeChanged(!widget.isSelectionMode);
           },
           child: Text(
-            widget.isSelectionMode ? '완료' : '선택',
+            widget.isSelectionMode
+                ? l10n.memorablePagesDone
+                : l10n.memorablePagesSelect,
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -278,8 +289,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
     if (createdAt != null) {
       try {
         final date = DateTime.parse(createdAt);
-        formattedDate =
-            '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
+        formattedDate = DateFormat('MM/dd/yyyy').format(date);
       } catch (_) {}
     }
 
