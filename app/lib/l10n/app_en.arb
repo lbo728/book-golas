@@ -1124,5 +1124,22 @@
       },
     },
   "highlightEditTitle": "Edit Highlight",
-  "highlightEditDone": "Done"
+  "highlightEditDone": "Done",
+  "memorablePagesSelected": "{count} selected",
+  "@memorablePagesSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "memorablePagesSortByPage": "Page",
+  "memorablePagesSortByDate": "Date",
+  "memorablePagesSortPageDesc": "Page (High to Low)",
+  "memorablePagesSortPageAsc": "Page (Low to High)",
+  "memorablePagesSortDateDesc": "Recent First",
+  "memorablePagesSortDateAsc": "Oldest First",
+  "memorablePagesDelete": "Delete",
+  "memorablePagesSelect": "Select",
+  "memorablePagesDone": "Done"
 }

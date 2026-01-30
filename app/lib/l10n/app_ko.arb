@@ -1893,5 +1893,15 @@
       },
     },
   "highlightEditTitle": "하이라이트 편집",
-  "highlightEditDone": "완료"
+  "highlightEditDone": "완료",
+  "memorablePagesSelected": "{count}개 선택됨",
+  "memorablePagesSortByPage": "페이지",
+  "memorablePagesSortByDate": "날짜",
+  "memorablePagesSortPageDesc": "페이지 높은순",
+  "memorablePagesSortPageAsc": "페이지 낮은순",
+  "memorablePagesSortDateDesc": "최근 기록순",
+  "memorablePagesSortDateAsc": "오래된 기록순",
+  "memorablePagesDelete": "삭제",
+  "memorablePagesSelect": "선택",
+  "memorablePagesDone": "완료"
 }
