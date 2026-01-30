@@ -429,7 +429,7 @@
   "chartGenreAnalysisDiversity": "Genre Diversity",
   "chartGenreAnalysisEmptyMessage": "No completed books yet",
   "chartGenreAnalysisEmptyHint": "Complete books to see genre statistics!",
-  "chartHighlightStatsTitle": "Records/Highlights Statistics",
+  "chartHighlightStatsTitle": "Highlights & Records",
   "chartHighlightStatsHighlights": "Highlights",
   "chartHighlightStatsMemos": "Memos",
   "chartHighlightStatsPhotos": "Photos",

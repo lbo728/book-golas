@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
@@ -126,7 +127,8 @@ class CalendarHeader extends StatelessWidget {
               GestureDetector(
                 onTap: () => _showMonthPicker(context),
                 child: Text(
-                  '${focusedMonth.year}년 ${focusedMonth.month.toString().padLeft(2, '0')}월',
+                  DateFormat.yMMMM(Localizations.localeOf(context).toString())
+                      .format(focusedMonth),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,

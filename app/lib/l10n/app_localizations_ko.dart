@@ -1053,7 +1053,7 @@ class AppLocalizationsKo extends AppLocalizations {
       'Complete books to see genre statistics!';
 
   @override
-  String get chartHighlightStatsTitle => 'Records/Highlights Statistics';
+  String get chartHighlightStatsTitle => 'Highlights & Records';
 
   @override
   String get chartHighlightStatsHighlights => 'Highlights';

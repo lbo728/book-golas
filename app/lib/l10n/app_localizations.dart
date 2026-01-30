@@ -2099,7 +2099,7 @@ abstract class AppLocalizations {
   /// No description provided for @chartHighlightStatsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Records/Highlights Statistics'**
+  /// **'Highlights & Records'**
   String get chartHighlightStatsTitle;
 
   /// No description provided for @chartHighlightStatsHighlights.

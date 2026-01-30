@@ -74,12 +74,14 @@ class HighlightStatsCard extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        Text(
-          AppLocalizations.of(context)!.chartHighlightStatsTitle,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: isDark ? Colors.white : Colors.black87,
+        Expanded(
+          child: Text(
+            AppLocalizations.of(context)!.chartHighlightStatsTitle,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black87,
+            ),
           ),
         ),
       ],
@@ -182,7 +184,9 @@ class HighlightStatsCard extends StatelessWidget {
                 Expanded(
                   flex: 3,
                   child: Text(
-                    entry.key,
+                    entry.key == '미분류'
+                        ? AppLocalizations.of(context)!.genreUncategorized
+                        : entry.key,
                     style: TextStyle(
                       fontSize: 13,
                       color: isDark ? Colors.white70 : Colors.black87,
