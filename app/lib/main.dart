@@ -534,6 +534,8 @@ class _MainScreenState extends State<MainScreen>
       ];
 
   void _onItemTapped(int index) {
+    debugPrint(
+        '🔍 _onItemTapped called with index: $index, current: $_selectedIndex');
     if (index == 0 && _selectedIndex == 0) {
       HapticFeedback.lightImpact();
       context.read<BookListViewModel>().cycleToNextTab();
@@ -541,6 +543,7 @@ class _MainScreenState extends State<MainScreen>
       HapticFeedback.lightImpact();
       ReadingChartScreen.cycleToNextTab();
     } else {
+      debugPrint('🔍 Setting _selectedIndex to: $index');
       setState(() {
         _selectedIndex = index;
       });
@@ -585,7 +588,14 @@ class _MainScreenState extends State<MainScreen>
     final isInReadingDetailContext =
         homeVm.displayMode == HomeDisplayMode.readingDetail;
 
-    Widget body = _pages[_selectedIndex];
+    Widget body;
+    try {
+      body = _pages[_selectedIndex];
+    } catch (e, stackTrace) {
+      debugPrint('❌ Error accessing _pages[$_selectedIndex]: $e');
+      debugPrint('Stack trace: $stackTrace');
+      rethrow;
+    }
 
     if (_showExpandedMenu) {
       body = Stack(
