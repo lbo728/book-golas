@@ -537,7 +537,7 @@ class _MainScreenState extends State<MainScreen>
     if (index == 0 && _selectedIndex == 0) {
       HapticFeedback.lightImpact();
       context.read<BookListViewModel>().cycleToNextTab();
-    } else if (index == 1 && _selectedIndex == 1) {
+    } else if (index == 2 && _selectedIndex == 2) {
       HapticFeedback.lightImpact();
       ReadingChartScreen.cycleToNextTab();
     } else {

@@ -185,7 +185,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
 
     final content = Row(
       children: [
-        // Pill TabBar (4개 탭)
+        // Pill TabBar (5개 탭)
         Expanded(child: _buildLiquidGlassTabBar(isDark)),
         const SizedBox(width: 12),
         // 분리된 원형 검색 버튼
