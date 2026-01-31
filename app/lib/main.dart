@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 
 import 'package:book_golas/ui/core/theme/design_system.dart';
-import 'package:book_golas/ui/reading_chart/widgets/reading_chart_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:book_golas/ui/home/widgets/home_screen.dart';
@@ -11,6 +11,7 @@ import 'package:book_golas/ui/core/widgets/liquid_glass_bottom_bar.dart';
 import 'package:book_golas/ui/core/widgets/reading_detail_bottom_bar.dart';
 import 'package:book_golas/ui/core/widgets/expanded_navigation_bottom_bar.dart';
 import 'package:book_golas/domain/models/home_display_mode.dart';
+import 'package:book_golas/ui/reading_chart/widgets/reading_chart_screen.dart';
 import 'package:book_golas/ui/calendar/widgets/calendar_screen.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 import 'package:book_golas/config/app_config.dart';
@@ -37,7 +38,11 @@ import 'domain/models/book.dart';
 import 'ui/book_detail/book_detail_screen.dart';
 import 'ui/onboarding/view_model/onboarding_view_model.dart';
 import 'ui/onboarding/widgets/onboarding_screen.dart';
-import 'ui/reading_chart/view_model/reading_insights_view_model.dart';
+import 'data/services/note_structure_service.dart';
+import 'data/services/subscription_service.dart';
+import 'ui/book_detail/view_model/note_structure_view_model.dart';
+import 'ui/my_library/view_model/my_library_view_model.dart';
+import 'ui/my_library/widgets/my_library_screen.dart';
 
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
@@ -217,6 +222,12 @@ class MyApp extends StatelessWidget {
         Provider<ReadingProgressService>(
           create: (_) => ReadingProgressService(),
         ),
+        Provider<NoteStructureService>(
+          create: (_) => NoteStructureService(),
+        ),
+        Provider<SubscriptionService>(
+          create: (_) => SubscriptionService(),
+        ),
         // === Repositories ===
         Provider<BookRepository>(
           create: (context) => BookRepositoryImpl(context.read<BookService>()),
@@ -376,6 +387,22 @@ class _MainScreenState extends State<MainScreen>
     // 인증 완료 후 BookListViewModel 초기화 및 FCM 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       context.read<BookListViewModel>().initialize();
+
+      // RevenueCat 초기화 (인증 후)
+      try {
+        debugPrint('💳 RevenueCat 초기화 시작 (인증 후)');
+        final userId = Supabase.instance.client.auth.currentUser?.id;
+        if (userId != null) {
+          await Purchases.configure(
+              PurchasesConfiguration(AppConfig.revenueCatPublicKey)
+                ..appUserID = userId);
+          debugPrint('✅ RevenueCat 초기화 완료 (userId: $userId)');
+        } else {
+          debugPrint('⚠️ RevenueCat 초기화 스킵: 사용자 미인증');
+        }
+      } catch (e) {
+        debugPrint('❌ RevenueCat 초기화 실패: $e');
+      }
 
       await FCMService().initialize();
       debugPrint('FCM 서비스 초기화 완료');

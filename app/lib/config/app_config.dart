@@ -35,6 +35,10 @@ class AppConfig {
   static String get googleCloudVisionApiKey =>
       dotenv.env['GOOGLE_CLOUD_VISION_API_KEY'] ?? '';
 
+  // RevenueCat 설정
+  static String get revenueCatPublicKey =>
+      dotenv.env['REVENUECAT_PUBLIC_KEY'] ?? '';
+
   static const int maxSearchResults = 10;
   static const String apiVersion = '20131101';
 

@@ -1,0 +1,89 @@
+import 'package:flutter/material.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
+
+/// Service for managing in-app subscriptions via RevenueCat.
+///
+/// Provides methods for checking subscription status, presenting paywall,
+/// and managing customer center interactions.
+class SubscriptionService {
+  static const String _proEntitlementId = "byungsker's lab Pro";
+
+  /// Gets the current customer info from RevenueCat.
+  ///
+  /// Returns [CustomerInfo] if successful, null on failure.
+  Future<CustomerInfo?> getCustomerInfo() async {
+    try {
+      final customerInfo = await Purchases.getCustomerInfo();
+      return customerInfo;
+    } catch (e) {
+      debugPrint('Failed to get customer info: $e');
+      return null;
+    }
+  }
+
+  /// Checks if the current user has Pro entitlement.
+  ///
+  /// Returns true if user has active Pro subscription, false otherwise.
+  Future<bool> isPro() async {
+    try {
+      final customerInfo = await Purchases.getCustomerInfo();
+      return _hasProEntitlement(customerInfo);
+    } catch (e) {
+      debugPrint('Failed to check Pro status: $e');
+      return false;
+    }
+  }
+
+  /// Gets available subscription offerings from RevenueCat.
+  ///
+  /// Returns [Offerings] if successful, null on failure.
+  Future<Offerings?> getOfferings() async {
+    try {
+      final offerings = await Purchases.getOfferings();
+      return offerings;
+    } catch (e) {
+      debugPrint('Failed to get offerings: $e');
+      return null;
+    }
+  }
+
+  /// Presents the RevenueCat Paywall UI.
+  ///
+  /// Uses RevenueCat's built-in paywall presentation.
+  Future<void> showPaywall(BuildContext context) async {
+    try {
+      await RevenueCatUI.presentPaywall();
+    } catch (e) {
+      debugPrint('Failed to show paywall: $e');
+    }
+  }
+
+  /// Presents the RevenueCat Customer Center UI.
+  ///
+  /// Allows users to manage their subscriptions.
+  Future<void> showCustomerCenter(BuildContext context) async {
+    try {
+      await RevenueCatUI.presentCustomerCenter();
+    } catch (e) {
+      debugPrint('Failed to show customer center: $e');
+    }
+  }
+
+  /// Restores previous purchases for the current user.
+  ///
+  /// Useful when user reinstalls app or switches devices.
+  Future<void> restorePurchases() async {
+    try {
+      await Purchases.restorePurchases();
+      debugPrint('Purchases restored successfully');
+    } catch (e) {
+      debugPrint('Failed to restore purchases: $e');
+    }
+  }
+
+  /// Checks if the given [CustomerInfo] has Pro entitlement.
+  bool _hasProEntitlement(CustomerInfo info) {
+    return info.entitlements.active.containsKey(_proEntitlementId);
+  }
+}
