@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/data/services/highlight_settings_service.dart';
 import 'package:book_golas/domain/models/highlight_data.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
@@ -408,7 +409,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
               ),
             ),
             Text(
-              '내용을 정말 초기화하시겠어요?',
+              AppLocalizations.of(context)!.resetConfirmMessage,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -430,7 +431,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                       ),
                       child: Center(
                         child: Text(
-                          '취소',
+                          AppLocalizations.of(context)!.commonCancel,
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -454,10 +455,10 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                         color: Colors.red[400],
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Text(
-                          '초기화',
-                          style: TextStyle(
+                          AppLocalizations.of(context)!.resetButton,
+                          style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
@@ -510,7 +511,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
             ),
           ),
           Text(
-            '기록 추가',
+            AppLocalizations.of(context)!.addRecordTitle,
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
@@ -523,7 +524,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     child: Text(
-                      '초기화',
+                      AppLocalizations.of(context)!.resetButton,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -711,8 +712,9 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                     const SizedBox(width: 4),
                     Text(
                       _highlights.isNotEmpty
-                          ? '하이라이트 (${_highlights.length})'
-                          : '하이라이트',
+                          ? AppLocalizations.of(context)!
+                              .highlightWithCount(_highlights.length)
+                          : AppLocalizations.of(context)!.highlightLabel,
                       style: const TextStyle(fontSize: 12, color: Colors.white),
                     ),
                   ],
@@ -733,18 +735,18 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                   color: Colors.black54,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.document_scanner_outlined,
                       size: 14,
                       color: Colors.white,
                     ),
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
                     Text(
-                      '텍스트 추출',
-                      style: TextStyle(fontSize: 12, color: Colors.white),
+                      AppLocalizations.of(context)!.extractTextButton,
+                      style: const TextStyle(fontSize: 12, color: Colors.white),
                     ),
                   ],
                 ),
@@ -785,18 +787,18 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                   color: Colors.black54,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
+                    const Icon(
                       CupertinoIcons.arrow_2_squarepath,
                       size: 14,
                       color: Colors.white,
                     ),
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
                     Text(
-                      '교체하기',
-                      style: TextStyle(fontSize: 12, color: Colors.white),
+                      AppLocalizations.of(context)!.replaceButton,
+                      style: const TextStyle(fontSize: 12, color: Colors.white),
                     ),
                   ],
                 ),
@@ -839,7 +841,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
             ),
             const SizedBox(height: 12),
             Text(
-              '터치하여 이미지 추가',
+              AppLocalizations.of(context)!.tapToAddImage,
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.grey[500] : Colors.grey[500],
@@ -847,7 +849,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
             ),
             const SizedBox(height: 4),
             Text(
-              '(선택사항)',
+              AppLocalizations.of(context)!.optionalLabel,
               style: TextStyle(
                 fontSize: 12,
                 color: isDark ? Colors.grey[600] : Colors.grey[400],
@@ -874,7 +876,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
             ),
             const SizedBox(width: 8),
             Text(
-              '페이지 수',
+              AppLocalizations.of(context)!.recallPage,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -953,7 +955,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
     showFullTextViewModal(
       context: context,
       initialText: _textController.text,
-      hintText: '인상 깊은 대목을 기록해보세요.',
+      hintText: AppLocalizations.of(context)!.recordHint,
       startInEditMode: true,
     ).then((modifiedText) {
       if (!mounted) return;
@@ -979,7 +981,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
             ),
             const SizedBox(width: 8),
             Text(
-              '기록 문구',
+              AppLocalizations.of(context)!.recordTextLabel,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -1010,7 +1012,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '전체보기',
+                      AppLocalizations.of(context)!.viewFullButton,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -1035,7 +1037,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                   Icon(CupertinoIcons.trash, size: 14, color: Colors.red[400]),
                   const SizedBox(width: 4),
                   Text(
-                    '모두 지우기',
+                    AppLocalizations.of(context)!.clearAllButton,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
@@ -1079,7 +1081,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
           color: isDark ? Colors.white : Colors.black,
         ),
         decoration: InputDecoration(
-          hintText: '인상 깊은 대목을 기록해보세요.',
+          hintText: AppLocalizations.of(context)!.recordHint,
           hintStyle: TextStyle(
             color: isDark ? Colors.grey[600] : Colors.grey[400],
           ),
@@ -1128,7 +1130,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                 color: isDark ? Colors.white : Colors.black,
               ),
               decoration: InputDecoration(
-                hintText: '인상 깊은 대목을 기록해보세요.',
+                hintText: AppLocalizations.of(context)!.recordHint,
                 hintStyle: TextStyle(
                   color: isDark ? Colors.grey[600] : Colors.grey[400],
                 ),
@@ -1168,7 +1170,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
           ),
           child: Center(
             child: Text(
-              '업로드',
+              AppLocalizations.of(context)!.uploadButton,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -1240,15 +1242,15 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
           color: Colors.black.withValues(alpha: 0.5),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        child: const Center(
+        child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(color: AppColors.primary),
-              SizedBox(height: 16),
+              const CircularProgressIndicator(color: AppColors.primary),
+              const SizedBox(height: 16),
               Text(
-                '업로드 중...',
-                style: TextStyle(
+                AppLocalizations.of(context)!.uploading,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w500,

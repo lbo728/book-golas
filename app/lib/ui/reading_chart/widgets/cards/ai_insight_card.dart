@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:book_golas/domain/models/reading_insight.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 /// AI 인사이트 카드
@@ -91,7 +92,7 @@ class AiInsightCard extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         Text(
-          'AI 인사이트',
+          AppLocalizations.of(context)!.chartAiInsightTitle,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -111,13 +112,14 @@ class AiInsightCard extends StatelessWidget {
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'clear',
                 child: Row(
                   children: [
-                    Icon(Icons.delete_outline, size: 20),
-                    SizedBox(width: 8),
-                    Text('인사이트 기록 삭제'),
+                    const Icon(Icons.delete_outline, size: 20),
+                    const SizedBox(width: 8),
+                    Text(AppLocalizations.of(context)!
+                        .chartAiInsightClearMemory),
                   ],
                 ),
               ),
@@ -131,15 +133,16 @@ class AiInsightCard extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('인사이트 기록 삭제'),
-        content: const Text(
-          '지금까지의 인사이트 기록을 모두 삭제하시겠습니까?\n'
-          '삭제 후에는 복구할 수 없습니다.',
+        title:
+            Text(AppLocalizations.of(context)!.chartAiInsightClearMemoryTitle),
+        content: Text(
+          AppLocalizations.of(context)!.chartAiInsightClearMemoryMessage,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('취소'),
+            child: Text(
+                AppLocalizations.of(context)!.chartAiInsightClearMemoryCancel),
           ),
           TextButton(
             onPressed: () {
@@ -147,7 +150,8 @@ class AiInsightCard extends StatelessWidget {
               onClearMemory?.call();
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('삭제'),
+            child: Text(
+                AppLocalizations.of(context)!.chartAiInsightClearMemoryConfirm),
           ),
         ],
       ),
@@ -162,7 +166,7 @@ class AiInsightCard extends StatelessWidget {
           const CircularProgressIndicator(),
           const SizedBox(height: 16),
           Text(
-            '독서 패턴을 분석하고 있어요...',
+            AppLocalizations.of(context)!.chartAiInsightAnalyzing,
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.white70 : Colors.black54,
@@ -186,7 +190,7 @@ class AiInsightCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            error ?? '알 수 없는 오류가 발생했습니다',
+            error ?? AppLocalizations.of(context)!.chartAiInsightUnknownError,
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.white70 : Colors.black54,
@@ -201,7 +205,7 @@ class AiInsightCard extends StatelessWidget {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('다시 시도'),
+              child: Text(AppLocalizations.of(context)!.chartAiInsightRetry),
             ),
           const SizedBox(height: 20),
         ],
@@ -220,7 +224,7 @@ class AiInsightCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'AI 인사이트를 받으려면 책을 더 읽어보세요',
+            AppLocalizations.of(context)!.chartAiInsightMinBooksRequired,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -229,7 +233,8 @@ class AiInsightCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '현재 완독한 책: $bookCount권',
+            AppLocalizations.of(context)!
+                .chartAiInsightMinBooksMessage(bookCount),
             style: TextStyle(
               fontSize: 13,
               color: isDark ? Colors.white60 : Colors.black54,
@@ -237,7 +242,7 @@ class AiInsightCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '최소 3권, 권장 5권 이상',
+            AppLocalizations.of(context)!.chartAiInsightMinBooksHint,
             style: TextStyle(
               fontSize: 13,
               color: isDark ? Colors.white60 : Colors.black54,
@@ -286,7 +291,7 @@ class AiInsightCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
-            '(샘플)',
+            AppLocalizations.of(context)!.chartAiInsightSampleLabel,
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -440,7 +445,7 @@ class AiInsightCard extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          '아래 버튼을 눌러 인사이트를 생성해보세요',
+          AppLocalizations.of(context)!.chartAiInsightEmptyState,
           style: TextStyle(
             fontSize: 14,
             color: isDark ? Colors.white60 : Colors.black54,
@@ -464,9 +469,9 @@ class AiInsightCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-          child: const Text(
-            '분석하기',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+          child: Text(
+            AppLocalizations.of(context)!.chartAiInsightGenerateButton,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
           ),
         ),
       );
@@ -479,7 +484,7 @@ class AiInsightCard extends StatelessWidget {
         ),
         child: Center(
           child: Text(
-            '오늘 이미 분석했어요. 내일 다시 시도해주세요.',
+            AppLocalizations.of(context)!.chartAiInsightAlreadyAnalyzed,
             style: TextStyle(
               fontSize: 13,
               color: isDark ? Colors.white60 : Colors.black54,

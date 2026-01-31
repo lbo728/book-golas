@@ -7,18 +7,7 @@ import type {
 } from "../types.ts";
 import { config } from "../config.ts";
 
-export class RecommendationService {
-  private llm: ChatOpenAI;
-  private promptTemplate: PromptTemplate;
-
-  constructor() {
-    this.llm = new ChatOpenAI({
-      openAIApiKey: config.openai.apiKey,
-      modelName: config.openai.model,
-      temperature: config.openai.temperature,
-    });
-
-    this.promptTemplate = PromptTemplate.fromTemplate(`
+const PROMPT_KO = `
 당신은 독서 추천 전문가입니다. 사용자의 **책별 세부 독서 패턴**을 분석하여 다음 읽을 책 {recommendCount}권을 추천해주세요.
 
 ## 📊 사용자 프로필
@@ -55,7 +44,62 @@ export class RecommendationService {
 - 실제 존재하는 한국 도서만 추천
 - keywords는 이 책을 추천하는 핵심 이유를 2-3개 단어로 표현 (예: "자기계발", "리더십", "심리학")
 - JSON만 출력
-    `);
+`;
+
+const PROMPT_EN = `
+You are a book recommendation expert. Analyze the user's **detailed reading patterns per book** and recommend {recommendCount} books to read next.
+
+## 📊 User Profile
+- Books completed: {totalBooks}
+- Average rating: {avgRating}/5
+- Favorite genres: {favoriteGenres}
+- Average completion time: {avgDays} days
+- High engagement books: {highEngagement}
+
+## 📚 Recently Completed Books Analysis
+{booksDetail}
+
+## 💡 Frequently Highlighted Content
+{highlightsContext}
+
+## 🎯 Frequent Keywords
+{keywords}
+
+## ✅ Recommendation Criteria
+1. Genre preference: {favoriteGenres}
+2. Reading pace: around {avgDays} days
+3. Engagement pattern: similar to books with many highlights/notes
+4. Difficulty based on daily goal achievement rate
+5. Characteristics of books completed on first attempt
+6. Topic relevance based on highlight keywords
+
+## 📤 Output Format (JSON only)
+[
+  {{"title": "Book Title", "author": "Author Name", "reason": "Recommendation reason (2-3 sentences)", "keywords": ["keyword1", "keyword2", "keyword3"]}},
+  ...
+]
+
+**Important**: 
+- Only recommend actual existing English books (internationally published)
+- keywords should express the core reasons for recommending this book in 2-3 words (e.g., "self-improvement", "leadership", "psychology")
+- Output JSON only
+`;
+
+export class RecommendationService {
+  private llm: ChatOpenAI;
+  private promptTemplate: PromptTemplate;
+  private locale: string;
+
+  constructor(locale: string = 'ko') {
+    this.locale = locale;
+    this.llm = new ChatOpenAI({
+      openAIApiKey: config.openai.apiKey,
+      modelName: config.openai.model,
+      temperature: config.openai.temperature,
+    });
+
+    const promptText = locale === 'ko' ? PROMPT_KO : PROMPT_EN;
+    this.promptTemplate = PromptTemplate.fromTemplate(promptText);
   }
 
   async generate(profile: UserReadingProfile): Promise<Recommendation[]> {
@@ -64,17 +108,20 @@ export class RecommendationService {
       profile.interests.topHighlights
     );
 
+    const noneText = this.locale === 'ko' ? '(없음)' : '(none)';
+    const diverseText = this.locale === 'ko' ? '다양' : 'Various';
+
     const formattedPrompt = await this.promptTemplate.format({
       recommendCount: config.recommendation.count,
       totalBooks: profile.stats.totalBooksCompleted,
       avgRating: profile.stats.averageRating,
       favoriteGenres:
-        profile.stats.favoriteGenres.map((g) => g.genre).join(", ") || "다양",
+        profile.stats.favoriteGenres.map((g) => g.genre).join(", ") || diverseText,
       avgDays: profile.stats.averageCompletionDays,
       highEngagement: profile.stats.highEngagementBookCount,
       booksDetail,
-      highlightsContext: highlightsContext || "(없음)",
-      keywords: profile.interests.keywords.join(", ") || "(없음)",
+      highlightsContext: highlightsContext || noneText,
+      keywords: profile.interests.keywords.join(", ") || noneText,
     });
 
     const response = await this.llm.invoke(formattedPrompt);
@@ -82,17 +129,21 @@ export class RecommendationService {
   }
 
   private formatBooksDetail(books: BookReadingAnalytics[]): string {
+    const unclassifiedText = this.locale === 'ko' ? '미분류' : 'Uncategorized';
+    const noneText = this.locale === 'ko' ? '없음' : 'None';
+    const completedFirstTryText = this.locale === 'ko' ? '(단번 완독)' : '(completed first try)';
+
     return books
       .slice(0, config.recommendation.maxBooksToAnalyze)
       .map(
         (b, idx) => `
 ${idx + 1}. "${b.title}" (${b.author})
-   - 장르: ${b.genre || "미분류"}
-   - 완독: ${b.daysToComplete}일 (평균 ${b.averagePagesPerDay}p/일)
-   - 참여도: 하이라이트 ${b.highlightCount}, 메모 ${b.noteCount}
-   - 평점: ${b.rating ? `${b.rating}/5` : "없음"}
-   - 일일 목표 달성률: ${b.dailyGoalAchievementRate}%
-   - 시도: ${b.attemptCount}번 ${b.attemptCount === 1 ? "(단번 완독)" : ""}
+   - Genre: ${b.genre || unclassifiedText}
+   - Completed in: ${b.daysToComplete} days (avg ${b.averagePagesPerDay}p/day)
+   - Engagement: ${b.highlightCount} highlights, ${b.noteCount} notes
+   - Rating: ${b.rating ? `${b.rating}/5` : noneText}
+   - Daily goal achievement: ${b.dailyGoalAchievementRate}%
+   - Attempts: ${b.attemptCount} ${b.attemptCount === 1 ? completedFirstTryText : ""}
         `
       )
       .join("\n");

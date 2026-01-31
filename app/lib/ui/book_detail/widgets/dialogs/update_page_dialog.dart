@@ -1,5 +1,6 @@
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 
 /// 현재 페이지 업데이트 다이얼로그
 ///
@@ -22,22 +23,23 @@ class UpdatePageDialog {
     String? errorText;
     bool isValid = false;
 
-    String? validatePage(String value) {
+    String? validatePage(BuildContext context, String value) {
+      final l10n = AppLocalizations.of(context)!;
       if (value.isEmpty) {
         return null;
       }
       final page = int.tryParse(value);
       if (page == null) {
-        return '숫자를 입력해주세요';
+        return l10n.validationEnterNumber;
       }
       if (page < 0) {
-        return '0 이상의 페이지를 입력해주세요';
+        return l10n.validationPageMinimum;
       }
       if (page > totalPages) {
-        return '총 페이지($totalPages)를 초과할 수 없습니다';
+        return l10n.validationPageExceedsTotal(totalPages);
       }
       if (page <= currentPage) {
-        return '현재 페이지($currentPage) 이하입니다';
+        return l10n.validationPageBelowCurrent(currentPage);
       }
       return null;
     }
@@ -66,7 +68,7 @@ class UpdatePageDialog {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '현재 페이지 업데이트',
+                    AppLocalizations.of(context)!.updatePageTitle,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
@@ -77,7 +79,8 @@ class UpdatePageDialog {
                   Row(
                     children: [
                       Text(
-                        '현재 ${currentPage}p',
+                        AppLocalizations.of(context)!
+                            .currentPageLabel(currentPage),
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -85,7 +88,8 @@ class UpdatePageDialog {
                         ),
                       ),
                       Text(
-                        ' / 총 ${totalPages}p',
+                        AppLocalizations.of(context)!
+                            .totalPageLabel(totalPages),
                         style: TextStyle(
                           fontSize: 14,
                           color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -100,12 +104,12 @@ class UpdatePageDialog {
                     autofocus: true,
                     onChanged: (value) {
                       setModalState(() {
-                        errorText = validatePage(value);
+                        errorText = validatePage(context, value);
                         isValid = errorText == null && value.isNotEmpty;
                       });
                     },
                     decoration: InputDecoration(
-                      labelText: '새 페이지 번호',
+                      labelText: AppLocalizations.of(context)!.newPageNumber,
                       hintText: '${currentPage + 1} ~ $totalPages',
                       errorText: errorText,
                       border: OutlineInputBorder(
@@ -145,7 +149,8 @@ class UpdatePageDialog {
                           style: TextButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
-                          child: const Text('취소'),
+                          child:
+                              Text(AppLocalizations.of(context)!.commonCancel),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -169,7 +174,7 @@ class UpdatePageDialog {
                             ),
                           ),
                           child: Text(
-                            '업데이트',
+                            AppLocalizations.of(context)!.updateButton,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: isValid

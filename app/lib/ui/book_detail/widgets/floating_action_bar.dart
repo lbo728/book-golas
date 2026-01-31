@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class FloatingActionBar extends StatelessWidget {
@@ -139,24 +141,26 @@ class FloatingActionBar extends StatelessWidget {
                   width: 0.5,
                 ),
               ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.auto_awesome,
-                    size: 18,
-                    color: AppColors.primary,
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    '기록 검색',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+              child: Builder(
+                builder: (context) => Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.auto_awesome,
+                      size: 18,
                       color: AppColors.primary,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Text(
+                      AppLocalizations.of(context)!.searchRecordsButton,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -189,28 +193,30 @@ class FloatingActionBar extends StatelessWidget {
                   width: 0.5,
                 ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    CupertinoIcons.book_fill,
-                    size: 17,
-                    color: isDark
-                        ? Colors.white.withValues(alpha: 0.85)
-                        : Colors.black.withValues(alpha: 0.65),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '페이지 업데이트',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+              child: Builder(
+                builder: (context) => Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      CupertinoIcons.book_fill,
+                      size: 17,
                       color: isDark
                           ? Colors.white.withValues(alpha: 0.85)
                           : Colors.black.withValues(alpha: 0.65),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Text(
+                      AppLocalizations.of(context)!.pageUpdateButton,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.85)
+                            : Colors.black.withValues(alpha: 0.65),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

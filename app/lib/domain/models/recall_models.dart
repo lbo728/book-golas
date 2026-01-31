@@ -1,3 +1,5 @@
+import 'package:book_golas/l10n/app_localizations.dart';
+
 class RecallSource {
   final String type;
   final String content;
@@ -31,14 +33,28 @@ class RecallSource {
     );
   }
 
+  String getTypeLabel(AppLocalizations l10n) {
+    switch (type) {
+      case 'highlight':
+        return l10n.contentTypeHighlight;
+      case 'note':
+        return l10n.contentTypeMemo;
+      case 'photo_ocr':
+        return l10n.contentTypePhoto;
+      default:
+        return type;
+    }
+  }
+
+  @Deprecated('Use getTypeLabel(l10n) instead')
   String get typeLabel {
     switch (type) {
       case 'highlight':
-        return '하이라이트';
+        return 'Highlight';
       case 'note':
-        return '메모';
+        return 'Memo';
       case 'photo_ocr':
-        return '사진';
+        return 'Photo';
       default:
         return type;
     }

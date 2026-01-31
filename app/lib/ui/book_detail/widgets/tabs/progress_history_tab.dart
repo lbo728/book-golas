@@ -3,7 +3,10 @@ import 'dart:collection';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
+
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class ProgressHistoryTab extends StatelessWidget {
@@ -40,7 +43,7 @@ class ProgressHistoryTab extends StatelessWidget {
         final rawData = snapshot.data ?? [];
 
         if (rawData.isEmpty) {
-          return _buildEmptyState(isDark);
+          return _buildEmptyState(context, isDark);
         }
 
         final aggregatedData = _aggregateByDate(rawData);
@@ -49,7 +52,7 @@ class ProgressHistoryTab extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState(bool isDark) {
+  Widget _buildEmptyState(BuildContext context, bool isDark) {
     return SizedBox(
       height: 200,
       child: Center(
@@ -63,7 +66,7 @@ class ProgressHistoryTab extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              '진행률 기록이 없습니다',
+              AppLocalizations.of(context)!.noProgressRecords,
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -98,23 +101,26 @@ class ProgressHistoryTab extends StatelessWidget {
         ? dailyPagesSpots.map((spot) => spot.y).reduce((a, b) => a > b ? a : b)
         : 50.0;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 100),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildChartCard(
-              data, spots, maxPage, dailyPagesSpots, maxDailyPage, isDark),
-          const SizedBox(height: 16),
-          _buildReadingStateAnalysis(isDark, data),
-          const SizedBox(height: 16),
-          _buildDailyRecords(data, isDark),
-        ],
+    return Builder(
+      builder: (context) => SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 100),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildChartCard(context, data, spots, maxPage, dailyPagesSpots,
+                maxDailyPage, isDark),
+            const SizedBox(height: 16),
+            _buildReadingStateAnalysis(isDark, data),
+            const SizedBox(height: 16),
+            _buildDailyRecords(data, isDark),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildChartCard(
+    BuildContext context,
     List<Map<String, dynamic>> data,
     List<FlSpot> spots,
     double maxPage,
@@ -134,9 +140,9 @@ class ProgressHistoryTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildChartHeader(data.length, isDark),
+          _buildChartHeader(context, data.length, isDark),
           const SizedBox(height: 16),
-          _buildLegendRow(isDark),
+          _buildLegendRow(context, isDark),
           const SizedBox(height: 20),
           _buildChart(
               data, spots, maxPage, dailyPagesSpots, maxDailyPage, isDark),
@@ -145,14 +151,15 @@ class ProgressHistoryTab extends StatelessWidget {
     );
   }
 
-  Widget _buildChartHeader(int recordCount, bool isDark) {
+  Widget _buildChartHeader(BuildContext context, int recordCount, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           children: [
             Text(
-              '📈 누적 페이지',
+              l10n.historyTabCumulativePages,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -186,7 +193,7 @@ class ProgressHistoryTab extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
-            '$recordCount일 기록',
+            l10n.daysRecorded(recordCount),
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -198,13 +205,15 @@ class ProgressHistoryTab extends StatelessWidget {
     );
   }
 
-  Widget _buildLegendRow(bool isDark) {
+  Widget _buildLegendRow(BuildContext context, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildLegendItem('누적 페이지', AppColors.primary, isDark),
+        _buildLegendItem(
+            l10n.historyTabCumulativePages, AppColors.primary, isDark),
         const SizedBox(width: 24),
-        _buildLegendItem('일일 페이지', AppColors.success, isDark),
+        _buildLegendItem(l10n.historyTabDailyPages, AppColors.success, isDark),
       ],
     );
   }
@@ -488,8 +497,7 @@ class ProgressHistoryTab extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 5, vertical: 1),
                         decoration: BoxDecoration(
-                          color:
-                              AppColors.warning.withValues(alpha: 0.15),
+                          color: AppColors.warning.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -625,109 +633,119 @@ class ProgressHistoryTab extends StatelessWidget {
   }
 
   Widget _buildDailyRecords(List<Map<String, dynamic>> data, bool isDark) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '📅 일별 기록',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: isDark ? Colors.white : Colors.black,
-          ),
-        ),
-        const SizedBox(height: 12),
-        ...data.reversed.take(5).map((record) {
-          final date = record['created_at'] as DateTime;
-          final page = record['page'] as int;
-          final index = data.indexOf(record);
-          final prevPage = index > 0 ? data[index - 1]['page'] as int : 0;
-          final pagesRead = page - prevPage;
+    return Builder(
+      builder: (context) {
+        final l10n = AppLocalizations.of(context)!;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.historyTabDailyRecords,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ...data.reversed.take(5).map((record) {
+              final date = record['created_at'] as DateTime;
+              final page = record['page'] as int;
+              final index = data.indexOf(record);
+              final prevPage = index > 0 ? data[index - 1]['page'] as int : 0;
+              final pagesRead = page - prevPage;
 
-          return _buildDailyRecordItem(date, page, pagesRead, isDark);
-        }),
-      ],
+              return _buildDailyRecordItem(date, page, pagesRead, isDark);
+            }),
+          ],
+        );
+      },
     );
   }
 
   Widget _buildDailyRecordItem(
       DateTime date, int page, int pagesRead, bool isDark) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-              child: Text(
-                '${date.day}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
-                ),
-              ),
+    return Builder(
+      builder: (context) {
+        final l10n = AppLocalizations.of(context)!;
+        return Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.surfaceDark : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
             ),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '누적: $page 페이지',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: isDark ? Colors.grey[400] : Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          child: Row(
             children: [
-              Text(
-                '+$pagesRead',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.success,
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(
+                  child: Text(
+                    '${date.day}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
                 ),
               ),
-              Text(
-                '페이지',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      DateFormat('MM/dd/yyyy').format(date),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      l10n.historyTabCumulativeLabel(page),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
+                    ),
+                  ],
                 ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '+$pagesRead',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.success,
+                    ),
+                  ),
+                  Text(
+                    l10n.historyTabPagesUnit,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

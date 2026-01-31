@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/domain/models/home_display_mode.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
@@ -47,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (readingBooks.isEmpty) {
       CustomSnackbar.show(
         context,
-        message: '진행 중인 독서가 없습니다. 먼저 책을 등록해주세요.',
+        message: AppLocalizations.of(context).homeNoReadingBooks,
         type: SnackbarType.info,
         bottomOffset: 100,
       );
@@ -86,7 +87,8 @@ class _HomeScreenState extends State<HomeScreen> {
       _handleReadingDetailMode(vm);
     } else {
       vm.setDisplayMode(HomeDisplayMode.allBooks);
-      _showModeChangeSnackBar('전체 독서 보기로 전환되었습니다.');
+      _showModeChangeSnackBar(
+          AppLocalizations.of(context).homeViewAllBooksMessage);
     }
   }
 
@@ -97,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (readingBooks.isEmpty) {
       CustomSnackbar.show(
         context,
-        message: '진행 중인 독서가 없습니다',
+        message: AppLocalizations.of(context).homeNoReadingBooksShort,
         type: SnackbarType.info,
         bottomOffset: 100,
       );
@@ -107,7 +109,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (readingBooks.length == 1) {
       vm.setSelectedBook(readingBooks.first.id!);
-      _showModeChangeSnackBar('진행 중인 독서 보기로 전환되었습니다.');
+      _showModeChangeSnackBar(
+          AppLocalizations.of(context).homeViewReadingMessage);
       return;
     }
 
@@ -120,7 +123,8 @@ class _HomeScreenState extends State<HomeScreen> {
         onBookSelected: (book) {
           Navigator.pop(context);
           vm.setSelectedBook(book.id!);
-          _showModeChangeSnackBar('진행 중인 독서 보기로 전환되었습니다.');
+          _showModeChangeSnackBar(
+              AppLocalizations.of(context).homeViewReadingMessage);
         },
       ),
     );
@@ -137,7 +141,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   String _getToggleButtonLabel(HomeDisplayMode mode) {
-    return mode == HomeDisplayMode.readingDetail ? '전체 독서 보기' : '진행 중인 독서만 보기';
+    final l10n = AppLocalizations.of(context);
+    return mode == HomeDisplayMode.readingDetail
+        ? l10n.homeViewAllBooks
+        : l10n.homeViewReadingOnly;
   }
 
   Book? _findSelectedBook(String? bookId, List<Book> books) {
@@ -239,7 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
       elevation: 0,
       surfaceTintColor: Colors.transparent,
       scrolledUnderElevation: 0,
-      title: const Text('독서 목록'),
+      title: Text(AppLocalizations.of(context).homeBookList),
       centerTitle: false,
       titleTextStyle: TextStyle(
         fontSize: 20,

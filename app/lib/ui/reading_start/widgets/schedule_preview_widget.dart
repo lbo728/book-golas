@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 /// 스케줄 요약 위젯
@@ -40,8 +42,7 @@ class _SchedulePreviewWidgetState extends State<SchedulePreviewWidget> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color:
-            widget.isDark ? AppColors.surfaceDark : AppColors.elevatedLight,
+        color: widget.isDark ? AppColors.surfaceDark : AppColors.elevatedLight,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: widget.isDark
@@ -54,20 +55,23 @@ class _SchedulePreviewWidgetState extends State<SchedulePreviewWidget> {
   }
 
   Widget _buildSummary() {
+    final l10n = AppLocalizations.of(context);
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
           _buildSummaryItem(
             icon: Icons.calendar_today_outlined,
-            label: '목표 일수',
-            value: '$targetDays일',
+            label: l10n.scheduleTargetDays,
+            value: l10n.scheduleTargetDaysValue(targetDays),
           ),
           const SizedBox(width: 24),
           _buildSummaryItemWithAction(
             icon: Icons.auto_stories_outlined,
-            label: '하루 목표',
+            label: l10n.scheduleDailyGoal,
             value: '${calculatedDailyTarget}p',
+            actionLabel: l10n.commonChange,
             onTap: widget.onChangeSchedule,
           ),
         ],
@@ -126,6 +130,7 @@ class _SchedulePreviewWidgetState extends State<SchedulePreviewWidget> {
     required IconData icon,
     required String label,
     required String value,
+    required String actionLabel,
     VoidCallback? onTap,
   }) {
     return Expanded(
@@ -179,13 +184,12 @@ class _SchedulePreviewWidgetState extends State<SchedulePreviewWidget> {
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color:
-                                AppColors.primary.withValues(alpha: 0.1),
+                            color: AppColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: const Text(
-                            '변경',
-                            style: TextStyle(
+                          child: Text(
+                            actionLabel,
+                            style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color: AppColors.primary,

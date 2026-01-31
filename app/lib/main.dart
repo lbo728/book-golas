@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/reading_chart/widgets/reading_chart_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +23,7 @@ import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/ui/home/view_model/home_view_model.dart';
 import 'package:book_golas/ui/book_list/view_model/book_list_view_model.dart';
 import 'package:book_golas/ui/core/view_model/theme_view_model.dart';
+import 'package:book_golas/ui/core/view_model/locale_view_model.dart';
 import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
 import 'package:book_golas/ui/core/view_model/notification_settings_view_model.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -33,6 +36,8 @@ import 'data/services/reading_progress_service.dart';
 import 'ui/auth/widgets/login_screen.dart';
 import 'ui/calendar/view_model/calendar_view_model.dart';
 import 'ui/auth/widgets/my_page_screen.dart';
+import 'ui/my_library/widgets/my_library_screen.dart';
+import 'ui/my_library/view_model/my_library_view_model.dart';
 import 'domain/models/book.dart';
 import 'ui/book_detail/book_detail_screen.dart';
 import 'ui/onboarding/view_model/onboarding_view_model.dart';
@@ -123,6 +128,10 @@ class AppBootstrap extends StatelessWidget {
       // ThemeViewModel 프리로드
       debugPrint('🎨 테마 설정 프리로드 시작');
       await ThemeViewModel.preloadTheme();
+
+      // LocaleViewModel 프리로드
+      debugPrint('🌐 로케일 설정 프리로드 시작');
+      await LocaleViewModel.preloadLocale();
 
       debugPrint('🎉 모든 초기화 완료');
     } catch (e, stackTrace) {
@@ -249,21 +258,34 @@ class MyApp extends StatelessWidget {
               CalendarViewModel(context.read<ReadingProgressService>()),
         ),
         ChangeNotifierProvider(create: (_) => ThemeViewModel()),
+        ChangeNotifierProvider(create: (_) => LocaleViewModel()),
         ChangeNotifierProvider(create: (_) => OnboardingViewModel()),
         ChangeNotifierProvider(
           create: (_) => ReadingInsightsViewModel(
             userId: Supabase.instance.client.auth.currentUser!.id,
           ),
         ),
+        ChangeNotifierProvider(create: (_) => MyLibraryViewModel()),
       ],
-      child: Consumer<ThemeViewModel>(
-        builder: (context, themeViewModel, child) {
+      child: Consumer2<ThemeViewModel, LocaleViewModel>(
+        builder: (context, themeViewModel, localeViewModel, child) {
           return MaterialApp(
             title: 'LitGoal',
             debugShowCheckedModeBanner: false,
             themeMode: themeViewModel.themeMode,
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,
+            locale: localeViewModel.locale,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('ko'),
+              Locale('en'),
+            ],
             navigatorObservers: [routeObserver],
             home: const AuthWrapper(),
           );
@@ -480,6 +502,7 @@ class _MainScreenState extends State<MainScreen>
             _addMemorablePageCallback = addMemorable;
           },
         ),
+        const MyLibraryScreen(),
         ReadingChartScreen(key: ReadingChartScreen.globalKey),
         const CalendarScreen(),
         const MyPageScreen(),

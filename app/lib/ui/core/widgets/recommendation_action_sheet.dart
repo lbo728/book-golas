@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 
 import 'package:book_golas/ui/core/widgets/bookstore_select_sheet.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
@@ -111,6 +112,7 @@ class _RecommendationActionSheetContentState
   }
 
   Widget _buildActionPage(bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       key: const ValueKey('action'),
       padding: const EdgeInsets.all(24),
@@ -157,16 +159,16 @@ class _RecommendationActionSheetContentState
           _ActionButton(
             isDark: isDark,
             icon: CupertinoIcons.book,
-            label: '책 내용 상세보기',
-            subtitle: '서점에서 책 정보를 확인해요',
+            label: l10n.recommendationViewDetail,
+            subtitle: l10n.recommendationViewDetailSubtitle,
             onTap: _goToBookstorePage,
           ),
           const SizedBox(height: 12),
           _ActionButton(
             isDark: isDark,
             icon: CupertinoIcons.play_fill,
-            label: '독서 시작',
-            subtitle: '이 책으로 독서를 시작합니다',
+            label: l10n.recommendationStartReading,
+            subtitle: l10n.recommendationStartReadingSubtitle,
             isPrimary: true,
             onTap: widget.onStartReading,
           ),
@@ -176,6 +178,7 @@ class _RecommendationActionSheetContentState
   }
 
   Widget _buildBookstorePage(bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     final searchTitle = getSearchTitle(widget.title);
     final encodedTitle = Uri.encodeComponent(searchTitle);
 
@@ -206,7 +209,7 @@ class _RecommendationActionSheetContentState
                   ),
                 ),
                 Text(
-                  '서점 선택',
+                  l10n.recommendationBookstoreSelect,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

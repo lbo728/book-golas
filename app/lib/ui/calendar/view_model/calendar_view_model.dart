@@ -1,7 +1,8 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 
 import 'package:book_golas/data/services/reading_progress_service.dart';
 import 'package:book_golas/domain/models/calendar_reading_data.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 
 enum CalendarFilter {
   all,
@@ -10,14 +11,15 @@ enum CalendarFilter {
 }
 
 extension CalendarFilterExtension on CalendarFilter {
-  String get label {
+  String getLabel(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     switch (this) {
       case CalendarFilter.all:
-        return '전체';
+        return l10n.calendarFilterAll;
       case CalendarFilter.reading:
-        return '읽고 있는 책';
+        return l10n.calendarFilterReading;
       case CalendarFilter.completed:
-        return '완독한 책';
+        return l10n.calendarFilterCompleted;
     }
   }
 }

@@ -1,3 +1,5 @@
+import 'package:book_golas/l10n/app_localizations.dart';
+
 class ReadingRecord {
   final String id;
   final String bookId;
@@ -26,7 +28,7 @@ class ReadingRecord {
     return ReadingRecord(
       id: json['id'] as String,
       bookId: json['book_id'] as String,
-      bookTitle: books?['title'] as String? ?? '알 수 없는 책',
+      bookTitle: books?['title'] as String? ?? 'Unknown Book',
       bookImageUrl: books?['image_url'] as String?,
       contentType: json['content_type'] as String,
       contentText: json['content_text'] as String,
@@ -36,14 +38,28 @@ class ReadingRecord {
     );
   }
 
+  String getTypeLabel(AppLocalizations l10n) {
+    switch (contentType) {
+      case 'highlight':
+        return l10n.contentTypeHighlight;
+      case 'note':
+        return l10n.contentTypeMemo;
+      case 'photo_ocr':
+        return l10n.contentTypePhoto;
+      default:
+        return contentType;
+    }
+  }
+
+  @Deprecated('Use getTypeLabel(l10n) instead')
   String get typeLabel {
     switch (contentType) {
       case 'highlight':
-        return '하이라이트';
+        return 'Highlight';
       case 'note':
-        return '메모';
+        return 'Memo';
       case 'photo_ocr':
-        return '사진';
+        return 'Photo';
       default:
         return contentType;
     }
