@@ -12,6 +12,7 @@ Future<void> showReadingTimerModal({
   required String bookTitle,
   VoidCallback? onTimerStopped,
 }) async {
+  final viewModel = context.read<ReadingTimerViewModel>();
   return showModalBottomSheet<void>(
     context: context,
     backgroundColor: Colors.transparent,
@@ -20,6 +21,7 @@ Future<void> showReadingTimerModal({
       return _ReadingTimerModalContent(
         bookId: bookId,
         bookTitle: bookTitle,
+        viewModel: viewModel,
         onTimerStopped: onTimerStopped,
       );
     },
@@ -29,11 +31,13 @@ Future<void> showReadingTimerModal({
 class _ReadingTimerModalContent extends StatelessWidget {
   final String bookId;
   final String bookTitle;
+  final ReadingTimerViewModel viewModel;
   final VoidCallback? onTimerStopped;
 
   const _ReadingTimerModalContent({
     required this.bookId,
     required this.bookTitle,
+    required this.viewModel,
     this.onTimerStopped,
   });
 
@@ -96,8 +100,9 @@ class _ReadingTimerModalContent extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 24),
-          Consumer<ReadingTimerViewModel>(
-            builder: (context, viewModel, child) {
+          ListenableBuilder(
+            listenable: viewModel,
+            builder: (context, child) {
               return Column(
                 children: [
                   Text(
