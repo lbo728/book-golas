@@ -40,6 +40,7 @@ import 'ui/onboarding/view_model/onboarding_view_model.dart';
 import 'ui/onboarding/widgets/onboarding_screen.dart';
 import 'ui/reading_chart/view_model/reading_insights_view_model.dart';
 import 'ui/my_library/view_model/my_library_view_model.dart';
+import 'ui/book_detail/view_model/reading_timer_view_model.dart';
 
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
@@ -258,6 +259,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
         ChangeNotifierProvider(create: (_) => MyLibraryViewModel()),
+        ChangeNotifierProvider(create: (_) => ReadingTimerViewModel()..init()),
       ],
       child: Consumer<ThemeViewModel>(
         builder: (context, themeViewModel, child) {
