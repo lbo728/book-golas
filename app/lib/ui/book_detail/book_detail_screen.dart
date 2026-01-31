@@ -46,6 +46,8 @@ import 'widgets/tabs/book_review_tab.dart';
 import 'package:book_golas/ui/book_detail/view_model/note_structure_view_model.dart';
 import 'package:book_golas/data/services/note_structure_service.dart';
 import 'package:book_golas/ui/book_detail/widgets/note_structure_mindmap.dart';
+import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.dart';
+import 'package:book_golas/ui/book_detail/widgets/reading_timer_modal.dart';
 
 class BookDetailScreen extends StatelessWidget {
   final Book book;
@@ -87,6 +89,9 @@ class BookDetailScreen extends StatelessWidget {
           create: (_) => NoteStructureViewModel(
             service: NoteStructureService(),
           ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ReadingTimerViewModel()..init(),
         ),
       ],
       child: _BookDetailContent(
@@ -465,13 +470,19 @@ class _BookDetailContentState extends State<_BookDetailContent>
                 const KeyboardDoneButton()
               else if (!_isBookPlanned(bookVm.currentBook) &&
                   !widget.isEmbedded)
-                FloatingActionBar(
-                  onUpdatePageTap: _isBookReading(bookVm.currentBook)
-                      ? () => _showUpdatePageDialog(bookVm)
-                      : null,
-                  onAddMemorablePageTap: _showAddMemorablePageModal,
-                  onRecallSearchTap: () => _showRecallSearchSheet(bookVm),
-                  isReadingMode: _isBookReading(bookVm.currentBook),
+                Consumer<ReadingTimerViewModel>(
+                  builder: (context, timerVm, child) => FloatingActionBar(
+                    onUpdatePageTap: _isBookReading(bookVm.currentBook)
+                        ? () => _showUpdatePageDialog(bookVm)
+                        : null,
+                    onAddMemorablePageTap: _showAddMemorablePageModal,
+                    onRecallSearchTap: () => _showRecallSearchSheet(bookVm),
+                    onTimerTap: _isBookReading(bookVm.currentBook)
+                        ? _showReadingTimerModal
+                        : null,
+                    isReadingMode: _isBookReading(bookVm.currentBook),
+                    isTimerRunning: timerVm.isRunning,
+                  ),
                 ),
               // 컨페티 애니메이션
               if (_confettiController != null)
@@ -1722,6 +1733,21 @@ class _BookDetailContentState extends State<_BookDetailContent>
           ],
         ),
       ),
+    );
+  }
+
+  void _showReadingTimerModal() {
+    final bookVm = context.read<BookDetailViewModel>();
+
+    showReadingTimerModal(
+      context: context,
+      bookId: bookVm.currentBook.id!,
+      bookTitle: bookVm.currentBook.title,
+      onTimerStopped: () {
+        if (_isBookReading(bookVm.currentBook)) {
+          _showUpdatePageDialog(bookVm);
+        }
+      },
     );
   }
 }
