@@ -39,6 +39,7 @@ import 'ui/book_detail/book_detail_screen.dart';
 import 'ui/onboarding/view_model/onboarding_view_model.dart';
 import 'ui/onboarding/widgets/onboarding_screen.dart';
 import 'ui/reading_chart/view_model/reading_insights_view_model.dart';
+import 'ui/my_library/view_model/my_library_view_model.dart';
 
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
@@ -256,6 +257,7 @@ class MyApp extends StatelessWidget {
             userId: Supabase.instance.client.auth.currentUser!.id,
           ),
         ),
+        ChangeNotifierProvider(create: (_) => MyLibraryViewModel()),
       ],
       child: Consumer<ThemeViewModel>(
         builder: (context, themeViewModel, child) {
