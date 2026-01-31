@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:book_golas/data/services/ai_content_service.dart';
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/confirmation_bottom_sheet.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
@@ -69,7 +70,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
         if (mounted) {
           CustomSnackbar.show(
             context,
-            message: '임시 저장된 내용을 불러왔습니다.',
+            message: AppLocalizations.of(context)!.reviewDraftLoaded,
             type: SnackbarType.info,
           );
         }
@@ -174,7 +175,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
     if (mounted) {
       CustomSnackbar.show(
         context,
-        message: '독후감이 복사되었습니다.',
+        message: AppLocalizations.of(context)!.reviewCopied,
         type: SnackbarType.success,
         icon: CupertinoIcons.doc_on_doc,
         aboveKeyboard: true,
@@ -206,7 +207,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
     if (bookId == null) {
       CustomSnackbar.show(
         context,
-        message: '책 정보를 찾을 수 없습니다.',
+        message: AppLocalizations.of(context)!.reviewBookNotFound,
         type: SnackbarType.error,
       );
       return;
@@ -235,7 +236,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
       } else {
         CustomSnackbar.show(
           context,
-          message: '저장에 실패했습니다. 다시 시도해주세요.',
+          message: AppLocalizations.of(context)!.reviewSaveFailed,
           type: SnackbarType.error,
         );
       }
@@ -244,7 +245,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
       if (mounted) {
         CustomSnackbar.show(
           context,
-          message: '저장 중 오류가 발생했습니다.',
+          message: AppLocalizations.of(context)!.reviewSaveError,
           type: SnackbarType.error,
         );
       }
@@ -264,7 +265,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
     if (bookId == null) {
       CustomSnackbar.show(
         context,
-        message: '책 정보를 찾을 수 없습니다.',
+        message: AppLocalizations.of(context)!.reviewBookNotFound,
         type: SnackbarType.error,
       );
       return;
@@ -273,8 +274,8 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
     if (_reviewController.text.trim().isNotEmpty) {
       final shouldReplace = await showConfirmationBottomSheet(
         context: context,
-        title: '현재 작성 중인 내용이 있습니다.\nAI 초안으로 대체하시겠습니까?',
-        confirmText: '대체하기',
+        title: AppLocalizations.of(context)!.reviewReplaceConfirm,
+        confirmText: AppLocalizations.of(context)!.reviewReplaceButton,
         isDestructive: true,
       );
 
@@ -295,14 +296,14 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
         _reviewController.text = draft;
         CustomSnackbar.show(
           context,
-          message: 'AI 초안이 생성되었습니다. 자유롭게 수정해주세요!',
+          message: AppLocalizations.of(context)!.reviewAIDraftGenerated,
           type: SnackbarType.success,
           icon: CupertinoIcons.sparkles,
         );
       } else {
         CustomSnackbar.show(
           context,
-          message: 'AI 초안 생성에 실패했습니다. 다시 시도해주세요.',
+          message: AppLocalizations.of(context)!.reviewAIDraftFailed,
           type: SnackbarType.error,
         );
       }
@@ -311,7 +312,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
       if (mounted) {
         CustomSnackbar.show(
           context,
-          message: 'AI 초안 생성 중 오류가 발생했습니다.',
+          message: AppLocalizations.of(context)!.reviewAIDraftError,
           type: SnackbarType.error,
         );
       }
@@ -364,7 +365,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              '독후감이 저장되었습니다!',
+              AppLocalizations.of(context)!.reviewSaveComplete,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
@@ -373,7 +374,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              '저장한 독후감은 \'독후감\' 탭 또는\n\'나의 서재 > 독후감\'에서 확인할 수 있어요.',
+              AppLocalizations.of(context)!.reviewSaveCompleteMessage,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -391,10 +392,10 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
                   color: AppColors.primary,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
-                    '확인',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.commonConfirm,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
@@ -417,9 +418,9 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
 
     final shouldDiscard = await showConfirmationBottomSheet(
       context: context,
-      title: '작성 중단하고 나가시겠어요?',
-      subtitle: '작성 중이던 독후감은 임시 저장됩니다.',
-      confirmText: '나가기',
+      title: AppLocalizations.of(context)!.reviewExitConfirm,
+      subtitle: AppLocalizations.of(context)!.reviewExitMessage,
+      confirmText: AppLocalizations.of(context)!.reviewExit,
       isDestructive: false,
     );
 
@@ -485,7 +486,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
                 },
               ),
               title: Text(
-                '독후감',
+                AppLocalizations.of(context)!.reviewTitle,
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
@@ -506,7 +507,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
                           ),
                         )
                       : Text(
-                          '저장',
+                          AppLocalizations.of(context)!.commonSave,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -678,7 +679,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
               ),
               const SizedBox(width: 10),
               Text(
-                'AI가 초안을 작성하고 있어요...',
+                AppLocalizations.of(context)!.aiDraftGenerating,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -693,7 +694,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                'AI로 독후감 초안 작성하기',
+                AppLocalizations.of(context)!.aiDraftGenerate,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -738,7 +739,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
               color: isDark ? Colors.white : Colors.black,
             ),
             decoration: InputDecoration(
-              hintText: '이 책을 읽고 느낀 점, 인상 깊었던 부분, 나에게 준 영감 등을 자유롭게 적어보세요.',
+              hintText: AppLocalizations.of(context)!.reviewHint,
               hintStyle: TextStyle(
                 fontSize: 15,
                 color: isDark ? Colors.grey[600] : Colors.grey[400],

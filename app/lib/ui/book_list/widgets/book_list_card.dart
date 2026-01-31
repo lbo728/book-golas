@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/core/widgets/pressable_wrapper.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
@@ -18,6 +19,7 @@ class BookListCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -57,7 +59,7 @@ class BookListCard extends StatelessWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildBookInfo(
-                      isDark, daysLeft, pageProgress, isCompleted),
+                      isDark, daysLeft, pageProgress, isCompleted, l10n),
                 ),
                 Icon(
                   Icons.arrow_forward_ios,
@@ -92,8 +94,8 @@ class BookListCard extends StatelessWidget {
     );
   }
 
-  Widget _buildBookInfo(
-      bool isDark, int daysLeft, double pageProgress, bool isCompleted) {
+  Widget _buildBookInfo(bool isDark, int daysLeft, double pageProgress,
+      bool isCompleted, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -108,14 +110,15 @@ class BookListCard extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 6),
-        _buildDdayAndPages(isDark, daysLeft, isCompleted),
+        _buildDdayAndPages(isDark, daysLeft, isCompleted, l10n),
         const SizedBox(height: 8),
         _buildProgressBar(isDark, pageProgress, isCompleted),
       ],
     );
   }
 
-  Widget _buildDdayAndPages(bool isDark, int daysLeft, bool isCompleted) {
+  Widget _buildDdayAndPages(
+      bool isDark, int daysLeft, bool isCompleted, AppLocalizations l10n) {
     return Row(
       children: [
         Container(
@@ -135,7 +138,7 @@ class BookListCard extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         Text(
-          '${book.currentPage}/${book.totalPages}페이지',
+          '${book.currentPage}/${book.totalPages} ${l10n.unitPages}',
           style: TextStyle(
             fontSize: 13,
             color: isDark ? Colors.grey[400] : Colors.grey[600],

@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 
 import 'package:book_golas/data/services/highlight_settings_service.dart';
 import 'package:book_golas/domain/models/highlight_data.dart';
@@ -239,7 +240,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                 ),
               ),
               Text(
-                '수정 중인 내용이 있습니다.',
+                AppLocalizations.of(context)!.unsavedChangesMessage,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
@@ -274,7 +275,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                         ),
                         child: Center(
                           child: Text(
-                            '변경사항 무시',
+                            AppLocalizations.of(context)!.discardChangesButton,
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
@@ -296,10 +297,10 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                           color: AppColors.primary,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Center(
+                        child: Center(
                           child: Text(
-                            '이어서 하기',
-                            style: TextStyle(
+                            AppLocalizations.of(context)!.continueEditingButton,
+                            style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
                               color: Colors.white,
@@ -332,7 +333,8 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
         HapticFeedback.vibrate();
         CustomSnackbar.show(
           context,
-          message: '총 페이지 수(${widget.totalPages})를 초과할 수 없습니다',
+          message: AppLocalizations.of(context)!
+              .pageExceedsTotalError(widget.totalPages),
           type: SnackbarType.error,
           rootOverlay: true,
           aboveKeyboard: true,
@@ -364,7 +366,8 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
       if (success && mounted) {
         Navigator.pop(context);
         CustomSnackbar.show(context,
-            message: '저장되었습니다', type: SnackbarType.success);
+            message: AppLocalizations.of(context)!.dialogSaved,
+            type: SnackbarType.success);
       } else {
         setState(() => _isSaving = false);
       }
@@ -487,7 +490,9 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                 ? () => _showCancelConfirmation(isDark)
                 : () => Navigator.pop(context),
             child: Text(
-              _isEditing ? '취소' : '닫기',
+              _isEditing
+                  ? AppLocalizations.of(context)!.commonCancel
+                  : AppLocalizations.of(context)!.commonClose,
               style: TextStyle(
                 fontSize: 16,
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -498,7 +503,9 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
             _buildPageNumberEditor(isDark)
           else
             Text(
-              _editingPageNumber != null ? 'p.$_editingPageNumber' : '페이지 미설정',
+              _editingPageNumber != null
+                  ? 'p.$_editingPageNumber'
+                  : AppLocalizations.of(context)!.pageNotSet,
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
@@ -509,7 +516,9 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
             TextButton(
               onPressed: (_isSaving || _pageNumberError) ? null : _handleSave,
               child: Text(
-                _isSaving ? '저장 중...' : '저장',
+                _isSaving
+                    ? AppLocalizations.of(context)!.dialogSaving
+                    : AppLocalizations.of(context)!.commonSave,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -527,7 +536,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                 );
               },
               child: Text(
-                '삭제',
+                AppLocalizations.of(context)!.commonDelete,
                 style: TextStyle(fontSize: 16, color: Colors.red[400]),
               ),
             ),
@@ -585,8 +594,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(
-                  color:
-                      _pageNumberError ? Colors.red : AppColors.primary,
+                  color: _pageNumberError ? Colors.red : AppColors.primary,
                 ),
               ),
             ),
@@ -671,7 +679,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
           color: isDark ? Colors.white : Colors.black,
         ),
         decoration: InputDecoration(
-          hintText: '텍스트를 입력하세요...',
+          hintText: AppLocalizations.of(context)!.textInputHint,
           hintStyle: TextStyle(
             color: isDark ? Colors.grey[600] : Colors.grey[400],
           ),
@@ -824,7 +832,10 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
             ),
             const SizedBox(width: 4),
             Text(
-              hasHighlights ? '하이라이트 ${_highlights.length}' : '하이라이트',
+              hasHighlights
+                  ? AppLocalizations.of(context)!
+                      .highlightWithCount(_highlights.length)
+                  : AppLocalizations.of(context)!.highlightLabel,
               style: const TextStyle(fontSize: 12, color: Colors.white),
             ),
           ],
@@ -912,15 +923,15 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
           color: Colors.black54,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.document_scanner_outlined,
+            const Icon(Icons.document_scanner_outlined,
                 size: 14, color: Colors.white),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             Text(
-              '텍스트 추출',
-              style: TextStyle(fontSize: 12, color: Colors.white),
+              AppLocalizations.of(context)!.extractTextButton,
+              style: const TextStyle(fontSize: 12, color: Colors.white),
             ),
           ],
         ),
@@ -950,13 +961,14 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
           color: Colors.black54,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(CupertinoIcons.arrow_2_squarepath,
+            const Icon(CupertinoIcons.arrow_2_squarepath,
                 size: 14, color: Colors.white),
-            SizedBox(width: 4),
-            Text('교체하기', style: TextStyle(fontSize: 12, color: Colors.white)),
+            const SizedBox(width: 4),
+            Text(AppLocalizations.of(context)!.dialogReplaceImage,
+                style: const TextStyle(fontSize: 12, color: Colors.white)),
           ],
         ),
       ),
@@ -976,7 +988,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
             ),
             const SizedBox(width: 8),
             Text(
-              '기록 문구',
+              AppLocalizations.of(context)!.recordTextLabel,
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
@@ -1020,7 +1032,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  '전체보기',
+                  AppLocalizations.of(context)!.viewFullButton,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -1038,7 +1050,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
               Clipboard.setData(ClipboardData(text: _textController.text));
               CustomSnackbar.show(
                 context,
-                message: '텍스트가 복사되었습니다.',
+                message: AppLocalizations.of(context)!.textCopied,
                 rootOverlay: true,
                 bottomOffset: 40,
               );
@@ -1053,7 +1065,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
               ),
               const SizedBox(width: 4),
               Text(
-                '복사하기',
+                AppLocalizations.of(context)!.copyButton,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -1073,13 +1085,14 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
               _focusNode.requestFocus();
             });
           },
-          child: const Row(
+          child: Row(
             children: [
-              Icon(CupertinoIcons.pencil, size: 14, color: AppColors.primary),
-              SizedBox(width: 4),
+              const Icon(CupertinoIcons.pencil,
+                  size: 14, color: AppColors.primary),
+              const SizedBox(width: 4),
               Text(
-                '수정하기',
-                style: TextStyle(
+                AppLocalizations.of(context)!.editButton,
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: AppColors.primary,
@@ -1100,7 +1113,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
           Icon(CupertinoIcons.trash, size: 14, color: Colors.red[400]),
           const SizedBox(width: 4),
           Text(
-            '모두 지우기',
+            AppLocalizations.of(context)!.clearAllButton,
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -1150,7 +1163,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                     color: isDark ? Colors.white : Colors.black,
                   ),
                   decoration: InputDecoration(
-                    hintText: '텍스트를 입력하세요...',
+                    hintText: AppLocalizations.of(context)!.textInputHint,
                     hintStyle: TextStyle(
                       color: isDark ? Colors.grey[600] : Colors.grey[400],
                     ),
@@ -1165,7 +1178,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                   padding: const EdgeInsets.all(16),
                   child: _textController.text.isEmpty
                       ? Text(
-                          '기록된 문구가 없습니다.',
+                          AppLocalizations.of(context)!.noRecordedText,
                           style: TextStyle(
                             fontSize: 15,
                             height: 1.6,
@@ -1215,7 +1228,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                 color: isDark ? Colors.white : Colors.black,
               ),
               decoration: InputDecoration(
-                hintText: '텍스트를 입력하세요...',
+                hintText: AppLocalizations.of(context)!.textInputHint,
                 hintStyle: TextStyle(
                   color: isDark ? Colors.grey[600] : Colors.grey[400],
                 ),
@@ -1227,7 +1240,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
               padding: const EdgeInsets.all(16),
               child: _textController.text.isEmpty
                   ? Text(
-                      '기록된 문구가 없습니다.',
+                      AppLocalizations.of(context)!.noRecordedText,
                       style: TextStyle(
                         fontSize: 15,
                         height: 1.6,

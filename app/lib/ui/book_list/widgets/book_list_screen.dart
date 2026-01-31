@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/book_list/view_model/book_list_view_model.dart';
 import 'package:book_golas/ui/book_list/widgets/book_list_card.dart';
@@ -111,11 +112,18 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   Widget _buildTabBar(BookListViewModel vm, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return ScrollableTabBar(
       controller: _tabController,
       scrollController: _tabScrollController,
       selectedIndex: vm.selectedTabIndex,
-      tabs: const ['독서 중', '읽을 예정', '완독', '다시 읽을 책', '전체'],
+      tabs: [
+        l10n.bookListTabReading,
+        l10n.bookListTabPlanned,
+        l10n.bookListTabCompleted,
+        l10n.bookListTabReread,
+        l10n.bookListTabAll,
+      ],
       onTabSelected: (index) => _scrollToSelectedTab(index),
     );
   }
@@ -142,6 +150,7 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   Widget _buildErrorState(bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -153,7 +162,7 @@ class _BookListScreenState extends State<BookListScreen>
           ),
           const SizedBox(height: 16),
           Text(
-            '데이터를 불러올 수 없습니다',
+            l10n.bookListErrorLoadFailed,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w500,
@@ -162,7 +171,7 @@ class _BookListScreenState extends State<BookListScreen>
           ),
           const SizedBox(height: 8),
           Text(
-            '네트워크 연결을 확인해주세요',
+            l10n.bookListErrorNetworkCheck,
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -174,7 +183,7 @@ class _BookListScreenState extends State<BookListScreen>
               setState(() {});
             },
             icon: const Icon(Icons.refresh),
-            label: const Text('다시 시도'),
+            label: Text(l10n.commonRetry),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
@@ -191,9 +200,10 @@ class _BookListScreenState extends State<BookListScreen>
 
   Widget _buildPlannedBooksTab(BookListViewModel vm, bool isDark) {
     final plannedBooks = vm.plannedBooks;
+    final l10n = AppLocalizations.of(context)!;
 
     if (plannedBooks.isEmpty) {
-      return _buildEmptyState('읽을 예정인 책이 없습니다');
+      return _buildEmptyState(l10n.bookListEmptyPlanned);
     }
 
     return RefreshIndicator(
@@ -215,9 +225,10 @@ class _BookListScreenState extends State<BookListScreen>
 
   Widget _buildPausedBooksTab(BookListViewModel vm, bool isDark) {
     final pausedBooks = vm.pausedBooks;
+    final l10n = AppLocalizations.of(context)!;
 
     if (pausedBooks.isEmpty) {
-      return _buildEmptyState('잠시 쉬어가는 책이 없습니다');
+      return _buildEmptyState(l10n.bookListEmptyPaused);
     }
 
     return RefreshIndicator(
@@ -262,9 +273,10 @@ class _BookListScreenState extends State<BookListScreen>
 
   Widget _buildAllBooksTab(BookListViewModel vm, bool isDark) {
     final allBooks = vm.books;
+    final l10n = AppLocalizations.of(context)!;
 
     if (allBooks.isEmpty) {
-      return _buildEmptyState('아직 시작한 독서가 없습니다');
+      return _buildEmptyState(l10n.bookListEmptyAll);
     }
 
     return RefreshIndicator(
@@ -462,9 +474,10 @@ class _BookListScreenState extends State<BookListScreen>
 
   Widget _buildReadingBooksTab(BookListViewModel vm, bool isDark) {
     final readingBooks = vm.readingBooks;
+    final l10n = AppLocalizations.of(context)!;
 
     if (readingBooks.isEmpty) {
-      return _buildEmptyState('현재 읽고 있는 책이 없습니다');
+      return _buildEmptyState(l10n.bookListEmptyReading);
     }
 
     return RefreshIndicator(
@@ -486,9 +499,10 @@ class _BookListScreenState extends State<BookListScreen>
 
   Widget _buildCompletedBooksTab(BookListViewModel vm, bool isDark) {
     final completedBooks = vm.completedBooks;
+    final l10n = AppLocalizations.of(context)!;
 
     if (completedBooks.isEmpty) {
-      return _buildEmptyState('완독한 책이 없습니다');
+      return _buildEmptyState(l10n.bookListEmptyCompleted);
     }
 
     return RefreshIndicator(
@@ -549,6 +563,7 @@ class _FilterBadgeHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       color: isDark ? AppColors.scaffoldDark : Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -556,15 +571,19 @@ class _FilterBadgeHeaderDelegate extends SliverPersistentHeaderDelegate {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            _buildFilterBadge('전체', AllTabFilter.all, null),
+            _buildFilterBadge(l10n.bookListFilterAll, AllTabFilter.all, null),
             const SizedBox(width: 8),
-            _buildFilterBadge('독서 중', AllTabFilter.reading, readingCount),
+            _buildFilterBadge(
+                l10n.bookListTabReading, AllTabFilter.reading, readingCount),
             const SizedBox(width: 8),
-            _buildFilterBadge('읽을 예정', AllTabFilter.planned, plannedCount),
+            _buildFilterBadge(
+                l10n.bookListTabPlanned, AllTabFilter.planned, plannedCount),
             const SizedBox(width: 8),
-            _buildFilterBadge('완독', AllTabFilter.completed, completedCount),
+            _buildFilterBadge(l10n.bookListTabCompleted, AllTabFilter.completed,
+                completedCount),
             const SizedBox(width: 8),
-            _buildFilterBadge('다시 읽을 책', AllTabFilter.paused, pausedCount),
+            _buildFilterBadge(
+                l10n.bookListTabReread, AllTabFilter.paused, pausedCount),
           ],
         ),
       ),

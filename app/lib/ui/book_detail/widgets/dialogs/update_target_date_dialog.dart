@@ -1,5 +1,7 @@
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 
 import 'package:book_golas/ui/core/widgets/korean_date_picker.dart';
 
@@ -95,7 +97,7 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '목표일 변경',
+                AppLocalizations.of(context)!.changeTargetDateTitle,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
@@ -103,7 +105,8 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
                 ),
               ),
               Text(
-                '${widget.nextAttemptCount}번째 도전으로 변경됩니다',
+                AppLocalizations.of(context)!
+                    .attemptChangeMessage(widget.nextAttemptCount),
                 style: TextStyle(
                   fontSize: 13,
                   color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -127,7 +130,8 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            '${_selectedDate.year}년 ${_selectedDate.month}월 ${_selectedDate.day}일',
+            DateFormat.yMMMd(Localizations.localeOf(context).languageCode)
+                .format(_selectedDate),
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -188,7 +192,7 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
             style: TextButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            child: const Text('취소'),
+            child: Text(AppLocalizations.of(context)!.commonCancel),
           ),
         ),
         const SizedBox(width: 12),
@@ -206,9 +210,9 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text(
-              '변경하기',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context)!.confirmChange,
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),

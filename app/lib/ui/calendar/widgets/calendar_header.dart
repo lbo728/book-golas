@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/korean_year_month_picker.dart';
 
@@ -52,7 +54,7 @@ class CalendarHeader extends StatelessWidget {
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
                     child: Text(
-                      '취소',
+                      AppLocalizations.of(context)!.commonCancel,
                       style: TextStyle(
                         fontSize: 16,
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -60,7 +62,7 @@ class CalendarHeader extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '월 선택',
+                    AppLocalizations.of(context)!.calendarMonthSelect,
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w600,
@@ -72,9 +74,9 @@ class CalendarHeader extends StatelessWidget {
                       Navigator.of(context).pop();
                       onMonthSelected(selectedMonth);
                     },
-                    child: const Text(
-                      '확인',
-                      style: TextStyle(
+                    child: Text(
+                      AppLocalizations.of(context)!.commonConfirm,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: AppColors.primary,
@@ -125,7 +127,8 @@ class CalendarHeader extends StatelessWidget {
               GestureDetector(
                 onTap: () => _showMonthPicker(context),
                 child: Text(
-                  '${focusedMonth.year}년 ${focusedMonth.month.toString().padLeft(2, '0')}월',
+                  DateFormat.yMMMM(Localizations.localeOf(context).toString())
+                      .format(focusedMonth),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -146,7 +149,7 @@ class CalendarHeader extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            '$monthlyBookCount권',
+            AppLocalizations.of(context)!.booksCount(monthlyBookCount),
             style: TextStyle(
               fontSize: 48,
               fontWeight: FontWeight.bold,

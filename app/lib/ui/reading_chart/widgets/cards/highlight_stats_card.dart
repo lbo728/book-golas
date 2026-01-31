@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 /// 하이라이트 통계 카드
@@ -73,12 +74,14 @@ class HighlightStatsCard extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        Text(
-          '기록/하이라이트 통계',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: isDark ? Colors.white : Colors.black87,
+        Expanded(
+          child: Text(
+            AppLocalizations.of(context)!.chartHighlightStatsTitle,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black87,
+            ),
           ),
         ),
       ],
@@ -94,7 +97,7 @@ class HighlightStatsCard extends StatelessWidget {
           isDark,
           Icons.format_quote,
           totalHighlights.toString(),
-          '하이라이트',
+          AppLocalizations.of(context)!.chartHighlightStatsHighlights,
           Colors.amber,
         ),
         _buildStatItem(
@@ -102,7 +105,7 @@ class HighlightStatsCard extends StatelessWidget {
           isDark,
           Icons.edit_note,
           totalNotes.toString(),
-          '메모',
+          AppLocalizations.of(context)!.chartHighlightStatsMemos,
           Colors.blue,
         ),
         _buildStatItem(
@@ -110,7 +113,7 @@ class HighlightStatsCard extends StatelessWidget {
           isDark,
           Icons.photo_library_outlined,
           totalPhotos.toString(),
-          '사진',
+          AppLocalizations.of(context)!.chartHighlightStatsPhotos,
           Colors.green,
         ),
       ],
@@ -164,7 +167,7 @@ class HighlightStatsCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '장르별 하이라이트',
+          AppLocalizations.of(context)!.chartHighlightStatsByGenre,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -181,7 +184,9 @@ class HighlightStatsCard extends StatelessWidget {
                 Expanded(
                   flex: 3,
                   child: Text(
-                    entry.key,
+                    entry.key == '미분류'
+                        ? AppLocalizations.of(context)!.genreUncategorized
+                        : entry.key,
                     style: TextStyle(
                       fontSize: 13,
                       color: isDark ? Colors.white70 : Colors.black87,
@@ -207,7 +212,7 @@ class HighlightStatsCard extends StatelessWidget {
                 SizedBox(
                   width: 50,
                   child: Text(
-                    '${entry.value}개',
+                    AppLocalizations.of(context)!.chartHighlightStatsPhotos,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -250,7 +255,7 @@ class HighlightStatsCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              '아직 하이라이트가 없어요',
+              AppLocalizations.of(context)!.chartHighlightStatsEmptyMessage,
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.white60 : Colors.black54,
@@ -258,7 +263,7 @@ class HighlightStatsCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              '책을 읽으며 중요한 부분을 하이라이트해보세요',
+              AppLocalizations.of(context)!.chartHighlightStatsEmptyHint,
               style: TextStyle(
                 fontSize: 12,
                 color: isDark ? Colors.white54 : Colors.black45,

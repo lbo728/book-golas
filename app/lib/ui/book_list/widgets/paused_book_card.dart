@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
@@ -17,6 +18,7 @@ class PausedBookCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
     final progress =
         book.totalPages > 0 ? book.currentPage / book.totalPages : 0.0;
 
@@ -75,7 +77,7 @@ class PausedBookCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${book.startDate.toString().substring(0, 10)} ~ ${book.pausedAt?.toString().substring(0, 10) ?? '알 수 없음'}',
+                        '${book.startDate.toString().substring(0, 10)} ~ ${book.pausedAt?.toString().substring(0, 10) ?? l10n.bookListUnknown}',
                         style: TextStyle(
                           fontSize: 13,
                           color: isDark ? Colors.grey[400] : Colors.grey[600],

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/utils/number_format_utils.dart';
 
 /// 연간 목표 진행률 카드
 ///
@@ -89,7 +91,7 @@ class AnnualGoalCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      '$year년 독서 목표',
+                      AppLocalizations.of(context)!.chartAnnualGoalTitle(year),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -131,7 +133,7 @@ class AnnualGoalCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8, left: 4),
                   child: Text(
-                    '/ $targetBooks권',
+                    '/ ${formatBooksCount(targetBooks!, context)}',
                     style: TextStyle(
                       fontSize: 20,
                       color: isAchieved
@@ -167,7 +169,8 @@ class AnnualGoalCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${(progress * 100).toStringAsFixed(0)}% 달성',
+                  AppLocalizations.of(context)!
+                      .chartAnnualGoalAchieved((progress * 100).toInt()),
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -178,7 +181,8 @@ class AnnualGoalCard extends StatelessWidget {
                 ),
                 if (!isAchieved)
                   Text(
-                    '$remaining권 남음',
+                    AppLocalizations.of(context)!
+                        .chartAnnualGoalRemaining(remaining),
                     style: TextStyle(
                       fontSize: 14,
                       color: isDark ? Colors.grey[500] : Colors.grey[600],
@@ -205,10 +209,14 @@ class AnnualGoalCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       isAchieved
-                          ? '축하합니다! 올해 목표를 달성했어요!'
+                          ? AppLocalizations.of(context)!
+                              .chartAnnualGoalAchievedMessage
                           : (isAhead
-                              ? '예상보다 ${completedBooks - expectedBooks}권 더 읽었어요!'
-                              : '조금만 더 힘내면 목표에 도달할 수 있어요!'),
+                              ? AppLocalizations.of(context)!
+                                  .chartAnnualGoalAheadMessage(
+                                      completedBooks - expectedBooks)
+                              : AppLocalizations.of(context)!
+                                  .chartAnnualGoalMotivationMessage),
                       style: TextStyle(
                         fontSize: 13,
                         color: isAchieved
@@ -261,7 +269,7 @@ class AnnualGoalCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            '$year년 독서 목표를 설정해보세요!',
+            AppLocalizations.of(context)!.chartAnnualGoalSetGoal,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -270,7 +278,7 @@ class AnnualGoalCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '목표를 설정하면 독서 진행 상황을\n한눈에 확인할 수 있어요',
+            AppLocalizations.of(context)!.chartAnnualGoalSetGoalMessage,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -291,9 +299,9 @@ class AnnualGoalCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
-                '목표 설정하기',
-                style: TextStyle(
+              child: Text(
+                AppLocalizations.of(context)!.chartAnnualGoalSetGoal,
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),

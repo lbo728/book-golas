@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
@@ -9,20 +10,21 @@ class ScannerErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     String message;
     IconData icon;
 
     switch (error.errorCode) {
       case MobileScannerErrorCode.permissionDenied:
-        message = '카메라 권한이 필요합니다\n설정에서 권한을 허용해주세요';
+        message = l10n.scannerErrorPermissionDenied;
         icon = Icons.no_photography_outlined;
         break;
       case MobileScannerErrorCode.controllerUninitialized:
-        message = '카메라를 초기화하는 중입니다';
+        message = l10n.scannerErrorInitializing;
         icon = Icons.hourglass_empty;
         break;
       default:
-        message = '카메라 오류가 발생했습니다\n다시 시도해주세요';
+        message = l10n.scannerErrorDefault;
         icon = Icons.error_outline;
     }
 

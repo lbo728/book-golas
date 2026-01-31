@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
@@ -94,6 +95,7 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     final completedDate = widget.book.updatedAt ?? DateTime.now();
     final daysToComplete =
@@ -151,7 +153,9 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
-                  Row(
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -171,8 +175,8 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                             const SizedBox(width: 6),
                             Text(
                               daysToComplete > 0
-                                  ? '$daysToComplete일만에 완독'
-                                  : '당일 완독',
+                                  ? l10n.bookListCompletedIn(daysToComplete)
+                                  : l10n.bookListCompletedSameDay,
                               style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
@@ -182,8 +186,7 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                           ],
                         ),
                       ),
-                      if (_achievementRate != null) ...[
-                        const SizedBox(width: 8),
+                      if (_achievementRate != null)
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 6),
@@ -213,7 +216,7 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                '달성률 $_achievementRate%',
+                                l10n.bookListAchievementRate(_achievementRate!),
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
@@ -227,7 +230,6 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                             ],
                           ),
                         ),
-                      ],
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -240,7 +242,7 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '${widget.book.totalPages}페이지',
+                        '${widget.book.totalPages} ${l10n.unitPages}',
                         style: TextStyle(
                           fontSize: 12,
                           color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -253,11 +255,15 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                         color: isDark ? Colors.grey[500] : Colors.grey[400],
                       ),
                       const SizedBox(width: 4),
-                      Text(
-                        '완독일 ${completedDate.year}.${completedDate.month.toString().padLeft(2, '0')}.${completedDate.day.toString().padLeft(2, '0')}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      Flexible(
+                        child: Text(
+                          l10n.bookListCompletedDate(
+                              '${completedDate.year}.${completedDate.month.toString().padLeft(2, '0')}.${completedDate.day.toString().padLeft(2, '0')}'),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],

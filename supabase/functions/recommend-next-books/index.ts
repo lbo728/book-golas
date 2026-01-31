@@ -20,7 +20,7 @@ serve(async (req: Request) => {
   try {
     validateConfig();
 
-    const { userId } = await req.json();
+    const { userId, locale = 'ko' } = await req.json();
     if (!userId) {
       return new Response(
         JSON.stringify({ error: "userId is required" }),
@@ -55,8 +55,8 @@ serve(async (req: Request) => {
       );
     }
 
-    console.log(`[recommend-next-books] Generating recommendations...`);
-    const recommendationService = new RecommendationService();
+    console.log(`[recommend-next-books] Generating recommendations (locale: ${locale})...`);
+    const recommendationService = new RecommendationService(locale);
     const recommendations = await recommendationService.generate(profile);
 
     const response: RecommendationResponse = {

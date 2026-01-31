@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class BookReviewTab extends StatelessWidget {
@@ -113,12 +114,14 @@ class BookReviewTab extends StatelessWidget {
                 color: AppColors.primary,
               ),
               const SizedBox(width: 8),
-              Text(
-                '나의 독후감',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : Colors.black,
+              Builder(
+                builder: (context) => Text(
+                  AppLocalizations.of(context)!.bookReviewTabTitle,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
                 ),
               ),
             ],
@@ -161,7 +164,7 @@ class BookReviewTab extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              '독후감 수정하기',
+              AppLocalizations.of(context)!.bookReviewTabEditButton,
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,

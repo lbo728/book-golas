@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class ReadingProgressScreen extends StatelessWidget {
@@ -26,7 +27,7 @@ class ReadingProgressScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('진행률 히스토리'),
+        title: Text(AppLocalizations.of(context).readingProgressTitle),
         backgroundColor:
             isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
         foregroundColor: isDark ? Colors.white : Colors.black,
@@ -43,11 +44,13 @@ class ReadingProgressScreen extends StatelessWidget {
               return const Center(child: CircularProgressIndicator());
             }
             if (snapshot.hasError) {
-              return const Text('진행률 불러오기 실패');
+              return Text(
+                  AppLocalizations.of(context).readingProgressLoadFailed);
             }
             final data = snapshot.data ?? [];
             if (data.isEmpty) {
-              return const Text('진행률 기록이 없습니다.');
+              return Text(
+                  AppLocalizations.of(context).readingProgressNoRecords);
             }
             final spots = data.asMap().entries.map((entry) {
               final idx = entry.key;
@@ -76,8 +79,9 @@ class ReadingProgressScreen extends StatelessWidget {
                         showTitles: true,
                         getTitlesWidget: (value, meta) {
                           final idx = value.toInt();
-                          if (idx < 0 || idx >= data.length)
+                          if (idx < 0 || idx >= data.length) {
                             return const SizedBox();
+                          }
                           final date = data[idx]['created_at'] as DateTime;
                           return Text(
                             '${date.month}/${date.day}',
