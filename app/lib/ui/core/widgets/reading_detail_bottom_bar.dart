@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:book_golas/l10n/app_localizations.dart';
+
 class ReadingDetailBottomBar extends StatelessWidget {
   final VoidCallback onBackTap;
   final VoidCallback onUpdatePageTap;
@@ -106,24 +108,26 @@ class ReadingDetailBottomBar extends StatelessWidget {
                   width: 0.5,
                 ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    CupertinoIcons.book_fill,
-                    size: 17,
-                    color: textColor,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '페이지 업데이트',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+              child: Builder(
+                builder: (context) => Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      CupertinoIcons.book_fill,
+                      size: 17,
                       color: textColor,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Text(
+                      AppLocalizations.of(context)!.pageUpdateButton,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: textColor,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 /// 독서 상태 선택 위젯 (읽을 예정 / 바로 시작)
@@ -18,11 +19,13 @@ class StatusSelectorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '독서 상태',
+          l10n.readingStatusLabel,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -39,13 +42,13 @@ class StatusSelectorWidget extends StatelessWidget {
           child: Row(
             children: [
               _buildOption(
-                label: '읽을 예정',
+                label: l10n.readingStatusPlanned,
                 status: BookStatus.planned,
                 icon: Icons.bookmark_outline,
               ),
               const SizedBox(width: 4),
               _buildOption(
-                label: '바로 시작',
+                label: l10n.readingStatusStartNow,
                 status: BookStatus.reading,
                 icon: Icons.menu_book_outlined,
               ),

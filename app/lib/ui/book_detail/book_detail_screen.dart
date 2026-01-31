@@ -2,6 +2,8 @@ import 'package:confetti/confetti.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -226,7 +228,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
       if (mounted) {
         CustomSnackbar.show(
           context,
-          message: '새로운 독서 여정을 시작합니다! 화이팅! 📚',
+          message: 'New reading journey! 📚',
           type: SnackbarType.success,
         );
       }
@@ -278,7 +280,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     onPressed: () => Navigator.pop(context),
                   ),
                   title: Text(
-                    '독서 상세',
+                    AppLocalizations.of(context)!.bookDetailTabDetail,
                     style: TextStyle(
                       color: isDark ? Colors.white : Colors.black,
                       fontWeight: FontWeight.w600,
@@ -372,8 +374,24 @@ class _BookDetailContentState extends State<_BookDetailContent>
                           child: CustomTabBar(
                             tabController: _tabController!,
                             tabLabels: _isBookCompleted(book)
-                                ? const ['기록', '히스토리', '독후감', '상세']
-                                : const ['기록', '히스토리', '상세'],
+                                ? [
+                                    AppLocalizations.of(context)!
+                                        .bookDetailTabRecord,
+                                    AppLocalizations.of(context)!
+                                        .bookDetailTabHistory,
+                                    AppLocalizations.of(context)!
+                                        .bookDetailTabReview,
+                                    AppLocalizations.of(context)!
+                                        .bookDetailTabDetail,
+                                  ]
+                                : [
+                                    AppLocalizations.of(context)!
+                                        .bookDetailTabRecord,
+                                    AppLocalizations.of(context)!
+                                        .bookDetailTabHistory,
+                                    AppLocalizations.of(context)!
+                                        .bookDetailTabDetail,
+                                  ],
                           ),
                           backgroundColor: isDark
                               ? AppColors.scaffoldDark
@@ -551,7 +569,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
       final pagesRead = newPage - oldPage;
       if (bookVm.isTodayGoalAchieved) {
         CustomSnackbar.show(context,
-            message: '오늘 목표 달성! +$pagesRead 페이지 🎉',
+            message: 'Goal achieved! +$pagesRead 🎉',
             type: SnackbarType.success);
 
         // 이번 업데이트로 목표 달성했으면 컨페티 표시
@@ -562,19 +580,16 @@ class _BookDetailContentState extends State<_BookDetailContent>
         final remaining = bookVm.pagesToGoal;
         if (remaining > 0) {
           CustomSnackbar.show(context,
-              message: '+$pagesRead 페이지! 오늘 목표까지 ${remaining}p 남음',
-              type: SnackbarType.info);
+              message: '+$pagesRead! ${remaining}p', type: SnackbarType.info);
         } else {
           CustomSnackbar.show(context,
-              message: '+$pagesRead 페이지! ${newPage}p 도달',
-              type: SnackbarType.success);
+              message: '+$pagesRead! ${newPage}p', type: SnackbarType.success);
         }
       }
 
       context.read<ReadingProgressViewModel>().fetchProgressHistory();
     } else if (mounted) {
-      CustomSnackbar.show(context,
-          message: '오류가 발생했습니다', type: SnackbarType.error);
+      CustomSnackbar.show(context, message: 'Error', type: SnackbarType.error);
     }
   }
 
@@ -638,7 +653,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
             ),
             const SizedBox(height: 12),
             Text(
-              '완독을 축하합니다!',
+              'Congratulations!',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
@@ -658,7 +673,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
             ),
             const SizedBox(height: 20),
             Text(
-              '독서의 여운이 남아있을 때\n독후감을 작성해보시겠어요?',
+              'Would you like to write a review?',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 15,
@@ -680,7 +695,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       ),
                       child: Center(
                         child: Text(
-                          '나중에',
+                          AppLocalizations.of(context)!.bookDetailLater,
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -705,10 +720,10 @@ class _BookDetailContentState extends State<_BookDetailContent>
                         color: AppColors.primary,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Text(
-                          '독후감 쓰러가기',
-                          style: TextStyle(
+                          AppLocalizations.of(context)!.bookDetailTabReview,
+                          style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
@@ -755,7 +770,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeOutCubic);
           CustomSnackbar.show(context,
-              message: '$newAttempt번째 도전 시작! D-${bookVm.daysLeft}',
+              message: 'Attempt $newAttempt! D-${bookVm.daysLeft}',
               type: SnackbarType.info,
               icon: Icons.flag);
         }
@@ -902,7 +917,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
         _scrollController.animateTo(0,
             duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
         CustomSnackbar.show(context,
-            message: '기록이 저장되었습니다', type: SnackbarType.success);
+            message: 'Saved', type: SnackbarType.success);
       }
       return true;
     } catch (e, stackTrace) {
@@ -916,13 +931,13 @@ class _BookDetailContentState extends State<_BookDetailContent>
         showCupertinoDialog(
           context: context,
           builder: (dialogContext) => CupertinoAlertDialog(
-            title: const Text('업로드 실패'),
+            title: const Text('Upload Failed'),
             content: Text(isNetworkError
-                ? '네트워크 연결을 확인해주세요.\n연결 상태가 양호하면 다시 시도해주세요.'
-                : '기록을 저장하는 중 오류가 발생했습니다.\n업로드 버튼을 눌러 다시 시도해주세요.'),
+                ? 'Please check your network connection.\nTry again if the connection is stable.'
+                : 'An error occurred while saving.\nPlease try again.'),
             actions: [
               CupertinoDialogAction(
-                  child: const Text('확인'),
+                  child: const Text('OK'),
                   onPressed: () => Navigator.pop(dialogContext))
             ],
           ),
@@ -964,7 +979,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
     final success = await memorableVm.deleteSelectedImages();
     if (success && mounted) {
       CustomSnackbar.show(context,
-          message: '$count개 항목이 삭제되었습니다', type: SnackbarType.success);
+          message: '$count items deleted', type: SnackbarType.success);
     }
   }
 
@@ -1003,8 +1018,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
       onDeleteImage: (id, url, {bool dismissParentOnDelete = false}) async {
         final confirmed = await showDeleteConfirmationSheet(
             context: context,
-            title: '삭제하시겠습니까?',
-            message: '이 항목을 삭제하면 복구할 수 없습니다.');
+            title: 'Delete?',
+            message: 'This action cannot be undone.');
         if (confirmed != true) return;
         if (dismissParentOnDelete && mounted) Navigator.pop(context);
         await memorableVm.deleteBookImage(id);
@@ -1034,7 +1049,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
               pageNumber: null);
           if (newUrl != null && mounted) {
             CustomSnackbar.show(context,
-                message: '이미지가 교체되었습니다', type: SnackbarType.success);
+                message: 'Image replaced', type: SnackbarType.success);
           }
           onReplaced(newUrl);
         }
@@ -1115,7 +1130,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '독서 시작 예정',
+                        'Planned Start',
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -1125,8 +1140,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       const SizedBox(height: 2),
                       Text(
                         book.plannedStartDate != null
-                            ? '${book.plannedStartDate!.year}년 ${book.plannedStartDate!.month}월 ${book.plannedStartDate!.day}일${daysUntilStart != null ? " (D${daysUntilStart >= 0 ? '-' : '+'}${daysUntilStart.abs()})" : ""}'
-                            : '시작일 미정',
+                            ? '${DateFormat.yMMMd(Localizations.localeOf(context).languageCode).format(book.plannedStartDate!)}${daysUntilStart != null ? " (D${daysUntilStart >= 0 ? '-' : '+'}${daysUntilStart.abs()})" : ""}'
+                            : 'TBD',
                         style: TextStyle(
                           fontSize: 13,
                           color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1218,7 +1233,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
         ),
         const SizedBox(height: 8),
         Text(
-          '중단 위치: ${book.currentPage}p / ${book.totalPages}p (${(progress * 100).toInt()}%)',
+          'Paused at: ${book.currentPage}p / ${book.totalPages}p (${(progress * 100).toInt()}%)',
           style: TextStyle(
             fontSize: 13,
             color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1263,7 +1278,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '독서 다시 시작하기',
+                          'Resume Reading',
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -1272,7 +1287,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${book.attemptCount + 1}번째 도전을 시작합니다',
+                          '${book.attemptCount + 1} attempt',
                           style: TextStyle(
                             fontSize: 12,
                             color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1307,7 +1322,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeOutCubic);
           CustomSnackbar.show(context,
-              message: '$newAttempt번째 도전 시작! 화이팅!',
+              message: 'Attempt $newAttempt started!',
               type: SnackbarType.success,
               icon: Icons.play_arrow_rounded);
         }
@@ -1333,13 +1348,13 @@ class _BookDetailContentState extends State<_BookDetailContent>
   String _getPriorityLabel(int priority) {
     switch (priority) {
       case 1:
-        return '긴급';
+        return 'Urgent';
       case 2:
-        return '높음';
+        return 'High';
       case 3:
-        return '보통';
+        return 'Medium';
       case 4:
-        return '낮음';
+        return 'Low';
       default:
         return '';
     }
@@ -1418,7 +1433,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      hasReview ? '독후감 수정하기' : '독후감 작성하기',
+                      hasReview ? 'Edit Review' : 'Write Review',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -1428,8 +1443,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     const SizedBox(height: 2),
                     Text(
                       hasReview
-                          ? '작성한 독후감을 다시 확인하고 수정해보세요'
-                          : '책을 읽고 느낀 점을 기록해보세요',
+                          ? 'Review your written review'
+                          : 'Record your thoughts',
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1491,7 +1506,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '이어서 독서하기',
+                      'Continue Reading',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -1500,7 +1515,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '이번에도 몰입해서 독서 목표를 달성해보아요!',
+                      'Achieve your reading goal!',
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1534,7 +1549,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
       if (success && mounted) {
         CustomSnackbar.show(
           context,
-          message: '독서를 잠시 쉬어갑니다. 언제든 다시 시작하세요!',
+          message: 'Reading paused',
           type: SnackbarType.info,
           icon: CupertinoIcons.pause_circle,
         );
@@ -1554,7 +1569,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
       if (success && mounted) {
         CustomSnackbar.show(
           context,
-          message: '독서가 삭제되었습니다',
+          message: 'Deleted',
           type: SnackbarType.success,
         );
         Navigator.pop(context);
@@ -1611,7 +1626,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
             ),
             const SizedBox(width: 8),
             Text(
-              '노트 구조화',
+              'Note Structure',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
@@ -1657,7 +1672,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '노트 구조화',
+                    'Note Structure',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,

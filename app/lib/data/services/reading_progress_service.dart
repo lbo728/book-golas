@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/domain/models/reading_progress_record.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 
 class ReadingProgressService {
   static final ReadingProgressService _instance =
@@ -352,13 +353,15 @@ class ReadingProgressService {
     return genre.trim();
   }
 
-  String getTopGenreMessage(Map<String, int> genreDistribution) {
+  String getTopGenreMessage(
+      Map<String, int> genreDistribution, AppLocalizations l10n) {
     if (genreDistribution.isEmpty) {
-      return '아직 완독한 책이 없어요. 첫 책을 완독해보세요!';
+      return 'No completed books yet. Complete your first book!';
     }
 
-    if (genreDistribution.length == 1 && genreDistribution.containsKey('미분류')) {
-      return '다양한 책을 읽고 계시네요! 장르가 등록되면 더 정확한 분석이 가능해요.';
+    if (genreDistribution.length == 1 &&
+        genreDistribution.containsKey('Uncategorized')) {
+      return 'You are reading diverse books! More accurate analysis will be possible when genres are registered.';
     }
 
     final sortedGenres = genreDistribution.entries.toList()
@@ -367,76 +370,76 @@ class ReadingProgressService {
     final topGenre = sortedGenres.first.key;
     final topCount = sortedGenres.first.value;
 
-    final messages = _getGenreMessages(topGenre);
+    final messages = _getGenreMessages(topGenre, l10n);
     final messageIndex = topCount % messages.length;
 
     return messages[messageIndex];
   }
 
-  List<String> _getGenreMessages(String genre) {
+  List<String> _getGenreMessages(String genre, AppLocalizations l10n) {
     final genreMessages = {
-      '소설': [
-        '당신은 문학 소년이군요!',
-        '이야기 속에서 살고 있는 당신',
-        '소설의 세계에 푹 빠진 독서가',
+      'Novel': [
+        'You are a literary enthusiast!',
+        'Living in the world of stories',
+        'A devoted reader immersed in novels',
       ],
-      '문학': [
-        '당신은 문학 소년이군요!',
-        '문학의 깊이를 아는 독자',
-        '글의 아름다움을 즐기는 분',
+      'Literature': [
+        'You are a literary enthusiast!',
+        'A reader who understands the depth of literature',
+        'Someone who enjoys the beauty of words',
       ],
-      '자기계발': [
-        '끊임없이 성장하는 당신!',
-        '발전을 멈추지 않는 독서가',
-        '더 나은 내일을 준비하는 중',
+      'Self-Help': [
+        'You are constantly growing!',
+        'A reader who never stops developing',
+        'Preparing for a better tomorrow',
       ],
-      '경제경영': [
-        '비즈니스 마인드가 뛰어나시네요!',
-        '성공을 향해 달려가는 중',
-        '미래의 CEO 감이에요',
+      'Business': [
+        'You have a great business mind!',
+        'Running towards success',
+        'You have the makings of a future CEO',
       ],
-      '인문학': [
-        '깊이 있는 사색을 즐기시는군요',
-        '철학적 사유를 즐기는 독자',
-        '인간과 세상을 탐구하는 분',
+      'Humanities': [
+        'You enjoy deep contemplation',
+        'A reader who enjoys philosophical thinking',
+        'Someone exploring humanity and the world',
       ],
-      '과학': [
-        '호기심 많은 탐험가시네요!',
-        '세상의 원리를 파헤치는 중',
-        '과학적 사고의 소유자',
+      'Science': [
+        'You are a curious explorer!',
+        'Uncovering the principles of the world',
+        'A person with scientific thinking',
       ],
-      '역사': [
-        '역사에서 지혜를 찾는 분이시네요',
-        '과거를 통해 미래를 보는 눈',
-        '역사 덕후의 기질이 보여요',
+      'History': [
+        'You find wisdom in history',
+        'Eyes that see the future through the past',
+        'You have the qualities of a history enthusiast',
       ],
-      '에세이': [
-        '삶의 이야기에 공감하시는 분',
-        '일상 속 의미를 찾는 독자',
-        '따뜻한 감성의 소유자',
+      'Essay': [
+        'You empathize with life stories',
+        'A reader who finds meaning in everyday life',
+        'Someone with warm sensibility',
       ],
-      '시': [
-        '감성이 풍부한 시인의 영혼',
-        '언어의 아름다움을 아는 분',
-        '시적 감수성이 뛰어나시네요',
+      'Poetry': [
+        'A poetic soul with rich sensibility',
+        'Someone who knows the beauty of language',
+        'You have excellent poetic sensitivity',
       ],
-      '만화': [
-        '재미와 감동을 동시에 즐기는 분',
-        '그림으로 이야기를 읽는 독자',
-        '만화의 매력을 아는 분',
+      'Comic': [
+        'Someone who enjoys both fun and emotion',
+        'A reader who reads stories through pictures',
+        'Someone who appreciates the charm of comics',
       ],
-      '미분류': [
-        '다양한 분야를 섭렵하는 중!',
-        '장르를 가리지 않는 독서가',
-        '책이라면 다 좋아하시는 분',
+      'Uncategorized': [
+        'You are exploring diverse fields!',
+        'A reader who is not picky about genres',
+        'Someone who loves all kinds of books',
       ],
     };
 
     return genreMessages[genre] ??
         [
-          '$genre 분야의 전문가시네요!',
-          '$genre에 깊은 관심을 가지신 분',
-          '$genre 마니아의 기질이 보여요',
+          'You are an expert in $genre!',
+          'Someone with deep interest in $genre',
+          'You have the qualities of a $genre enthusiast',
         ];
   }
 

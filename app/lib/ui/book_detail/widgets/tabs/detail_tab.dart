@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/book_detail/widgets/sheets/reading_management_sheet.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
@@ -47,15 +48,15 @@ class DetailTab extends StatelessWidget {
             _buildReviewPreviewCard(isDark),
             const SizedBox(height: 16),
           ],
-          _buildReadingScheduleCard(isDark),
+          _buildReadingScheduleCard(context, isDark),
           const SizedBox(height: 16),
-          _buildTodayGoalCardWithStamps(isDark),
+          _buildTodayGoalCardWithStamps(context, isDark),
           if (_isReading && (onPauseReading != null || onDelete != null)) ...[
             const SizedBox(height: 16),
             _buildReadingActionsButton(context, isDark),
           ] else if (!_isReading && onDelete != null) ...[
             const SizedBox(height: 16),
-            _buildDeleteButton(isDark),
+            _buildDeleteButton(context, isDark),
           ],
         ],
       ),
@@ -148,7 +149,8 @@ class DetailTab extends StatelessWidget {
     );
   }
 
-  Widget _buildDeleteButton(bool isDark) {
+  Widget _buildDeleteButton(BuildContext context, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: onDelete,
       child: Container(
@@ -161,18 +163,18 @@ class DetailTab extends StatelessWidget {
             width: 1,
           ),
         ),
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               CupertinoIcons.trash,
               color: AppColors.errorAlt,
               size: 18,
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Text(
-              '독서 삭제',
-              style: TextStyle(
+              l10n.bookDetailDeleteReading,
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: AppColors.errorAlt,
@@ -291,7 +293,8 @@ class DetailTab extends StatelessWidget {
     );
   }
 
-  Widget _buildReadingScheduleCard(bool isDark) {
+  Widget _buildReadingScheduleCard(BuildContext context, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -323,9 +326,9 @@ class DetailTab extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                '독서 일정',
-                style: TextStyle(
+              Text(
+                l10n.bookDetailSchedule,
+                style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
                 ),
@@ -334,7 +337,7 @@ class DetailTab extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _buildScheduleRow(
-            '시작일',
+            l10n.bookDetailStartDate,
             book.startDate.toString().substring(0, 10).replaceAll('-', '.'),
             CupertinoIcons.play_circle,
             isDark: isDark,
@@ -349,7 +352,7 @@ class DetailTab extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                '목표일',
+                l10n.bookDetailTargetDate,
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],
@@ -450,7 +453,7 @@ class DetailTab extends StatelessWidget {
     );
   }
 
-  Widget _buildTodayGoalCardWithStamps(bool isDark) {
+  Widget _buildTodayGoalCardWithStamps(BuildContext context, bool isDark) {
     final totalDays = book.targetDate.difference(book.startDate).inDays + 1;
     final now = DateTime.now();
     final todayIndex = now.difference(book.startDate).inDays;
@@ -483,18 +486,20 @@ class DetailTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildGoalHeader(passedDays, achievedCount, achievementRate, isDark),
+          _buildGoalHeader(
+              context, passedDays, achievedCount, achievementRate, isDark),
           const SizedBox(height: 20),
           _buildStampGrid(totalDays, now, isDark),
           const SizedBox(height: 16),
-          _buildLegendRow(isDark),
+          _buildLegendRow(context, isDark),
         ],
       ),
     );
   }
 
-  Widget _buildGoalHeader(
-      int passedDays, int achievedCount, int achievementRate, bool isDark) {
+  Widget _buildGoalHeader(BuildContext context, int passedDays,
+      int achievedCount, int achievementRate, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         Container(
@@ -517,7 +522,7 @@ class DetailTab extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '목표 달성 현황',
+                l10n.bookDetailGoalProgress,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -526,7 +531,7 @@ class DetailTab extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                '$passedDays일 중 $achievedCount일 달성',
+                l10n.bookDetailAchievementStatus(passedDays, achievedCount),
                 style: TextStyle(
                   fontSize: 12,
                   color: isDark
@@ -658,16 +663,19 @@ class DetailTab extends StatelessWidget {
     );
   }
 
-  Widget _buildLegendRow(bool isDark) {
+  Widget _buildLegendRow(BuildContext context, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildLegendItem('달성', AppColors.success, isDark),
-        const SizedBox(width: 16),
-        _buildLegendItem('미달성', AppColors.errorLight, isDark),
+        _buildLegendItem(
+            l10n.bookDetailLegendAchieved, AppColors.success, isDark),
         const SizedBox(width: 16),
         _buildLegendItem(
-            '예정',
+            l10n.bookDetailLegendMissed, AppColors.errorLight, isDark),
+        const SizedBox(width: 16),
+        _buildLegendItem(
+            l10n.bookDetailLegendScheduled,
             isDark
                 ? Colors.white.withValues(alpha: 0.1)
                 : AppColors.grey100Light,

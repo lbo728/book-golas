@@ -8,6 +8,7 @@ import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 import 'package:book_golas/ui/recall/view_model/recall_view_model.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 
 Future<void> showRecallSearchSheet({
   required BuildContext context,
@@ -96,7 +97,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
     Clipboard.setData(ClipboardData(text: answer));
     CustomSnackbar.show(
       context,
-      message: '답변이 복사되었습니다',
+      message: AppLocalizations.of(context)!.recallTextCopied,
       type: SnackbarType.success,
       bottomOffset: 32,
     );
@@ -178,8 +179,8 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                               Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary
-                                      .withValues(alpha: 0.1),
+                                  color:
+                                      AppColors.primary.withValues(alpha: 0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
@@ -190,7 +191,8 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                               ),
                               const SizedBox(width: 12),
                               Text(
-                                '내 기록 검색',
+                                AppLocalizations.of(context)!
+                                    .recallSearchMyRecords,
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -224,7 +226,8 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                           controller: _controller,
                           focusNode: _focusNode,
                           decoration: InputDecoration(
-                            hintText: '예: "저자가 습관에 대해 뭐라고 했지?"',
+                            hintText:
+                                'e.g. "What did the author say about habits?"',
                             hintStyle: TextStyle(
                               color:
                                   isDark ? Colors.grey[500] : Colors.grey[400],
@@ -365,7 +368,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
             const CircularProgressIndicator(color: AppColors.primary),
             const SizedBox(height: 16),
             Text(
-              '당신의 기록을 검색하는 중...',
+              AppLocalizations.of(context)!.recallSearchingYourRecords,
               style: TextStyle(
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
               ),
@@ -431,7 +434,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '최근 검색',
+              AppLocalizations.of(context)!.recallRecentSearches,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -532,27 +535,29 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final diff = now.difference(date);
+    final l10n = AppLocalizations.of(context)!;
 
-    if (diff.inMinutes < 1) return '방금 전';
-    if (diff.inHours < 1) return '${diff.inMinutes}분 전';
-    if (diff.inDays < 1) return '${diff.inHours}시간 전';
-    if (diff.inDays < 7) return '${diff.inDays}일 전';
+    if (diff.inMinutes < 1) return l10n.recallJustNow;
+    if (diff.inHours < 1) return l10n.recallMinutesAgo(diff.inMinutes);
+    if (diff.inDays < 1) return l10n.recallHoursAgo(diff.inHours);
+    if (diff.inDays < 7) return l10n.recallDaysAgo(diff.inDays);
     return '${date.month}/${date.day}';
   }
 
   Widget _buildSuggestedQuestions(bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     final suggestions = [
-      '내가 가장 인상 깊게 본 부분은?',
-      '실천하려고 메모한 내용은?',
-      '저자의 핵심 메시지는?',
-      '내가 공감한 부분은?',
+      l10n.recallSuggestedQuestion1,
+      l10n.recallSuggestedQuestion2,
+      l10n.recallSuggestedQuestion3,
+      l10n.recallSuggestedQuestion4,
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '추천 질문',
+          l10n.recallSuggestedQuestions,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -597,7 +602,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
           ),
           const SizedBox(height: 16),
           Text(
-            '궁금한 내용을 검색해보세요',
+            AppLocalizations.of(context)!.recallSearchCurious,
             style: TextStyle(
               fontSize: 16,
               color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -605,7 +610,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
           ),
           const SizedBox(height: 8),
           Text(
-            '하이라이트, 메모, 사진 속에서 찾아드립니다',
+            AppLocalizations.of(context)!.recallFindInRecords,
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.grey[600] : Colors.grey[400],
@@ -637,7 +642,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                       color: AppColors.primary, size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    'AI 답변',
+                    AppLocalizations.of(context)!.recallAiAnswer,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: isDark ? Colors.white : Colors.black,
@@ -665,7 +670,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '복사',
+                            AppLocalizations.of(context)!.recallCopy,
                             style: TextStyle(
                               fontSize: 12,
                               color:
@@ -693,7 +698,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
         if (result.sources.isNotEmpty) ...[
           const SizedBox(height: 24),
           Text(
-            '관련 기록',
+            AppLocalizations.of(context)!.recallRelatedRecords,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -770,7 +775,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                 const Spacer(),
                 if (source.pageNumber != null)
                   Text(
-                    '${source.pageNumber}페이지',
+                    '${source.pageNumber} ${AppLocalizations.of(context)!.recallPage}',
                     style: TextStyle(
                       fontSize: 12,
                       color: isDark ? Colors.grey[500] : Colors.grey[600],

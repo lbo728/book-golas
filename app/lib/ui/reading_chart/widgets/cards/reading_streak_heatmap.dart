@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/utils/number_format_utils.dart';
 
 /// 독서 스트릭 히트맵
 ///
@@ -61,7 +63,8 @@ class ReadingStreakHeatmap extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      '$year년 독서 히트맵',
+                      AppLocalizations.of(context)!
+                          .chartReadingStreakTitle(year),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -89,7 +92,8 @@ class ReadingStreakHeatmap extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '$currentStreak일',
+                          AppLocalizations.of(context)!
+                              .chartReadingStreakDaysRead,
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -106,8 +110,10 @@ class ReadingStreakHeatmap extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildStatItem(
-                  label: '독서한 날',
-                  value: '$totalDays일',
+                  label:
+                      AppLocalizations.of(context)!.chartReadingStreakDaysRead,
+                  value:
+                      AppLocalizations.of(context)!.chartReadingStreakDaysRead,
                   isDark: isDark,
                 ),
                 Container(
@@ -116,8 +122,9 @@ class ReadingStreakHeatmap extends StatelessWidget {
                   color: isDark ? Colors.grey[700] : Colors.grey[300],
                 ),
                 _buildStatItem(
-                  label: '총 페이지',
-                  value: _formatNumber(totalPages),
+                  label: AppLocalizations.of(context)!
+                      .chartReadingStreakTotalPages,
+                  value: _formatNumber(context, totalPages),
                   isDark: isDark,
                 ),
                 Container(
@@ -126,25 +133,27 @@ class ReadingStreakHeatmap extends StatelessWidget {
                   color: isDark ? Colors.grey[700] : Colors.grey[300],
                 ),
                 _buildStatItem(
-                  label: '일평균',
+                  label: AppLocalizations.of(context)!
+                      .chartReadingStreakDailyAverage,
                   value: totalDays > 0
-                      ? '${(totalPages / totalDays).round()}p'
+                      ? AppLocalizations.of(context)!
+                          .chartReadingStreakDailyAverage
                       : '0p',
                   isDark: isDark,
                 ),
               ],
             ),
             const SizedBox(height: 20),
-            _buildHeatmapGrid(isDark),
+            _buildHeatmapGrid(context, isDark),
             const SizedBox(height: 12),
-            _buildLegend(isDark),
+            _buildLegend(context, isDark),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeatmapGrid(bool isDark) {
+  Widget _buildHeatmapGrid(BuildContext context, bool isDark) {
     final firstDay = DateTime(year, 1, 1);
     final lastDay = DateTime(year, 12, 31);
     final now = DateTime.now();
@@ -159,7 +168,15 @@ class ReadingStreakHeatmap extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: ['일', '월', '화', '수', '목', '금', '토']
+            children: [
+              AppLocalizations.of(context)!.weekdaySun,
+              AppLocalizations.of(context)!.weekdayMon,
+              AppLocalizations.of(context)!.weekdayTue,
+              AppLocalizations.of(context)!.weekdayWed,
+              AppLocalizations.of(context)!.weekdayThu,
+              AppLocalizations.of(context)!.weekdayFri,
+              AppLocalizations.of(context)!.weekdaySat,
+            ]
                 .map(
                   (day) => SizedBox(
                     width: 14,
@@ -204,7 +221,9 @@ class ReadingStreakHeatmap extends StatelessWidget {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 2),
                         child: Tooltip(
-                          message: '${date.month}/${date.day}: $pages페이지',
+                          message: AppLocalizations.of(context)!
+                              .chartReadingStreakTooltip(
+                                  date.month, date.day, pages),
                           child: Container(
                             width: 12,
                             height: 12,
@@ -223,7 +242,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Row(
-            children: _getMonthLabels()
+            children: _getMonthLabels(context)
                 .map(
                   (month) => SizedBox(
                     width: month.isEmpty ? 28 : 42,
@@ -250,8 +269,21 @@ class ReadingStreakHeatmap extends StatelessWidget {
     );
   }
 
-  List<String> _getMonthLabels() {
-    return ['1월', '', '3월', '', '5월', '', '7월', '', '9월', '', '11월', ''];
+  List<String> _getMonthLabels(BuildContext context) {
+    return [
+      AppLocalizations.of(context)!.chartReadingStreakMonthJan,
+      '',
+      AppLocalizations.of(context)!.chartReadingStreakMonthMar,
+      '',
+      AppLocalizations.of(context)!.chartReadingStreakMonthMay,
+      '',
+      AppLocalizations.of(context)!.chartReadingStreakMonthJul,
+      '',
+      AppLocalizations.of(context)!.chartReadingStreakMonthSep,
+      '',
+      AppLocalizations.of(context)!.chartReadingStreakMonthNov,
+      ''
+    ];
   }
 
   Color _getColorForPages(int pages, bool isDark) {
@@ -270,12 +302,12 @@ class ReadingStreakHeatmap extends StatelessWidget {
     return AppColors.info;
   }
 
-  Widget _buildLegend(bool isDark) {
+  Widget _buildLegend(BuildContext context, bool isDark) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          '적음',
+          AppLocalizations.of(context)!.chartReadingStreakLess,
           style: TextStyle(
             fontSize: 10,
             color: isDark ? Colors.grey[500] : Colors.grey[600],
@@ -289,7 +321,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
         _buildLegendBox(_getColorForPages(60, isDark)),
         const SizedBox(width: 4),
         Text(
-          '많음',
+          AppLocalizations.of(context)!.chartReadingStreakMore,
           style: TextStyle(
             fontSize: 10,
             color: isDark ? Colors.grey[500] : Colors.grey[600],
@@ -338,13 +370,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
     );
   }
 
-  String _formatNumber(int number) {
-    if (number >= 10000) {
-      return '${(number / 10000).toStringAsFixed(1)}만';
-    }
-    if (number >= 1000) {
-      return '${(number / 1000).toStringAsFixed(1)}천';
-    }
-    return number.toString();
+  String _formatNumber(BuildContext context, int number) {
+    return formatCompactNumber(number, Localizations.localeOf(context));
   }
 }

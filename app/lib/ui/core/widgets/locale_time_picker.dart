@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class KoreanTimePicker extends StatefulWidget {
+import 'package:book_golas/l10n/app_localizations.dart';
+
+class LocaleTimePicker extends StatefulWidget {
   final bool isDark;
   final int initialHour;
   final int initialMinute;
   final void Function(int hour, int minute) onTimeChanged;
 
-  const KoreanTimePicker({
+  const LocaleTimePicker({
     super.key,
     required this.isDark,
     required this.initialHour,
@@ -16,10 +18,10 @@ class KoreanTimePicker extends StatefulWidget {
   });
 
   @override
-  State<KoreanTimePicker> createState() => _KoreanTimePickerState();
+  State<LocaleTimePicker> createState() => _LocaleTimePickerState();
 }
 
-class _KoreanTimePickerState extends State<KoreanTimePicker> {
+class _LocaleTimePickerState extends State<LocaleTimePicker> {
   late int _currentAmPmIndex;
   late int _currentHour12;
   late int _currentMinute;
@@ -28,13 +30,14 @@ class _KoreanTimePickerState extends State<KoreanTimePicker> {
   late FixedExtentScrollController _hourController;
   late FixedExtentScrollController _minuteController;
 
-  final List<String> _amPmLabels = ['오전', '오후'];
+  late List<String> _amPmLabels;
   final List<int> _hours12 = List.generate(12, (i) => i == 0 ? 12 : i);
   final List<int> _minutes = List.generate(60, (i) => i);
 
   @override
   void initState() {
     super.initState();
+    _amPmLabels = [];
     _initializeFromHour24(widget.initialHour, widget.initialMinute);
 
     _amPmController = FixedExtentScrollController(
@@ -138,6 +141,9 @@ class _KoreanTimePickerState extends State<KoreanTimePicker> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    _amPmLabels = [l10n.timeAm, l10n.timePm];
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -157,7 +163,7 @@ class _KoreanTimePickerState extends State<KoreanTimePicker> {
         _buildWheel(
           items: _hours12,
           controller: _hourController,
-          suffix: '시',
+          suffix: l10n.unitHour,
           width: 70,
           onSelected: (index) {
             setState(() {
@@ -169,7 +175,7 @@ class _KoreanTimePickerState extends State<KoreanTimePicker> {
         _buildWheel(
           items: _minutes,
           controller: _minuteController,
-          suffix: '분',
+          suffix: l10n.unitMinute,
           width: 70,
           onSelected: (index) {
             setState(() {

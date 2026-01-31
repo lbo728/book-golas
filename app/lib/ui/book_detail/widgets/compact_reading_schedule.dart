@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class CompactReadingSchedule extends StatelessWidget {
@@ -18,15 +21,21 @@ class CompactReadingSchedule extends StatelessWidget {
     this.showEditButton = true,
   });
 
-  String _formatDate(DateTime date) {
-    return date.toString().substring(0, 10).replaceAll('-', '.');
+  String _formatDate(DateTime date, BuildContext context) {
+    final locale = Localizations.localeOf(context);
+    if (locale.languageCode == 'en') {
+      return DateFormat('MM/dd/yyyy').format(date);
+    } else {
+      return DateFormat('yyyy.MM.dd').format(date);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final startDateStr = _formatDate(startDate);
-    final targetDateStr = _formatDate(targetDate);
+    final l10n = AppLocalizations.of(context)!;
+    final startDateStr = _formatDate(startDate, context);
+    final targetDateStr = _formatDate(targetDate, context);
     final totalDays = targetDate.difference(startDate).inDays + 1;
 
     return Container(
@@ -44,7 +53,8 @@ class CompactReadingSchedule extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _buildDateColumn('시작일', startDateStr, isDark, isBold: false),
+          _buildDateColumn(l10n.bookDetailStartDate, startDateStr, isDark,
+              isBold: false),
           const SizedBox(width: 12),
           Icon(
             CupertinoIcons.arrow_right,
@@ -52,10 +62,11 @@ class CompactReadingSchedule extends StatelessWidget {
             color: isDark ? Colors.grey[500] : Colors.grey[400],
           ),
           const SizedBox(width: 12),
-          _buildDateColumn('목표일', targetDateStr, isDark, isBold: true),
+          _buildDateColumn(l10n.bookDetailTargetDate, targetDateStr, isDark,
+              isBold: true),
           const SizedBox(width: 8),
           Text(
-            '($totalDays일)',
+            l10n.totalDaysFormat(totalDays),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -64,7 +75,7 @@ class CompactReadingSchedule extends StatelessWidget {
           ),
           if (attemptCount > 1) ...[
             const SizedBox(width: 8),
-            _buildAttemptBadge(),
+            _buildAttemptBadge(l10n),
           ],
           const Spacer(),
           if (showEditButton) _buildEditButton(isDark),
@@ -101,7 +112,7 @@ class CompactReadingSchedule extends StatelessWidget {
     );
   }
 
-  Widget _buildAttemptBadge() {
+  Widget _buildAttemptBadge(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
@@ -109,7 +120,7 @@ class CompactReadingSchedule extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        '$attemptCount번째',
+        l10n.attemptOrdinal(attemptCount),
         style: const TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w700,

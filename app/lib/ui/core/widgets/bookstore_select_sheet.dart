@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
@@ -13,6 +14,7 @@ void showBookstoreSelectSheet({
   VoidCallback? onBack,
 }) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
+  final l10n = AppLocalizations.of(context)!;
   final searchTitle = getSearchTitle(title);
   final encodedTitle = Uri.encodeComponent(searchTitle);
 
@@ -60,7 +62,7 @@ void showBookstoreSelectSheet({
                           ),
                         ),
                       Text(
-                        '서점 선택',
+                        l10n.bookstoreSelectTitle,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -83,7 +85,7 @@ void showBookstoreSelectSheet({
                   BookstoreButton(
                     isDark: isDark,
                     logoPath: 'assets/images/logo-aladin.png',
-                    name: '알라딘',
+                    name: l10n.bookstoreAladdin,
                     onTap: () async {
                       Navigator.pop(sheetContext);
                       final url =
@@ -109,7 +111,7 @@ void showBookstoreSelectSheet({
                   BookstoreButton(
                     isDark: isDark,
                     logoPath: 'assets/images/logo-kyobo.svg',
-                    name: '교보문고',
+                    name: l10n.bookstoreKyobo,
                     isSvg: true,
                     onTap: () async {
                       Navigator.pop(sheetContext);

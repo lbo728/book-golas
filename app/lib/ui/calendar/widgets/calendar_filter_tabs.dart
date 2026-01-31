@@ -42,7 +42,7 @@ class CalendarFilterTabs extends StatelessWidget {
                         ),
                 ),
                 child: Text(
-                  filter.label,
+                  filter.getLabel(context),
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,

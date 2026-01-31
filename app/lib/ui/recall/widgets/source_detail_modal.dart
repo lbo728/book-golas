@@ -8,6 +8,7 @@ import 'package:book_golas/domain/models/recall_models.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/data/services/recall_service.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 
 class SourceDetailModal extends StatefulWidget {
   final RecallSource source;
@@ -46,7 +47,7 @@ class _SourceDetailModalState extends State<SourceDetailModal> {
     Clipboard.setData(ClipboardData(text: widget.source.content));
     CustomSnackbar.show(
       context,
-      message: '텍스트가 복사되었습니다',
+      message: AppLocalizations.of(context)!.recallTextCopied,
       type: SnackbarType.success,
       bottomOffset: 32,
     );
@@ -198,7 +199,7 @@ class _SourceDetailModalState extends State<SourceDetailModal> {
                         if (source.createdAt != null) ...[
                           const SizedBox(height: 24),
                           Text(
-                            '${source.createdAt!.year}.${source.createdAt!.month.toString().padLeft(2, '0')}.${source.createdAt!.day.toString().padLeft(2, '0')} 기록',
+                            '${source.createdAt!.year}.${source.createdAt!.month.toString().padLeft(2, '0')}.${source.createdAt!.day.toString().padLeft(2, '0')}',
                             style: TextStyle(
                               fontSize: 13,
                               color:

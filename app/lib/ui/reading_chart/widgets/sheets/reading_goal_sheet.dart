@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
@@ -55,7 +56,8 @@ class ReadingGoalSheet {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        '$year년 독서 목표',
+                        AppLocalizations.of(context)!
+                            .readingGoalSheetTitle(year),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
@@ -66,7 +68,7 @@ class ReadingGoalSheet {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '올해 몇 권의 책을 읽고 싶으세요?',
+                    AppLocalizations.of(context)!.readingGoalSheetQuestion,
                     style: TextStyle(
                       fontSize: 14,
                       color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -74,7 +76,7 @@ class ReadingGoalSheet {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    '추천 목표',
+                    AppLocalizations.of(context)!.readingGoalSheetRecommended,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -132,7 +134,8 @@ class ReadingGoalSheet {
                                     ),
                                   ),
                                   Text(
-                                    '권',
+                                    AppLocalizations.of(context)!
+                                        .readingGoalSheetBooks,
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: isSelected
@@ -154,7 +157,7 @@ class ReadingGoalSheet {
                   Row(
                     children: [
                       Text(
-                        '직접 입력',
+                        AppLocalizations.of(context)!.readingGoalSheetCustom,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -163,7 +166,7 @@ class ReadingGoalSheet {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        _getGoalMessage(selectedGoal),
+                        _getGoalMessage(context, selectedGoal),
                         style: TextStyle(
                           fontSize: 12,
                           color: isDark ? Colors.grey[500] : Colors.grey[600],
@@ -189,8 +192,10 @@ class ReadingGoalSheet {
                       });
                     },
                     decoration: InputDecoration(
-                      hintText: '목표 권수 입력',
-                      suffixText: '권',
+                      hintText:
+                          AppLocalizations.of(context)!.readingGoalSheetHint,
+                      suffixText:
+                          AppLocalizations.of(context)!.readingGoalSheetBooks,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -222,7 +227,7 @@ class ReadingGoalSheet {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            _getMotivationMessage(selectedGoal),
+                            _getMotivationMessage(context, selectedGoal),
                             style: TextStyle(
                               fontSize: 13,
                               color:
@@ -243,7 +248,8 @@ class ReadingGoalSheet {
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                           child: Text(
-                            '취소',
+                            AppLocalizations.of(context)!
+                                .readingGoalSheetCancel,
                             style: TextStyle(
                               color:
                                   isDark ? Colors.grey[400] : Colors.grey[600],
@@ -268,7 +274,11 @@ class ReadingGoalSheet {
                             ),
                           ),
                           child: Text(
-                            currentGoal != null ? '목표 수정' : '목표 설정',
+                            currentGoal != null
+                                ? AppLocalizations.of(context)!
+                                    .readingGoalSheetUpdate
+                                : AppLocalizations.of(context)!
+                                    .readingGoalSheetSet,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
@@ -287,22 +297,23 @@ class ReadingGoalSheet {
     );
   }
 
-  static String _getGoalMessage(int goal) {
+  static String _getGoalMessage(BuildContext context, int goal) {
     final booksPerMonth = (goal / 12).toStringAsFixed(1);
-    return '월 평균 $booksPerMonth권';
+    return AppLocalizations.of(context)!
+        .readingGoalSheetBooksPerMonth(booksPerMonth);
   }
 
-  static String _getMotivationMessage(int goal) {
+  static String _getMotivationMessage(BuildContext context, int goal) {
     if (goal <= 12) {
-      return '월 1권씩 꾸준히 읽으면 달성할 수 있어요! 무리하지 않고 독서 습관을 만들어보세요.';
+      return AppLocalizations.of(context)!.readingGoalSheetMotivation1;
     } else if (goal <= 24) {
-      return '2주에 1권씩 읽으면 달성 가능해요! 적당한 목표로 독서의 즐거움을 느껴보세요.';
+      return AppLocalizations.of(context)!.readingGoalSheetMotivation2;
     } else if (goal <= 36) {
-      return '열흘에 1권! 독서를 사랑하시는군요. 다양한 장르를 탐험해보세요!';
+      return AppLocalizations.of(context)!.readingGoalSheetMotivation3;
     } else if (goal <= 50) {
-      return '주 1권에 가까운 목표네요! 진정한 독서광의 길을 걷고 계시군요. 🔥';
+      return AppLocalizations.of(context)!.readingGoalSheetMotivation4;
     } else {
-      return '대단한 목표입니다! 일주일에 1권 이상 읽는 독서 마스터를 향해! 📚✨';
+      return AppLocalizations.of(context)!.readingGoalSheetMotivation5;
     }
   }
 }

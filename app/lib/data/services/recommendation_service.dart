@@ -132,7 +132,8 @@ class RecommendationService {
     }
   }
 
-  Future<RecommendationResult> getRecommendations() async {
+  Future<RecommendationResult> getRecommendations(
+      {String locale = 'ko'}) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) {
@@ -144,11 +145,11 @@ class RecommendationService {
       }
 
       debugPrint(
-          '[RecommendationService] Fetching recommendations for $userId');
+          '[RecommendationService] Fetching recommendations for $userId (locale: $locale)');
 
       final response = await _supabase.functions.invoke(
         'recommend-next-books',
-        body: {'userId': userId},
+        body: {'userId': userId, 'locale': locale},
       );
 
       debugPrint('[RecommendationService] Response status: ${response.status}');

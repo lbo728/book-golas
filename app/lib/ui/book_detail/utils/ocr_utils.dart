@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/extracted_text_modal.dart';
 import 'package:book_golas/data/services/google_vision_ocr_service.dart';
@@ -213,7 +214,7 @@ Future<void> extractTextFromLocalImage(
                 const CircularProgressIndicator(color: AppColors.primary),
                 const SizedBox(height: 16),
                 Text(
-                  '텍스트 추출 중...',
+                  AppLocalizations.of(dialogContext)!.extractingText,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
@@ -245,7 +246,8 @@ Future<void> extractTextFromLocalImage(
     if (ocrText == null || ocrText.isEmpty) {
       debugPrint('OCR: 텍스트 추출 결과가 비어있습니다.');
       CustomSnackbar.show(parentContext,
-          message: '텍스트를 추출하지 못했습니다. 다른 영역을 선택해보세요.', rootOverlay: true);
+          message: AppLocalizations.of(parentContext)!.ocrExtractionFailed,
+          rootOverlay: true);
       return;
     }
 
@@ -261,7 +263,8 @@ Future<void> extractTextFromLocalImage(
     }
 
     CustomSnackbar.show(parentContext,
-        message: '텍스트 추출에 실패했습니다. 다시 시도해주세요.', rootOverlay: true);
+        message: AppLocalizations.of(parentContext)!.ocrExtractionFailed,
+        rootOverlay: true);
   }
 }
 
@@ -297,7 +300,7 @@ Future<void> pickImageAndExtractText(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '텍스트를 추출하시겠어요?',
+              AppLocalizations.of(bottomSheetContext)!.extractTextConfirmTitle,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -307,7 +310,8 @@ Future<void> pickImageAndExtractText(
             ),
             const SizedBox(height: 8),
             Text(
-              '크레딧을 소모합니다.',
+              AppLocalizations.of(bottomSheetContext)!
+                  .extractTextCreditsMessage,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -328,7 +332,8 @@ Future<void> pickImageAndExtractText(
                       ),
                       child: Center(
                         child: Text(
-                          '괜찮아요',
+                          AppLocalizations.of(bottomSheetContext)!
+                              .noThanksButton,
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -349,10 +354,11 @@ Future<void> pickImageAndExtractText(
                         color: AppColors.primary,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Text(
-                          '추출할게요',
-                          style: TextStyle(
+                          AppLocalizations.of(bottomSheetContext)!
+                              .extractButton,
+                          style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
@@ -391,16 +397,17 @@ Future<void> pickImageAndExtractText(
         sourcePath: tempFile.path,
         uiSettings: [
           IOSUiSettings(
-            title: '텍스트 추출 영역 선택',
-            cancelButtonTitle: '취소',
-            doneButtonTitle: '완료',
+            title: AppLocalizations.of(parentContext)!.ocrAreaSelectTitle,
+            cancelButtonTitle: AppLocalizations.of(parentContext)!.commonCancel,
+            doneButtonTitle: AppLocalizations.of(parentContext)!.commonComplete,
             aspectRatioLockEnabled: false,
             resetAspectRatioEnabled: true,
             rotateButtonsHidden: false,
             rotateClockwiseButtonHidden: true,
           ),
           AndroidUiSettings(
-            toolbarTitle: '텍스트 추출 영역 선택',
+            toolbarTitle:
+                AppLocalizations.of(parentContext)!.ocrAreaSelectTitle,
             toolbarColor: AppColors.primary,
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.original,
@@ -439,7 +446,7 @@ Future<void> pickImageAndExtractText(
                   const CircularProgressIndicator(color: AppColors.primary),
                   const SizedBox(height: 16),
                   Text(
-                    '텍스트 추출 중...',
+                    AppLocalizations.of(dialogContext)!.extractingText,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
@@ -467,7 +474,7 @@ Future<void> pickImageAndExtractText(
         debugPrint('OCR: 텍스트 추출 결과가 비어있습니다.');
         CustomSnackbar.show(
           parentContext,
-          message: '텍스트를 추출하지 못했습니다. 다른 영역을 선택해보세요.',
+          message: AppLocalizations.of(parentContext)!.ocrExtractionFailed,
           rootOverlay: true,
         );
         onComplete(fullImageBytes, '', null);
@@ -493,7 +500,8 @@ Future<void> pickImageAndExtractText(
   } catch (e) {
     debugPrint('이미지 선택 예외 발생 - $e');
     CustomSnackbar.show(parentContext,
-        message: '이미지를 불러오지 못했습니다.', rootOverlay: true);
+        message: AppLocalizations.of(parentContext)!.imageLoadFailed,
+        rootOverlay: true);
   }
 }
 
@@ -526,7 +534,7 @@ Future<void> reExtractTextFromImage(
             ),
           ),
           Text(
-            '텍스트를 추출하시겠어요?',
+            AppLocalizations.of(bottomSheetContext)!.extractTextConfirmTitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
@@ -537,7 +545,8 @@ Future<void> reExtractTextFromImage(
           ),
           const SizedBox(height: 8),
           Text(
-            '작성하신 텍스트를 덮어씁니다.\n크레딧을 소모합니다.',
+            AppLocalizations.of(bottomSheetContext)!
+                .extractTextOverwriteMessage,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -559,7 +568,7 @@ Future<void> reExtractTextFromImage(
                     ),
                     child: Center(
                       child: Text(
-                        '취소',
+                        AppLocalizations.of(bottomSheetContext)!.commonCancel,
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -580,10 +589,10 @@ Future<void> reExtractTextFromImage(
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
-                        '추출하기',
-                        style: TextStyle(
+                        AppLocalizations.of(bottomSheetContext)!.dialogExtract,
+                        style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
@@ -625,7 +634,7 @@ Future<void> reExtractTextFromImage(
                 const CircularProgressIndicator(color: AppColors.primary),
                 const SizedBox(height: 16),
                 Text(
-                  '이미지 불러오는 중...',
+                  AppLocalizations.of(dialogContext)!.loadingImage,
                   style: TextStyle(
                     fontSize: 14,
                     color: Theme.of(dialogContext).brightness == Brightness.dark
@@ -656,16 +665,16 @@ Future<void> reExtractTextFromImage(
       sourcePath: tempFile.path,
       uiSettings: [
         IOSUiSettings(
-          title: '텍스트 추출 영역 선택',
-          cancelButtonTitle: '취소',
-          doneButtonTitle: '완료',
+          title: AppLocalizations.of(context)!.ocrAreaSelectTitle,
+          cancelButtonTitle: AppLocalizations.of(context)!.commonCancel,
+          doneButtonTitle: AppLocalizations.of(context)!.commonComplete,
           aspectRatioLockEnabled: false,
           resetAspectRatioEnabled: true,
           rotateButtonsHidden: false,
           rotateClockwiseButtonHidden: true,
         ),
         AndroidUiSettings(
-          toolbarTitle: '텍스트 추출 영역 선택',
+          toolbarTitle: AppLocalizations.of(context)!.ocrAreaSelectTitle,
           toolbarColor: AppColors.primary,
           toolbarWidgetColor: Colors.white,
           initAspectRatio: CropAspectRatioPreset.original,
@@ -699,7 +708,7 @@ Future<void> reExtractTextFromImage(
                 const CircularProgressIndicator(color: AppColors.primary),
                 const SizedBox(height: 16),
                 Text(
-                  '텍스트 추출 중...',
+                  AppLocalizations.of(dialogContext)!.extractingText,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
@@ -726,7 +735,8 @@ Future<void> reExtractTextFromImage(
   } catch (e) {
     Navigator.of(context, rootNavigator: true).pop();
     CustomSnackbar.show(context,
-        message: '텍스트 다시 추출에 실패했습니다.', rootOverlay: true);
+        message: AppLocalizations.of(context)!.ocrReExtractionFailed,
+        rootOverlay: true);
   }
 }
 
@@ -761,7 +771,7 @@ Future<void> scanDocumentAndExtractText(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '텍스트를 추출하시겠어요?',
+              AppLocalizations.of(bottomSheetContext)!.extractTextConfirmTitle,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -771,7 +781,8 @@ Future<void> scanDocumentAndExtractText(
             ),
             const SizedBox(height: 8),
             Text(
-              '크레딧을 소모합니다.',
+              AppLocalizations.of(bottomSheetContext)!
+                  .extractTextCreditsMessage,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -792,7 +803,8 @@ Future<void> scanDocumentAndExtractText(
                       ),
                       child: Center(
                         child: Text(
-                          '괜찮아요',
+                          AppLocalizations.of(bottomSheetContext)!
+                              .noThanksButton,
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -813,10 +825,11 @@ Future<void> scanDocumentAndExtractText(
                         color: AppColors.primary,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Text(
-                          '추출할게요',
-                          style: TextStyle(
+                          AppLocalizations.of(bottomSheetContext)!
+                              .extractButton,
+                          style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
@@ -858,7 +871,7 @@ Future<void> scanDocumentAndExtractText(
                 const CircularProgressIndicator(color: AppColors.primary),
                 const SizedBox(height: 16),
                 Text(
-                  '텍스트 추출 중...',
+                  AppLocalizations.of(dialogContext)!.extractingText,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
@@ -883,7 +896,7 @@ Future<void> scanDocumentAndExtractText(
       debugPrint('OCR: 텍스트 추출 결과가 비어있습니다.');
       CustomSnackbar.show(
         parentContext,
-        message: '텍스트를 추출하지 못했습니다.',
+        message: AppLocalizations.of(parentContext)!.ocrExtractionFailed,
         rootOverlay: true,
       );
       onComplete(scannedBytes, '', null);
@@ -897,7 +910,7 @@ Future<void> scanDocumentAndExtractText(
       context: parentContext,
       initialText: extractedText,
       pageNumber: pageNumber,
-      cancelButtonText: '다시 스캔',
+      cancelButtonText: AppLocalizations.of(parentContext)!.reScanButton,
     );
 
     if (modifiedText != null) {
@@ -909,7 +922,7 @@ Future<void> scanDocumentAndExtractText(
     debugPrint('문서 스캔 및 OCR 실패: $e');
     CustomSnackbar.show(
       parentContext,
-      message: '문서 스캔에 실패했습니다.',
+      message: AppLocalizations.of(parentContext)!.documentScanFailed,
       rootOverlay: true,
     );
   }

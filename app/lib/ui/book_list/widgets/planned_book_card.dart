@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
@@ -17,6 +18,7 @@ class PlannedBookCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     final daysUntilStart =
         book.plannedStartDate?.difference(DateTime.now()).inDays;
@@ -74,7 +76,7 @@ class PlannedBookCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   if (book.plannedStartDate != null)
                     Text(
-                      '시작 예정: ${book.plannedStartDate!.toString().substring(0, 10)}${daysUntilStart != null ? " (D${daysUntilStart >= 0 ? '-' : '+'}${daysUntilStart.abs()})" : ""}',
+                      '${l10n.bookListPlannedStartDate(book.plannedStartDate!.toString().substring(0, 10))}${daysUntilStart != null ? " (D${daysUntilStart >= 0 ? '-' : '+'}${daysUntilStart.abs()})" : ""}',
                       style: TextStyle(
                         fontSize: 13,
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -82,7 +84,7 @@ class PlannedBookCard extends StatelessWidget {
                     )
                   else
                     Text(
-                      '시작일 미정',
+                      l10n.bookListUndetermined,
                       style: TextStyle(
                         fontSize: 13,
                         color: isDark ? Colors.grey[500] : Colors.grey[500],
@@ -99,7 +101,7 @@ class PlannedBookCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          _getPriorityLabel(book.priority!),
+                          _getPriorityLabel(book.priority!, l10n),
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -136,16 +138,16 @@ class PlannedBookCard extends StatelessWidget {
     }
   }
 
-  String _getPriorityLabel(int priority) {
+  String _getPriorityLabel(int priority, AppLocalizations l10n) {
     switch (priority) {
       case 1:
-        return '긴급';
+        return l10n.priorityUrgent;
       case 2:
-        return '높음';
+        return l10n.priorityHigh;
       case 3:
-        return '보통';
+        return l10n.priorityMedium;
       case 4:
-        return '낮음';
+        return l10n.priorityLow;
       default:
         return '';
     }

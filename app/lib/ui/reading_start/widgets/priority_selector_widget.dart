@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class PrioritySelectorWidget extends StatelessWidget {
@@ -15,11 +17,12 @@ class PrioritySelectorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '우선순위 (선택사항)',
+          l10n.readingStartPriority,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -29,13 +32,13 @@ class PrioritySelectorWidget extends StatelessWidget {
         const SizedBox(height: 12),
         Row(
           children: [
-            _buildPriorityButton(1, '긴급', AppColors.error),
+            _buildPriorityButton(1, l10n.priorityUrgent, AppColors.error),
             const SizedBox(width: 8),
-            _buildPriorityButton(2, '높음', AppColors.warning),
+            _buildPriorityButton(2, l10n.priorityHigh, AppColors.warning),
             const SizedBox(width: 8),
-            _buildPriorityButton(3, '보통', AppColors.primary),
+            _buildPriorityButton(3, l10n.priorityMedium, AppColors.primary),
             const SizedBox(width: 8),
-            _buildPriorityButton(4, '낮음', AppColors.successAlt),
+            _buildPriorityButton(4, l10n.priorityLow, AppColors.successAlt),
           ],
         ),
       ],

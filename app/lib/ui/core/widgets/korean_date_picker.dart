@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:book_golas/l10n/app_localizations.dart';
+
 class KoreanDatePicker extends StatefulWidget {
   final bool isDark;
   final DateTime selectedDate;
@@ -73,10 +75,41 @@ class _KoreanDatePickerState extends State<KoreanDatePicker> {
     }
   }
 
+  String _getMonthName(int month, AppLocalizations l10n) {
+    switch (month) {
+      case 1:
+        return l10n.datePickerMonthJan;
+      case 2:
+        return l10n.datePickerMonthFeb;
+      case 3:
+        return l10n.datePickerMonthMar;
+      case 4:
+        return l10n.datePickerMonthApr;
+      case 5:
+        return l10n.datePickerMonthMay;
+      case 6:
+        return l10n.datePickerMonthJun;
+      case 7:
+        return l10n.datePickerMonthJul;
+      case 8:
+        return l10n.datePickerMonthAug;
+      case 9:
+        return l10n.datePickerMonthSep;
+      case 10:
+        return l10n.datePickerMonthOct;
+      case 11:
+        return l10n.datePickerMonthNov;
+      case 12:
+        return l10n.datePickerMonthDec;
+      default:
+        return '$month';
+    }
+  }
+
   Widget _buildWheel({
     required List<int> items,
     required FixedExtentScrollController controller,
-    required String suffix,
+    required String Function(int) formatter,
     required Function(int) onSelected,
     double width = 80,
   }) {
@@ -97,7 +130,7 @@ class _KoreanDatePickerState extends State<KoreanDatePicker> {
                 : items.indexOf(items[index]) == controller.initialItem;
             return Center(
               child: Text(
-                '${items[index]}$suffix',
+                formatter(items[index]),
                 style: TextStyle(
                   fontSize: isSelected ? 20 : 16,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -116,47 +149,61 @@ class _KoreanDatePickerState extends State<KoreanDatePicker> {
   @override
   Widget build(BuildContext context) {
     final daysInCurrentMonth = _getDaysInMonth(_currentYear, _currentMonth);
+    final localizations = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context);
+    final isKorean = locale.languageCode == 'ko';
 
+    // Year wheel
+    final yearWheel = _buildWheel(
+      items: _years,
+      controller: _yearController,
+      formatter: (year) => '$year${localizations.koreanDatePickerYear}',
+      width: isKorean ? 90 : 80,
+      onSelected: (year) {
+        setState(() {
+          _currentYear = year;
+        });
+        _onDatePartChanged();
+      },
+    );
+
+    // Month wheel
+    final monthWheel = _buildWheel(
+      items: _months,
+      controller: _monthController,
+      formatter: (month) => isKorean
+          ? '$month${localizations.koreanDatePickerMonth}'
+          : _getMonthName(month, localizations),
+      width: isKorean ? 70 : 60,
+      onSelected: (month) {
+        setState(() {
+          _currentMonth = month;
+        });
+        _onDatePartChanged();
+      },
+    );
+
+    // Day wheel
+    final dayWheel = _buildWheel(
+      items: List.generate(daysInCurrentMonth, (i) => i + 1),
+      controller: _dayController,
+      formatter: (day) => '$day${localizations.koreanDatePickerDay}',
+      width: isKorean ? 70 : 50,
+      onSelected: (day) {
+        setState(() {
+          _currentDay = day;
+        });
+        _onDatePartChanged();
+      },
+    );
+
+    // Korean: Year - Month - Day
+    // English: Day - Month - Year
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildWheel(
-          items: _years,
-          controller: _yearController,
-          suffix: '년',
-          width: 90,
-          onSelected: (year) {
-            setState(() {
-              _currentYear = year;
-            });
-            _onDatePartChanged();
-          },
-        ),
-        _buildWheel(
-          items: _months,
-          controller: _monthController,
-          suffix: '월',
-          width: 70,
-          onSelected: (month) {
-            setState(() {
-              _currentMonth = month;
-            });
-            _onDatePartChanged();
-          },
-        ),
-        _buildWheel(
-          items: List.generate(daysInCurrentMonth, (i) => i + 1),
-          controller: _dayController,
-          suffix: '일',
-          width: 70,
-          onSelected: (day) {
-            setState(() {
-              _currentDay = day;
-            });
-            _onDatePartChanged();
-          },
-        ),
-      ],
+      children: isKorean
+          ? [yearWheel, monthWheel, dayWheel]
+          : [dayWheel, monthWheel, yearWheel],
     );
   }
 }

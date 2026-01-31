@@ -1,6 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/utils/number_format_utils.dart';
 
 /// 월별 독서량 바 차트
 ///
@@ -70,7 +72,7 @@ class MonthlyBooksChart extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  '$year년 월별 독서량',
+                  AppLocalizations.of(context)!.chartMonthlyBooksTitle(year),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -84,17 +86,19 @@ class MonthlyBooksChart extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildStatColumn(
-                  label: '이번 달',
-                  value: '$thisMonth권',
+                  label:
+                      AppLocalizations.of(context)!.chartMonthlyBooksThisMonth,
+                  value: formatBooksCount(thisMonth, context),
                   isDark: isDark,
                 ),
                 _buildStatColumn(
-                  label: '지난 달',
-                  value: '$lastMonth권',
+                  label:
+                      AppLocalizations.of(context)!.chartMonthlyBooksLastMonth,
+                  value: formatBooksCount(lastMonth, context),
                   isDark: isDark,
                 ),
                 _buildStatColumn(
-                  label: '증감',
+                  label: AppLocalizations.of(context)!.chartMonthlyBooksChange,
                   value: diff >= 0 ? '+$diffPercent%' : '$diffPercent%',
                   isDark: isDark,
                   valueColor:
@@ -116,7 +120,9 @@ class MonthlyBooksChart extends StatelessWidget {
                           isDark ? Colors.grey[800]! : Colors.grey[200]!,
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
                         return BarTooltipItem(
-                          '${groupIndex + 1}월\n${rod.toY.toInt()}권',
+                          AppLocalizations.of(context)!
+                              .chartMonthlyBooksTooltip(
+                                  groupIndex + 1, rod.toY.toInt()),
                           TextStyle(
                             color: isDark ? Colors.white : Colors.black87,
                             fontWeight: FontWeight.bold,

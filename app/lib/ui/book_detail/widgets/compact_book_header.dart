@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
@@ -60,7 +61,7 @@ class CompactBookHeader extends StatelessWidget {
               children: [
                 _buildTitle(isDark),
                 const SizedBox(height: 4),
-                _buildAuthorAndStatus(isDark),
+                _buildAuthorAndStatus(context, isDark),
               ],
             ),
           ),
@@ -122,7 +123,7 @@ class CompactBookHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildAuthorAndStatus(bool isDark) {
+  Widget _buildAuthorAndStatus(BuildContext context, bool isDark) {
     return Row(
       children: [
         if (author != null) ...[
@@ -146,13 +147,13 @@ class CompactBookHeader extends StatelessWidget {
             ),
           ),
         ],
-        _buildStatusBadge(),
+        _buildStatusBadge(context),
       ],
     );
   }
 
-  Widget _buildStatusBadge() {
-    final statusInfo = _getStatusInfo();
+  Widget _buildStatusBadge(BuildContext context) {
+    final statusInfo = _getStatusInfo(context);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -185,19 +186,21 @@ class CompactBookHeader extends StatelessWidget {
     );
   }
 
-  ({String label, Color color}) _getStatusInfo() {
+  ({String label, Color color}) _getStatusInfo(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (isCompleted) {
-      return (label: '완독', color: AppColors.success);
+      return (label: l10n.statusCompleted, color: AppColors.success);
     }
 
     switch (status) {
       case 'planned':
-        return (label: '읽을 예정', color: AppColors.purple);
+        return (label: l10n.statusPlanned, color: AppColors.purple);
       case 'will_retry':
-        return (label: '다시 읽을 책', color: AppColors.warning);
+        return (label: l10n.statusReread, color: AppColors.warning);
       case 'reading':
       default:
-        return (label: '독서 중', color: AppColors.primary);
+        return (label: l10n.statusReading, color: AppColors.primary);
     }
   }
 }

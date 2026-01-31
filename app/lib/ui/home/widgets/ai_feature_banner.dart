@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:book_golas/l10n/app_localizations.dart';
+
 class AiFeatureBanner extends StatelessWidget {
   final VoidCallback onRecallTap;
   final VoidCallback onRecommendTap;
@@ -53,7 +55,7 @@ class AiFeatureBanner extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Text(
-                'AI 기능',
+                AppLocalizations.of(context)!.aiFeaturesTitle,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -69,7 +71,7 @@ class AiFeatureBanner extends StatelessWidget {
                 child: _buildFeatureButton(
                   context: context,
                   icon: Icons.search,
-                  label: '기록 검색',
+                  label: AppLocalizations.of(context)!.searchRecordsButton,
                   onTap: onRecallTap,
                   isDark: isDark,
                 ),
@@ -79,7 +81,7 @@ class AiFeatureBanner extends StatelessWidget {
                 child: _buildFeatureButton(
                   context: context,
                   icon: Icons.lightbulb_outline,
-                  label: '책 추천',
+                  label: AppLocalizations.of(context)!.bookRecommendButton,
                   onTap: onRecommendTap,
                   isDark: isDark,
                 ),
@@ -107,7 +109,7 @@ class AiFeatureBanner extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -116,13 +118,17 @@ class AiFeatureBanner extends StatelessWidget {
                 size: 18,
                 color: const Color(0xFF5B7FFF),
               ),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: isDark ? Colors.white : Colors.black87,
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],

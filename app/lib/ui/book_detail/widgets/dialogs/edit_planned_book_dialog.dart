@@ -1,5 +1,6 @@
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 
 import 'package:book_golas/ui/core/widgets/korean_date_picker.dart';
 import 'package:book_golas/ui/reading_start/widgets/priority_selector_widget.dart';
@@ -85,7 +86,7 @@ class _EditPlannedBookDialogState extends State<EditPlannedBookDialog> {
                 const SizedBox(height: 20),
                 Center(
                   child: Text(
-                    '독서 계획 수정',
+                    AppLocalizations.of(context)!.editReadingPlanTitle,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -103,7 +104,7 @@ class _EditPlannedBookDialogState extends State<EditPlannedBookDialog> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  '시작 예정일',
+                  AppLocalizations.of(context)!.editPlannedStartDate,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -114,9 +115,8 @@ class _EditPlannedBookDialogState extends State<EditPlannedBookDialog> {
                 Container(
                   height: 150,
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? AppColors.subtleDark
-                        : AppColors.grey50Light,
+                    color:
+                        isDark ? AppColors.subtleDark : AppColors.grey50Light,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: KoreanDatePicker(
@@ -146,7 +146,7 @@ class _EditPlannedBookDialogState extends State<EditPlannedBookDialog> {
                           ),
                         ),
                         child: Text(
-                          '취소',
+                          AppLocalizations.of(context)!.commonCancel,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
