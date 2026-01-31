@@ -261,12 +261,11 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (_) => ThemeViewModel()),
         ChangeNotifierProvider(create: (_) => OnboardingViewModel()),
-        ChangeNotifierProvider<NoteStructureViewModel>(
-          create: (context) => NoteStructureViewModel(
-            service: context.read<NoteStructureService>(),
+        ChangeNotifierProvider(
+          create: (_) => ReadingInsightsViewModel(
+            userId: Supabase.instance.client.auth.currentUser!.id,
           ),
         ),
-        ChangeNotifierProvider(create: (_) => MyLibraryViewModel()),
       ],
       child: Consumer<ThemeViewModel>(
         builder: (context, themeViewModel, child) {
@@ -508,7 +507,6 @@ class _MainScreenState extends State<MainScreen>
             _addMemorablePageCallback = addMemorable;
           },
         ),
-        MyLibraryScreen(key: MyLibraryScreen.globalKey),
         ReadingChartScreen(key: ReadingChartScreen.globalKey),
         const CalendarScreen(),
         const MyPageScreen(),
@@ -519,9 +517,6 @@ class _MainScreenState extends State<MainScreen>
       HapticFeedback.lightImpact();
       context.read<BookListViewModel>().cycleToNextTab();
     } else if (index == 1 && _selectedIndex == 1) {
-      HapticFeedback.lightImpact();
-      MyLibraryScreen.cycleToNextTab();
-    } else if (index == 2 && _selectedIndex == 2) {
       HapticFeedback.lightImpact();
       ReadingChartScreen.cycleToNextTab();
     } else {
