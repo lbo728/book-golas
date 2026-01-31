@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/core/widgets/timer_button.dart';
 
 class FloatingActionBar extends StatelessWidget {
   final VoidCallback? onUpdatePageTap;
@@ -71,43 +72,9 @@ class FloatingActionBar extends StatelessWidget {
   }
 
   Widget _buildTimerButtonCircle(bool isDark) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(100),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTimerTap,
-            borderRadius: BorderRadius.circular(100),
-            child: Container(
-              width: 62,
-              height: 62,
-              decoration: BoxDecoration(
-                color: isDark
-                    ? AppColors.primary
-                        .withValues(alpha: isTimerRunning ? 0.5 : 0.3)
-                    : AppColors.primary
-                        .withValues(alpha: isTimerRunning ? 0.35 : 0.15),
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isDark
-                      ? AppColors.primary.withValues(alpha: 0.5)
-                      : AppColors.primary.withValues(alpha: 0.3),
-                  width: 0.5,
-                ),
-              ),
-              child: Icon(
-                isTimerRunning
-                    ? CupertinoIcons.pause_circle_fill
-                    : CupertinoIcons.timer,
-                size: 22,
-                color: AppColors.primary,
-              ),
-            ),
-          ),
-        ),
-      ),
+    return TimerButton(
+      onTap: onTimerTap,
+      isRunning: isTimerRunning,
     );
   }
 
