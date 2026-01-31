@@ -1,5 +1,6 @@
 {
   "@@locale": "en",
+  
   "appTitle": "BookGolas",
   "commonCancel": "Cancel",
   "commonConfirm": "OK",
@@ -12,14 +13,16 @@
   "commonNext": "Next",
   "commonSkip": "Skip",
   "commonStart": "Get Started",
+  
   "navHome": "Home",
   "navLibrary": "Library",
   "navStats": "Stats",
   "navCalendar": "Calendar",
+  
   "booksCount": "{count, plural, =1{1 book} other{{count} books}}",
   "daysCount": "{count, plural, =1{1 day} other{{count} days}}",
   "pagesCount": "{count, plural, =1{1 page} other{{count} pages}}",
-  "unitPages": "pages",
+  
   "weekdayMon": "Mon",
   "weekdayTue": "Tue",
   "weekdayWed": "Wed",
@@ -27,1149 +30,713 @@
   "weekdayFri": "Fri",
   "weekdaySat": "Sat",
   "weekdaySun": "Sun",
+  
   "timeAm": "AM",
   "timePm": "PM",
+  
   "unitYear": "",
   "unitMonth": "",
   "unitDay": "",
   "unitHour": "",
   "unitMinute": "",
+  
   "statusReading": "Reading",
   "statusPlanned": "To Read",
   "statusCompleted": "Completed",
   "statusReread": "Reread",
+  
   "priorityUrgent": "Urgent",
   "priorityHigh": "High",
   "priorityMedium": "Medium",
   "priorityLow": "Low",
-  "contentTypeHighlight": "Highlight",
-  "contentTypeMemo": "Memo",
-  "contentTypePhoto": "Photo",
-  "languageSettingLabel": "Language",
-  "homeBookList": "Book List",
-  "homeNoReadingBooks": "No books in progress. Please register a book first.",
-  "homeNoReadingBooksShort": "No books in progress",
-  "homeViewAllBooks": "View all books",
-  "homeViewReadingOnly": "View reading only",
-  "homeViewAllBooksMessage": "Switched to view all books.",
-  "homeViewReadingMessage": "Switched to view reading books.",
-  "bookListTabReading": "Reading",
-  "bookListTabPlanned": "To Read",
-  "bookListTabCompleted": "Completed",
-  "bookListTabReread": "Reread",
-  "bookListTabAll": "All",
-  "bookListFilterAll": "All",
-  "bookListErrorLoadFailed": "Unable to load data",
-  "bookListErrorNetworkCheck": "Please check your network connection",
-  "bookListEmptyReading": "No books in progress",
-  "bookListEmptyPlanned": "No books to read",
-  "bookListEmptyCompleted": "No completed books",
-  "bookListEmptyPaused": "No paused books",
-  "bookListEmptyAll": "No reading started yet",
-  "bookDetailTabRecord": "Record",
-  "bookDetailTabHistory": "History",
-  "bookDetailTabReview": "Review",
-  "bookDetailTabDetail": "Details",
-  "bookDetailStartDate": "Start Date",
-  "bookDetailTargetDate": "Target Date",
-  "bookDetailReviewWritten": "Written",
-  "bookDetailReviewNotWritten": "Not written yet",
-  "bookDetailLegendAchieved": "Achieved",
-  "bookDetailLegendMissed": "Missed",
-  "bookDetailLegendScheduled": "Scheduled",
-  "bookDetailLater": "Later",
-  "myLibraryTitle": "My Library",
-  "myLibraryTabReading": "Reading",
-  "myLibraryTabReview": "Review",
-  "myLibraryTabRecord": "Record",
-  "myLibrarySearchHint": "Search by title or author",
-  "myLibraryNoSearchResults": "No search results",
-  "myLibraryNoBooks": "No books registered",
-  "myLibraryNoReviewBooks": "No books with reviews",
-  "myLibraryNoRecords": "No records",
-  "myLibraryAiSearch": "AI Search All Records",
-  "myLibraryFilterAll": "All",
-  "myLibraryFilterHighlight": "✨ Highlight",
-  "myLibraryFilterMemo": "📝 Memo",
-  "myLibraryFilterPhoto": "📷 Photo",
-  "chartTitle": "My Reading Stats",
-  "chartTabOverview": "Overview",
-  "chartTabAnalysis": "Analysis",
-  "chartTabActivity": "Activity",
-  "chartPeriodDaily": "Daily",
-  "chartPeriodWeekly": "Weekly",
-  "chartPeriodMonthly": "Monthly",
-  "chartDailyAverage": "Daily Avg",
-  "chartIncrease": "Change",
-  "chartLess": "Less",
-  "chartMore": "More",
-  "chartErrorLoadFailed": "Unable to load data",
-  "chartErrorRetry": "Retry",
-  "chartTotalPages": "Total Pages Read",
-  "chartDailyAvgPages": "Daily Average",
-  "chartMaxDaily": "Best Record",
-  "chartMinDaily": "Lowest Record",
-  "chartConsecutiveDays": "Consecutive Days",
-  "chartTodayGoal": "Today's Goal",
-  "chartReadingProgress": "Reading Progress",
-  "chartDailyPages": "Daily Pages",
-  "chartCumulativePages": "Cumulative Pages",
-  "chartNoData": "No data yet",
-  "chartDailyReadPages": "Pages Read",
-  "chartReadingStats": "Reading Statistics",
-  "chartAiInsight": "AI Insight",
-  "chartCompletionRate": "Completion Rate",
-  "chartRecordsHighlights": "Records/Highlights",
-  "chartGenreAnalysis": "Genre Analysis",
-  "chartNoReadingRecords": "No reading records",
-  "myPageTitle": "My Page",
-  "myPageSettings": "Settings",
-  "myPageChangeAvatar": "Change",
-  "myPageLogout": "Logout",
-  "myPageDeleteAccount": "Delete Account",
-  "myPageDeleteAccountConfirm": "Are you sure you want to delete your account?\n\nThis action cannot be undone, and all data will be permanently deleted.",
-  "myPageDeleteAccountSuccess": "Account successfully deleted.",
-  "myPageDeleteAccountFailed": "Failed to delete account. Please try again.",
-  "myPageDeleteAccountError": "An error occurred: {error}",
-  "@myPageDeleteAccountError": {
-    "description": "Error message when deleting account",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "myPageNotificationTimeTitle": "Set Notification Time",
-  "myPageNoNickname": "No nickname",
-  "myPageNicknameHint": "Enter your nickname",
-  "myPageDarkMode": "Dark Mode",
-  "myPageDailyReadingNotification": "Daily Reading Goal Notification",
-  "myPageNotificationTime": "Daily notification at {time}",
-  "@myPageNotificationTime": {
-    "description": "Notification time display",
-    "placeholders": {
-      "time": {
-        "type": "String"
-      }
-    }
-  },
-  "myPageNoNotification": "No notifications",
-  "myPageNotificationEnabled": "Notifications enabled",
-  "myPageNotificationDisabled": "Notifications disabled",
-  "myPageNotificationChangeFailed": "Failed to change notification settings",
-  "myPageTestNotification": "Test (30s)",
-  "myPageTestNotificationSent": "Test notification will be sent in 30 seconds!",
-  "myPageAvatarChanged": "Profile image changed",
-  "myPageAvatarChangeFailed": "Failed to change profile image: {error}",
-  "@myPageAvatarChangeFailed": {
-    "description": "Error message when changing avatar",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "loginAppName": "BookGolas",
-  "loginEmailLabel": "Email",
-  "loginPasswordLabel": "Password",
-  "loginNicknameLabel": "Nickname",
-  "loginOrDivider": "or",
-  "loginButton": "Login",
-  "loginSignupButton": "Sign Up",
-  "loginDescriptionSignIn": "One page a day,\nwe support your reading",
-  "loginDescriptionSignUp": "Start your reading habit\nwith BookGolas",
-  "loginDescriptionForgotPassword": "We'll send a password reset link\nto your registered email",
-  "loginEmailHint": "example@email.com",
-  "loginPasswordHint": "Enter 6 or more characters",
-  "loginNicknameHint": "Name to use in the app",
-  "loginEmailRequired": "Please enter your email",
-  "loginEmailInvalid": "Please enter a valid email address",
-  "loginPasswordRequired": "Please enter your password",
-  "loginPasswordTooShort": "Password must be at least 6 characters",
-  "loginNicknameRequired": "Please enter your nickname",
-  "loginForgotPassword": "Forgot your password?",
-  "loginNoAccount": "Don't have an account? Sign Up",
-  "loginHaveAccount": "Already have an account? Login",
-  "loginBackToSignIn": "Back to Login",
-  "loginSaveEmail": "Save email",
-  "loginSignupSuccess": "Sign up complete. Please check your email.",
-  "loginResetPasswordSuccess": "Password reset email sent.",
-  "loginUnexpectedError": "An unexpected error occurred.",
-  "loginErrorInvalidCredentials": "Invalid email or password.",
-  "loginErrorEmailNotConfirmed": "Email verification is not complete.",
-  "loginErrorEmailAlreadyRegistered": "This email is already registered.",
-  "loginErrorPasswordTooShort": "Password must be at least 6 characters.",
-  "reviewTitle": "Book Review",
-  "reviewSave": "Save",
-  "reviewReplace": "Replace",
-  "reviewExit": "Exit",
-  "reviewDraftLoaded": "Draft loaded successfully.",
-  "reviewCopied": "Review copied.",
-  "reviewBookNotFound": "Book information not found.",
-  "reviewSaveFailed": "Failed to save. Please try again.",
-  "reviewSaveError": "An error occurred while saving.",
-  "reviewReplaceConfirm": "You have unsaved content.\nDo you want to replace it with AI draft?",
-  "reviewReplaceButton": "Replace",
-  "reviewAIDraftGenerated": "AI draft generated. Feel free to edit!",
-  "reviewAIDraftFailed": "Failed to generate AI draft. Please try again.",
-  "reviewAIDraftError": "An error occurred while generating AI draft.",
-  "reviewSaveComplete": "Review saved!",
-  "reviewSaveCompleteMessage": "Your saved review can be found in the 'Review' tab or\n'My Library > Review'.",
-  "reviewExitConfirm": "Stop writing and exit?",
-  "reviewExitMessage": "Your draft will be saved automatically.",
-  "reviewHint": "Write freely about your thoughts, impressive parts, and inspiration from this book.",
-  "readingStartSetDate": "Set Start Date",
-  "readingStartUndetermined": "TBD",
-  "readingStartTitle": "Start Reading",
-  "readingStartSubtitle": "Search for a book to start reading",
-  "readingStartNoResults": "No search results",
-  "readingStartAnalyzing": "Analyzing reading patterns...",
-  "readingStartAiRecommendation": "AI Personalized Recommendations",
-  "readingStartAiRecommendationDesc": "Books recommended based on {userName}'s reading patterns",
-  "@readingStartAiRecommendationDesc": {
-    "description": "AI recommendation description",
-    "placeholders": {
-      "userName": {
-        "type": "String"
-      }
-    }
-  },
-  "readingStartSearchHint": "Enter book title",
-  "readingStartSelectionComplete": "Selection Complete",
-  "readingStartConfirm": "OK",
-  "readingStartPages": "{totalPages} pages",
-  "@readingStartPages": {
-    "description": "Total pages display",
-    "placeholders": {
-      "totalPages": {
-        "type": "num"
-      }
-    }
-  },
-  "readingStartPlannedDate": "Planned Reading Start Date",
-  "readingStartToday": "Starting today",
-  "readingStartTargetDate": "Target Deadline",
-  "readingStartTargetDateNote": "You can change the target date even after starting to read",
-  "readingStartSaveError": "Failed to save reading information",
-  "readingStartReserve": "Reserve Reading",
-  "readingStartBegin": "Start Reading",
-  "dialogOpacity": "Opacity",
-  "dialogThickness": "Thickness",
-  "dialogTakePhoto": "Take Photo",
-  "dialogReplaceImage": "Replace",
-  "dialogViewFull": "View Full",
-  "dialogCopy": "Copy",
-  "dialogEdit": "Edit",
-  "dialogSaved": "Saved",
-  "dialogSaving": "Saving...",
-  "dialogUpload": "Upload",
-  "dialogSelect": "Select",
-  "dialogApply": "Apply",
-  "dialogExtract": "Extract",
-  "dialogOkay": "Okay",
-  "dialogExtractIt": "Extract It",
-  "dialogThinkAboutIt": "Think About It",
-  "genreNovel": "Novel",
-  "genreLiterature": "Literature",
-  "genreSelfHelp": "Self-Help",
-  "genreBusiness": "Business",
-  "genreHumanities": "Humanities",
-  "genreScience": "Science",
-  "genreHistory": "History",
-  "genreEssay": "Essay",
-  "genrePoetry": "Poetry",
-  "genreComic": "Comic",
-  "genreUncategorized": "Uncategorized",
-  "errorInitFailed": "Initialization failed",
-  "errorLoadFailed": "Failed to load",
-  "errorNoRecords": "No records",
-  "loadingInit": "Initializing app...",
-  "calendarMonthSelect": "Select Month",
-  "calendarPagesRead": "{count, plural, =1{1 page read} other{{count} pages read}}",
-  "calendarCompleted": "Completed",
-  "onboardingTitle1": "Record Your Own Reading Journey",
-  "onboardingDescription1": "Register books you want to read,\nand manage your reading goals and progress at a glance.",
-  "onboardingTitle2": "Search Your Reading Records with AI",
-  "onboardingDescription2": "Search for content you remember,\nand AI will find related notes and books for you.",
-  "onboardingTitle3": "Get Book Recommendations",
-  "onboardingDescription3": "Based on the books you've read so far,\nAI recommends books tailored to your taste.",
-  "readingProgressTitle": "Reading Progress History",
-  "readingProgressLoadFailed": "Failed to load progress",
-  "readingProgressNoRecords": "No progress records",
-  "barcodeScannerTitle": "Scan ISBN Barcode",
-  "barcodeScannerHint": "Scan the ISBN barcode on the back of the book",
-  "scannerErrorPermissionDenied": "Camera permission required\nPlease allow camera access in settings",
-  "scannerErrorInitializing": "Initializing camera",
-  "scannerErrorDefault": "Camera error occurred\nPlease try again",
-  "bookstoreSelectTitle": "Select Bookstore",
-  "bookstoreAladdin": "Aladin",
-  "bookstoreKyobo": "Kyobo",
-  "expandedNavBackToDetail": "Back to Reading Detail",
-  "extractedTextTitle": "Extracted Text",
-  "extractedTextSubtitle": "Check the extracted content. You can edit it directly!",
-  "extractedTextApplyButton": "Apply",
-  "extractedTextCancelButton": "Select Again",
-  "extractedTextHint": "Enter text",
-  "fullTextViewTitle": "Text Record",
-  "fullTextViewHint": "Enter text...",
-  "fullTextViewCopied": "Text copied.",
-  "highlightEditTitle": "Edit Highlight",
-  "highlightEditOpacity": "Opacity",
-  "highlightEditThickness": "Thickness",
-  "koreanDatePickerYear": "",
-  "koreanDatePickerMonth": "",
-  "koreanDatePickerDay": "",
-  "koreanTimePickerHour": "",
-  "koreanTimePickerMinute": "",
-  "koreanYearMonthPickerYear": "",
-  "koreanYearMonthPickerMonth": "",
-  "liquidGlassSearchHint": "Enter book title",
-  "readingDetailPageUpdate": "Update Pages",
-  "recommendationViewDetail": "View Book Details",
-  "recommendationViewDetailSubtitle": "Check book information at the bookstore",
-  "recommendationStartReading": "Start Reading",
-  "recommendationStartReadingSubtitle": "Start reading this book",
-  "recommendationBookstoreSelect": "Select Bookstore",
-  "chartAiInsightTitle": "AI Insight",
-  "chartAiInsightAnalyzing": "Analyzing your reading patterns...",
-  "chartAiInsightUnknownError": "An unknown error occurred",
-  "chartAiInsightRetry": "Retry",
-  "chartAiInsightMinBooksRequired": "Read more books to get AI insights",
-  "chartAiInsightMinBooksMessage": "Books completed: {count}",
-  "@chartAiInsightMinBooksMessage": {
-    "description": "Minimum books required message",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "chartAiInsightMinBooksHint": "Minimum 3 books, recommended 5+",
-  "chartAiInsightGenerateButton": "Analyze",
-  "chartAiInsightEmptyState": "Click the button below to generate insights",
-  "chartAiInsightAlreadyAnalyzed": "Already analyzed today. Try again tomorrow.",
-  "chartAiInsightClearMemory": "Clear Insight History",
-  "chartAiInsightClearMemoryTitle": "Clear Insight History",
-  "chartAiInsightClearMemoryMessage": "Are you sure you want to delete all insight history?\nThis action cannot be undone.",
-  "chartAiInsightClearMemoryCancel": "Cancel",
-  "chartAiInsightClearMemoryConfirm": "Delete",
-  "chartAiInsightSampleLabel": "(Sample)",
-  "chartAnnualGoalTitle": "{year} Reading Goal",
-  "@chartAnnualGoalTitle": {
-    "description": "Annual goal card title",
-    "placeholders": {
-      "year": {
-        "type": "int"
-      }
-    }
-  },
-  "chartAnnualGoalAchieved": "{percent}% Achieved",
-  "@chartAnnualGoalAchieved": {
-    "description": "Achievement percentage",
-    "placeholders": {
-      "percent": {
-        "type": "int"
-      }
-    }
-  },
-  "chartAnnualGoalRemaining": "{count} books remaining",
-  "@chartAnnualGoalRemaining": {
-    "description": "Remaining books count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "chartAnnualGoalAchievedMessage": "Congratulations! You've achieved this year's goal!",
-  "chartAnnualGoalAheadMessage": "You've read {count} more books than expected!",
-  "@chartAnnualGoalAheadMessage": {
-    "description": "Ahead of schedule message",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "chartAnnualGoalMotivationMessage": "Keep going! You can reach your goal!",
-  "chartAnnualGoalSetGoal": "Set Goal",
-  "chartAnnualGoalSetGoalMessage": "Set your reading goal to see your progress at a glance",
-  "chartAnnualGoalEditGoal": "Edit Goal",
-  "chartCompletionRateTitle": "Reading Completion",
-  "chartCompletionRateLabel": "Completion Rate",
-  "chartCompletionRateBooks": "{count} books completed",
-  "@chartCompletionRateBooks": {
-    "description": "Completed books count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "chartAbandonRateLabel": "Abandon Rate",
-  "chartAbandonRateBooks": "{count} books abandoned",
-  "@chartAbandonRateBooks": {
-    "description": "Abandoned books count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "chartRetrySuccessRateLabel": "Retry Success Rate",
-  "chartRetrySuccessRateBooks": "Completed after retry",
-  "chartCompletionRateSummaryStarted": "Started",
-  "chartCompletionRateSummaryCompleted": "Completed",
-  "chartCompletionRateSummaryInProgress": "In Progress",
-  "chartCompletionRateSummaryAbandoned": "Abandoned",
-  "chartCompletionRateEmptyMessage": "No completed books yet",
-  "chartCompletionRateEmptyHint": "Read and complete books to see your completion rate",
-  "chartGenreAnalysisTitle": "Genre Analysis",
-  "chartGenreAnalysisTotalCompleted": "Total Completed",
-  "chartGenreAnalysisDiversity": "Genre Diversity",
-  "chartGenreAnalysisEmptyMessage": "No completed books yet",
-  "chartGenreAnalysisEmptyHint": "Complete books to see genre statistics!",
-  "chartHighlightStatsTitle": "Highlights & Records",
-  "chartHighlightStatsHighlights": "Highlights",
-  "chartHighlightStatsMemos": "Memos",
-  "chartHighlightStatsPhotos": "Photos",
-  "chartHighlightStatsByGenre": "Highlights by Genre",
-  "chartHighlightStatsEmptyMessage": "No highlights yet",
-  "chartHighlightStatsEmptyHint": "Highlight important parts while reading",
-  "chartMonthlyBooksTitle": "{year} Monthly Reading",
-  "@chartMonthlyBooksTitle": {
-    "description": "Monthly books chart title",
-    "placeholders": {
-      "year": {
-        "type": "int"
-      }
-    }
-  },
-  "chartMonthlyBooksThisMonth": "This Month",
-  "chartMonthlyBooksLastMonth": "Last Month",
-  "chartMonthlyBooksChange": "Change",
-  "chartMonthlyBooksMonth": "{month}",
-  "@chartMonthlyBooksMonth": {
-    "description": "Month number",
-    "placeholders": {
-      "month": {
-        "type": "int"
-      }
-    }
-  },
-  "chartMonthlyBooksTooltip": "{month} month\n{count} books",
-  "@chartMonthlyBooksTooltip": {
-    "description": "Monthly books tooltip",
-    "placeholders": {
-      "month": {
-        "type": "int"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "chartReadingStreakTitle": "{year} Reading Heatmap",
-  "@chartReadingStreakTitle": {
-    "description": "Reading streak heatmap title",
-    "placeholders": {
-      "year": {
-        "type": "int"
-      }
-    }
-  },
-  "chartReadingStreakDaysRead": "Days Read",
-  "chartReadingStreakTotalPages": "Total Pages",
-  "chartReadingStreakDailyAverage": "Daily Avg",
-  "chartReadingStreakLess": "Less",
-  "chartReadingStreakMore": "More",
-  "chartReadingStreakTooltip": "{month}/{day}: {pages} pages",
-  "@chartReadingStreakTooltip": {
-    "description": "Reading streak tooltip",
-    "placeholders": {
-      "month": {
-        "type": "int"
-      },
-      "day": {
-        "type": "int"
-      },
-      "pages": {
-        "type": "int"
-      }
-    }
-  },
-  "chartReadingStreakMonthJan": "Jan",
-  "chartReadingStreakMonthMar": "Mar",
-  "chartReadingStreakMonthMay": "May",
-  "chartReadingStreakMonthJul": "Jul",
-  "chartReadingStreakMonthSep": "Sep",
-  "chartReadingStreakMonthNov": "Nov",
-  "readingGoalSheetTitle": "{year} Reading Goal",
-  "@readingGoalSheetTitle": {
-    "description": "Reading goal sheet title",
-    "placeholders": {
-      "year": {
-        "type": "int"
-      }
-    }
-  },
-  "readingGoalSheetQuestion": "How many books do you want to read this year?",
-  "readingGoalSheetRecommended": "Recommended Goals",
-  "readingGoalSheetCustom": "Custom Input",
-  "readingGoalSheetBooksPerMonth": "Average {count} books per month",
-  "@readingGoalSheetBooksPerMonth": {
-    "description": "Books per month message",
-    "placeholders": {
-      "count": {
-        "type": "String"
-      }
-    }
-  },
-  "readingGoalSheetHint": "Enter goal number",
-  "readingGoalSheetBooks": "books",
-  "readingGoalSheetMotivation1": "Reading 1 book per month consistently builds a reading habit. Enjoy reading without pressure!",
-  "readingGoalSheetMotivation2": "Reading 1 book every 2 weeks is achievable! Experience the joy of reading with a reasonable goal.",
-  "readingGoalSheetMotivation3": "1 book every 10 days! You love reading. Explore diverse genres!",
-  "readingGoalSheetMotivation4": "Almost 1 book per week! You're a true book lover. Keep the fire burning! 🔥",
-  "readingGoalSheetMotivation5": "An ambitious goal! More than 1 book per week. You're a reading master! 📚✨",
-   "readingGoalSheetCancel": "Cancel",
-   "readingGoalSheetSet": "Set Goal",
-   "readingGoalSheetUpdate": "Update Goal",
-   "recallTextCopied": "Text copied",
-   "recallSearchAllRecords": "Search All Records",
-   "recallSearchingAllBooks": "Searching all books...",
-   "recallRecentGlobalSearches": "Recent Global Searches",
-   "recallSearchAllReadingRecords": "Search all your reading records",
-   "recallAiFindsScatteredRecords": "AI finds scattered records across books\nand brings them together for you",
-   "recallAiAnswer": "AI Answer",
-   "recallReferencedRecords": "Referenced Records",
-   "recallMoreBooks": "{count} more books",
-   "@recallMoreBooks": {
-     "description": "Show more books count",
-     "placeholders": {
-       "count": {
-         "type": "int"
-       }
-     }
-   },
-   "recallRecordCount": "{count} records",
-   "@recallRecordCount": {
-     "description": "Number of records",
-     "placeholders": {
-       "count": {
-         "type": "int"
-       }
-     }
-   },
-   "recallSearchMyRecords": "Search My Records",
-   "recallSearchingYourRecords": "Searching your records...",
-   "recallRecentSearches": "Recent Searches",
-   "recallJustNow": "Just now",
-   "recallMinutesAgo": "{count} minutes ago",
-   "@recallMinutesAgo": {
-     "description": "Time ago in minutes",
-     "placeholders": {
-       "count": {
-         "type": "int"
-       }
-     }
-   },
-   "recallHoursAgo": "{count} hours ago",
-   "@recallHoursAgo": {
-     "description": "Time ago in hours",
-     "placeholders": {
-       "count": {
-         "type": "int"
-       }
-     }
-   },
-   "recallDaysAgo": "{count} days ago",
-   "@recallDaysAgo": {
-     "description": "Time ago in days",
-     "placeholders": {
-       "count": {
-         "type": "int"
-       }
-     }
-   },
-    "recallSuggestedQuestions": "Suggested Questions",
-    "recallSuggestedQuestion1": "What impressed me the most?",
-    "recallSuggestedQuestion2": "What did I note to practice?",
-    "recallSuggestedQuestion3": "What's the author's key message?",
-    "recallSuggestedQuestion4": "What part did I empathize with?",
-    "recallSearchCurious": "Search for what you're curious about",
-    "recallFindInRecords": "Find in highlights, memos, and photos",
-    "recallRelatedRecords": "Related Records",
-    "recallPage": "page",
-    "recallContentCopied": "Content copied",
-    "recallViewInBook": "View in This Book",
-    "recallCopy": "Copy",
-    "bookListPlannedStartDate": "Planned start: {date}",
-    "@bookListPlannedStartDate": {
-      "description": "Planned start date for a book",
+  
+   "contentTypeHighlight": "Highlight",
+   "contentTypeMemo": "Memo",
+   "contentTypePhoto": "Photo",
+   
+   "languageSettingLabel": "Language",
+   
+   "homeBookList": "Book List",
+   
+   "bookListTabReading": "Reading",
+   "bookListTabPlanned": "To Read",
+   "bookListTabCompleted": "Completed",
+   "bookListTabReread": "Reread",
+   "bookListTabAll": "All",
+   "bookListFilterAll": "All",
+   
+   "bookDetailTabRecord": "Record",
+   "bookDetailTabHistory": "History",
+   "bookDetailTabReview": "Review",
+   "bookDetailTabDetail": "Details",
+   "bookDetailStartDate": "Start Date",
+   "bookDetailTargetDate": "Target Date",
+   "bookDetailReviewWritten": "Written",
+   "bookDetailReviewNotWritten": "Not yet written",
+   "bookDetailLegendAchieved": "Achieved",
+   "bookDetailLegendMissed": "Missed",
+   "bookDetailLegendScheduled": "Scheduled",
+   "bookDetailLater": "Later",
+   
+   "myLibraryTitle": "My Library",
+   
+   "chartTitle": "My Reading Status",
+   "chartTabOverview": "Overview",
+   "chartTabAnalysis": "Analysis",
+   "chartTabActivity": "Activity",
+   "chartPeriodDaily": "Daily",
+   "chartPeriodWeekly": "Weekly",
+   "chartPeriodMonthly": "Monthly",
+   "chartDailyAverage": "Daily Average",
+   "chartIncrease": "Change",
+   "chartLess": "Less",
+   "chartMore": "More",
+   
+   "myPageTitle": "My Page",
+   "myPageSettings": "Settings",
+   "myPageChangeAvatar": "Change",
+   "myPageLogout": "Logout",
+   
+   "loginAppName": "BookGolas",
+   "loginEmailLabel": "Email",
+   "loginPasswordLabel": "Password",
+   "loginNicknameLabel": "Nickname",
+   "loginOrDivider": "or",
+    "loginButton": "Login",
+    "loginSignupButton": "Sign Up",
+    "loginDescriptionSignIn": "One page a day,\nwe support your reading",
+    "@loginDescriptionSignIn": {"description": "Description text for sign in mode"},
+    "loginDescriptionSignUp": "Start your reading habit\nwith BookGolas",
+    "@loginDescriptionSignUp": {"description": "Description text for sign up mode"},
+    "loginDescriptionForgotPassword": "We'll send a reset link\nto your registered email",
+    "@loginDescriptionForgotPassword": {"description": "Description text for forgot password mode"},
+    "loginEmailRequired": "Please enter your email",
+    "@loginEmailRequired": {"description": "Email required validation message"},
+    "loginEmailInvalid": "Please enter a valid email address",
+    "@loginEmailInvalid": {"description": "Email invalid validation message"},
+    "loginPasswordHint": "Enter 6 or more characters",
+    "@loginPasswordHint": {"description": "Password hint text"},
+    "loginPasswordRequired": "Please enter your password",
+    "@loginPasswordRequired": {"description": "Password required validation message"},
+    "loginPasswordMinLength": "Password must be at least 6 characters",
+    "@loginPasswordMinLength": {"description": "Password minimum length validation message"},
+    "loginNicknameHint": "Name to use in the app",
+    "@loginNicknameHint": {"description": "Nickname hint text"},
+    "loginNicknameRequired": "Please enter your nickname",
+    "@loginNicknameRequired": {"description": "Nickname required validation message"},
+    "loginForgotPasswordButton": "Forgot your password?",
+    "@loginForgotPasswordButton": {"description": "Forgot password button text"},
+    "loginSignupPrompt": "Don't have an account? Sign Up",
+    "@loginSignupPrompt": {"description": "Sign up prompt text"},
+    "loginSigninPrompt": "Already have an account? Login",
+    "@loginSigninPrompt": {"description": "Sign in prompt text"},
+    "loginBackButton": "Back to Login",
+    "@loginBackButton": {"description": "Back to login button text"},
+    "loginSaveEmail": "Save email",
+    "@loginSaveEmail": {"description": "Save email checkbox label"},
+    "loginResetPasswordButton": "Send password reset email",
+    "@loginResetPasswordButton": {"description": "Reset password button text"},
+    "loginSignupSuccess": "Sign up complete. Please check your email.",
+    "@loginSignupSuccess": {"description": "Sign up success message"},
+    "loginResetPasswordSuccess": "Password reset email sent.",
+    "@loginResetPasswordSuccess": {"description": "Reset password success message"},
+    "loginUnexpectedError": "An unexpected error occurred.",
+    "@loginUnexpectedError": {"description": "Unexpected error message"},
+    "loginInvalidCredentials": "Email or password is incorrect.",
+    "@loginInvalidCredentials": {"description": "Invalid credentials error message"},
+    "loginEmailNotConfirmed": "Email verification is not complete.",
+    "@loginEmailNotConfirmed": {"description": "Email not confirmed error message"},
+    "loginEmailAlreadyRegistered": "This email is already registered.",
+    "@loginEmailAlreadyRegistered": {"description": "Email already registered error message"},
+    "loginPasswordTooShort": "Password must be at least 6 characters.",
+    "@loginPasswordTooShort": {"description": "Password too short error message"},
+    
+    "reviewTitle": "Book Review",
+   "reviewSave": "Save",
+   "reviewReplace": "Replace",
+   "reviewExit": "Exit",
+   
+   "readingStartSetDate": "Set Start Date",
+   "readingStartUndetermined": "Undetermined",
+   
+   "dialogOpacity": "Opacity",
+   "dialogThickness": "Thickness",
+   "dialogTakePhoto": "Take Photo",
+   "dialogReplaceImage": "Replace",
+   "dialogViewFull": "View Full",
+   "dialogCopy": "Copy",
+   "dialogEdit": "Edit",
+   "dialogSaved": "Saved",
+   "dialogSaving": "Saving...",
+   "dialogUpload": "Upload",
+   "dialogSelect": "Select",
+   "dialogApply": "Apply",
+   "dialogExtract": "Extract",
+   "dialogOkay": "Okay",
+   "dialogExtractIt": "Extract",
+   "dialogThinkAboutIt": "Think About It",
+   
+   "genreNovel": "Novel",
+   "genreLiterature": "Literature",
+   "genreSelfHelp": "Self-Help",
+   "genreBusiness": "Business",
+   "genreHumanities": "Humanities",
+   "genreScience": "Science",
+   "genreHistory": "History",
+   "genreEssay": "Essay",
+   "genrePoetry": "Poetry",
+   "genreComic": "Comic",
+   "genreUncategorized": "Uncategorized",
+   
+    "errorInitFailed": "An error occurred during initialization",
+    "errorLoadFailed": "Failed to load",
+    "errorNoRecords": "No records",
+    "loadingInit": "Initializing app...",
+    
+    "homeNoReadingBooks": "No reading books in progress. Please register a book first.",
+    "homeNoReadingBooksShort": "No reading books in progress",
+    "homeSwitchToAllBooks": "Switched to all books view.",
+    "homeSwitchToReadingDetail": "Switched to reading detail view.",
+    "homeToggleAllBooks": "View All Books",
+     "homeToggleReadingOnly": "View Reading Only",
+     
+     "bookListErrorLoadFailed": "Failed to load data",
+     "bookListErrorCheckNetwork": "Please check your network connection",
+     "bookListEmptyPlanned": "No books planned to read",
+     "bookListEmptyPaused": "No paused books",
+     "bookListEmptyAll": "No reading started yet",
+     "bookListEmptyReading": "No books currently reading",
+     "bookListEmptyCompleted": "No completed books",
+     "bookListEmptyStatus": "No {status} books",
+    
+    "bookDetailScreenTitle": "Reading Details",
+    "bookDetailCompletionCongrats": "Congratulations on finishing!",
+    "bookDetailCompletionPrompt": "While the afterglow of reading is still fresh,\nwould you like to write a review?",
+    "bookDetailWriteReview": "Write Review",
+    "bookDetailEditReview": "Edit Review",
+    "bookDetailReviewDescription": "Record your thoughts after reading",
+    "bookDetailReviewEditDescription": "Review and edit your written review",
+    "bookDetailContinueReading": "Continue Reading",
+    "bookDetailContinueReadingDesc": "Let's focus and achieve your reading goal!",
+    "bookDetailRestartReading": "Start New Reading",
+    "bookDetailPlannedStartDate": "Planned Start Date",
+    "bookDetailPlannedStartDateUndetermined": "Start date not set",
+    "bookDetailPlanUpdated": "Reading plan has been updated",
+    "bookDetailPausedPosition": "Paused at: {currentPage}p / {totalPages}p ({percentage}%)",
+    "@bookDetailPausedPosition": {
+      "description": "Paused reading position",
       "placeholders": {
-        "date": {
-          "type": "String"
-        }
+        "currentPage": {"type": "int"},
+        "totalPages": {"type": "int"},
+        "percentage": {"type": "int"}
       }
     },
-    "bookListUndetermined": "Undetermined",
-    "@bookListUndetermined": {
-      "description": "Undetermined start date"
-    },
-    "bookListCompletedIn": "{days} days to complete",
-    "@bookListCompletedIn": {
-      "description": "Days taken to complete a book",
+    "bookDetailAttemptStart": "Starting attempt #{attemptNumber}!",
+    "@bookDetailAttemptStart": {
+      "description": "Attempt start message",
       "placeholders": {
-        "days": {
-          "type": "int"
-        }
+        "attemptNumber": {"type": "int"}
       }
     },
-    "bookListCompletedSameDay": "Completed same day",
-    "@bookListCompletedSameDay": {
-      "description": "Book completed on the same day"
-    },
-    "bookListAchievementRate": "Rate {rate}%",
-    "@bookListAchievementRate": {
-      "description": "Achievement rate percentage",
+    "bookDetailAttemptStartWithDays": "Starting attempt #{attemptNumber}! D-{daysLeft}",
+    "@bookDetailAttemptStartWithDays": {
+      "description": "Attempt start with days left",
       "placeholders": {
-        "rate": {
-          "type": "int"
-        }
+        "attemptNumber": {"type": "int"},
+        "daysLeft": {"type": "int"}
       }
     },
-    "bookListUnknown": "Unknown",
-    "@bookListUnknown": {
-      "description": "Unknown value"
-    },
-    "bookListCompletedDate": "Completed {date}",
-    "@bookListCompletedDate": {
-      "description": "Completed date",
+    "bookDetailAttemptStartEncouragement": "Starting attempt #{attemptNumber}. Let's do it!",
+    "@bookDetailAttemptStartEncouragement": {
+      "description": "Attempt start encouragement",
       "placeholders": {
-        "date": {
-          "type": "String"
-        }
+        "attemptNumber": {"type": "int"}
       }
     },
-    "readingStartPriority": "Priority (Optional)",
-    "@readingStartPriority": {
-      "description": "Priority selector label"
-    },
-    "languageChangeConfirmTitle": "Change Language?",
-    "@languageChangeConfirmTitle": {
-      "description": "Language change confirmation dialog title"
-    },
-    "languageChangeConfirmMessage": "Would you like to change the language to {language}?",
-    "@languageChangeConfirmMessage": {
-      "description": "Language change confirmation dialog message",
+    "bookDetailGoalAchieved": "Today's goal achieved! +{pagesRead} pages 🎉",
+    "@bookDetailGoalAchieved": {
+      "description": "Goal achieved message",
       "placeholders": {
-        "language": {
-          "type": "String"
-        }
+        "pagesRead": {"type": "int"}
       }
     },
-    "languageKorean": "Korean",
-    "@languageKorean": {
-      "description": "Korean language name"
-    },
-    "languageEnglish": "English",
-    "@languageEnglish": {
-      "description": "English language name"
-    },
-    "readingStatusLabel": "Reading Status",
-    "@readingStatusLabel": {
-      "description": "Reading status section label"
-    },
-    "readingStatusPlanned": "Plan to Read",
-    "@readingStatusPlanned": {
-      "description": "Plan to read option"
-    },
-    "readingStatusStartNow": "Start Now",
-    "@readingStatusStartNow": {
-      "description": "Start now option"
-    },
-    "scheduleTargetDays": "Target Days",
-    "@scheduleTargetDays": {
-      "description": "Target days label"
-    },
-    "scheduleTargetDaysValue": "{count} days",
-    "@scheduleTargetDaysValue": {
-      "description": "Target days value",
+    "bookDetailPagesRead": "+{pagesRead} pages! {pagesLeft}p left to today's goal",
+    "@bookDetailPagesRead": {
+      "description": "Pages read message with remaining",
       "placeholders": {
-        "count": {
-          "type": "int"
-        }
+        "pagesRead": {"type": "int"},
+        "pagesLeft": {"type": "int"}
       }
     },
-    "scheduleDailyGoal": "Daily Goal",
-    "@scheduleDailyGoal": {
-      "description": "Daily goal label"
-    },
-    "datePickerMonthJan": "Jan",
-    "datePickerMonthFeb": "Feb",
-    "datePickerMonthMar": "Mar",
-    "datePickerMonthApr": "Apr",
-    "datePickerMonthMay": "May",
-    "datePickerMonthJun": "Jun",
-    "datePickerMonthJul": "Jul",
-    "datePickerMonthAug": "Aug",
-    "datePickerMonthSep": "Sep",
-    "datePickerMonthOct": "Oct",
-    "datePickerMonthNov": "Nov",
-    "datePickerMonthDec": "Dec",
-    "bookDetailSchedule": "Reading Schedule",
-    "bookDetailGoalProgress": "Goal Progress",
-    "bookDetailGoalAchieved": "Goal Achieved",
-    "bookDetailDeleteReading": "Delete Reading",
-    "bookDetailNoPhotos": "No photos added yet",
-    "bookDetailAddPhotoHint": "Add photos using the + button below",
-    "editReadingPlanTitle": "Edit Reading Plan",
-    "editPlannedStartDate": "Planned Start Date",
-    "changeTargetDateTitle": "Change Target Date",
-    "attemptChangeMessage": "This will be attempt #{count}",
-    "@attemptChangeMessage": {
-      "description": "Attempt change message",
+    "bookDetailPagesReached": "+{pagesRead} pages! Reached {currentPage}p",
+    "@bookDetailPagesReached": {
+      "description": "Pages reached message",
       "placeholders": {
-        "count": {
-          "type": "int"
-        }
+        "pagesRead": {"type": "int"},
+        "currentPage": {"type": "int"}
       }
     },
-    "confirmChange": "Confirm",
-    "bookDetailAchievementStatus": "{achieved} of {passed} days achieved",
-    "@bookDetailAchievementStatus": {
-      "description": "Achievement status message",
+    "bookDetailRecordSaved": "Record saved",
+    "bookDetailUploadFailed": "Upload Failed",
+    "bookDetailNetworkError": "Please check your network connection.\nIf the connection is good, please try again.",
+    "bookDetailUploadError": "An error occurred while saving the record.\nPress the upload button to try again.",
+    "bookDetailImageReplaced": "Image replaced",
+    "bookDetailDeleteConfirmTitle": "Delete this reading?",
+    "bookDetailDeleteConfirmMessage": "Deleted reading records cannot be recovered.",
+    "bookDetailDeleteSuccess": "Reading deleted",
+    "bookDetailDeleteImageConfirmTitle": "Delete this item?",
+    "bookDetailDeleteImageConfirmMessage": "This item cannot be recovered once deleted.",
+    "bookDetailItemsDeleted": "{count} items deleted",
+    "@bookDetailItemsDeleted": {
+      "description": "Items deleted message",
       "placeholders": {
-        "passed": {
-          "type": "int"
-        },
-        "achieved": {
-          "type": "int"
-        }
+        "count": {"type": "int"}
       }
     },
-    "attemptOrdinal": "Attempt #{count}",
-    "@attemptOrdinal": {
-      "description": "Ordinal attempt number",
+    "bookDetailPauseReadingMessage": "Taking a break from reading. Feel free to start again anytime!",
+    "bookDetailNewJourneyStart": "Starting a new reading journey! Fighting! 📚",
+    "bookDetailNoteStructure": "Note Structure",
+    "bookDetailPriorityUrgent": "Urgent",
+    "bookDetailPriorityHigh": "High",
+    "bookDetailPriorityMedium": "Medium",
+    "bookDetailPriorityLow": "Low",
+    "bookDetailError": "An error occurred",
+    
+    "calendarMonthSelect": "Select Month",
+    "calendarCancel": "Cancel",
+    "calendarConfirm": "OK",
+    "calendarPagesRead": "{pages} pages read",
+    "@calendarPagesRead": {
+      "description": "Pages read on a day",
       "placeholders": {
-        "count": {
-          "type": "int"
-        }
+        "pages": {"type": "int"}
       }
     },
-    "totalDaysFormat": "({count} days)",
-    "@totalDaysFormat": {
-      "description": "Total days in parentheses",
-      "placeholders": {
-        "count": {
-          "type": "int"
-        }
-      }
-    },
-    "pagesRemaining": "{count, plural, =1{1 page remaining} other{{count} pages remaining}}",
-    "@pagesRemaining": {
-      "description": "Pages remaining message",
-      "placeholders": {
-        "count": {
-          "type": "int"
-        }
-      }
-    },
-    "todayGoalWithPages": "Today's goal: {count}p",
-    "@todayGoalWithPages": {
-      "description": "Today's goal with page count",
-      "placeholders": {
-        "count": {
-          "type": "int"
-        }
-      }
-    },
-    "streakDaysAchieved": "{count, plural, =1{1 day streak!} other{{count} day streak!}}",
-    "@streakDaysAchieved": {
-      "description": "Streak days achievement message",
-      "placeholders": {
-        "count": {
-          "type": "int"
-        }
-      }
-    },
-    "streakFirstRecord": "Leave your first record today",
-    "@streakFirstRecord": {
-      "description": "Prompt to leave first record"
-    },
-    "dailyTargetChangeTitle": "Change Daily Page Goal",
-    "@dailyTargetChangeTitle": {
-      "description": "Daily target change dialog title"
-    },
-    "pagesRemainingShort": "{count, plural, =1{1 page} other{{count} pages}}",
-    "@pagesRemainingShort": {
-      "description": "Pages count short format",
-      "placeholders": {
-        "count": {
-          "type": "int"
-        }
-      }
-    },
-    "pagesRemainingWithDays": " remaining · D-{days}",
-    "@pagesRemainingWithDays": {
-      "description": "Remaining pages with D-day",
-      "placeholders": {
-        "days": {
-          "type": "int"
-        }
-      }
-    },
-    "expectedSchedule": "Expected Schedule",
-    "@expectedSchedule": {
-      "description": "Expected schedule section title"
-    },
-    "pagesPerDay": "pages/day",
-    "@pagesPerDay": {
-      "description": "Pages per day unit"
-    },
-    "dailyTargetConfirmTitle": "Change Daily Goal",
-    "@dailyTargetConfirmTitle": {
-      "description": "Daily target confirm dialog title"
-    },
-    "dailyTargetConfirmMessage": "Today's goal cannot be modified,\nbut changes will apply from tomorrow.",
-    "@dailyTargetConfirmMessage": {
-      "description": "Daily target confirm message"
-    },
-    "dailyTargetConfirmQuestion": "Would you like to change it?",
-    "@dailyTargetConfirmQuestion": {
-      "description": "Daily target confirm question"
-    },
-    "updatePageTitle": "Update Current Page",
-    "@updatePageTitle": {
-      "description": "Update page dialog title"
-    },
-    "currentPageLabel": "Current {page}p",
-    "@currentPageLabel": {
-      "description": "Current page label",
-      "placeholders": {
-        "page": {
-          "type": "int"
-        }
-      }
-    },
-    "totalPageLabel": " / Total {page}p",
-    "@totalPageLabel": {
-      "description": "Total page label",
-      "placeholders": {
-        "page": {
-          "type": "int"
-        }
-      }
-    },
-    "newPageNumber": "New Page Number",
-    "@newPageNumber": {
-      "description": "New page number label"
-    },
-    "updateButton": "Update",
-    "@updateButton": {
-      "description": "Update button"
-    },
-    "validationEnterNumber": "Please enter a number",
-    "@validationEnterNumber": {
-      "description": "Validation: enter number"
-    },
-    "validationPageMinimum": "Please enter a page number of 0 or higher",
-    "@validationPageMinimum": {
-      "description": "Validation: page minimum"
-    },
-    "validationPageExceedsTotal": "Cannot exceed total pages ({total})",
-    "@validationPageExceedsTotal": {
-      "description": "Validation: page exceeds total",
-      "placeholders": {
-        "total": {
-          "type": "int"
-        }
-      }
-    },
-    "validationPageBelowCurrent": "Must be higher than current page ({current})",
-    "@validationPageBelowCurrent": {
-      "description": "Validation: page below current",
-      "placeholders": {
-        "current": {
-          "type": "int"
-        }
-      }
-    },
-    "addRecordTitle": "Add Record",
-    "@addRecordTitle": {
-      "description": "Add record title"
-    },
-    "tapToAddImage": "Tap to add image",
-    "@tapToAddImage": {
-      "description": "Tap to add image hint"
-    },
-    "optionalLabel": "(Optional)",
-    "@optionalLabel": {
-      "description": "Optional label"
-    },
-    "recordTextLabel": "Record Text",
-    "@recordTextLabel": {
-      "description": "Record text label"
-    },
-    "clearAllButton": "Clear All",
-    "@clearAllButton": {
-      "description": "Clear all button"
-    },
-    "recordHint": "Record a memorable passage.",
-    "@recordHint": {
-      "description": "Record text hint"
-    },
-    "uploadButton": "Upload",
-    "@uploadButton": {
-      "description": "Upload button"
-    },
-    "resetButton": "Reset",
-    "@resetButton": {
-      "description": "Reset button"
-    },
-    "highlightLabel": "Highlight",
-    "@highlightLabel": {
-      "description": "Highlight label"
-    },
-    "highlightWithCount": "Highlight ({count})",
-    "@highlightWithCount": {
-      "description": "Highlight with count",
-      "placeholders": {
-        "count": {
-          "type": "int"
-        }
-      }
-    },
-    "replaceButton": "Replace",
-    "@replaceButton": {
-      "description": "Replace button"
-    },
-    "extractTextButton": "Extract Text",
-    "@extractTextButton": {
-      "description": "Extract text button"
-    },
-    "viewFullButton": "View Full",
-    "@viewFullButton": {
-      "description": "View full button"
-    },
-    "resetConfirmMessage": "Are you sure you want to reset?",
-    "@resetConfirmMessage": {
-      "description": "Reset confirm message"
-    },
-    "uploading": "Uploading...",
-    "@uploading": {
-      "description": "Uploading message"
-    },
-    "extractTextConfirmTitle": "Extract text?",
-    "@extractTextConfirmTitle": {
-      "description": "Extract text confirm title"
-    },
-    "extractTextCreditsMessage": "This will use credits.",
-    "@extractTextCreditsMessage": {
-      "description": "Extract text credits message"
-    },
-    "extractTextOverwriteMessage": "This will overwrite your text.\nThis will use credits.",
-    "@extractTextOverwriteMessage": {
-      "description": "Extract text overwrite message"
-    },
-    "noThanksButton": "No thanks",
-    "@noThanksButton": {
-      "description": "No thanks button"
-    },
-    "extractButton": "Extract",
-    "@extractButton": {
-      "description": "Extract button"
-    },
-    "extractingText": "Extracting text...",
-    "@extractingText": {
-      "description": "Extracting text message"
-    },
-    "extractedTextTitle": "Extracted Text",
-    "@extractedTextTitle": {
-      "description": "Extracted text title"
-    },
-    "reselectButton": "Reselect",
-    "@reselectButton": {
-      "description": "Reselect button"
-    },
-    "applyButton": "Apply",
-    "@applyButton": {
-      "description": "Apply button"
-    },
-    "aiFeaturesTitle": "AI Features",
-    "@aiFeaturesTitle": {
-      "description": "AI features section title"
-    },
-    "searchRecordsButton": "Search",
-    "@searchRecordsButton": {
-      "description": "Search records button"
-    },
-    "bookRecommendButton": "Recommend",
-    "@bookRecommendButton": {
-      "description": "Book recommendation button"
-    },
+    "calendarCompleted": "Completed",
+    "calendarSelectMonth": "Select Month",
     "calendarFilterAll": "All",
-    "@calendarFilterAll": {
-      "description": "Calendar filter: all"
-    },
-    "calendarFilterReading": "Currently Reading",
-    "@calendarFilterReading": {
-      "description": "Calendar filter: reading"
-    },
-    "calendarFilterCompleted": "Completed",
-    "@calendarFilterCompleted": {
-      "description": "Calendar filter: completed"
-    },
-    "pageUpdateButton": "Update Page",
-    "@pageUpdateButton": {
-      "description": "Page update button"
-    },
-    "noProgressRecords": "No progress records",
-    "@noProgressRecords": {
-      "description": "No progress records message"
-    },
-    "oneLineReviewOptional": "One-line review (Optional)",
-    "@oneLineReviewOptional": {
-      "description": "One line review optional label"
-    },
-    "todayGoalChanged": "Today's goal changed to {pages}p",
-    "@todayGoalChanged": {
-      "description": "Today goal changed message",
-      "placeholders": {
-        "pages": {
-          "type": "int"
+    "calendarFilterReading": "Reading",
+     "calendarFilterCompleted": "Completed",
+     "calendarLoadError": "Failed to load data",
+     
+     "reviewDraftLoaded": "Draft loaded.",
+     "reviewCopied": "Review copied.",
+     "reviewBookNotFound": "Book information not found.",
+     "reviewSaveFailed": "Save failed. Please try again.",
+     "reviewSaveError": "An error occurred while saving.",
+     "reviewReplaceConfirmTitle": "You have content in progress.\nReplace with AI draft?",
+     "reviewAIDraftGenerated": "AI draft generated. Feel free to edit!",
+     "reviewAIDraftGenerateFailed": "AI draft generation failed. Please try again.",
+     "reviewAIDraftGenerateError": "An error occurred while generating AI draft.",
+     "reviewSaveCompleteTitle": "Review saved!",
+     "reviewSaveCompleteMessage": "Your saved review can be found in the 'Review' tab or\n'My Library > Review'.",
+     "reviewExitConfirmTitle": "Stop writing and exit?",
+     "reviewExitConfirmSubtitle": "Your draft will be saved.",
+     "reviewAIGenerating": "AI is writing a draft...",
+      "reviewAIButtonLabel": "Write review draft with AI",
+      "reviewTextFieldHint": "Feel free to write your thoughts, impressive parts, and inspiration from this book.",
+      
+      "readingStartTitle": "Start Reading",
+      "readingStartSubtitle": "Search for a book to start reading.",
+      "readingStartNoResults": "No search results",
+      "readingStartAnalyzing": "Analyzing reading patterns...",
+      "readingStartAIRecommendation": "AI Personalized Recommendations",
+      "readingStartAIRecommendationDesc": "Books recommended by analyzing {userName}'s reading patterns",
+      "@readingStartAIRecommendationDesc": {
+        "description": "AI recommendation description",
+        "placeholders": {
+          "userName": {"type": "String"}
         }
-      }
-    },
-    "bookInfoNotFound": "Book information not found",
-    "@bookInfoNotFound": {
-      "description": "Book info not found error"
-    },
-    "goalChangeFailed": "Failed to change goal",
-    "@goalChangeFailed": {
-      "description": "Goal change failed error"
-    },
-    "unsavedChangesMessage": "You have unsaved changes.",
-    "@unsavedChangesMessage": {
-      "description": "Unsaved changes warning message"
-    },
-    "discardChangesButton": "Discard Changes",
-    "@discardChangesButton": {
-      "description": "Discard changes button"
-    },
-    "continueEditingButton": "Continue Editing",
-    "@continueEditingButton": {
-      "description": "Continue editing button"
-    },
-    "pageNotSet": "Page not set",
-    "@pageNotSet": {
-      "description": "Page not set label"
-    },
-    "textInputHint": "Enter text...",
-    "@textInputHint": {
-      "description": "Text input hint"
-    },
-    "noRecordedText": "No recorded text.",
-    "@noRecordedText": {
-      "description": "No recorded text message"
-    },
-    "textCopied": "Text copied.",
-    "@textCopied": {
-      "description": "Text copied message"
-    },
-    "copyButton": "Copy",
-    "@copyButton": {
-      "description": "Copy button"
-    },
-    "editButton": "Edit",
-    "@editButton": {
-      "description": "Edit button"
-    },
-    "loadingImage": "Loading image...",
-    "@loadingImage": {
-      "description": "Loading image message"
-    },
-    "ocrAreaSelectTitle": "Select Text Extraction Area",
-    "@ocrAreaSelectTitle": {
-      "description": "OCR area select title"
-    },
-    "ocrExtractionFailed": "Failed to extract text. Try selecting a different area.",
-    "@ocrExtractionFailed": {
-      "description": "OCR extraction failed message"
-    },
-    "imageLoadFailed": "Failed to load image.",
-    "@imageLoadFailed": {
-      "description": "Image load failed message"
-    },
-    "ocrReExtractionFailed": "Failed to re-extract text.",
-    "@ocrReExtractionFailed": {
-      "description": "OCR re-extraction failed message"
-    },
-    "documentScanFailed": "Document scan failed.",
-    "@documentScanFailed": {
-      "description": "Document scan failed message"
-    },
-    "reScanButton": "Rescan",
-    "@reScanButton": {
-      "description": "Re-scan button"
-    },
-    "pageExceedsTotalError": "Cannot exceed total pages ({total})",
-    "@pageExceedsTotalError": {
-      "description": "Page exceeds total error message",
-      "placeholders": {
-        "total": {
-          "type": "int"
-        }
-      }
-    },
-  "highlightEditTitle": "Edit Highlight",
-  "highlightEditDone": "Done",
-  "memorablePagesSelected": "{count} selected",
-  "@memorablePagesSelected": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "memorablePagesSortByPage": "Page",
-  "memorablePagesSortByDate": "Date",
-  "memorablePagesSortPageDesc": "Page (High to Low)",
-  "memorablePagesSortPageAsc": "Page (Low to High)",
-  "memorablePagesSortDateDesc": "Recent First",
-  "memorablePagesSortDateAsc": "Oldest First",
-  "memorablePagesDelete": "Delete",
-  "memorablePagesSelect": "Select",
-  "memorablePagesDone": "Done",
-  "historyTabCumulativePages": "📈 Cumulative Pages",
-  "historyTabDailyPages": "Daily Pages",
-  "historyTabCompletionTitle": "Congratulations on finishing!",
-  "historyTabCompletionMessage": "You've reached your goal. Ready for the next book?",
-  "historyTabDailyRecords": "📅 Daily Records",
-  "historyTabCumulativeLabel": "Cumulative: {page} pages",
-  "@historyTabCumulativeLabel": {
-    "placeholders": {
-      "page": {
-        "type": "int"
-      }
-    }
-  },
-  "historyTabPagesUnit": "pages",
-  "bookReviewTabTitle": "My Book Review",
-  "bookReviewTabEditButton": "Edit Review",
-  "authorLabel": "Author",
-  "aiDraftGenerating": "AI is drafting...",
-  "aiDraftGenerate": "Generate Draft with AI",
-  "bookInfoDetail": "Book Detail",
-  "invalidUrl": "Please enter a valid URL",
-  "daysRecorded": "{count} days recorded",
-  "@daysRecorded": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "startDateLabel": "Start Date"
+      },
+      "readingStartSearchHint": "Enter book title.",
+      "readingStartSelectionComplete": "Selection Complete",
+      "readingStartPlannedStartDate": "Planned Reading Start Date",
+      "readingStartStartingToday": "Starting from today",
+       "readingStartTargetDeadline": "Target Deadline",
+       "readingStartTargetDeadlineNote": "You can change the target date even after starting to read",
+       
+       "barcodeScannerTitle": "ISBN Barcode Scan",
+       "barcodeScannerInstruction": "Please scan the ISBN barcode on the back of the book",
+       "barcodeScannerFrameHint": "Align the barcode within the frame",
+       "scannerErrorPermissionDenied": "Camera permission is required\nPlease allow permission in settings",
+       "scannerErrorInitializing": "Initializing camera",
+       "scannerErrorGeneral": "Camera error occurred\nPlease try again",
+       
+       "bookDetailTabRecordLabel": "Record",
+       "bookDetailTabHistoryLabel": "History",
+       "bookDetailTabDetailLabel": "Details",
+       "highlightOpacity": "Opacity",
+       "highlightThickness": "Thickness",
+       "todayGoalSettingTitle": "Today's Goal Setting",
+       "todayGoalStartPageLabel": "Start Page",
+       "todayGoalTargetPageLabel": "Target Page",
+       "bookStatusCompleted": "Completed",
+       "bookStatusPlanned": "To Read",
+       "bookStatusReread": "Reread",
+       "bookStatusReading": "Reading",
+       "bookCompletionCongrats": "Congratulations on finishing!",
+       "bookCompletionQuestion": "How was this book?",
+       "reviewOneLinePlaceholder": "One-line review (optional)",
+       "reviewOneLineHint": "Express this book in one word...",
+       "bookCompletionLater": "Later",
+       "bookCompletionDone": "Done",
+       "ratingBad": "Disappointing 😢",
+       "ratingOkay": "Just okay 😐",
+       "ratingGood": "Good 🙂",
+       "ratingGreat": "Great! 😊",
+       "ratingExcellent": "Excellent! 🤩",
+       "recordSearch": "Record Search",
+       "pageUpdate": "Page Update",
+       "dayLabels": "Sun,Mon,Tue,Wed,Thu,Fri,Sat",
+       "streakAchieved": "{streak} day streak!",
+       "streakFirstRecord": "Leave your first record today",
+       "mindmapInsufficientData": "Insufficient reading records.\nAt least 5 highlights or memos are required.",
+       "contentBadgeHighlight": "Highlight",
+       "contentBadgeMemo": "Memo",
+       "contentBadgeOCR": "Photo OCR",
+       "readingScheduleStartDate": "Start Date",
+       "readingScheduleTargetDate": "Target Date",
+       "readingScheduleTotalDays": "({totalDays} days)",
+       "readingScheduleAttempt": "Attempt {attemptCount}",
+       "pageUpdateDialogTitle": "Update Current Page",
+       "pageUpdateValidationRequired": "Please enter a number",
+       "pageUpdateValidationNonNegative": "Please enter a page number of 0 or more",
+       "pageUpdateValidationExceedsTotal": "Cannot exceed total pages ({totalPages})",
+       "pageUpdateValidationLessThanCurrent": "Cannot be less than current page ({currentPage})",
+       "pageUpdateCurrentPage": "Currently {currentPage}p",
+       "pageUpdateTotalPages": " / Total {totalPages}p",
+       "pageUpdateNewPageLabel": "New Page Number",
+       "pageUpdateCancel": "Cancel",
+       "pageUpdateButton": "Update",
+       "imageSourceDocumentScan": "Document Scan",
+       "imageSourceAutoCorrection": "Flatten & Auto Correct",
+       "imageSourceSimulatorError": "Camera is not available on simulator",
+       "imageSourceTakePhoto": "Take Photo",
+       "imageSourceGeneralPhoto": "General Photo",
+       "imageSourceFromLibrary": "From Library",
+       "imageSourceSelectSaved": "Select Saved Image",
+       "imageSourceReplaceTitle": "Replace Image",
+       "imageSourceCameraTitle": "Take Photo",
+       "imageSourceGalleryTitle": "Select from Gallery",
+       "imageSourceReplaceConfirmation": "Replace this image?",
+       "imageSourceReplaceWarning": "Previously extracted text will be lost.",
+       "dailyTargetDialogTitle": "Change Daily Target Page",
+       "dailyTargetScheduleHeader": "Expected Schedule",
+       "dailyTargetPagesPerDay": "Pages/Day",
+       "dailyTargetPagesLeft": "{pagesLeft} pages",
+       "dailyTargetDaysLeft": " remaining · D-{daysLeft}",
+       "dailyTargetChangeButton": "Change",
+       "dailyTargetNotFound": "Book information not found",
+       "dailyTargetUpdateSuccess": "Today's goal changed to {newDailyTarget}p",
+       "dailyTargetUpdateError": "Failed to change goal: {error}",
+       "editPlannedBookTitle": "Edit Reading Plan",
+       "editPlannedBookStartDate": "Planned Start Date",
+       "editPlannedBookCancel": "Cancel",
+       "editPlannedBookSave": "Save",
+       "updateTargetDateTitle": "Change Target Date",
+       "updateTargetDateAttempt": "Will change to attempt {nextAttemptCount}",
+       "updateTargetDateFormatted": "{year}/{month}/{day}",
+       "updateTargetDateCancel": "Cancel",
+       "updateTargetDateButton": "Change",
+       "reviewLinkSectionTitle": "Related Links",
+       "reviewLinkAladinTitle": "View on Aladin",
+       "reviewLinkAladinSubtitle": "Book Details",
+       "reviewLinkViewButton": "View Review",
+       "reviewLinkAddButton": "Add Review Link",
+       "reviewLinkViewDescription": "My written review",
+       "reviewLinkAddDescription": "Add review link from blog, Notion, etc.",
+       "reviewLinkDialogTitle": "Review Link",
+       "reviewLinkDialogHint": "Enter review link from blog, Notion, Brunch, etc.",
+       "reviewLinkInvalidUrl": "Please enter a valid URL",
+       "reviewLinkUrlLabel": "Review URL",
+       "reviewLinkDeleteButton": "Delete",
+       "reviewLinkSaveButton": "Save",
+       "existingImageEditingWarning": "You have unsaved changes.",
+       "existingImageDiscardChanges": "Discard Changes",
+       "existingImageContinueEditing": "Continue Editing",
+       "existingImageExceedsTotal": "Cannot exceed total pages ({totalPages})",
+       "existingImageSaved": "Saved",
+       "existingImageCloseButton": "Close",
+       "existingImageCancelButton": "Cancel",
+       "existingImagePageNotSet": "Page not set",
+       "existingImageSavingButton": "Saving...",
+       "existingImageSaveButton": "Save",
+       "existingImageDeleteButton": "Delete",
+       "existingImageTextHint": "Enter text...",
+       "existingImageHighlightCount": "Highlight {count}",
+       "existingImageHighlightLabel": "Highlight",
+       "existingImageExtractText": "Extract Text",
+       "existingImageReplaceButton": "Replace",
+       "existingImageRecordText": "Record Text",
+       "existingImageViewAll": "View All",
+       "existingImageCopyMessage": "Text copied.",
+       "existingImageCopyButton": "Copy",
+       "existingImageEditButton": "Edit",
+       "existingImageClearAllButton": "Clear All",
+       "existingImageNoRecordedText": "No recorded text.",
+       "addMemorablePageCreditWarning": "Used credits cannot be recovered.",
+       "addMemorablePageExceedsTotal": "Cannot exceed total pages ({totalPages})",
+       "addMemorablePageExceedsError": "Cannot exceed total pages.",
+       "addMemorablePageResetConfirm": "Really reset the content?",
+       "addMemorablePageResetCancel": "Cancel",
+       "addMemorablePageResetButton": "Reset",
+       "addMemorablePageTitle": "Add Record",
+       "addMemorablePageResetTitle": "Reset",
+       "addMemorablePageHighlightCount": "Highlight ({count})",
+       "addMemorablePageHighlightLabel": "Highlight",
+       "addMemorablePageExtractText": "Extract Text",
+       "addMemorablePageReplaceButton": "Replace",
+       "addMemorablePageAddImage": "Tap to add image",
+       "addMemorablePageOptional": "(Optional)",
+       "addMemorablePagePageCount": "Page Count",
+       "addMemorablePageTextHint": "Record an impressive passage.",
+       "addMemorablePageRecordText": "Record Text",
+       "addMemorablePageViewAll": "View All",
+       "addMemorablePageClearAll": "Clear All",
+       "addMemorablePageUploadButton": "Upload",
+       "addMemorablePageUploading": "Uploading...",
+       "pauseReadingTitle": "Take a Break",
+       "pauseReadingMessage": "Pausing reading at {progress}% ({currentPage} / {totalPages} pages).",
+       "pauseReadingEncouragement": "You can resume anytime!",
+       "pauseReadingCancel": "Cancel",
+       "pauseReadingButton": "Take a Break",
+       "readingManagementTitle": "Reading Management",
+       "readingManagementProgress": "Currently {progress}% in progress ({currentPage} / {totalPages} pages)",
+       "readingManagementPauseLabel": "Take a Break",
+       "readingManagementPauseDesc": "You can read it again later",
+       "readingManagementDeleteLabel": "Delete",
+       "readingManagementDeleteDesc": "Reading records will be deleted",
+       "readingManagementThinkAbout": "Let me think about it",
+       "bookReviewTabNoReview": "No review yet",
+       "bookReviewTabDescription": "Record your thoughts after reading",
+       "bookReviewTabWriteButton": "Write Review",
+       "bookReviewTabMyReview": "My Review",
+       "bookReviewTabEditButton": "Edit Review",
+       "dashboardProgressPagesLeft": "{pagesLeft} pages",
+       "dashboardProgressRemaining": " remaining",
+       "dashboardProgressDailyTarget": "Today's goal: {dailyTarget}p",
+       "dashboardProgressAchieved": "Goal Achieved",
+       "detailTabManagement": "Reading Management",
+       "detailTabManagementDesc": "Pause, delete, etc.",
+       "detailTabDeleteReading": "Delete Reading",
+       "detailTabReview": "Review",
+       "detailTabReviewWritten": "Written",
+       "detailTabReviewNotWritten": "Not yet written",
+       "detailTabReviewDescription": "Record your thoughts after reading",
+       "detailTabSchedule": "Reading Schedule",
+       "detailTabScheduleStartDate": "Start Date",
+       "detailTabScheduleTargetDate": "Target Date",
+       "detailTabAttempt": "Attempt {attemptCount} · {attemptEncouragement}",
+       "detailTabChangeButton": "Change",
+       "detailTabGoalAchievement": "Goal Achievement",
+       "detailTabAchievementStats": "{achievedCount} out of {passedDays} days achieved",
+       "detailTabLegendAchieved": "Achieved",
+       "detailTabLegendMissed": "Missed",
+       "detailTabLegendScheduled": "Scheduled",
+       "memorablePagesNoImages": "No images added yet",
+       "memorablePagesAddPrompt": "Add using the + button below",
+       "memorablePagesSelected": "{count} selected",
+       "memorablePagesSortPageDesc": "Page (High to Low)",
+       "memorablePagesSortPageAsc": "Page (Low to High)",
+       "memorablePagesSortDateDesc": "Recent First",
+       "memorablePagesSortDateAsc": "Oldest First",
+       "memorablePagesSortType": "Page",
+       "memorablePagesSortDate": "Date",
+       "memorablePagesDeleteButton": "Delete",
+       "memorablePagesCompleteButton": "Done",
+       "memorablePagesSelectButton": "Select",
+       "memorablePagesPreviewHint": "Tap for details",
+       "fullTitleSheetTitle": "Book Title",
+       "fullTitleSheetCopyMessage": "Title copied",
+       "fullTitleSheetCopyButton": "Copy",
+       "fullTitleSheetStoreButton": "View in Store",
+       "deleteConfirmationItemCount": "Delete {count} items?",
+       "deleteConfirmationWarning": "Deleted items cannot be recovered.",
+       "deleteConfirmationCancel": "Cancel",
+       "deleteConfirmationButton": "Delete",
+       "progressHistoryNoRecords": "No progress records",
+       "progressHistoryCumulativePages": "📈 Cumulative Pages",
+       "progressHistoryAttempt": "Attempt {attemptCount} · {attemptEncouragement}",
+       "progressHistoryRecordDays": "{recordCount} days recorded",
+       "progressHistoryLegendCumulative": "Cumulative Pages",
+       "progressHistoryLegendDaily": "Daily Pages",
+       "progressHistoryChartCumulative": "Cumulative: {cumulativePage} p\n",
+       "progressHistoryChartDaily": "Daily: +{dailyPage} p",
+       "progressHistoryMilestoneFirstCompletion": "Finally finished!",
+       "progressHistoryMilestoneFirstCompletionMsg": "You succeeded after {attemptCount} attempts. You're amazing for not giving up!",
+       "progressHistoryMilestoneCompletion": "Congratulations on finishing!",
+       "progressHistoryMilestoneCompletionMsg": "You achieved your goal. Ready for the next book?",
+       "progressHistoryMilestoneRetry": "Let's finish this time",
+       "progressHistoryMilestoneRetryMsg": "This is attempt {attemptCount}. Reset your goal and finish reading!",
+       "progressHistoryMilestoneDeadlinePassed": "Deadline passed",
+       "progressHistoryMilestoneDeadlinePassedMsg": "No worries, set a new deadline and try again!",
+       "progressHistoryMilestoneFastPace": "Amazing pace!",
+       "progressHistoryMilestoneFastPaceMsg": "You're reading much faster than expected. You'll finish early!",
+       "progressHistoryMilestoneOnTrack": "On track!",
+       "progressHistoryMilestoneOnTrackMsg": "You're ahead of schedule. Keep it up!",
+       "progressHistoryMilestoneOnSchedule": "On schedule",
+       "progressHistoryMilestoneOnScheduleMsg": "You're reading steadily. Keep going!",
+       "progressHistoryMilestoneBehind": "Let's pick up the pace",
+       "progressHistoryMilestoneBehindMsg": "You can finish this time. Read a bit more each day!",
+       "progressHistoryMilestoneFallBehind": "Let's read a bit more",
+       "progressHistoryMilestoneFallBehindMsg": "You're slightly behind. A little more reading today will catch you up!",
+       "progressHistoryMilestoneGiveUp": "Don't give up!",
+       "progressHistoryMilestoneGiveUpMsg": "You're on attempt {attemptCount}. Adjust your deadline or focus more!",
+       "progressHistoryMilestoneReset": "May need to reset goal",
+       "progressHistoryMilestoneResetMsg": "At this pace, it's hard to achieve the goal. Adjust your deadline?",
+       "progressHistoryDailyRecords": "📅 Daily Records",
+       "progressHistoryPageLabel": "Pages",
+       "progressHistoryCumulativeLabel": "Cumulative: {page} pages",
+        "dailyTargetConfirmTitle": "Change Daily Target",
+        "dailyTargetConfirmMessage": "Today's goal cannot be changed,\nbut the new goal will apply from tomorrow.",
+        "dailyTargetConfirmQuestion": "Change it?",
+        "dailyTargetConfirmCancel": "Cancel",
+        "dailyTargetConfirmButton": "Change",
+        
+        "widgetExtractedTextTitle": "Extracted Text",
+        "widgetExtractedTextSubtitle": "Please verify the extracted content. You can edit it directly!",
+        "widgetExtractedTextApply": "Apply",
+        "widgetExtractedTextCancel": "Select Again",
+        "widgetExtractedTextHint": "Enter text",
+        "widgetExtractedTextPage": "Page {pageNumber}",
+        
+        "widgetFullTextTitle": "Memo Text",
+        "widgetFullTextHint": "Enter text...",
+        "widgetFullTextCopied": "Text copied.",
+        "widgetFullTextCollapse": "Collapse",
+        "widgetFullTextCopy": "Copy",
+        "widgetFullTextEdit": "Edit",
+        "widgetFullTextClearAll": "Clear All",
+        
+        "widgetNavigationBackToDetail": "Back to Reading Detail",
+        
+        "widgetDatePickerYear": "",
+        "widgetDatePickerMonth": "",
+        "widgetDatePickerDay": "",
+        
+        "widgetTimePickerAm": "AM",
+        "widgetTimePickerPm": "PM",
+        "widgetTimePickerHour": "",
+        "widgetTimePickerMinute": "",
+        
+        "widgetBookstoreSelectTitle": "Select Bookstore",
+        "widgetBookstoreSearch": "Search \"{searchTitle}\"",
+        "widgetBookstoreAladin": "Aladin",
+        "widgetBookstoreKyobo": "Kyobo",
+        
+        "widgetHighlightEditTitle": "Edit Highlight",
+        "widgetHighlightOpacity": "Opacity",
+        "widgetHighlightStrokeWidth": "Stroke Width",
+        
+        "widgetPageUpdate": "Update Page",
+        
+        "widgetRecommendationViewDetail": "View Book Details",
+        "widgetRecommendationViewDetailSubtitle": "Check book info at bookstore",
+        "widgetRecommendationStartReading": "Start Reading",
+        "widgetRecommendationStartReadingSubtitle": "Start reading this book",
+        "widgetRecommendationSelectBookstore": "Select Bookstore",
+        "widgetRecommendationSearchBookstore": "Search \"{searchTitle}\" at the bookstore below",
+        
+        "recallTextCopied": "Text copied",
+        "recallRecordLabel": "Record",
+        "recallGlobalSearchTitle": "Search All Records",
+        "recallGlobalSearching": "Searching all books...",
+        "recallRecentGlobalSearches": "Recent Global Searches",
+        "recallGlobalEmptyTitle": "Search all reading records",
+        "recallGlobalEmptySubtitle": "AI will find scattered records across multiple books",
+        "recallSourcesByBookCount": "Referenced records ({count} books)",
+        "recallMoreBooksCount": "View {count} more books",
+        "recallAIAnswer": "AI Answer",
+        "recallGlobalSearchHint": "Example: \"What was mentioned about habits?\"",
+         "recallMyRecordsSearchTitle": "Search My Records",
+         "recallMyRecordsSearching": "Searching your records...",
+         "recallRecentSearches": "Recent Searches",
+         "recallSuggestedQuestions": "Suggested Questions",
+         "recallEmptyTitle": "Search for what you're curious about",
+         "recallEmptySubtitle": "Find from highlights, notes, and photos",
+         "recallRelatedRecords": "Related Records",
+         "recallCopyButton": "Copy",
+         "recallJustNow": "Just now",
+         "recallMinutesAgo": "{count} minutes ago",
+         "recallHoursAgo": "{count} hours ago",
+         "recallDaysAgo": "{count} days ago",
+         "recallMyRecordsSearchHint": "Example: \"What did the author say about habits?\"",
+         "recallPageLabel": "Page",
+         "recallRecordCountLabel": "{count} records",
+         "recallContentCopied": "Content copied",
+         "recallViewInBook": "View in Book",
+         
+         "bookListPageUnit": "pages",
+         "completedBookDaysToComplete": "Completed in {days} days",
+         "completedBookSameDayComplete": "Completed same day",
+         "completedBookAchievementRate": "Achievement rate {rate}%",
+         "pausedBookUnknownDate": "Unknown",
+         "plannedBookStartDate": "Start date: {date}",
+         "plannedBookStartDateUndetermined": "Start date undetermined",
+         "prioritySelectorLabel": "Priority (Optional)",
+         "priorityUrgent": "Urgent",
+         "priorityHigh": "High",
+         "priorityMedium": "Medium",
+         "priorityLow": "Low",
+         "statusSelectorLabel": "Reading Status",
+         "statusPlannedLabel": "To Read",
+         "statusReadingLabel": "Start Now",
+         "contentTypeHighlight": "Highlight",
+         "contentTypeNote": "Note",
+         "contentTypePhoto": "Photo",
+         "genreNovel": "Novel",
+         "genreLiterature": "Literature",
+         "genreSelfHelp": "Self-Help",
+         "genreBusinessEconomics": "Business",
+         "genreHumanities": "Humanities",
+         "genreScience": "Science",
+         "genreHistory": "History",
+         "genreEssay": "Essay",
+         "genrePoetry": "Poetry",
+         "genreComic": "Comic",
+         "genreUncategorized": "Uncategorized",
+         "genreMessageNovel1": "You're a literature enthusiast!",
+         "genreMessageNovel2": "Living in the world of stories",
+         "genreMessageNovel3": "A devoted novel reader",
+         "genreMessageLiterature1": "You're a literature enthusiast!",
+         "genreMessageLiterature2": "A reader who understands literary depth",
+         "genreMessageLiterature3": "Someone who enjoys the beauty of words",
+         "genreMessageSelfHelp1": "You're constantly growing!",
+         "genreMessageSelfHelp2": "A reader who never stops improving",
+         "genreMessageSelfHelp3": "Preparing for a better tomorrow",
+         "genreMessageBusiness1": "You have a sharp business mind!",
+         "genreMessageBusiness2": "Running towards success",
+         "genreMessageBusiness3": "You have CEO potential",
+         "genreMessageHumanities1": "You enjoy deep contemplation",
+         "genreMessageHumanities2": "A reader who enjoys philosophical thinking",
+         "genreMessageHumanities3": "Someone who explores humanity and the world",
+         "genreMessageScience1": "You're a curious explorer!",
+         "genreMessageScience2": "Uncovering the principles of the world",
+         "genreMessageScience3": "A scientific thinker",
+         "genreMessageHistory1": "You find wisdom in history",
+         "genreMessageHistory2": "Seeing the future through the past",
+         "genreMessageHistory3": "You have the spirit of a history buff",
+         "genreMessageEssay1": "You empathize with life stories",
+         "genreMessageEssay2": "A reader who finds meaning in everyday life",
+         "genreMessageEssay3": "Someone with warm sensibility",
+         "genreMessagePoetry1": "A poet's soul with rich emotions",
+         "genreMessagePoetry2": "Someone who understands the beauty of language",
+         "genreMessagePoetry3": "You have excellent poetic sensitivity",
+         "genreMessageComic1": "You enjoy both fun and emotion",
+         "genreMessageComic2": "A reader who reads stories through pictures",
+         "genreMessageComic3": "Someone who appreciates comics",
+         "genreMessageUncategorized1": "You're exploring diverse fields!",
+         "genreMessageUncategorized2": "A reader without genre boundaries",
+         "genreMessageUncategorized3": "Someone who loves all kinds of books",
+          "genreMessageDefault": "You're an expert in {genre}!",
+          "genreMessageDefault2": "You have a deep interest in {genre}",
+          "genreMessageDefault3": "You have the qualities of a {genre} enthusiast",
+          "widgetRecommendationViewDetail": "View Book Details",
+          "widgetRecommendationViewDetailSubtitle": "Check book info at bookstore",
+          "widgetRecommendationStartReading": "Start Reading",
+          "widgetRecommendationStartReadingSubtitle": "Begin reading this book",
+          "widgetRecommendationSelectBookstore": "Select Bookstore",
+          "widgetRecommendationSearchBookstore": "Search results for '{searchTitle}'",
+          "widgetBookstoreAladin": "Aladin",
+          "widgetBookstoreKyobo": "Kyobo"
 }

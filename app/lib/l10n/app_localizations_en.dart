@@ -57,7 +57,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navCalendar => 'Calendar';
 
   @override
-  String booksCount(num count) {
+  String booksCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
@@ -68,7 +68,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String daysCount(num count) {
+  String daysCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
@@ -79,7 +79,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String pagesCount(num count) {
+  String pagesCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
@@ -88,9 +88,6 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get unitPages => 'pages';
 
   @override
   String get weekdayMon => 'Mon';
@@ -174,25 +171,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeBookList => 'Book List';
 
   @override
-  String get homeNoReadingBooks =>
-      'No books in progress. Please register a book first.';
-
-  @override
-  String get homeNoReadingBooksShort => 'No books in progress';
-
-  @override
-  String get homeViewAllBooks => 'View all books';
-
-  @override
-  String get homeViewReadingOnly => 'View reading only';
-
-  @override
-  String get homeViewAllBooksMessage => 'Switched to view all books.';
-
-  @override
-  String get homeViewReadingMessage => 'Switched to view reading books.';
-
-  @override
   String get bookListTabReading => 'Reading';
 
   @override
@@ -209,28 +187,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bookListFilterAll => 'All';
-
-  @override
-  String get bookListErrorLoadFailed => 'Unable to load data';
-
-  @override
-  String get bookListErrorNetworkCheck =>
-      'Please check your network connection';
-
-  @override
-  String get bookListEmptyReading => 'No books in progress';
-
-  @override
-  String get bookListEmptyPlanned => 'No books to read';
-
-  @override
-  String get bookListEmptyCompleted => 'No completed books';
-
-  @override
-  String get bookListEmptyPaused => 'No paused books';
-
-  @override
-  String get bookListEmptyAll => 'No reading started yet';
 
   @override
   String get bookDetailTabRecord => 'Record';
@@ -254,7 +210,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookDetailReviewWritten => 'Written';
 
   @override
-  String get bookDetailReviewNotWritten => 'Not written yet';
+  String get bookDetailReviewNotWritten => 'Not yet written';
 
   @override
   String get bookDetailLegendAchieved => 'Achieved';
@@ -272,46 +228,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myLibraryTitle => 'My Library';
 
   @override
-  String get myLibraryTabReading => 'Reading';
-
-  @override
-  String get myLibraryTabReview => 'Review';
-
-  @override
-  String get myLibraryTabRecord => 'Record';
-
-  @override
-  String get myLibrarySearchHint => 'Search by title or author';
-
-  @override
-  String get myLibraryNoSearchResults => 'No search results';
-
-  @override
-  String get myLibraryNoBooks => 'No books registered';
-
-  @override
-  String get myLibraryNoReviewBooks => 'No books with reviews';
-
-  @override
-  String get myLibraryNoRecords => 'No records';
-
-  @override
-  String get myLibraryAiSearch => 'AI Search All Records';
-
-  @override
-  String get myLibraryFilterAll => 'All';
-
-  @override
-  String get myLibraryFilterHighlight => '✨ Highlight';
-
-  @override
-  String get myLibraryFilterMemo => '📝 Memo';
-
-  @override
-  String get myLibraryFilterPhoto => '📷 Photo';
-
-  @override
-  String get chartTitle => 'My Reading Stats';
+  String get chartTitle => 'My Reading Status';
 
   @override
   String get chartTabOverview => 'Overview';
@@ -332,7 +249,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartPeriodMonthly => 'Monthly';
 
   @override
-  String get chartDailyAverage => 'Daily Avg';
+  String get chartDailyAverage => 'Daily Average';
 
   @override
   String get chartIncrease => 'Change';
@@ -342,63 +259,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chartMore => 'More';
-
-  @override
-  String get chartErrorLoadFailed => 'Unable to load data';
-
-  @override
-  String get chartErrorRetry => 'Retry';
-
-  @override
-  String get chartTotalPages => 'Total Pages Read';
-
-  @override
-  String get chartDailyAvgPages => 'Daily Average';
-
-  @override
-  String get chartMaxDaily => 'Best Record';
-
-  @override
-  String get chartMinDaily => 'Lowest Record';
-
-  @override
-  String get chartConsecutiveDays => 'Consecutive Days';
-
-  @override
-  String get chartTodayGoal => 'Today\'s Goal';
-
-  @override
-  String get chartReadingProgress => 'Reading Progress';
-
-  @override
-  String get chartDailyPages => 'Daily Pages';
-
-  @override
-  String get chartCumulativePages => 'Cumulative Pages';
-
-  @override
-  String get chartNoData => 'No data yet';
-
-  @override
-  String get chartDailyReadPages => 'Pages Read';
-
-  @override
-  String get chartReadingStats => 'Reading Statistics';
-
-  @override
-  String get chartAiInsight => 'AI Insight';
-
-  @override
-  String get chartCompletionRate => 'Completion Rate';
-
-  @override
-  String get chartRecordsHighlights => 'Records/Highlights';
-
-  @override
-  String get chartGenreAnalysis => 'Genre Analysis';
-
-  @override
-  String get chartNoReadingRecords => 'No reading records';
 
   @override
   String get myPageTitle => 'My Page';
@@ -411,74 +271,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get myPageLogout => 'Logout';
-
-  @override
-  String get myPageDeleteAccount => 'Delete Account';
-
-  @override
-  String get myPageDeleteAccountConfirm =>
-      'Are you sure you want to delete your account?\n\nThis action cannot be undone, and all data will be permanently deleted.';
-
-  @override
-  String get myPageDeleteAccountSuccess => 'Account successfully deleted.';
-
-  @override
-  String get myPageDeleteAccountFailed =>
-      'Failed to delete account. Please try again.';
-
-  @override
-  String myPageDeleteAccountError(String error) {
-    return 'An error occurred: $error';
-  }
-
-  @override
-  String get myPageNotificationTimeTitle => 'Set Notification Time';
-
-  @override
-  String get myPageNoNickname => 'No nickname';
-
-  @override
-  String get myPageNicknameHint => 'Enter your nickname';
-
-  @override
-  String get myPageDarkMode => 'Dark Mode';
-
-  @override
-  String get myPageDailyReadingNotification =>
-      'Daily Reading Goal Notification';
-
-  @override
-  String myPageNotificationTime(String time) {
-    return 'Daily notification at $time';
-  }
-
-  @override
-  String get myPageNoNotification => 'No notifications';
-
-  @override
-  String get myPageNotificationEnabled => 'Notifications enabled';
-
-  @override
-  String get myPageNotificationDisabled => 'Notifications disabled';
-
-  @override
-  String get myPageNotificationChangeFailed =>
-      'Failed to change notification settings';
-
-  @override
-  String get myPageTestNotification => 'Test (30s)';
-
-  @override
-  String get myPageTestNotificationSent =>
-      'Test notification will be sent in 30 seconds!';
-
-  @override
-  String get myPageAvatarChanged => 'Profile image changed';
-
-  @override
-  String myPageAvatarChangeFailed(String error) {
-    return 'Failed to change profile image: $error';
-  }
 
   @override
   String get loginAppName => 'BookGolas';
@@ -511,16 +303,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginDescriptionForgotPassword =>
-      'We\'ll send a password reset link\nto your registered email';
-
-  @override
-  String get loginEmailHint => 'example@email.com';
-
-  @override
-  String get loginPasswordHint => 'Enter 6 or more characters';
-
-  @override
-  String get loginNicknameHint => 'Name to use in the app';
+      'We\'ll send a reset link\nto your registered email';
 
   @override
   String get loginEmailRequired => 'Please enter your email';
@@ -529,28 +312,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginEmailInvalid => 'Please enter a valid email address';
 
   @override
+  String get loginPasswordHint => 'Enter 6 or more characters';
+
+  @override
   String get loginPasswordRequired => 'Please enter your password';
 
   @override
-  String get loginPasswordTooShort => 'Password must be at least 6 characters';
+  String get loginPasswordMinLength => 'Password must be at least 6 characters';
+
+  @override
+  String get loginNicknameHint => 'Name to use in the app';
 
   @override
   String get loginNicknameRequired => 'Please enter your nickname';
 
   @override
-  String get loginForgotPassword => 'Forgot your password?';
+  String get loginForgotPasswordButton => 'Forgot your password?';
 
   @override
-  String get loginNoAccount => 'Don\'t have an account? Sign Up';
+  String get loginSignupPrompt => 'Don\'t have an account? Sign Up';
 
   @override
-  String get loginHaveAccount => 'Already have an account? Login';
+  String get loginSigninPrompt => 'Already have an account? Login';
 
   @override
-  String get loginBackToSignIn => 'Back to Login';
+  String get loginBackButton => 'Back to Login';
 
   @override
   String get loginSaveEmail => 'Save email';
+
+  @override
+  String get loginResetPasswordButton => 'Send password reset email';
 
   @override
   String get loginSignupSuccess => 'Sign up complete. Please check your email.';
@@ -562,19 +354,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginUnexpectedError => 'An unexpected error occurred.';
 
   @override
-  String get loginErrorInvalidCredentials => 'Invalid email or password.';
+  String get loginInvalidCredentials => 'Email or password is incorrect.';
 
   @override
-  String get loginErrorEmailNotConfirmed =>
-      'Email verification is not complete.';
+  String get loginEmailNotConfirmed => 'Email verification is not complete.';
 
   @override
-  String get loginErrorEmailAlreadyRegistered =>
-      'This email is already registered.';
+  String get loginEmailAlreadyRegistered => 'This email is already registered.';
 
   @override
-  String get loginErrorPasswordTooShort =>
-      'Password must be at least 6 characters.';
+  String get loginPasswordTooShort => 'Password must be at least 6 characters.';
 
   @override
   String get reviewTitle => 'Book Review';
@@ -589,116 +378,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reviewExit => 'Exit';
 
   @override
-  String get reviewDraftLoaded => 'Draft loaded successfully.';
-
-  @override
-  String get reviewCopied => 'Review copied.';
-
-  @override
-  String get reviewBookNotFound => 'Book information not found.';
-
-  @override
-  String get reviewSaveFailed => 'Failed to save. Please try again.';
-
-  @override
-  String get reviewSaveError => 'An error occurred while saving.';
-
-  @override
-  String get reviewReplaceConfirm =>
-      'You have unsaved content.\nDo you want to replace it with AI draft?';
-
-  @override
-  String get reviewReplaceButton => 'Replace';
-
-  @override
-  String get reviewAIDraftGenerated => 'AI draft generated. Feel free to edit!';
-
-  @override
-  String get reviewAIDraftFailed =>
-      'Failed to generate AI draft. Please try again.';
-
-  @override
-  String get reviewAIDraftError =>
-      'An error occurred while generating AI draft.';
-
-  @override
-  String get reviewSaveComplete => 'Review saved!';
-
-  @override
-  String get reviewSaveCompleteMessage =>
-      'Your saved review can be found in the \'Review\' tab or\n\'My Library > Review\'.';
-
-  @override
-  String get reviewExitConfirm => 'Stop writing and exit?';
-
-  @override
-  String get reviewExitMessage => 'Your draft will be saved automatically.';
-
-  @override
-  String get reviewHint =>
-      'Write freely about your thoughts, impressive parts, and inspiration from this book.';
-
-  @override
   String get readingStartSetDate => 'Set Start Date';
 
   @override
-  String get readingStartUndetermined => 'TBD';
-
-  @override
-  String get readingStartTitle => 'Start Reading';
-
-  @override
-  String get readingStartSubtitle => 'Search for a book to start reading';
-
-  @override
-  String get readingStartNoResults => 'No search results';
-
-  @override
-  String get readingStartAnalyzing => 'Analyzing reading patterns...';
-
-  @override
-  String get readingStartAiRecommendation => 'AI Personalized Recommendations';
-
-  @override
-  String readingStartAiRecommendationDesc(String userName) {
-    return 'Books recommended based on $userName\'s reading patterns';
-  }
-
-  @override
-  String get readingStartSearchHint => 'Enter book title';
-
-  @override
-  String get readingStartSelectionComplete => 'Selection Complete';
-
-  @override
-  String get readingStartConfirm => 'OK';
-
-  @override
-  String readingStartPages(num totalPages) {
-    return '$totalPages pages';
-  }
-
-  @override
-  String get readingStartPlannedDate => 'Planned Reading Start Date';
-
-  @override
-  String get readingStartToday => 'Starting today';
-
-  @override
-  String get readingStartTargetDate => 'Target Deadline';
-
-  @override
-  String get readingStartTargetDateNote =>
-      'You can change the target date even after starting to read';
-
-  @override
-  String get readingStartSaveError => 'Failed to save reading information';
-
-  @override
-  String get readingStartReserve => 'Reserve Reading';
-
-  @override
-  String get readingStartBegin => 'Start Reading';
+  String get readingStartUndetermined => 'Undetermined';
 
   @override
   String get dialogOpacity => 'Opacity';
@@ -743,7 +426,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dialogOkay => 'Okay';
 
   @override
-  String get dialogExtractIt => 'Extract It';
+  String get dialogExtractIt => 'Extract';
 
   @override
   String get dialogThinkAboutIt => 'Think About It';
@@ -782,7 +465,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get genreUncategorized => 'Uncategorized';
 
   @override
-  String get errorInitFailed => 'Initialization failed';
+  String get errorInitFailed => 'An error occurred during initialization';
 
   @override
   String get errorLoadFailed => 'Failed to load';
@@ -794,497 +477,1370 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loadingInit => 'Initializing app...';
 
   @override
+  String get homeNoReadingBooks =>
+      'No reading books in progress. Please register a book first.';
+
+  @override
+  String get homeNoReadingBooksShort => 'No reading books in progress';
+
+  @override
+  String get homeSwitchToAllBooks => 'Switched to all books view.';
+
+  @override
+  String get homeSwitchToReadingDetail => 'Switched to reading detail view.';
+
+  @override
+  String get homeToggleAllBooks => 'View All Books';
+
+  @override
+  String get homeToggleReadingOnly => 'View Reading Only';
+
+  @override
+  String get bookListErrorLoadFailed => 'Failed to load data';
+
+  @override
+  String get bookListErrorCheckNetwork =>
+      'Please check your network connection';
+
+  @override
+  String get bookListEmptyPlanned => 'No books planned to read';
+
+  @override
+  String get bookListEmptyPaused => 'No paused books';
+
+  @override
+  String get bookListEmptyAll => 'No reading started yet';
+
+  @override
+  String get bookListEmptyReading => 'No books currently reading';
+
+  @override
+  String get bookListEmptyCompleted => 'No completed books';
+
+  @override
+  String bookListEmptyStatus(String status) {
+    return 'No $status books';
+  }
+
+  @override
+  String get bookDetailScreenTitle => 'Reading Details';
+
+  @override
+  String get bookDetailCompletionCongrats => 'Congratulations on finishing!';
+
+  @override
+  String get bookDetailCompletionPrompt =>
+      'While the afterglow of reading is still fresh,\nwould you like to write a review?';
+
+  @override
+  String get bookDetailWriteReview => 'Write Review';
+
+  @override
+  String get bookDetailEditReview => 'Edit Review';
+
+  @override
+  String get bookDetailReviewDescription =>
+      'Record your thoughts after reading';
+
+  @override
+  String get bookDetailReviewEditDescription =>
+      'Review and edit your written review';
+
+  @override
+  String get bookDetailContinueReading => 'Continue Reading';
+
+  @override
+  String get bookDetailContinueReadingDesc =>
+      'Let\'s focus and achieve your reading goal!';
+
+  @override
+  String get bookDetailRestartReading => 'Start New Reading';
+
+  @override
+  String get bookDetailPlannedStartDate => 'Planned Start Date';
+
+  @override
+  String get bookDetailPlannedStartDateUndetermined => 'Start date not set';
+
+  @override
+  String get bookDetailPlanUpdated => 'Reading plan has been updated';
+
+  @override
+  String bookDetailPausedPosition(
+      int currentPage, int totalPages, int percentage) {
+    return 'Paused at: ${currentPage}p / ${totalPages}p ($percentage%)';
+  }
+
+  @override
+  String bookDetailAttemptStart(int attemptNumber) {
+    return 'Starting attempt #$attemptNumber!';
+  }
+
+  @override
+  String bookDetailAttemptStartWithDays(int attemptNumber, int daysLeft) {
+    return 'Starting attempt #$attemptNumber! D-$daysLeft';
+  }
+
+  @override
+  String bookDetailAttemptStartEncouragement(int attemptNumber) {
+    return 'Starting attempt #$attemptNumber. Let\'s do it!';
+  }
+
+  @override
+  String bookDetailGoalAchieved(int pagesRead) {
+    return 'Today\'s goal achieved! +$pagesRead pages 🎉';
+  }
+
+  @override
+  String bookDetailPagesRead(int pagesRead, int pagesLeft) {
+    return '+$pagesRead pages! ${pagesLeft}p left to today\'s goal';
+  }
+
+  @override
+  String bookDetailPagesReached(int pagesRead, int currentPage) {
+    return '+$pagesRead pages! Reached ${currentPage}p';
+  }
+
+  @override
+  String get bookDetailRecordSaved => 'Record saved';
+
+  @override
+  String get bookDetailUploadFailed => 'Upload Failed';
+
+  @override
+  String get bookDetailNetworkError =>
+      'Please check your network connection.\nIf the connection is good, please try again.';
+
+  @override
+  String get bookDetailUploadError =>
+      'An error occurred while saving the record.\nPress the upload button to try again.';
+
+  @override
+  String get bookDetailImageReplaced => 'Image replaced';
+
+  @override
+  String get bookDetailDeleteConfirmTitle => 'Delete this reading?';
+
+  @override
+  String get bookDetailDeleteConfirmMessage =>
+      'Deleted reading records cannot be recovered.';
+
+  @override
+  String get bookDetailDeleteSuccess => 'Reading deleted';
+
+  @override
+  String get bookDetailDeleteImageConfirmTitle => 'Delete this item?';
+
+  @override
+  String get bookDetailDeleteImageConfirmMessage =>
+      'This item cannot be recovered once deleted.';
+
+  @override
+  String bookDetailItemsDeleted(int count) {
+    return '$count items deleted';
+  }
+
+  @override
+  String get bookDetailPauseReadingMessage =>
+      'Taking a break from reading. Feel free to start again anytime!';
+
+  @override
+  String get bookDetailNewJourneyStart =>
+      'Starting a new reading journey! Fighting! 📚';
+
+  @override
+  String get bookDetailNoteStructure => 'Note Structure';
+
+  @override
+  String get bookDetailPriorityUrgent => 'Urgent';
+
+  @override
+  String get bookDetailPriorityHigh => 'High';
+
+  @override
+  String get bookDetailPriorityMedium => 'Medium';
+
+  @override
+  String get bookDetailPriorityLow => 'Low';
+
+  @override
+  String get bookDetailError => 'An error occurred';
+
+  @override
   String get calendarMonthSelect => 'Select Month';
 
   @override
-  String calendarPagesRead(num count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count pages read',
-      one: '1 page read',
-    );
-    return '$_temp0';
+  String get calendarCancel => 'Cancel';
+
+  @override
+  String get calendarConfirm => 'OK';
+
+  @override
+  String calendarPagesRead(int pages) {
+    return '$pages pages read';
   }
 
   @override
   String get calendarCompleted => 'Completed';
 
   @override
-  String get onboardingTitle1 => 'Record Your Own Reading Journey';
+  String get calendarSelectMonth => 'Select Month';
 
   @override
-  String get onboardingDescription1 =>
-      'Register books you want to read,\nand manage your reading goals and progress at a glance.';
+  String get calendarFilterAll => 'All';
 
   @override
-  String get onboardingTitle2 => 'Search Your Reading Records with AI';
+  String get calendarFilterReading => 'Reading';
 
   @override
-  String get onboardingDescription2 =>
-      'Search for content you remember,\nand AI will find related notes and books for you.';
+  String get calendarFilterCompleted => 'Completed';
 
   @override
-  String get onboardingTitle3 => 'Get Book Recommendations';
+  String get calendarLoadError => 'Failed to load data';
 
   @override
-  String get onboardingDescription3 =>
-      'Based on the books you\'ve read so far,\nAI recommends books tailored to your taste.';
+  String get myPageDeleteAccountTitle => '계정 삭제';
 
   @override
-  String get readingProgressTitle => 'Reading Progress History';
+  String get myPageDeleteAccountConfirm =>
+      '정말로 계정을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.';
 
   @override
-  String get readingProgressLoadFailed => 'Failed to load progress';
+  String get myPageDeleteAccountSuccess => '계정이 성공적으로 삭제되었습니다.';
 
   @override
-  String get readingProgressNoRecords => 'No progress records';
+  String get myPageDeleteAccountFailed => '계정 삭제에 실패했습니다. 다시 시도해주세요.';
 
   @override
-  String get barcodeScannerTitle => 'Scan ISBN Barcode';
+  String myPageErrorOccurred(String error) {
+    return '오류가 발생했습니다: $error';
+  }
 
   @override
-  String get barcodeScannerHint =>
-      'Scan the ISBN barcode on the back of the book';
+  String get myPageNotificationTimeTitle => '알림 시간 설정';
+
+  @override
+  String get myPageDarkMode => '다크 모드';
+
+  @override
+  String get myPageDailyReadingNotification => '매일 독서 목표 알림';
+
+  @override
+  String get myPageNoNotifications => '알림을 받지 않습니다';
+
+  @override
+  String get myPageNotificationsEnabled => '알림이 활성화되었습니다';
+
+  @override
+  String get myPageNotificationsDisabled => '알림이 비활성화되었습니다';
+
+  @override
+  String get myPageNotificationSettingsFailed => '알림 설정 변경에 실패했습니다';
+
+  @override
+  String get myPageTestNotification => '테스트 알림 (30초 후)';
+
+  @override
+  String get myPageTestNotificationScheduled => '30초 후에 테스트 알림이 발송됩니다!';
+
+  @override
+  String get myPageNoNickname => '닉네임 없음';
+
+  @override
+  String get myPageEnterNickname => '닉네임을 입력하세요';
+
+  @override
+  String get myPageProfileImageChanged => '프로필 이미지가 변경되었습니다';
+
+  @override
+  String myPageProfileImageChangeFailed(String error) {
+    return '프로필 이미지 변경 실패: $error';
+  }
+
+  @override
+  String get myPageLanguageKorean => '한국어';
+
+  @override
+  String get myPageLanguageEnglish => 'English';
+
+  @override
+  String get myPageDeleteAccountButton => '계정 삭제';
+
+  @override
+  String myPageNotificationTimeChanged(String time) {
+    return '알림 시간이 $time으로 변경되었습니다';
+  }
+
+  @override
+  String get myPageNotificationTimeChangeFailed => '알림 시간 변경에 실패했습니다';
+
+  @override
+  String myPageDailyReadingNotificationSubtitle(String time) {
+    return '매일 $time에 알림';
+  }
+
+  @override
+  String get reviewDraftLoaded => 'Draft loaded.';
+
+  @override
+  String get reviewCopied => 'Review copied.';
+
+  @override
+  String get reviewBookNotFound => 'Book information not found.';
+
+  @override
+  String get reviewSaveFailed => 'Save failed. Please try again.';
+
+  @override
+  String get reviewSaveError => 'An error occurred while saving.';
+
+  @override
+  String get reviewReplaceConfirmTitle =>
+      'You have content in progress.\nReplace with AI draft?';
+
+  @override
+  String get reviewAIDraftGenerated => 'AI draft generated. Feel free to edit!';
+
+  @override
+  String get reviewAIDraftGenerateFailed =>
+      'AI draft generation failed. Please try again.';
+
+  @override
+  String get reviewAIDraftGenerateError =>
+      'An error occurred while generating AI draft.';
+
+  @override
+  String get reviewSaveCompleteTitle => 'Review saved!';
+
+  @override
+  String get reviewSaveCompleteMessage =>
+      'Your saved review can be found in the \'Review\' tab or\n\'My Library > Review\'.';
+
+  @override
+  String get reviewExitConfirmTitle => 'Stop writing and exit?';
+
+  @override
+  String get reviewExitConfirmSubtitle => 'Your draft will be saved.';
+
+  @override
+  String get reviewAIGenerating => 'AI is writing a draft...';
+
+  @override
+  String get reviewAIButtonLabel => 'Write review draft with AI';
+
+  @override
+  String get reviewTextFieldHint =>
+      'Feel free to write your thoughts, impressive parts, and inspiration from this book.';
+
+  @override
+  String get readingStartTitle => 'Start Reading';
+
+  @override
+  String get readingStartSubtitle => 'Search for a book to start reading.';
+
+  @override
+  String get readingStartNoResults => 'No search results';
+
+  @override
+  String get readingStartAnalyzing => 'Analyzing reading patterns...';
+
+  @override
+  String get readingStartAIRecommendation => 'AI Personalized Recommendations';
+
+  @override
+  String readingStartAIRecommendationDesc(String userName) {
+    return 'Books recommended by analyzing $userName\'s reading patterns';
+  }
+
+  @override
+  String get readingStartSearchHint => 'Enter book title.';
+
+  @override
+  String get readingStartSelectionComplete => 'Selection Complete';
+
+  @override
+  String get readingStartPlannedStartDate => 'Planned Reading Start Date';
+
+  @override
+  String get readingStartStartingToday => 'Starting from today';
+
+  @override
+  String get readingStartTargetDeadline => 'Target Deadline';
+
+  @override
+  String get readingStartTargetDeadlineNote =>
+      'You can change the target date even after starting to read';
+
+  @override
+  String get barcodeScannerTitle => 'ISBN Barcode Scan';
+
+  @override
+  String get barcodeScannerInstruction =>
+      'Please scan the ISBN barcode on the back of the book';
+
+  @override
+  String get barcodeScannerFrameHint => 'Align the barcode within the frame';
 
   @override
   String get scannerErrorPermissionDenied =>
-      'Camera permission required\nPlease allow camera access in settings';
+      'Camera permission is required\nPlease allow permission in settings';
 
   @override
   String get scannerErrorInitializing => 'Initializing camera';
 
   @override
-  String get scannerErrorDefault => 'Camera error occurred\nPlease try again';
+  String get scannerErrorGeneral => 'Camera error occurred\nPlease try again';
 
   @override
-  String get bookstoreSelectTitle => 'Select Bookstore';
+  String get bookDetailTabRecordLabel => 'Record';
 
   @override
-  String get bookstoreAladdin => 'Aladin';
+  String get bookDetailTabHistoryLabel => 'History';
 
   @override
-  String get bookstoreKyobo => 'Kyobo';
+  String get bookDetailTabDetailLabel => 'Details';
 
   @override
-  String get expandedNavBackToDetail => 'Back to Reading Detail';
+  String get highlightOpacity => 'Opacity';
 
   @override
-  String get extractedTextTitle => 'Extracted Text';
+  String get highlightThickness => 'Thickness';
 
   @override
-  String get extractedTextSubtitle =>
-      'Check the extracted content. You can edit it directly!';
+  String get todayGoalSettingTitle => 'Today\'s Goal Setting';
 
   @override
-  String get extractedTextApplyButton => 'Apply';
+  String get todayGoalStartPageLabel => 'Start Page';
 
   @override
-  String get extractedTextCancelButton => 'Select Again';
+  String get todayGoalTargetPageLabel => 'Target Page';
 
   @override
-  String get extractedTextHint => 'Enter text';
+  String get bookStatusCompleted => 'Completed';
 
   @override
-  String get fullTextViewTitle => 'Text Record';
+  String get bookStatusPlanned => 'To Read';
 
   @override
-  String get fullTextViewHint => 'Enter text...';
+  String get bookStatusReread => 'Reread';
 
   @override
-  String get fullTextViewCopied => 'Text copied.';
+  String get bookStatusReading => 'Reading';
 
   @override
-  String get highlightEditTitle => 'Edit Highlight';
+  String get bookCompletionCongrats => 'Congratulations on finishing!';
 
   @override
-  String get highlightEditOpacity => 'Opacity';
+  String get bookCompletionQuestion => 'How was this book?';
 
   @override
-  String get highlightEditThickness => 'Thickness';
+  String get reviewOneLinePlaceholder => 'One-line review (optional)';
 
   @override
-  String get koreanDatePickerYear => '';
+  String get reviewOneLineHint => 'Express this book in one word...';
 
   @override
-  String get koreanDatePickerMonth => '';
+  String get bookCompletionLater => 'Later';
 
   @override
-  String get koreanDatePickerDay => '';
+  String get bookCompletionDone => 'Done';
 
   @override
-  String get koreanTimePickerHour => '';
+  String get ratingBad => 'Disappointing 😢';
 
   @override
-  String get koreanTimePickerMinute => '';
+  String get ratingOkay => 'Just okay 😐';
 
   @override
-  String get koreanYearMonthPickerYear => '';
+  String get ratingGood => 'Good 🙂';
 
   @override
-  String get koreanYearMonthPickerMonth => '';
+  String get ratingGreat => 'Great! 😊';
 
   @override
-  String get liquidGlassSearchHint => 'Enter book title';
+  String get ratingExcellent => 'Excellent! 🤩';
 
   @override
-  String get readingDetailPageUpdate => 'Update Pages';
+  String get recordSearch => 'Record Search';
 
   @override
-  String get recommendationViewDetail => 'View Book Details';
+  String get pageUpdate => 'Page Update';
 
   @override
-  String get recommendationViewDetailSubtitle =>
-      'Check book information at the bookstore';
+  String get dayLabels => 'Sun,Mon,Tue,Wed,Thu,Fri,Sat';
 
   @override
-  String get recommendationStartReading => 'Start Reading';
-
-  @override
-  String get recommendationStartReadingSubtitle => 'Start reading this book';
-
-  @override
-  String get recommendationBookstoreSelect => 'Select Bookstore';
-
-  @override
-  String get chartAiInsightTitle => 'AI Insight';
-
-  @override
-  String get chartAiInsightAnalyzing => 'Analyzing your reading patterns...';
-
-  @override
-  String get chartAiInsightUnknownError => 'An unknown error occurred';
-
-  @override
-  String get chartAiInsightRetry => 'Retry';
-
-  @override
-  String get chartAiInsightMinBooksRequired =>
-      'Read more books to get AI insights';
-
-  @override
-  String chartAiInsightMinBooksMessage(int count) {
-    return 'Books completed: $count';
+  String streakAchieved(int streak) {
+    return '$streak day streak!';
   }
 
   @override
-  String get chartAiInsightMinBooksHint => 'Minimum 3 books, recommended 5+';
+  String get streakFirstRecord => 'Leave your first record today';
 
   @override
-  String get chartAiInsightGenerateButton => 'Analyze';
+  String get mindmapInsufficientData =>
+      'Insufficient reading records.\nAt least 5 highlights or memos are required.';
 
   @override
-  String get chartAiInsightEmptyState =>
-      'Click the button below to generate insights';
+  String get contentBadgeHighlight => 'Highlight';
 
   @override
-  String get chartAiInsightAlreadyAnalyzed =>
-      'Already analyzed today. Try again tomorrow.';
+  String get contentBadgeMemo => 'Memo';
 
   @override
-  String get chartAiInsightClearMemory => 'Clear Insight History';
+  String get contentBadgeOCR => 'Photo OCR';
 
   @override
-  String get chartAiInsightClearMemoryTitle => 'Clear Insight History';
+  String get readingScheduleStartDate => 'Start Date';
 
   @override
-  String get chartAiInsightClearMemoryMessage =>
-      'Are you sure you want to delete all insight history?\nThis action cannot be undone.';
+  String get readingScheduleTargetDate => 'Target Date';
 
   @override
-  String get chartAiInsightClearMemoryCancel => 'Cancel';
-
-  @override
-  String get chartAiInsightClearMemoryConfirm => 'Delete';
-
-  @override
-  String get chartAiInsightSampleLabel => '(Sample)';
-
-  @override
-  String chartAnnualGoalTitle(int year) {
-    return '$year Reading Goal';
+  String readingScheduleTotalDays(int totalDays) {
+    return '($totalDays days)';
   }
 
   @override
-  String chartAnnualGoalAchieved(int percent) {
-    return '$percent% Achieved';
+  String readingScheduleAttempt(int attemptCount) {
+    return 'Attempt $attemptCount';
   }
 
   @override
-  String chartAnnualGoalRemaining(int count) {
-    return '$count books remaining';
+  String get pageUpdateDialogTitle => 'Update Current Page';
+
+  @override
+  String get pageUpdateValidationRequired => 'Please enter a number';
+
+  @override
+  String get pageUpdateValidationNonNegative =>
+      'Please enter a page number of 0 or more';
+
+  @override
+  String pageUpdateValidationExceedsTotal(int totalPages) {
+    return 'Cannot exceed total pages ($totalPages)';
   }
 
   @override
-  String get chartAnnualGoalAchievedMessage =>
-      'Congratulations! You\'ve achieved this year\'s goal!';
-
-  @override
-  String chartAnnualGoalAheadMessage(int count) {
-    return 'You\'ve read $count more books than expected!';
+  String pageUpdateValidationLessThanCurrent(int currentPage) {
+    return 'Cannot be less than current page ($currentPage)';
   }
 
   @override
-  String get chartAnnualGoalMotivationMessage =>
-      'Keep going! You can reach your goal!';
-
-  @override
-  String get chartAnnualGoalSetGoal => 'Set Goal';
-
-  @override
-  String get chartAnnualGoalSetGoalMessage =>
-      'Set your reading goal to see your progress at a glance';
-
-  @override
-  String get chartAnnualGoalEditGoal => 'Edit Goal';
-
-  @override
-  String get chartCompletionRateTitle => 'Reading Completion';
-
-  @override
-  String get chartCompletionRateLabel => 'Completion Rate';
-
-  @override
-  String chartCompletionRateBooks(int count) {
-    return '$count books completed';
+  String pageUpdateCurrentPage(int currentPage) {
+    return 'Currently ${currentPage}p';
   }
 
   @override
-  String get chartAbandonRateLabel => 'Abandon Rate';
-
-  @override
-  String chartAbandonRateBooks(int count) {
-    return '$count books abandoned';
+  String pageUpdateTotalPages(int totalPages) {
+    return ' / Total ${totalPages}p';
   }
 
   @override
-  String get chartRetrySuccessRateLabel => 'Retry Success Rate';
+  String get pageUpdateNewPageLabel => 'New Page Number';
 
   @override
-  String get chartRetrySuccessRateBooks => 'Completed after retry';
+  String get pageUpdateCancel => 'Cancel';
 
   @override
-  String get chartCompletionRateSummaryStarted => 'Started';
+  String get pageUpdateButton => 'Update';
 
   @override
-  String get chartCompletionRateSummaryCompleted => 'Completed';
+  String get imageSourceDocumentScan => 'Document Scan';
 
   @override
-  String get chartCompletionRateSummaryInProgress => 'In Progress';
+  String get imageSourceAutoCorrection => 'Flatten & Auto Correct';
 
   @override
-  String get chartCompletionRateSummaryAbandoned => 'Abandoned';
+  String get imageSourceSimulatorError =>
+      'Camera is not available on simulator';
 
   @override
-  String get chartCompletionRateEmptyMessage => 'No completed books yet';
+  String get imageSourceTakePhoto => 'Take Photo';
 
   @override
-  String get chartCompletionRateEmptyHint =>
-      'Read and complete books to see your completion rate';
+  String get imageSourceGeneralPhoto => 'General Photo';
 
   @override
-  String get chartGenreAnalysisTitle => 'Genre Analysis';
+  String get imageSourceFromLibrary => 'From Library';
 
   @override
-  String get chartGenreAnalysisTotalCompleted => 'Total Completed';
+  String get imageSourceSelectSaved => 'Select Saved Image';
 
   @override
-  String get chartGenreAnalysisDiversity => 'Genre Diversity';
+  String get imageSourceReplaceTitle => 'Replace Image';
 
   @override
-  String get chartGenreAnalysisEmptyMessage => 'No completed books yet';
+  String get imageSourceCameraTitle => 'Take Photo';
 
   @override
-  String get chartGenreAnalysisEmptyHint =>
-      'Complete books to see genre statistics!';
+  String get imageSourceGalleryTitle => 'Select from Gallery';
 
   @override
-  String get chartHighlightStatsTitle => 'Highlights & Records';
+  String get imageSourceReplaceConfirmation => 'Replace this image?';
 
   @override
-  String get chartHighlightStatsHighlights => 'Highlights';
+  String get imageSourceReplaceWarning =>
+      'Previously extracted text will be lost.';
 
   @override
-  String get chartHighlightStatsMemos => 'Memos';
+  String get dailyTargetDialogTitle => 'Change Daily Target Page';
 
   @override
-  String get chartHighlightStatsPhotos => 'Photos';
+  String get dailyTargetScheduleHeader => 'Expected Schedule';
 
   @override
-  String get chartHighlightStatsByGenre => 'Highlights by Genre';
+  String get dailyTargetPagesPerDay => 'Pages/Day';
 
   @override
-  String get chartHighlightStatsEmptyMessage => 'No highlights yet';
-
-  @override
-  String get chartHighlightStatsEmptyHint =>
-      'Highlight important parts while reading';
-
-  @override
-  String chartMonthlyBooksTitle(int year) {
-    return '$year Monthly Reading';
+  String dailyTargetPagesLeft(int pagesLeft) {
+    return '$pagesLeft pages';
   }
 
   @override
-  String get chartMonthlyBooksThisMonth => 'This Month';
-
-  @override
-  String get chartMonthlyBooksLastMonth => 'Last Month';
-
-  @override
-  String get chartMonthlyBooksChange => 'Change';
-
-  @override
-  String chartMonthlyBooksMonth(int month) {
-    return '$month';
+  String dailyTargetDaysLeft(int daysLeft) {
+    return ' remaining · D-$daysLeft';
   }
 
   @override
-  String chartMonthlyBooksTooltip(int month, int count) {
-    return '$month month\n$count books';
+  String get dailyTargetChangeButton => 'Change';
+
+  @override
+  String get dailyTargetNotFound => 'Book information not found';
+
+  @override
+  String dailyTargetUpdateSuccess(int newDailyTarget) {
+    return 'Today\'s goal changed to ${newDailyTarget}p';
   }
 
   @override
-  String chartReadingStreakTitle(int year) {
-    return '$year Reading Heatmap';
+  String dailyTargetUpdateError(String error) {
+    return 'Failed to change goal: $error';
   }
 
   @override
-  String get chartReadingStreakDaysRead => 'Days Read';
+  String get editPlannedBookTitle => 'Edit Reading Plan';
 
   @override
-  String get chartReadingStreakTotalPages => 'Total Pages';
+  String get editPlannedBookStartDate => 'Planned Start Date';
 
   @override
-  String get chartReadingStreakDailyAverage => 'Daily Avg';
+  String get editPlannedBookCancel => 'Cancel';
 
   @override
-  String get chartReadingStreakLess => 'Less';
+  String get editPlannedBookSave => 'Save';
 
   @override
-  String get chartReadingStreakMore => 'More';
+  String get updateTargetDateTitle => 'Change Target Date';
 
   @override
-  String chartReadingStreakTooltip(int month, int day, int pages) {
-    return '$month/$day: $pages pages';
+  String updateTargetDateAttempt(int nextAttemptCount) {
+    return 'Will change to attempt $nextAttemptCount';
   }
 
   @override
-  String get chartReadingStreakMonthJan => 'Jan';
-
-  @override
-  String get chartReadingStreakMonthMar => 'Mar';
-
-  @override
-  String get chartReadingStreakMonthMay => 'May';
-
-  @override
-  String get chartReadingStreakMonthJul => 'Jul';
-
-  @override
-  String get chartReadingStreakMonthSep => 'Sep';
-
-  @override
-  String get chartReadingStreakMonthNov => 'Nov';
-
-  @override
-  String readingGoalSheetTitle(int year) {
-    return '$year Reading Goal';
+  String updateTargetDateFormatted(int year, int month, int day) {
+    return '$year/$month/$day';
   }
 
   @override
-  String get readingGoalSheetQuestion =>
-      'How many books do you want to read this year?';
+  String get updateTargetDateCancel => 'Cancel';
 
   @override
-  String get readingGoalSheetRecommended => 'Recommended Goals';
+  String get updateTargetDateButton => 'Change';
 
   @override
-  String get readingGoalSheetCustom => 'Custom Input';
+  String get reviewLinkSectionTitle => 'Related Links';
 
   @override
-  String readingGoalSheetBooksPerMonth(String count) {
-    return 'Average $count books per month';
+  String get reviewLinkAladinTitle => 'View on Aladin';
+
+  @override
+  String get reviewLinkAladinSubtitle => 'Book Details';
+
+  @override
+  String get reviewLinkViewButton => 'View Review';
+
+  @override
+  String get reviewLinkAddButton => 'Add Review Link';
+
+  @override
+  String get reviewLinkViewDescription => 'My written review';
+
+  @override
+  String get reviewLinkAddDescription =>
+      'Add review link from blog, Notion, etc.';
+
+  @override
+  String get reviewLinkDialogTitle => 'Review Link';
+
+  @override
+  String get reviewLinkDialogHint =>
+      'Enter review link from blog, Notion, Brunch, etc.';
+
+  @override
+  String get reviewLinkInvalidUrl => 'Please enter a valid URL';
+
+  @override
+  String get reviewLinkUrlLabel => 'Review URL';
+
+  @override
+  String get reviewLinkDeleteButton => 'Delete';
+
+  @override
+  String get reviewLinkSaveButton => 'Save';
+
+  @override
+  String get existingImageEditingWarning => 'You have unsaved changes.';
+
+  @override
+  String get existingImageDiscardChanges => 'Discard Changes';
+
+  @override
+  String get existingImageContinueEditing => 'Continue Editing';
+
+  @override
+  String existingImageExceedsTotal(int totalPages) {
+    return 'Cannot exceed total pages ($totalPages)';
   }
 
   @override
-  String get readingGoalSheetHint => 'Enter goal number';
+  String get existingImageSaved => 'Saved';
 
   @override
-  String get readingGoalSheetBooks => 'books';
+  String get existingImageCloseButton => 'Close';
 
   @override
-  String get readingGoalSheetMotivation1 =>
-      'Reading 1 book per month consistently builds a reading habit. Enjoy reading without pressure!';
+  String get existingImageCancelButton => 'Cancel';
 
   @override
-  String get readingGoalSheetMotivation2 =>
-      'Reading 1 book every 2 weeks is achievable! Experience the joy of reading with a reasonable goal.';
+  String get existingImagePageNotSet => 'Page not set';
 
   @override
-  String get readingGoalSheetMotivation3 =>
-      '1 book every 10 days! You love reading. Explore diverse genres!';
+  String get existingImageSavingButton => 'Saving...';
 
   @override
-  String get readingGoalSheetMotivation4 =>
-      'Almost 1 book per week! You\'re a true book lover. Keep the fire burning! 🔥';
+  String get existingImageSaveButton => 'Save';
 
   @override
-  String get readingGoalSheetMotivation5 =>
-      'An ambitious goal! More than 1 book per week. You\'re a reading master! 📚✨';
+  String get existingImageDeleteButton => 'Delete';
 
   @override
-  String get readingGoalSheetCancel => 'Cancel';
+  String get existingImageTextHint => 'Enter text...';
 
   @override
-  String get readingGoalSheetSet => 'Set Goal';
+  String existingImageHighlightCount(int count) {
+    return 'Highlight $count';
+  }
 
   @override
-  String get readingGoalSheetUpdate => 'Update Goal';
+  String get existingImageHighlightLabel => 'Highlight';
+
+  @override
+  String get existingImageExtractText => 'Extract Text';
+
+  @override
+  String get existingImageReplaceButton => 'Replace';
+
+  @override
+  String get existingImageRecordText => 'Record Text';
+
+  @override
+  String get existingImageViewAll => 'View All';
+
+  @override
+  String get existingImageCopyMessage => 'Text copied.';
+
+  @override
+  String get existingImageCopyButton => 'Copy';
+
+  @override
+  String get existingImageEditButton => 'Edit';
+
+  @override
+  String get existingImageClearAllButton => 'Clear All';
+
+  @override
+  String get existingImageNoRecordedText => 'No recorded text.';
+
+  @override
+  String get addMemorablePageCreditWarning =>
+      'Used credits cannot be recovered.';
+
+  @override
+  String addMemorablePageExceedsTotal(int totalPages) {
+    return 'Cannot exceed total pages ($totalPages)';
+  }
+
+  @override
+  String get addMemorablePageExceedsError => 'Cannot exceed total pages.';
+
+  @override
+  String get addMemorablePageResetConfirm => 'Really reset the content?';
+
+  @override
+  String get addMemorablePageResetCancel => 'Cancel';
+
+  @override
+  String get addMemorablePageResetButton => 'Reset';
+
+  @override
+  String get addMemorablePageTitle => 'Add Record';
+
+  @override
+  String get addMemorablePageResetTitle => 'Reset';
+
+  @override
+  String addMemorablePageHighlightCount(int count) {
+    return 'Highlight ($count)';
+  }
+
+  @override
+  String get addMemorablePageHighlightLabel => 'Highlight';
+
+  @override
+  String get addMemorablePageExtractText => 'Extract Text';
+
+  @override
+  String get addMemorablePageReplaceButton => 'Replace';
+
+  @override
+  String get addMemorablePageAddImage => 'Tap to add image';
+
+  @override
+  String get addMemorablePageOptional => '(Optional)';
+
+  @override
+  String get addMemorablePagePageCount => 'Page Count';
+
+  @override
+  String get addMemorablePageTextHint => 'Record an impressive passage.';
+
+  @override
+  String get addMemorablePageRecordText => 'Record Text';
+
+  @override
+  String get addMemorablePageViewAll => 'View All';
+
+  @override
+  String get addMemorablePageClearAll => 'Clear All';
+
+  @override
+  String get addMemorablePageUploadButton => 'Upload';
+
+  @override
+  String get addMemorablePageUploading => 'Uploading...';
+
+  @override
+  String get pauseReadingTitle => 'Take a Break';
+
+  @override
+  String pauseReadingMessage(int progress, int currentPage, int totalPages) {
+    return 'Pausing reading at $progress% ($currentPage / $totalPages pages).';
+  }
+
+  @override
+  String get pauseReadingEncouragement => 'You can resume anytime!';
+
+  @override
+  String get pauseReadingCancel => 'Cancel';
+
+  @override
+  String get pauseReadingButton => 'Take a Break';
+
+  @override
+  String get readingManagementTitle => 'Reading Management';
+
+  @override
+  String readingManagementProgress(
+      int progress, int currentPage, int totalPages) {
+    return 'Currently $progress% in progress ($currentPage / $totalPages pages)';
+  }
+
+  @override
+  String get readingManagementPauseLabel => 'Take a Break';
+
+  @override
+  String get readingManagementPauseDesc => 'You can read it again later';
+
+  @override
+  String get readingManagementDeleteLabel => 'Delete';
+
+  @override
+  String get readingManagementDeleteDesc => 'Reading records will be deleted';
+
+  @override
+  String get readingManagementThinkAbout => 'Let me think about it';
+
+  @override
+  String get bookReviewTabNoReview => 'No review yet';
+
+  @override
+  String get bookReviewTabDescription => 'Record your thoughts after reading';
+
+  @override
+  String get bookReviewTabWriteButton => 'Write Review';
+
+  @override
+  String get bookReviewTabMyReview => 'My Review';
+
+  @override
+  String get bookReviewTabEditButton => 'Edit Review';
+
+  @override
+  String dashboardProgressPagesLeft(int pagesLeft) {
+    return '$pagesLeft pages';
+  }
+
+  @override
+  String get dashboardProgressRemaining => ' remaining';
+
+  @override
+  String dashboardProgressDailyTarget(int dailyTarget) {
+    return 'Today\'s goal: ${dailyTarget}p';
+  }
+
+  @override
+  String get dashboardProgressAchieved => 'Goal Achieved';
+
+  @override
+  String get detailTabManagement => 'Reading Management';
+
+  @override
+  String get detailTabManagementDesc => 'Pause, delete, etc.';
+
+  @override
+  String get detailTabDeleteReading => 'Delete Reading';
+
+  @override
+  String get detailTabReview => 'Review';
+
+  @override
+  String get detailTabReviewWritten => 'Written';
+
+  @override
+  String get detailTabReviewNotWritten => 'Not yet written';
+
+  @override
+  String get detailTabReviewDescription => 'Record your thoughts after reading';
+
+  @override
+  String get detailTabSchedule => 'Reading Schedule';
+
+  @override
+  String get detailTabScheduleStartDate => 'Start Date';
+
+  @override
+  String get detailTabScheduleTargetDate => 'Target Date';
+
+  @override
+  String detailTabAttempt(int attemptCount, String attemptEncouragement) {
+    return 'Attempt $attemptCount · $attemptEncouragement';
+  }
+
+  @override
+  String get detailTabChangeButton => 'Change';
+
+  @override
+  String get detailTabGoalAchievement => 'Goal Achievement';
+
+  @override
+  String detailTabAchievementStats(int passedDays, int achievedCount) {
+    return '$achievedCount out of $passedDays days achieved';
+  }
+
+  @override
+  String get detailTabLegendAchieved => 'Achieved';
+
+  @override
+  String get detailTabLegendMissed => 'Missed';
+
+  @override
+  String get detailTabLegendScheduled => 'Scheduled';
+
+  @override
+  String get memorablePagesNoImages => 'No images added yet';
+
+  @override
+  String get memorablePagesAddPrompt => 'Add using the + button below';
+
+  @override
+  String memorablePagesSelected(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get memorablePagesSortPageDesc => 'Page (High to Low)';
+
+  @override
+  String get memorablePagesSortPageAsc => 'Page (Low to High)';
+
+  @override
+  String get memorablePagesSortDateDesc => 'Recent First';
+
+  @override
+  String get memorablePagesSortDateAsc => 'Oldest First';
+
+  @override
+  String get memorablePagesSortType => 'Page';
+
+  @override
+  String get memorablePagesSortDate => 'Date';
+
+  @override
+  String get memorablePagesDeleteButton => 'Delete';
+
+  @override
+  String get memorablePagesCompleteButton => 'Done';
+
+  @override
+  String get memorablePagesSelectButton => 'Select';
+
+  @override
+  String get memorablePagesPreviewHint => 'Tap for details';
+
+  @override
+  String get fullTitleSheetTitle => 'Book Title';
+
+  @override
+  String get fullTitleSheetCopyMessage => 'Title copied';
+
+  @override
+  String get fullTitleSheetCopyButton => 'Copy';
+
+  @override
+  String get fullTitleSheetStoreButton => 'View in Store';
+
+  @override
+  String deleteConfirmationItemCount(int count) {
+    return 'Delete $count items?';
+  }
+
+  @override
+  String get deleteConfirmationWarning => 'Deleted items cannot be recovered.';
+
+  @override
+  String get deleteConfirmationCancel => 'Cancel';
+
+  @override
+  String get deleteConfirmationButton => 'Delete';
+
+  @override
+  String get progressHistoryNoRecords => 'No progress records';
+
+  @override
+  String get progressHistoryCumulativePages => '📈 Cumulative Pages';
+
+  @override
+  String progressHistoryAttempt(int attemptCount, String attemptEncouragement) {
+    return 'Attempt $attemptCount · $attemptEncouragement';
+  }
+
+  @override
+  String progressHistoryRecordDays(int recordCount) {
+    return '$recordCount days recorded';
+  }
+
+  @override
+  String get progressHistoryLegendCumulative => 'Cumulative Pages';
+
+  @override
+  String get progressHistoryLegendDaily => 'Daily Pages';
+
+  @override
+  String progressHistoryChartCumulative(int cumulativePage) {
+    return 'Cumulative: $cumulativePage p\n';
+  }
+
+  @override
+  String progressHistoryChartDaily(int dailyPage) {
+    return 'Daily: +$dailyPage p';
+  }
+
+  @override
+  String get progressHistoryMilestoneFirstCompletion => 'Finally finished!';
+
+  @override
+  String progressHistoryMilestoneFirstCompletionMsg(int attemptCount) {
+    return 'You succeeded after $attemptCount attempts. You\'re amazing for not giving up!';
+  }
+
+  @override
+  String get progressHistoryMilestoneCompletion =>
+      'Congratulations on finishing!';
+
+  @override
+  String get progressHistoryMilestoneCompletionMsg =>
+      'You achieved your goal. Ready for the next book?';
+
+  @override
+  String get progressHistoryMilestoneRetry => 'Let\'s finish this time';
+
+  @override
+  String progressHistoryMilestoneRetryMsg(int attemptCount) {
+    return 'This is attempt $attemptCount. Reset your goal and finish reading!';
+  }
+
+  @override
+  String get progressHistoryMilestoneDeadlinePassed => 'Deadline passed';
+
+  @override
+  String get progressHistoryMilestoneDeadlinePassedMsg =>
+      'No worries, set a new deadline and try again!';
+
+  @override
+  String get progressHistoryMilestoneFastPace => 'Amazing pace!';
+
+  @override
+  String get progressHistoryMilestoneFastPaceMsg =>
+      'You\'re reading much faster than expected. You\'ll finish early!';
+
+  @override
+  String get progressHistoryMilestoneOnTrack => 'On track!';
+
+  @override
+  String get progressHistoryMilestoneOnTrackMsg =>
+      'You\'re ahead of schedule. Keep it up!';
+
+  @override
+  String get progressHistoryMilestoneOnSchedule => 'On schedule';
+
+  @override
+  String get progressHistoryMilestoneOnScheduleMsg =>
+      'You\'re reading steadily. Keep going!';
+
+  @override
+  String get progressHistoryMilestoneBehind => 'Let\'s pick up the pace';
+
+  @override
+  String get progressHistoryMilestoneBehindMsg =>
+      'You can finish this time. Read a bit more each day!';
+
+  @override
+  String get progressHistoryMilestoneFallBehind => 'Let\'s read a bit more';
+
+  @override
+  String get progressHistoryMilestoneFallBehindMsg =>
+      'You\'re slightly behind. A little more reading today will catch you up!';
+
+  @override
+  String get progressHistoryMilestoneGiveUp => 'Don\'t give up!';
+
+  @override
+  String progressHistoryMilestoneGiveUpMsg(int attemptCount) {
+    return 'You\'re on attempt $attemptCount. Adjust your deadline or focus more!';
+  }
+
+  @override
+  String get progressHistoryMilestoneReset => 'May need to reset goal';
+
+  @override
+  String get progressHistoryMilestoneResetMsg =>
+      'At this pace, it\'s hard to achieve the goal. Adjust your deadline?';
+
+  @override
+  String get progressHistoryDailyRecords => '📅 Daily Records';
+
+  @override
+  String get progressHistoryPageLabel => 'Pages';
+
+  @override
+  String progressHistoryCumulativeLabel(int page) {
+    return 'Cumulative: $page pages';
+  }
+
+  @override
+  String get dailyTargetConfirmTitle => 'Change Daily Target';
+
+  @override
+  String get dailyTargetConfirmMessage =>
+      'Today\'s goal cannot be changed,\nbut the new goal will apply from tomorrow.';
+
+  @override
+  String get dailyTargetConfirmQuestion => 'Change it?';
+
+  @override
+  String get dailyTargetConfirmCancel => 'Cancel';
+
+  @override
+  String get dailyTargetConfirmButton => 'Change';
+
+  @override
+  String get widgetExtractedTextTitle => 'Extracted Text';
+
+  @override
+  String get widgetExtractedTextSubtitle =>
+      'Please verify the extracted content. You can edit it directly!';
+
+  @override
+  String get widgetExtractedTextApply => 'Apply';
+
+  @override
+  String get widgetExtractedTextCancel => 'Select Again';
+
+  @override
+  String get widgetExtractedTextHint => 'Enter text';
+
+  @override
+  String widgetExtractedTextPage(int pageNumber) {
+    return 'Page $pageNumber';
+  }
+
+  @override
+  String get widgetFullTextTitle => 'Memo Text';
+
+  @override
+  String get widgetFullTextHint => 'Enter text...';
+
+  @override
+  String get widgetFullTextCopied => 'Text copied.';
+
+  @override
+  String get widgetFullTextCollapse => 'Collapse';
+
+  @override
+  String get widgetFullTextCopy => 'Copy';
+
+  @override
+  String get widgetFullTextEdit => 'Edit';
+
+  @override
+  String get widgetFullTextClearAll => 'Clear All';
+
+  @override
+  String get widgetNavigationBackToDetail => 'Back to Reading Detail';
+
+  @override
+  String get widgetDatePickerYear => '';
+
+  @override
+  String get widgetDatePickerMonth => '';
+
+  @override
+  String get widgetDatePickerDay => '';
+
+  @override
+  String get widgetTimePickerAm => 'AM';
+
+  @override
+  String get widgetTimePickerPm => 'PM';
+
+  @override
+  String get widgetTimePickerHour => '';
+
+  @override
+  String get widgetTimePickerMinute => '';
+
+  @override
+  String get widgetBookstoreSelectTitle => 'Select Bookstore';
+
+  @override
+  String widgetBookstoreSearch(String searchTitle) {
+    return 'Search \"$searchTitle\"';
+  }
+
+  @override
+  String get widgetBookstoreAladin => 'Aladin';
+
+  @override
+  String get widgetBookstoreKyobo => 'Kyobo';
+
+  @override
+  String get widgetHighlightEditTitle => 'Edit Highlight';
+
+  @override
+  String get widgetHighlightOpacity => 'Opacity';
+
+  @override
+  String get widgetHighlightStrokeWidth => 'Stroke Width';
+
+  @override
+  String get widgetPageUpdate => 'Update Page';
+
+  @override
+  String get widgetRecommendationViewDetail => 'View Book Details';
+
+  @override
+  String get widgetRecommendationViewDetailSubtitle =>
+      'Check book info at bookstore';
+
+  @override
+  String get widgetRecommendationStartReading => 'Start Reading';
+
+  @override
+  String get widgetRecommendationStartReadingSubtitle =>
+      'Begin reading this book';
+
+  @override
+  String get widgetRecommendationSelectBookstore => 'Select Bookstore';
+
+  @override
+  String widgetRecommendationSearchBookstore(String searchTitle) {
+    return 'Search results for \'$searchTitle\'';
+  }
 
   @override
   String get recallTextCopied => 'Text copied';
 
   @override
-  String get recallSearchAllRecords => 'Search All Records';
+  String get recallRecordLabel => 'Record';
 
   @override
-  String get recallSearchingAllBooks => 'Searching all books...';
+  String get recallGlobalSearchTitle => 'Search All Records';
+
+  @override
+  String get recallGlobalSearching => 'Searching all books...';
 
   @override
   String get recallRecentGlobalSearches => 'Recent Global Searches';
 
   @override
-  String get recallSearchAllReadingRecords => 'Search all your reading records';
+  String get recallGlobalEmptyTitle => 'Search all reading records';
 
   @override
-  String get recallAiFindsScatteredRecords =>
-      'AI finds scattered records across books\nand brings them together for you';
+  String get recallGlobalEmptySubtitle =>
+      'AI will find scattered records across multiple books';
 
   @override
-  String get recallAiAnswer => 'AI Answer';
-
-  @override
-  String get recallReferencedRecords => 'Referenced Records';
-
-  @override
-  String recallMoreBooks(int count) {
-    return '$count more books';
+  String recallSourcesByBookCount(int count) {
+    return 'Referenced records ($count books)';
   }
 
   @override
-  String recallRecordCount(int count) {
-    return '$count records';
+  String recallMoreBooksCount(int count) {
+    return 'View $count more books';
   }
 
   @override
-  String get recallSearchMyRecords => 'Search My Records';
+  String get recallAIAnswer => 'AI Answer';
 
   @override
-  String get recallSearchingYourRecords => 'Searching your records...';
+  String get recallGlobalSearchHint =>
+      'Example: \"What was mentioned about habits?\"';
+
+  @override
+  String get recallMyRecordsSearchTitle => 'Search My Records';
+
+  @override
+  String get recallMyRecordsSearching => 'Searching your records...';
 
   @override
   String get recallRecentSearches => 'Recent Searches';
+
+  @override
+  String get recallSuggestedQuestions => 'Suggested Questions';
+
+  @override
+  String get recallEmptyTitle => 'Search for what you\'re curious about';
+
+  @override
+  String get recallEmptySubtitle => 'Find from highlights, notes, and photos';
+
+  @override
+  String get recallRelatedRecords => 'Related Records';
+
+  @override
+  String get recallCopyButton => 'Copy';
 
   @override
   String get recallJustNow => 'Just now';
@@ -1305,543 +1861,187 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get recallSuggestedQuestions => 'Suggested Questions';
+  String get recallMyRecordsSearchHint =>
+      'Example: \"What did the author say about habits?\"';
 
   @override
-  String get recallSuggestedQuestion1 => 'What impressed me the most?';
+  String get recallPageLabel => 'Page';
 
   @override
-  String get recallSuggestedQuestion2 => 'What did I note to practice?';
-
-  @override
-  String get recallSuggestedQuestion3 => 'What\'s the author\'s key message?';
-
-  @override
-  String get recallSuggestedQuestion4 => 'What part did I empathize with?';
-
-  @override
-  String get recallSearchCurious => 'Search for what you\'re curious about';
-
-  @override
-  String get recallFindInRecords => 'Find in highlights, memos, and photos';
-
-  @override
-  String get recallRelatedRecords => 'Related Records';
-
-  @override
-  String get recallPage => 'page';
+  String recallRecordCountLabel(int count) {
+    return '$count records';
+  }
 
   @override
   String get recallContentCopied => 'Content copied';
 
   @override
-  String get recallViewInBook => 'View in This Book';
+  String get recallViewInBook => 'View in Book';
 
   @override
-  String get recallCopy => 'Copy';
+  String get bookListPageUnit => 'pages';
 
   @override
-  String bookListPlannedStartDate(String date) {
-    return 'Planned start: $date';
+  String completedBookDaysToComplete(int days) {
+    return 'Completed in $days days';
   }
 
   @override
-  String get bookListUndetermined => 'Undetermined';
+  String get completedBookSameDayComplete => 'Completed same day';
 
   @override
-  String bookListCompletedIn(int days) {
-    return '$days days to complete';
+  String completedBookAchievementRate(int rate) {
+    return 'Achievement rate $rate%';
   }
 
   @override
-  String get bookListCompletedSameDay => 'Completed same day';
+  String get pausedBookUnknownDate => 'Unknown';
 
   @override
-  String bookListAchievementRate(int rate) {
-    return 'Rate $rate%';
+  String plannedBookStartDate(String date) {
+    return 'Start date: $date';
   }
 
   @override
-  String get bookListUnknown => 'Unknown';
+  String get plannedBookStartDateUndetermined => 'Start date undetermined';
 
   @override
-  String bookListCompletedDate(String date) {
-    return 'Completed $date';
+  String get prioritySelectorLabel => 'Priority (Optional)';
+
+  @override
+  String get statusSelectorLabel => 'Reading Status';
+
+  @override
+  String get statusPlannedLabel => 'To Read';
+
+  @override
+  String get statusReadingLabel => 'Start Now';
+
+  @override
+  String get contentTypeNote => 'Note';
+
+  @override
+  String get genreBusinessEconomics => 'Business';
+
+  @override
+  String get genreMessageNovel1 => 'You\'re a literature enthusiast!';
+
+  @override
+  String get genreMessageNovel2 => 'Living in the world of stories';
+
+  @override
+  String get genreMessageNovel3 => 'A devoted novel reader';
+
+  @override
+  String get genreMessageLiterature1 => 'You\'re a literature enthusiast!';
+
+  @override
+  String get genreMessageLiterature2 =>
+      'A reader who understands literary depth';
+
+  @override
+  String get genreMessageLiterature3 =>
+      'Someone who enjoys the beauty of words';
+
+  @override
+  String get genreMessageSelfHelp1 => 'You\'re constantly growing!';
+
+  @override
+  String get genreMessageSelfHelp2 => 'A reader who never stops improving';
+
+  @override
+  String get genreMessageSelfHelp3 => 'Preparing for a better tomorrow';
+
+  @override
+  String get genreMessageBusiness1 => 'You have a sharp business mind!';
+
+  @override
+  String get genreMessageBusiness2 => 'Running towards success';
+
+  @override
+  String get genreMessageBusiness3 => 'You have CEO potential';
+
+  @override
+  String get genreMessageHumanities1 => 'You enjoy deep contemplation';
+
+  @override
+  String get genreMessageHumanities2 =>
+      'A reader who enjoys philosophical thinking';
+
+  @override
+  String get genreMessageHumanities3 =>
+      'Someone who explores humanity and the world';
+
+  @override
+  String get genreMessageScience1 => 'You\'re a curious explorer!';
+
+  @override
+  String get genreMessageScience2 => 'Uncovering the principles of the world';
+
+  @override
+  String get genreMessageScience3 => 'A scientific thinker';
+
+  @override
+  String get genreMessageHistory1 => 'You find wisdom in history';
+
+  @override
+  String get genreMessageHistory2 => 'Seeing the future through the past';
+
+  @override
+  String get genreMessageHistory3 => 'You have the spirit of a history buff';
+
+  @override
+  String get genreMessageEssay1 => 'You empathize with life stories';
+
+  @override
+  String get genreMessageEssay2 =>
+      'A reader who finds meaning in everyday life';
+
+  @override
+  String get genreMessageEssay3 => 'Someone with warm sensibility';
+
+  @override
+  String get genreMessagePoetry1 => 'A poet\'s soul with rich emotions';
+
+  @override
+  String get genreMessagePoetry2 =>
+      'Someone who understands the beauty of language';
+
+  @override
+  String get genreMessagePoetry3 => 'You have excellent poetic sensitivity';
+
+  @override
+  String get genreMessageComic1 => 'You enjoy both fun and emotion';
+
+  @override
+  String get genreMessageComic2 =>
+      'A reader who reads stories through pictures';
+
+  @override
+  String get genreMessageComic3 => 'Someone who appreciates comics';
+
+  @override
+  String get genreMessageUncategorized1 => 'You\'re exploring diverse fields!';
+
+  @override
+  String get genreMessageUncategorized2 => 'A reader without genre boundaries';
+
+  @override
+  String get genreMessageUncategorized3 =>
+      'Someone who loves all kinds of books';
+
+  @override
+  String genreMessageDefault(String genre) {
+    return 'You\'re an expert in $genre!';
   }
 
   @override
-  String get readingStartPriority => 'Priority (Optional)';
-
-  @override
-  String get languageChangeConfirmTitle => 'Change Language?';
-
-  @override
-  String languageChangeConfirmMessage(String language) {
-    return 'Would you like to change the language to $language?';
+  String genreMessageDefault2(String genre) {
+    return 'You have a deep interest in $genre';
   }
 
   @override
-  String get languageKorean => 'Korean';
-
-  @override
-  String get languageEnglish => 'English';
-
-  @override
-  String get readingStatusLabel => 'Reading Status';
-
-  @override
-  String get readingStatusPlanned => 'Plan to Read';
-
-  @override
-  String get readingStatusStartNow => 'Start Now';
-
-  @override
-  String get scheduleTargetDays => 'Target Days';
-
-  @override
-  String scheduleTargetDaysValue(int count) {
-    return '$count days';
+  String genreMessageDefault3(String genre) {
+    return 'You have the qualities of a $genre enthusiast';
   }
-
-  @override
-  String get scheduleDailyGoal => 'Daily Goal';
-
-  @override
-  String get datePickerMonthJan => 'Jan';
-
-  @override
-  String get datePickerMonthFeb => 'Feb';
-
-  @override
-  String get datePickerMonthMar => 'Mar';
-
-  @override
-  String get datePickerMonthApr => 'Apr';
-
-  @override
-  String get datePickerMonthMay => 'May';
-
-  @override
-  String get datePickerMonthJun => 'Jun';
-
-  @override
-  String get datePickerMonthJul => 'Jul';
-
-  @override
-  String get datePickerMonthAug => 'Aug';
-
-  @override
-  String get datePickerMonthSep => 'Sep';
-
-  @override
-  String get datePickerMonthOct => 'Oct';
-
-  @override
-  String get datePickerMonthNov => 'Nov';
-
-  @override
-  String get datePickerMonthDec => 'Dec';
-
-  @override
-  String get bookDetailSchedule => 'Reading Schedule';
-
-  @override
-  String get bookDetailGoalProgress => 'Goal Progress';
-
-  @override
-  String get bookDetailGoalAchieved => 'Goal Achieved';
-
-  @override
-  String get bookDetailDeleteReading => 'Delete Reading';
-
-  @override
-  String get bookDetailNoPhotos => 'No photos added yet';
-
-  @override
-  String get bookDetailAddPhotoHint => 'Add photos using the + button below';
-
-  @override
-  String get editReadingPlanTitle => 'Edit Reading Plan';
-
-  @override
-  String get editPlannedStartDate => 'Planned Start Date';
-
-  @override
-  String get changeTargetDateTitle => 'Change Target Date';
-
-  @override
-  String attemptChangeMessage(int count) {
-    return 'This will be attempt #$count';
-  }
-
-  @override
-  String get confirmChange => 'Confirm';
-
-  @override
-  String bookDetailAchievementStatus(int passed, int achieved) {
-    return '$achieved of $passed days achieved';
-  }
-
-  @override
-  String attemptOrdinal(int count) {
-    return 'Attempt #$count';
-  }
-
-  @override
-  String totalDaysFormat(int count) {
-    return '($count days)';
-  }
-
-  @override
-  String pagesRemaining(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count pages remaining',
-      one: '1 page remaining',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String todayGoalWithPages(int count) {
-    return 'Today\'s goal: ${count}p';
-  }
-
-  @override
-  String streakDaysAchieved(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count day streak!',
-      one: '1 day streak!',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get streakFirstRecord => 'Leave your first record today';
-
-  @override
-  String get dailyTargetChangeTitle => 'Change Daily Page Goal';
-
-  @override
-  String pagesRemainingShort(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count pages',
-      one: '1 page',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String pagesRemainingWithDays(int days) {
-    return ' remaining · D-$days';
-  }
-
-  @override
-  String get expectedSchedule => 'Expected Schedule';
-
-  @override
-  String get pagesPerDay => 'pages/day';
-
-  @override
-  String get dailyTargetConfirmTitle => 'Change Daily Goal';
-
-  @override
-  String get dailyTargetConfirmMessage =>
-      'Today\'s goal cannot be modified,\nbut changes will apply from tomorrow.';
-
-  @override
-  String get dailyTargetConfirmQuestion => 'Would you like to change it?';
-
-  @override
-  String get updatePageTitle => 'Update Current Page';
-
-  @override
-  String currentPageLabel(int page) {
-    return 'Current ${page}p';
-  }
-
-  @override
-  String totalPageLabel(int page) {
-    return ' / Total ${page}p';
-  }
-
-  @override
-  String get newPageNumber => 'New Page Number';
-
-  @override
-  String get updateButton => 'Update';
-
-  @override
-  String get validationEnterNumber => 'Please enter a number';
-
-  @override
-  String get validationPageMinimum =>
-      'Please enter a page number of 0 or higher';
-
-  @override
-  String validationPageExceedsTotal(int total) {
-    return 'Cannot exceed total pages ($total)';
-  }
-
-  @override
-  String validationPageBelowCurrent(int current) {
-    return 'Must be higher than current page ($current)';
-  }
-
-  @override
-  String get addRecordTitle => 'Add Record';
-
-  @override
-  String get tapToAddImage => 'Tap to add image';
-
-  @override
-  String get optionalLabel => '(Optional)';
-
-  @override
-  String get recordTextLabel => 'Record Text';
-
-  @override
-  String get clearAllButton => 'Clear All';
-
-  @override
-  String get recordHint => 'Record a memorable passage.';
-
-  @override
-  String get uploadButton => 'Upload';
-
-  @override
-  String get resetButton => 'Reset';
-
-  @override
-  String get highlightLabel => 'Highlight';
-
-  @override
-  String highlightWithCount(int count) {
-    return 'Highlight ($count)';
-  }
-
-  @override
-  String get replaceButton => 'Replace';
-
-  @override
-  String get extractTextButton => 'Extract Text';
-
-  @override
-  String get viewFullButton => 'View Full';
-
-  @override
-  String get resetConfirmMessage => 'Are you sure you want to reset?';
-
-  @override
-  String get uploading => 'Uploading...';
-
-  @override
-  String get extractTextConfirmTitle => 'Extract text?';
-
-  @override
-  String get extractTextCreditsMessage => 'This will use credits.';
-
-  @override
-  String get extractTextOverwriteMessage =>
-      'This will overwrite your text.\nThis will use credits.';
-
-  @override
-  String get noThanksButton => 'No thanks';
-
-  @override
-  String get extractButton => 'Extract';
-
-  @override
-  String get extractingText => 'Extracting text...';
-
-  @override
-  String get reselectButton => 'Reselect';
-
-  @override
-  String get applyButton => 'Apply';
-
-  @override
-  String get aiFeaturesTitle => 'AI Features';
-
-  @override
-  String get searchRecordsButton => 'Search';
-
-  @override
-  String get bookRecommendButton => 'Recommend';
-
-  @override
-  String get calendarFilterAll => 'All';
-
-  @override
-  String get calendarFilterReading => 'Currently Reading';
-
-  @override
-  String get calendarFilterCompleted => 'Completed';
-
-  @override
-  String get pageUpdateButton => 'Update Page';
-
-  @override
-  String get noProgressRecords => 'No progress records';
-
-  @override
-  String get oneLineReviewOptional => 'One-line review (Optional)';
-
-  @override
-  String todayGoalChanged(int pages) {
-    return 'Today\'s goal changed to ${pages}p';
-  }
-
-  @override
-  String get bookInfoNotFound => 'Book information not found';
-
-  @override
-  String get goalChangeFailed => 'Failed to change goal';
-
-  @override
-  String get unsavedChangesMessage => 'You have unsaved changes.';
-
-  @override
-  String get discardChangesButton => 'Discard Changes';
-
-  @override
-  String get continueEditingButton => 'Continue Editing';
-
-  @override
-  String get pageNotSet => 'Page not set';
-
-  @override
-  String get textInputHint => 'Enter text...';
-
-  @override
-  String get noRecordedText => 'No recorded text.';
-
-  @override
-  String get textCopied => 'Text copied.';
-
-  @override
-  String get copyButton => 'Copy';
-
-  @override
-  String get editButton => 'Edit';
-
-  @override
-  String get loadingImage => 'Loading image...';
-
-  @override
-  String get ocrAreaSelectTitle => 'Select Text Extraction Area';
-
-  @override
-  String get ocrExtractionFailed =>
-      'Failed to extract text. Try selecting a different area.';
-
-  @override
-  String get imageLoadFailed => 'Failed to load image.';
-
-  @override
-  String get ocrReExtractionFailed => 'Failed to re-extract text.';
-
-  @override
-  String get documentScanFailed => 'Document scan failed.';
-
-  @override
-  String get reScanButton => 'Rescan';
-
-  @override
-  String pageExceedsTotalError(int total) {
-    return 'Cannot exceed total pages ($total)';
-  }
-
-  @override
-  String get highlightEditDone => 'Done';
-
-  @override
-  String memorablePagesSelected(int count) {
-    return '$count selected';
-  }
-
-  @override
-  String get memorablePagesSortByPage => 'Page';
-
-  @override
-  String get memorablePagesSortByDate => 'Date';
-
-  @override
-  String get memorablePagesSortPageDesc => 'Page (High to Low)';
-
-  @override
-  String get memorablePagesSortPageAsc => 'Page (Low to High)';
-
-  @override
-  String get memorablePagesSortDateDesc => 'Recent First';
-
-  @override
-  String get memorablePagesSortDateAsc => 'Oldest First';
-
-  @override
-  String get memorablePagesDelete => 'Delete';
-
-  @override
-  String get memorablePagesSelect => 'Select';
-
-  @override
-  String get memorablePagesDone => 'Done';
-
-  @override
-  String get historyTabCumulativePages => '📈 Cumulative Pages';
-
-  @override
-  String get historyTabDailyPages => 'Daily Pages';
-
-  @override
-  String get historyTabCompletionTitle => 'Congratulations on finishing!';
-
-  @override
-  String get historyTabCompletionMessage =>
-      'You\'ve reached your goal. Ready for the next book?';
-
-  @override
-  String get historyTabDailyRecords => '📅 Daily Records';
-
-  @override
-  String historyTabCumulativeLabel(int page) {
-    return 'Cumulative: $page pages';
-  }
-
-  @override
-  String get historyTabPagesUnit => 'pages';
-
-  @override
-  String get bookReviewTabTitle => 'My Book Review';
-
-  @override
-  String get bookReviewTabEditButton => 'Edit Review';
-
-  @override
-  String get authorLabel => 'Author';
-
-  @override
-  String get aiDraftGenerating => 'AI is drafting...';
-
-  @override
-  String get aiDraftGenerate => 'Generate Draft with AI';
-
-  @override
-  String get bookInfoDetail => 'Book Detail';
-
-  @override
-  String get invalidUrl => 'Please enter a valid URL';
-
-  @override
-  String daysRecorded(int count) {
-    return '$count days recorded';
-  }
-
-  @override
-  String get startDateLabel => 'Start Date';
 }
