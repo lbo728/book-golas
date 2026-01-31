@@ -8,14 +8,18 @@ class FloatingActionBar extends StatelessWidget {
   final VoidCallback? onUpdatePageTap;
   final VoidCallback onAddMemorablePageTap;
   final VoidCallback? onRecallSearchTap;
+  final VoidCallback? onTimerTap;
   final bool isReadingMode;
+  final bool isTimerRunning;
 
   const FloatingActionBar({
     super.key,
     this.onUpdatePageTap,
     required this.onAddMemorablePageTap,
     this.onRecallSearchTap,
+    this.onTimerTap,
     this.isReadingMode = true,
+    this.isTimerRunning = false,
   });
 
   @override
@@ -35,6 +39,10 @@ class FloatingActionBar extends StatelessWidget {
   Widget _buildReadingModeLayout(bool isDark) {
     return Row(
       children: [
+        if (onTimerTap != null) ...[
+          _buildTimerButtonCircle(isDark),
+          const SizedBox(width: 12),
+        ],
         if (onRecallSearchTap != null) ...[
           _buildRecallSearchButtonCircle(isDark),
           const SizedBox(width: 12),
@@ -59,6 +67,47 @@ class FloatingActionBar extends StatelessWidget {
         const SizedBox(width: 12),
         _buildAddButton(isDark),
       ],
+    );
+  }
+
+  Widget _buildTimerButtonCircle(bool isDark) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(100),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTimerTap,
+            borderRadius: BorderRadius.circular(100),
+            child: Container(
+              width: 62,
+              height: 62,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? AppColors.primary
+                        .withValues(alpha: isTimerRunning ? 0.5 : 0.3)
+                    : AppColors.primary
+                        .withValues(alpha: isTimerRunning ? 0.35 : 0.15),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isDark
+                      ? AppColors.primary.withValues(alpha: 0.5)
+                      : AppColors.primary.withValues(alpha: 0.3),
+                  width: 0.5,
+                ),
+              ),
+              child: Icon(
+                isTimerRunning
+                    ? CupertinoIcons.pause_circle_fill
+                    : CupertinoIcons.timer,
+                size: 22,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
