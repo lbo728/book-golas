@@ -43,6 +43,7 @@ import 'ui/onboarding/view_model/onboarding_view_model.dart';
 import 'ui/onboarding/widgets/onboarding_screen.dart';
 import 'data/services/note_structure_service.dart';
 import 'data/services/subscription_service.dart';
+import 'ui/subscription/view_model/subscription_view_model.dart';
 import 'ui/book_detail/view_model/note_structure_view_model.dart';
 import 'ui/my_library/view_model/my_library_view_model.dart';
 import 'ui/my_library/widgets/my_library_screen.dart';
@@ -229,12 +230,8 @@ class MyApp extends StatelessWidget {
         Provider<ReadingProgressService>(
           create: (_) => ReadingProgressService(),
         ),
-        Provider<NoteStructureService>(
-          create: (_) => NoteStructureService(),
-        ),
-        Provider<SubscriptionService>(
-          create: (_) => SubscriptionService(),
-        ),
+        Provider<NoteStructureService>(create: (_) => NoteStructureService()),
+        Provider<SubscriptionService>(create: (_) => SubscriptionService()),
         // === Repositories ===
         Provider<BookRepository>(
           create: (context) => BookRepositoryImpl(context.read<BookService>()),
@@ -275,6 +272,10 @@ class MyApp extends StatelessWidget {
           ),
         ),
         ChangeNotifierProvider(create: (_) => MyLibraryViewModel()),
+        ChangeNotifierProvider<SubscriptionViewModel>(
+          create: (context) =>
+              SubscriptionViewModel(context.read<SubscriptionService>()),
+        ),
       ],
       child: Consumer2<ThemeViewModel, LocaleViewModel>(
         builder: (context, themeViewModel, localeViewModel, child) {
@@ -291,10 +292,7 @@ class MyApp extends StatelessWidget {
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            supportedLocales: const [
-              Locale('ko'),
-              Locale('en'),
-            ],
+            supportedLocales: const [Locale('ko'), Locale('en')],
             navigatorObservers: [routeObserver],
             home: const AuthWrapper(),
           );
@@ -390,19 +388,19 @@ class _MainScreenState extends State<MainScreen>
 
     _readingDetailBarSlide =
         Tween<Offset>(begin: Offset.zero, end: const Offset(-1.0, 0.0)).animate(
-      CurvedAnimation(
-        parent: _barSwitchController,
-        curve: Curves.easeOutCubic,
-      ),
-    );
+          CurvedAnimation(
+            parent: _barSwitchController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
 
     _regularBarSlide =
         Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(
-      CurvedAnimation(
-        parent: _barSwitchController,
-        curve: Curves.easeOutCubic,
-      ),
-    );
+          CurvedAnimation(
+            parent: _barSwitchController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
 
     // 인증 완료 후 BookListViewModel 초기화 및 FCM 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -414,8 +412,9 @@ class _MainScreenState extends State<MainScreen>
         final userId = Supabase.instance.client.auth.currentUser?.id;
         if (userId != null) {
           await Purchases.configure(
-              PurchasesConfiguration(AppConfig.revenueCatPublicKey)
-                ..appUserID = userId);
+            PurchasesConfiguration(AppConfig.revenueCatPublicKey)
+              ..appUserID = userId,
+          );
           debugPrint('✅ RevenueCat 초기화 완료 (userId: $userId)');
         } else {
           debugPrint('⚠️ RevenueCat 초기화 스킵: 사용자 미인증');
@@ -521,21 +520,22 @@ class _MainScreenState extends State<MainScreen>
   }
 
   List<Widget> get _pages => [
-        HomeScreen(
-          onCallbacksReady: (updatePage, addMemorable) {
-            _updatePageCallback = updatePage;
-            _addMemorablePageCallback = addMemorable;
-          },
-        ),
-        const MyLibraryScreen(),
-        ReadingChartScreen(key: ReadingChartScreen.globalKey),
-        const CalendarScreen(),
-        const MyPageScreen(),
-      ];
+    HomeScreen(
+      onCallbacksReady: (updatePage, addMemorable) {
+        _updatePageCallback = updatePage;
+        _addMemorablePageCallback = addMemorable;
+      },
+    ),
+    const MyLibraryScreen(),
+    ReadingChartScreen(key: ReadingChartScreen.globalKey),
+    const CalendarScreen(),
+    const MyPageScreen(),
+  ];
 
   void _onItemTapped(int index) {
     debugPrint(
-        '🔍 _onItemTapped called with index: $index, current: $_selectedIndex');
+      '🔍 _onItemTapped called with index: $index, current: $_selectedIndex',
+    );
     if (index == 0 && _selectedIndex == 0) {
       HapticFeedback.lightImpact();
       context.read<BookListViewModel>().cycleToNextTab();
@@ -618,8 +618,9 @@ class _MainScreenState extends State<MainScreen>
 
     return Scaffold(
       body: body,
-      backgroundColor:
-          isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+      backgroundColor: isDark
+          ? AppColors.scaffoldDark
+          : AppColors.scaffoldLight,
       extendBody: true,
       bottomNavigationBar: _buildAnimatedBottomBar(isInReadingDetailContext),
     );
