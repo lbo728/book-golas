@@ -361,16 +361,16 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
           return const SizedBox.shrink();
         }
 
-        return Positioned(
-          left: 16,
-          right: 16,
-          bottom: widget.hasBottomNav ? 90 : 16,
-          child: GestureDetector(
-            onTap: _isMinimized ? _toggleExpand : null,
-            child: AnimatedBuilder(
-              animation: _expandAnimation,
-              builder: (context, child) {
-                return ClipRRect(
+        return AnimatedBuilder(
+          animation: _expandAnimation,
+          builder: (context, child) {
+            return Positioned(
+              left: 16,
+              right: _isMinimized ? null : 16,
+              bottom: widget.hasBottomNav ? 90 : 16,
+              child: GestureDetector(
+                onTap: _isMinimized ? _toggleExpand : null,
+                child: ClipRRect(
                   borderRadius: BorderRadius.circular(32),
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
@@ -393,37 +393,40 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                           : _buildExpandedView(isDark, timerVm),
                     ),
                   ),
-                );
-              },
-            ),
-          ),
+                ),
+              ),
+            );
+          },
         );
       },
     );
   }
 
   Widget _buildMinimizedView(bool isDark, ReadingTimerViewModel timerVm) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // Timer icon
-        Icon(
-          CupertinoIcons.timer,
-          color: isDark ? Colors.white70 : Colors.black54,
-          size: 18,
-        ),
-        const SizedBox(width: 8),
-        // Time
-        Text(
-          _formatDuration(timerVm.elapsed),
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: isDark ? Colors.white : Colors.black,
-            fontFeatures: const [FontFeature.tabularFigures()],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Timer icon
+          Icon(
+            CupertinoIcons.timer,
+            color: isDark ? Colors.white70 : Colors.black54,
+            size: 18,
           ),
-        ),
-      ],
+          const SizedBox(width: 8),
+          // Time
+          Text(
+            _formatDuration(timerVm.elapsed),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white : Colors.black,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -544,7 +547,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
 
           const SizedBox(width: 8),
 
-          // Collapse button
+          // Collapse button (minimize icon)
           GestureDetector(
             onTap: _toggleExpand,
             child: Container(
@@ -557,7 +560,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                CupertinoIcons.chevron_down,
+                CupertinoIcons.arrow_down_right_arrow_up_left,
                 color: isDark ? Colors.white70 : Colors.black54,
                 size: 16,
               ),
