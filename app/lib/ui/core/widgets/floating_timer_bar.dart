@@ -30,7 +30,7 @@ class FloatingTimerBar extends StatefulWidget {
 
 class _FloatingTimerBarState extends State<FloatingTimerBar>
     with TickerProviderStateMixin {
-  bool _isMinimized = true; // Start minimized by default
+  bool _isMinimized = false; // Start expanded by default
   late AnimationController _expandController;
   late Animation<double> _expandAnimation;
 
@@ -537,6 +537,28 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
               child: const Icon(
                 CupertinoIcons.stop_fill,
                 color: Colors.white,
+                size: 16,
+              ),
+            ),
+          ),
+
+          const SizedBox(width: 8),
+
+          // Collapse button
+          GestureDetector(
+            onTap: _toggleExpand,
+            child: Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.1)
+                    : Colors.black.withValues(alpha: 0.05),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                CupertinoIcons.chevron_down,
+                color: isDark ? Colors.white70 : Colors.black54,
                 size: 16,
               ),
             ),
