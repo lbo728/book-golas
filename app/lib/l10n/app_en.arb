@@ -738,5 +738,47 @@
           "widgetRecommendationSelectBookstore": "Select Bookstore",
           "widgetRecommendationSearchBookstore": "Search results for '{searchTitle}'",
           "widgetBookstoreAladin": "Aladin",
-          "widgetBookstoreKyobo": "Kyobo"
+           "widgetBookstoreKyobo": "Kyobo",
+
+           "paywallTitle": "Bookgolas Pro",
+           "@paywallTitle": {"description": "Paywall screen title"},
+
+           "paywallSubtitle": "Unlock all features without limits",
+           "@paywallSubtitle": {"description": "Paywall screen subtitle"},
+
+           "paywallBenefit1": "Unlimited concurrent reading",
+           "@paywallBenefit1": {"description": "Unlimited concurrent reading"},
+
+           "paywallBenefit2": "AI Recall 30 times per month",
+           "@paywallBenefit2": {"description": "AI Recall monthly usage"},
+
+           "paywallBenefit3": "Reading insights & statistics",
+           "@paywallBenefit3": {"description": "Reading insights and statistics"},
+
+           "paywallMonthly": "Monthly",
+           "@paywallMonthly": {"description": "Monthly subscription"},
+
+           "paywallMonthlyPrice": "$3.90",
+           "@paywallMonthlyPrice": {"description": "Monthly price"},
+
+           "paywallPerMonth": "/mo",
+           "@paywallPerMonth": {"description": "Per month label"},
+
+           "paywallYearly": "Yearly",
+           "@paywallYearly": {"description": "Yearly subscription"},
+
+           "paywallYearlyPrice": "$29.90",
+           "@paywallYearlyPrice": {"description": "Yearly price"},
+
+           "paywallPerYear": "/yr",
+           "@paywallPerYear": {"description": "Per year label"},
+
+           "paywallYearlySavings": "Save 36% with yearly",
+           "@paywallYearlySavings": {"description": "Yearly savings message"},
+
+           "paywallRestore": "Restore purchases",
+           "@paywallRestore": {"description": "Restore purchases button"},
+
+           "paywallRestoreSuccess": "Subscription restored successfully",
+           "@paywallRestoreSuccess": {"description": "Restore success message"}
 }

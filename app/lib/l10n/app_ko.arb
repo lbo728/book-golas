@@ -2250,5 +2250,47 @@
         "@widgetBookstoreAladin": {"description": "Aladin bookstore name"},
         
         "widgetBookstoreKyobo": "교보문고",
-        "@widgetBookstoreKyobo": {"description": "Kyobo bookstore name"}
+        "@widgetBookstoreKyobo": {"description": "Kyobo bookstore name"},
+
+        "paywallTitle": "Bookgolas Pro",
+        "@paywallTitle": {"description": "Paywall screen title"},
+
+        "paywallSubtitle": "모든 기능을 제한 없이 사용하세요",
+        "@paywallSubtitle": {"description": "Paywall screen subtitle"},
+
+        "paywallBenefit1": "동시 읽기 무제한",
+        "@paywallBenefit1": {"description": "Unlimited concurrent reading"},
+
+        "paywallBenefit2": "AI Recall 월 30회 사용",
+        "@paywallBenefit2": {"description": "AI Recall monthly usage"},
+
+        "paywallBenefit3": "독서 인사이트 및 통계",
+        "@paywallBenefit3": {"description": "Reading insights and statistics"},
+
+        "paywallMonthly": "월간 구독",
+        "@paywallMonthly": {"description": "Monthly subscription"},
+
+        "paywallMonthlyPrice": "₩3,900",
+        "@paywallMonthlyPrice": {"description": "Monthly price"},
+
+        "paywallPerMonth": "/월",
+        "@paywallPerMonth": {"description": "Per month label"},
+
+        "paywallYearly": "연간 구독",
+        "@paywallYearly": {"description": "Yearly subscription"},
+
+        "paywallYearlyPrice": "₩29,900",
+        "@paywallYearlyPrice": {"description": "Yearly price"},
+
+        "paywallPerYear": "/년",
+        "@paywallPerYear": {"description": "Per year label"},
+
+        "paywallYearlySavings": "연간 구독 시 36% 절약",
+        "@paywallYearlySavings": {"description": "Yearly savings message"},
+
+        "paywallRestore": "이전 구매 복원",
+        "@paywallRestore": {"description": "Restore purchases button"},
+
+        "paywallRestoreSuccess": "구독이 복원되었습니다",
+        "@paywallRestoreSuccess": {"description": "Restore success message"}
 }
