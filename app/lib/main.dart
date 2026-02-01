@@ -571,6 +571,12 @@ class _MainScreenState extends State<MainScreen>
           body,
           FloatingTimerBar(
             hasBottomNav: !isInReadingDetailContext || _selectedIndex != 0,
+            onNavigateToBookDetail: isInReadingDetailContext
+                ? () {
+                    // Already in reading detail, just switch to home tab
+                    _onItemTapped(0);
+                  }
+                : null,
           ),
         ],
       ),
