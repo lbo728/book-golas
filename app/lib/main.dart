@@ -41,6 +41,7 @@ import 'ui/onboarding/widgets/onboarding_screen.dart';
 import 'ui/reading_chart/view_model/reading_insights_view_model.dart';
 import 'ui/my_library/view_model/my_library_view_model.dart';
 import 'ui/book_detail/view_model/reading_timer_view_model.dart';
+import 'ui/core/widgets/floating_timer_bar.dart';
 
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
@@ -565,7 +566,14 @@ class _MainScreenState extends State<MainScreen>
     }
 
     return Scaffold(
-      body: body,
+      body: Stack(
+        children: [
+          body,
+          FloatingTimerBar(
+            hasBottomNav: !isInReadingDetailContext || _selectedIndex != 0,
+          ),
+        ],
+      ),
       backgroundColor:
           isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
       extendBody: true,
