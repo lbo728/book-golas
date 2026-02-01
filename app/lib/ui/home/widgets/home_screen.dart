@@ -14,9 +14,6 @@ import 'package:book_golas/ui/book_list/widgets/sheets/reading_books_selection_s
 import 'package:book_golas/ui/reading_progress/widgets/reading_progress_screen.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 import 'package:book_golas/ui/recall/widgets/recall_search_sheet.dart';
-import 'package:book_golas/ui/core/widgets/global_timer_indicator.dart';
-import 'package:book_golas/ui/book_detail/widgets/reading_timer_modal.dart';
-import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.dart';
 
 class HomeScreen extends StatefulWidget {
   final void Function(VoidCallback updatePage, VoidCallback addMemorable)?
@@ -152,48 +149,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _showTimerFromHome(BuildContext context) {
-    final bookListVm = context.read<BookListViewModel>();
-    final readingBooks = bookListVm.readingBooks;
-    final timerVm = context.read<ReadingTimerViewModel>();
-
-    if (readingBooks.isEmpty) {
-      CustomSnackbar.show(
-        context,
-        message: '진행 중인 독서가 없습니다. 먼저 책을 등록해주세요.',
-        type: SnackbarType.info,
-      );
-      return;
-    }
-
-    if (readingBooks.length == 1) {
-      final book = readingBooks.first;
-      showReadingTimerModal(
-        context: context,
-        bookId: book.id!,
-        bookTitle: book.title,
-      );
-      return;
-    }
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => ReadingBooksSelectionSheet(
-        books: readingBooks,
-        onBookSelected: (book) {
-          Navigator.pop(context);
-          showReadingTimerModal(
-            context: context,
-            bookId: book.id!,
-            bookTitle: book.title,
-          );
-        },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -292,9 +247,6 @@ class _HomeScreenState extends State<HomeScreen> {
         color: isDark ? Colors.white : Colors.black,
       ),
       actions: [
-        GlobalTimerIndicator(
-          onTap: () => _showTimerFromHome(context),
-        ),
         HomeModeToggleButton(
           key: _toggleButtonKey,
           label: _getToggleButtonLabel(vm.displayMode),
