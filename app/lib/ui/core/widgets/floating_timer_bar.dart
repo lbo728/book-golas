@@ -224,7 +224,9 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                 Expanded(
                   child: GestureDetector(
                     onTap: () async {
-                      Navigator.pop(context);
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                      }
                       await timerVm.stop();
                       if (context.mounted) {
                         _showPageUpdateModal(context, timerVm);
