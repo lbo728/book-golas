@@ -31,9 +31,8 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
   late AnimationController _expandController;
   late Animation<double> _widthAnimation;
 
-  // Fixed minimized width that accommodates all content
-  static const double _minimizedWidth =
-      200.0; // Enough space for thumbnail + time + icon + padding
+  // Dynamic minimized width calculated based on content
+  double _minimizedWidth = 180.0; // Initial default, will be updated
 
   // Colors
   static const Color _coral = Color(0xFFE85A5A);
@@ -80,6 +79,39 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
     final minutes = (duration.inMinutes % 60).toString().padLeft(2, '0');
     final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
     return '$hours:$minutes:$seconds';
+  }
+
+  // Calculate minimized width based on actual content
+  double _calculateMinimizedWidth(String timeText, bool hasBook) {
+    // Calculate text width using TextPainter
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: timeText,
+        style: const TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.w600,
+          fontFeatures: [FontFeature.tabularFigures()],
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    final textWidth = textPainter.width;
+
+    // Component widths
+    final thumbnailWidth = hasBook ? 28.0 : 0.0;
+    final thumbnailSpacing = hasBook ? 8.0 : 0.0;
+    final iconWidth = 16.0; // expand icon
+    final iconSpacing = 8.0;
+    final horizontalPadding = 32.0; // 16 * 2
+
+    // Total width
+    return textWidth +
+        thumbnailWidth +
+        thumbnailSpacing +
+        iconWidth +
+        iconSpacing +
+        horizontalPadding;
   }
 
   String _formatDurationShort(Duration duration) {
@@ -385,6 +417,23 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
         // Get current book from timer's bookId
         final currentBook =
             _findBookById(timerVm.currentBookId, bookListVm.books);
+
+        // Calculate dynamic minimized width based on current time
+        final timeText = _formatDuration(timerVm.elapsed);
+        final calculatedWidth = _calculateMinimizedWidth(
+          timeText,
+          currentBook != null,
+        );
+        // Update minimized width if changed (with small threshold to avoid jitter)
+        if ((calculatedWidth - _minimizedWidth).abs() > 5.0) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              setState(() {
+                _minimizedWidth = calculatedWidth;
+              });
+            }
+          });
+        }
 
         return AnimatedBuilder(
           animation: _expandController,
