@@ -6,21 +6,18 @@ import 'package:provider/provider.dart';
 
 import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.dart';
 import 'package:book_golas/ui/book_list/view_model/book_list_view_model.dart';
+import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/domain/models/book.dart';
 
-/// Floating Timer Bar with smooth left-aligned animation
+/// Floating Timer Bar with smooth animation
 ///
-/// Two states:
-/// - Minimized: Small pill on the left with just icon + time
-/// - Expanded: Full bar with book thumbnail, title, time, controls
+/// Layout: [Book Info] <-Spacer-> [Timer] <-Spacer-> [Buttons]
 class FloatingTimerBar extends StatefulWidget {
   final bool hasBottomNav;
-  final VoidCallback? onNavigateToBookDetail;
 
   const FloatingTimerBar({
     super.key,
     this.hasBottomNav = true,
-    this.onNavigateToBookDetail,
   });
 
   @override
@@ -96,6 +93,15 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
     } catch (_) {
       return null;
     }
+  }
+
+  void _navigateToBookDetail(BuildContext context, Book book) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BookDetailScreen(book: book),
+      ),
+    );
   }
 
   void _showStopConfirmation(
@@ -378,20 +384,23 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
         return AnimatedBuilder(
           animation: _expandController,
           builder: (context, child) {
-            // Calculate width based on animation
             final screenWidth = MediaQuery.of(context).size.width;
-            final expandedWidth = screenWidth - 32; // full width minus padding
+            final expandedWidth = screenWidth - 32;
+            final minimizedWidth = 120.0;
+
+            // Interpolate width during animation
+            final currentWidth = expandedWidth -
+                ((expandedWidth - minimizedWidth) * _widthAnimation.value);
 
             return Positioned(
               left: 16,
-              right: _isMinimized ? null : 16,
               bottom: widget.hasBottomNav ? 90 : 16,
               child: GestureDetector(
                 onTap: _isMinimized ? _toggleExpand : null,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 350),
                   curve: Curves.easeInOutCubic,
-                  width: _isMinimized ? null : expandedWidth,
+                  width: currentWidth,
                   height: 64,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(32),
@@ -428,7 +437,11 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
   Widget _buildMinimizedView(
       bool isDark, ReadingTimerViewModel timerVm, Book? book) {
     return GestureDetector(
-      onTap: widget.onNavigateToBookDetail,
+      onTap: () {
+        if (book != null) {
+          _navigateToBookDetail(context, book);
+        }
+      },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
@@ -486,10 +499,10 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
-          // Book thumbnail + title (tappable)
+          // Book thumbnail + title (tappable, left side)
           if (book != null)
             GestureDetector(
-              onTap: widget.onNavigateToBookDetail,
+              onTap: () => _navigateToBookDetail(context, book),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -530,11 +543,12 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                 ],
               ),
             ),
-          if (book == null) const Spacer(),
+          if (book == null) const SizedBox(width: 40),
 
-          const SizedBox(width: 8),
+          // Spacer to push timer to center
+          const Spacer(),
 
-          // Timer display
+          // Timer display (center)
           Text(
             _formatDuration(timerVm.elapsed),
             style: TextStyle(
@@ -545,76 +559,83 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
             ),
           ),
 
-          const SizedBox(width: 8),
+          // Spacer to push buttons to right
+          const Spacer(),
 
-          // Pause button
-          GestureDetector(
-            onTap: () {
-              if (timerVm.isRunning) {
-                timerVm.pause();
-              } else {
-                timerVm.resume();
-              }
-            },
-            child: Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.15)
-                    : Colors.black.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
+          // Buttons (right side)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Pause button
+              GestureDetector(
+                onTap: () {
+                  if (timerVm.isRunning) {
+                    timerVm.pause();
+                  } else {
+                    timerVm.resume();
+                  }
+                },
+                child: Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.15)
+                        : Colors.black.withValues(alpha: 0.08),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    timerVm.isRunning
+                        ? CupertinoIcons.pause_fill
+                        : CupertinoIcons.play_fill,
+                    color: isDark ? Colors.white : Colors.black,
+                    size: 12,
+                  ),
+                ),
               ),
-              child: Icon(
-                timerVm.isRunning
-                    ? CupertinoIcons.pause_fill
-                    : CupertinoIcons.play_fill,
-                color: isDark ? Colors.white : Colors.black,
-                size: 12,
-              ),
-            ),
-          ),
 
-          const SizedBox(width: 4),
+              const SizedBox(width: 4),
 
-          // Stop button
-          GestureDetector(
-            onTap: () => _showStopConfirmation(context, timerVm),
-            child: Container(
-              width: 28,
-              height: 28,
-              decoration: const BoxDecoration(
-                color: _coral,
-                shape: BoxShape.circle,
+              // Stop button
+              GestureDetector(
+                onTap: () => _showStopConfirmation(context, timerVm),
+                child: Container(
+                  width: 28,
+                  height: 28,
+                  decoration: const BoxDecoration(
+                    color: _coral,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.stop_fill,
+                    color: Colors.white,
+                    size: 12,
+                  ),
+                ),
               ),
-              child: const Icon(
-                CupertinoIcons.stop_fill,
-                color: Colors.white,
-                size: 12,
-              ),
-            ),
-          ),
 
-          const SizedBox(width: 4),
+              const SizedBox(width: 4),
 
-          // Collapse button (minimize icon)
-          GestureDetector(
-            onTap: _toggleExpand,
-            child: Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.1)
-                    : Colors.black.withValues(alpha: 0.05),
-                shape: BoxShape.circle,
+              // Collapse button (minimize icon)
+              GestureDetector(
+                onTap: _toggleExpand,
+                child: Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : Colors.black.withValues(alpha: 0.05),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    CupertinoIcons.arrow_down_right_arrow_up_left,
+                    color: isDark ? Colors.white70 : Colors.black54,
+                    size: 12,
+                  ),
+                ),
               ),
-              child: Icon(
-                CupertinoIcons.arrow_down_right_arrow_up_left,
-                color: isDark ? Colors.white70 : Colors.black54,
-                size: 12,
-              ),
-            ),
+            ],
           ),
         ],
       ),

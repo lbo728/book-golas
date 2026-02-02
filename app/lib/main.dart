@@ -569,12 +569,8 @@ class _MainScreenState extends State<MainScreen>
       body: Stack(
         children: [
           body,
-          FloatingTimerBar(
-            hasBottomNav: !isInReadingDetailContext || _selectedIndex != 0,
-            onNavigateToBookDetail: () {
-              // Navigate to home tab (index 0) where the book detail is shown
-              _onItemTapped(0);
-            },
+          const FloatingTimerBar(
+            hasBottomNav: true,
           ),
         ],
       ),
