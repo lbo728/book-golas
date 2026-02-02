@@ -381,19 +381,17 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
             // Calculate width based on animation
             final screenWidth = MediaQuery.of(context).size.width;
             final expandedWidth = screenWidth - 32; // full width minus padding
-            final minimizedWidth = 120.0; // fixed small width
-            final currentWidth = expandedWidth -
-                ((expandedWidth - minimizedWidth) * _widthAnimation.value);
 
             return Positioned(
               left: 16,
+              right: _isMinimized ? null : 16,
               bottom: widget.hasBottomNav ? 90 : 16,
               child: GestureDetector(
                 onTap: _isMinimized ? _toggleExpand : null,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 350),
                   curve: Curves.easeInOutCubic,
-                  width: _isMinimized ? minimizedWidth : expandedWidth,
+                  width: _isMinimized ? null : expandedWidth,
                   height: 64,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(32),
@@ -429,69 +427,18 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
 
   Widget _buildMinimizedView(
       bool isDark, ReadingTimerViewModel timerVm, Book? book) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Book thumbnail (instead of timer icon)
-          if (book != null)
-            Container(
-              width: 32,
-              height: 40,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-                image: book.imageUrl != null
-                    ? DecorationImage(
-                        image: NetworkImage(book.imageUrl!),
-                        fit: BoxFit.cover,
-                      )
-                    : null,
-                color: isDark ? Colors.grey[800] : Colors.grey[300],
-              ),
-              child: book.imageUrl == null
-                  ? Icon(
-                      CupertinoIcons.book,
-                      color: isDark ? Colors.grey[600] : Colors.grey[500],
-                      size: 16,
-                    )
-                  : null,
-            ),
-          if (book == null)
-            Icon(
-              CupertinoIcons.timer,
-              color: isDark ? Colors.white70 : Colors.black54,
-              size: 18,
-            ),
-          const SizedBox(width: 8),
-          // Time
-          Text(
-            _formatDuration(timerVm.elapsed),
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white : Colors.black,
-              fontFeatures: const [FontFeature.tabularFigures()],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildExpandedView(
-      bool isDark, ReadingTimerViewModel timerVm, Book? book) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Row(
-        children: [
-          // Book thumbnail
-          if (book != null)
-            GestureDetector(
-              onTap: widget.onNavigateToBookDetail,
-              child: Container(
-                width: 36,
-                height: 44,
+    return GestureDetector(
+      onTap: widget.onNavigateToBookDetail,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Book thumbnail (instead of timer icon)
+            if (book != null)
+              Container(
+                width: 32,
+                height: 40,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(4),
                   image: book.imageUrl != null
@@ -506,25 +453,82 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                     ? Icon(
                         CupertinoIcons.book,
                         color: isDark ? Colors.grey[600] : Colors.grey[500],
-                        size: 18,
+                        size: 16,
                       )
                     : null,
               ),
+            if (book == null)
+              Icon(
+                CupertinoIcons.timer,
+                color: isDark ? Colors.white70 : Colors.black54,
+                size: 18,
+              ),
+            const SizedBox(width: 10),
+            // Time
+            Text(
+              _formatDuration(timerVm.elapsed),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : Colors.black,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
             ),
-          if (book != null) const SizedBox(width: 10),
+          ],
+        ),
+      ),
+    );
+  }
 
-          // Book title (with flexible width)
+  Widget _buildExpandedView(
+      bool isDark, ReadingTimerViewModel timerVm, Book? book) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, right: 12),
+      child: Row(
+        children: [
+          // Book thumbnail + title (tappable)
           if (book != null)
-            Flexible(
-              child: Text(
-                book.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: isDark ? Colors.white : Colors.black,
-                ),
+            GestureDetector(
+              onTap: widget.onNavigateToBookDetail,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 36,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      image: book.imageUrl != null
+                          ? DecorationImage(
+                              image: NetworkImage(book.imageUrl!),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
+                      color: isDark ? Colors.grey[800] : Colors.grey[300],
+                    ),
+                    child: book.imageUrl == null
+                        ? Icon(
+                            CupertinoIcons.book,
+                            color: isDark ? Colors.grey[600] : Colors.grey[500],
+                            size: 18,
+                          )
+                        : null,
+                  ),
+                  const SizedBox(width: 10),
+                  // Book title (with flexible width)
+                  Flexible(
+                    child: Text(
+                      book.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           if (book == null) const Spacer(),
