@@ -284,6 +284,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
   void _showPageUpdateModal(
       BuildContext context, ReadingTimerViewModel timerVm) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final durationText = _formatDurationShort(timerVm.elapsed, context);
     final TextEditingController pageController = TextEditingController();
 
     showModalBottomSheet(
@@ -325,7 +326,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  '${_formatDurationShort(timerVm.elapsed, context)} 독서 완료!',
+                  '$durationText 독서 완료!',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
