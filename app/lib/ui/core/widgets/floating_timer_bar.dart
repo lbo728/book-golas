@@ -121,28 +121,32 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
     final minutes = duration.inMinutes % 60;
     final seconds = duration.inSeconds % 60;
 
-    final l10n = AppLocalizations.of(context);
-    if (l10n == null) {
+    try {
+      final l10n = AppLocalizations.of(context);
+      if (l10n == null) {
+        return '${hours}h ${minutes}m ${seconds}s';
+      }
+
+      final hourUnit = l10n.timeHour;
+      final minuteUnit = l10n.timeMinute;
+      final secondUnit = l10n.timeSecond;
+
+      final parts = <String>[];
+
+      if (hours > 0) {
+        parts.add('$hours$hourUnit');
+      }
+      if (minutes > 0) {
+        parts.add('$minutes$minuteUnit');
+      }
+      if (seconds > 0 || parts.isEmpty) {
+        parts.add('$seconds$secondUnit');
+      }
+
+      return parts.join(' ');
+    } catch (e) {
       return '${hours}h ${minutes}m ${seconds}s';
     }
-
-    final hourUnit = l10n.timeHour;
-    final minuteUnit = l10n.timeMinute;
-    final secondUnit = l10n.timeSecond;
-
-    final parts = <String>[];
-
-    if (hours > 0) {
-      parts.add('$hours$hourUnit');
-    }
-    if (minutes > 0) {
-      parts.add('$minutes$minuteUnit');
-    }
-    if (seconds > 0 || parts.isEmpty) {
-      parts.add('$seconds$secondUnit');
-    }
-
-    return parts.join(' ');
   }
 
   Book? _findBookById(String? bookId, List<Book> books) {
@@ -621,8 +625,8 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                   }
                 },
                 child: Container(
-                  width: 32,
-                  height: 32,
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
                     color: isDark
                         ? Colors.white.withValues(alpha: 0.15)
@@ -634,7 +638,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                         ? CupertinoIcons.pause_fill
                         : CupertinoIcons.play_fill,
                     color: isDark ? Colors.white : Colors.black,
-                    size: 14,
+                    size: 18,
                   ),
                 ),
               ),
@@ -645,8 +649,8 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
               GestureDetector(
                 onTap: () => _showStopConfirmation(context, timerVm),
                 child: Container(
-                  width: 32,
-                  height: 32,
+                  width: 40,
+                  height: 40,
                   decoration: const BoxDecoration(
                     color: _coral,
                     shape: BoxShape.circle,
@@ -654,7 +658,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                   child: const Icon(
                     CupertinoIcons.stop_fill,
                     color: Colors.white,
-                    size: 14,
+                    size: 18,
                   ),
                 ),
               ),
@@ -665,8 +669,8 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
               GestureDetector(
                 onTap: _toggleExpand,
                 child: Container(
-                  width: 28,
-                  height: 28,
+                  width: 36,
+                  height: 36,
                   decoration: BoxDecoration(
                     color: isDark
                         ? Colors.white.withValues(alpha: 0.1)
@@ -676,7 +680,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                   child: Icon(
                     CupertinoIcons.arrow_down_right_arrow_up_left,
                     color: isDark ? Colors.white70 : Colors.black54,
-                    size: 12,
+                    size: 16,
                   ),
                 ),
               ),
