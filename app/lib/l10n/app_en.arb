@@ -798,5 +798,92 @@
            "@aiRecallRemainingUses": {
              "description": "Remaining AI Recall uses",
              "placeholders": {"count": {"type": "int"}}
-           }
+           },
+
+           "subscriptionTitle": "Subscription",
+           "@subscriptionTitle": {"description": "Subscription screen title"},
+
+           "subscriptionProStatus": "Bookgolas Pro",
+           "@subscriptionProStatus": {"description": "Pro subscription status"},
+
+           "subscriptionFreeStatus": "Free User",
+           "@subscriptionFreeStatus": {"description": "Free user status"},
+
+           "subscriptionProDescription": "Unlock all features without limits",
+           "@subscriptionProDescription": {"description": "Pro subscription description"},
+
+           "subscriptionFreeDescription": "Feature limits apply",
+           "@subscriptionFreeDescription": {"description": "Free user description"},
+
+           "subscriptionUpgradeTitle": "Upgrade to Pro",
+           "@subscriptionUpgradeTitle": {"description": "Upgrade to Pro title"},
+
+           "subscriptionMonthly": "Monthly",
+           "@subscriptionMonthly": {"description": "Monthly subscription"},
+
+           "subscriptionMonthlyPrice": "$3.90",
+           "@subscriptionMonthlyPrice": {"description": "Monthly price"},
+
+           "subscriptionPerMonth": "/mo",
+           "@subscriptionPerMonth": {"description": "Per month label"},
+
+           "subscriptionYearly": "Yearly",
+           "@subscriptionYearly": {"description": "Yearly subscription"},
+
+           "subscriptionYearlyPrice": "$29.90",
+           "@subscriptionYearlyPrice": {"description": "Yearly price"},
+
+           "subscriptionPerYear": "/yr",
+           "@subscriptionPerYear": {"description": "Per year label"},
+
+           "subscriptionYearlySavings": "Save 36%",
+           "@subscriptionYearlySavings": {"description": "Yearly savings"},
+
+           "subscriptionBenefitsTitle": "Pro Benefits",
+           "@subscriptionBenefitsTitle": {"description": "Pro benefits title"},
+
+           "subscriptionBenefit1": "Unlimited concurrent reading",
+           "@subscriptionBenefit1": {"description": "Unlimited concurrent reading"},
+
+           "subscriptionBenefit2": "AI Recall 30 times per month",
+           "@subscriptionBenefit2": {"description": "AI Recall monthly usage"},
+
+           "subscriptionBenefit3": "Reading insights & statistics",
+           "@subscriptionBenefit3": {"description": "Reading insights"},
+
+           "subscriptionManageTitle": "Manage Subscription",
+           "@subscriptionManageTitle": {"description": "Manage subscription title"},
+
+           "subscriptionRestore": "Restore Purchases",
+           "@subscriptionRestore": {"description": "Restore purchases"},
+
+           "subscriptionManageSubscription": "Subscription Settings",
+           "@subscriptionManageSubscription": {"description": "Subscription settings"},
+
+           "subscriptionManageSubtitle": "Change or cancel subscription",
+           "@subscriptionManageSubtitle": {"description": "Change or cancel subscription"},
+
+           "subscriptionRestoreSuccess": "Subscription restored successfully",
+           "@subscriptionRestoreSuccess": {"description": "Restore success message"},
+
+           "subscriptionRestoreFailed": "Restore failed",
+           "@subscriptionRestoreFailed": {"description": "Restore failed message"},
+
+           "proUpgradeBannerTitle": "Upgrade to Pro",
+           "@proUpgradeBannerTitle": {"description": "Pro upgrade banner title"},
+
+           "proUpgradeBannerSubtitle": "Unlimited reading · AI Recall",
+           "@proUpgradeBannerSubtitle": {"description": "Pro upgrade banner subtitle"},
+
+           "proUpgradeBannerCta": "Upgrade Now",
+           "@proUpgradeBannerCta": {"description": "Pro upgrade CTA button"},
+
+           "proUpgradeBannerMini": "Upgrade to Pro",
+           "@proUpgradeBannerMini": {"description": "Mini pro upgrade banner"},
+
+           "myPageSubscriptionUpgrade": "Upgrade to Pro",
+           "@myPageSubscriptionUpgrade": {"description": "Upgrade to Pro in my page"},
+
+           "myPageSubscriptionManage": "Manage Subscription",
+           "@myPageSubscriptionManage": {"description": "Manage subscription in my page"}
 }

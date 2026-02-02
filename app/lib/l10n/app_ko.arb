@@ -2310,5 +2310,92 @@
         "@aiRecallRemainingUses": {
           "description": "Remaining AI Recall uses",
           "placeholders": {"count": {"type": "int"}}
-        }
+        },
+
+        "subscriptionTitle": "구독 관리",
+        "@subscriptionTitle": {"description": "Subscription screen title"},
+
+        "subscriptionProStatus": "Bookgolas Pro",
+        "@subscriptionProStatus": {"description": "Pro subscription status"},
+
+        "subscriptionFreeStatus": "무료 사용자",
+        "@subscriptionFreeStatus": {"description": "Free user status"},
+
+        "subscriptionProDescription": "모든 기능을 무제한으로 이용하세요",
+        "@subscriptionProDescription": {"description": "Pro subscription description"},
+
+        "subscriptionFreeDescription": "기능 제한이 적용됩니다",
+        "@subscriptionFreeDescription": {"description": "Free user description"},
+
+        "subscriptionUpgradeTitle": "Pro로 업그레이드",
+        "@subscriptionUpgradeTitle": {"description": "Upgrade to Pro title"},
+
+        "subscriptionMonthly": "월간 구독",
+        "@subscriptionMonthly": {"description": "Monthly subscription"},
+
+        "subscriptionMonthlyPrice": "₩3,900",
+        "@subscriptionMonthlyPrice": {"description": "Monthly price"},
+
+        "subscriptionPerMonth": "/월",
+        "@subscriptionPerMonth": {"description": "Per month label"},
+
+        "subscriptionYearly": "연간 구독",
+        "@subscriptionYearly": {"description": "Yearly subscription"},
+
+        "subscriptionYearlyPrice": "₩29,900",
+        "@subscriptionYearlyPrice": {"description": "Yearly price"},
+
+        "subscriptionPerYear": "/년",
+        "@subscriptionPerYear": {"description": "Per year label"},
+
+        "subscriptionYearlySavings": "36% 절약",
+        "@subscriptionYearlySavings": {"description": "Yearly savings"},
+
+        "subscriptionBenefitsTitle": "Pro 혜택",
+        "@subscriptionBenefitsTitle": {"description": "Pro benefits title"},
+
+        "subscriptionBenefit1": "동시 읽기 무제한",
+        "@subscriptionBenefit1": {"description": "Unlimited concurrent reading"},
+
+        "subscriptionBenefit2": "AI Recall 월 30회 사용",
+        "@subscriptionBenefit2": {"description": "AI Recall monthly usage"},
+
+        "subscriptionBenefit3": "독서 인사이트 및 통계",
+        "@subscriptionBenefit3": {"description": "Reading insights"},
+
+        "subscriptionManageTitle": "구독 관리",
+        "@subscriptionManageTitle": {"description": "Manage subscription title"},
+
+        "subscriptionRestore": "이전 구매 복원",
+        "@subscriptionRestore": {"description": "Restore purchases"},
+
+        "subscriptionManageSubscription": "구독 설정",
+        "@subscriptionManageSubscription": {"description": "Subscription settings"},
+
+        "subscriptionManageSubtitle": "구독 변경 또는 해지",
+        "@subscriptionManageSubtitle": {"description": "Change or cancel subscription"},
+
+        "subscriptionRestoreSuccess": "구독이 복원되었습니다",
+        "@subscriptionRestoreSuccess": {"description": "Restore success message"},
+
+        "subscriptionRestoreFailed": "복원에 실패했습니다",
+        "@subscriptionRestoreFailed": {"description": "Restore failed message"},
+
+        "proUpgradeBannerTitle": "Pro로 업그레이드",
+        "@proUpgradeBannerTitle": {"description": "Pro upgrade banner title"},
+
+        "proUpgradeBannerSubtitle": "동시 읽기 · AI Recall 무제한",
+        "@proUpgradeBannerSubtitle": {"description": "Pro upgrade banner subtitle"},
+
+        "proUpgradeBannerCta": "업그레이드하기",
+        "@proUpgradeBannerCta": {"description": "Pro upgrade CTA button"},
+
+        "proUpgradeBannerMini": "Pro로 무제한 이용하기",
+        "@proUpgradeBannerMini": {"description": "Mini pro upgrade banner"},
+
+        "myPageSubscriptionUpgrade": "Pro로 업그레이드",
+        "@myPageSubscriptionUpgrade": {"description": "Upgrade to Pro in my page"},
+
+        "myPageSubscriptionManage": "구독 관리",
+        "@myPageSubscriptionManage": {"description": "Manage subscription in my page"}
 }
