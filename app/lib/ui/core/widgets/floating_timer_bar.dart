@@ -100,11 +100,12 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
     final textWidth = textPainter.width;
 
     // Component widths
-    final thumbnailWidth = hasBook ? 28.0 : 0.0;
-    final thumbnailSpacing = hasBook ? 8.0 : 0.0;
+    final thumbnailWidth =
+        hasBook ? 28.0 : 18.0; // 28 for book, 18 for timer icon
+    final thumbnailSpacing = 8.0; // Always 8
     final iconWidth = 16.0; // expand icon
     final iconSpacing = 8.0;
-    final horizontalPadding = 32.0; // 16 * 2
+    final horizontalPadding = 24.0; // 16 + 8 = 24
 
     // Total width
     return textWidth +
