@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.dart';
 import 'package:book_golas/ui/book_list/view_model/book_list_view_model.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
@@ -114,13 +115,29 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
         horizontalPadding;
   }
 
-  String _formatDurationShort(Duration duration) {
+  String _formatDurationShort(Duration duration, BuildContext context) {
     final hours = duration.inHours;
     final minutes = duration.inMinutes % 60;
+    final seconds = duration.inSeconds % 60;
+
+    final l10n = AppLocalizations.of(context)!;
+    final hourUnit = l10n.timeHour;
+    final minuteUnit = l10n.timeMinute;
+    final secondUnit = l10n.timeSecond;
+
+    final parts = <String>[];
+
     if (hours > 0) {
-      return '${hours}h ${minutes}m';
+      parts.add('$hours$hourUnit');
     }
-    return '${minutes}m';
+    if (minutes > 0) {
+      parts.add('$minutes$minuteUnit');
+    }
+    if (seconds > 0 || parts.isEmpty) {
+      parts.add('$seconds$secondUnit');
+    }
+
+    return parts.join(' ');
   }
 
   Book? _findBookById(String? bookId, List<Book> books) {
@@ -188,7 +205,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
             ),
             const SizedBox(height: 8),
             Text(
-              '지금까지 ${_formatDurationShort(timerVm.elapsed)} 동안 독서하셨습니다.',
+              '지금까지 ${_formatDurationShort(timerVm.elapsed, context)} 동안 독서하셨습니다.',
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -302,7 +319,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  '${_formatDurationShort(timerVm.elapsed)} 독서 완료!',
+                  '${_formatDurationShort(timerVm.elapsed, context)} 독서 완료!',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
