@@ -166,6 +166,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
   void _showStopConfirmation(
       BuildContext context, ReadingTimerViewModel timerVm) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final durationText = _formatDurationShort(timerVm.elapsed, context);
 
     showModalBottomSheet(
       context: context,
@@ -210,7 +211,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
             ),
             const SizedBox(height: 8),
             Text(
-              '지금까지 ${_formatDurationShort(timerVm.elapsed, context)} 동안 독서하셨습니다.',
+              '지금까지 $durationText 동안 독서하셨습니다.',
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
