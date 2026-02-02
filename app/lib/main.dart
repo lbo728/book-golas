@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:book_golas/ui/home/widgets/home_screen.dart';
@@ -47,6 +49,7 @@ import 'ui/subscription/view_model/subscription_view_model.dart';
 import 'ui/book_detail/view_model/note_structure_view_model.dart';
 import 'ui/my_library/view_model/my_library_view_model.dart';
 import 'ui/my_library/widgets/my_library_screen.dart';
+import 'ui/reading_chart/view_model/reading_insights_view_model.dart';
 
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
@@ -286,7 +289,7 @@ class MyApp extends StatelessWidget {
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,
             locale: localeViewModel.locale,
-            localizationsDelegates: const [
+            localizationsDelegates: [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
@@ -388,19 +391,19 @@ class _MainScreenState extends State<MainScreen>
 
     _readingDetailBarSlide =
         Tween<Offset>(begin: Offset.zero, end: const Offset(-1.0, 0.0)).animate(
-          CurvedAnimation(
-            parent: _barSwitchController,
-            curve: Curves.easeOutCubic,
-          ),
-        );
+      CurvedAnimation(
+        parent: _barSwitchController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
 
     _regularBarSlide =
         Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(
-          CurvedAnimation(
-            parent: _barSwitchController,
-            curve: Curves.easeOutCubic,
-          ),
-        );
+      CurvedAnimation(
+        parent: _barSwitchController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
 
     // 인증 완료 후 BookListViewModel 초기화 및 FCM 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -520,17 +523,17 @@ class _MainScreenState extends State<MainScreen>
   }
 
   List<Widget> get _pages => [
-    HomeScreen(
-      onCallbacksReady: (updatePage, addMemorable) {
-        _updatePageCallback = updatePage;
-        _addMemorablePageCallback = addMemorable;
-      },
-    ),
-    const MyLibraryScreen(),
-    ReadingChartScreen(key: ReadingChartScreen.globalKey),
-    const CalendarScreen(),
-    const MyPageScreen(),
-  ];
+        HomeScreen(
+          onCallbacksReady: (updatePage, addMemorable) {
+            _updatePageCallback = updatePage;
+            _addMemorablePageCallback = addMemorable;
+          },
+        ),
+        const MyLibraryScreen(),
+        ReadingChartScreen(key: ReadingChartScreen.globalKey),
+        const CalendarScreen(),
+        const MyPageScreen(),
+      ];
 
   void _onItemTapped(int index) {
     debugPrint(
@@ -618,9 +621,8 @@ class _MainScreenState extends State<MainScreen>
 
     return Scaffold(
       body: body,
-      backgroundColor: isDark
-          ? AppColors.scaffoldDark
-          : AppColors.scaffoldLight,
+      backgroundColor:
+          isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
       extendBody: true,
       bottomNavigationBar: _buildAnimatedBottomBar(isInReadingDetailContext),
     );

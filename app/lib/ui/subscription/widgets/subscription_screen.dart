@@ -49,7 +49,7 @@ class SubscriptionScreen extends StatelessWidget {
               _buildUpgradeSection(context, viewModel, l10n),
               const SizedBox(height: 24),
             ],
-            _buildBenefitsSection(l10n),
+            _buildBenefitsSection(context, l10n),
             const SizedBox(height: 24),
             _buildManageSubscription(context, viewModel, l10n),
           ],
@@ -160,7 +160,7 @@ class SubscriptionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBenefitsSection(AppLocalizations l10n) {
+  Widget _buildBenefitsSection(BuildContext context, AppLocalizations l10n) {
     final benefits = [
       (Icons.book_outlined, l10n.subscriptionBenefit1),
       (Icons.auto_awesome_outlined, l10n.subscriptionBenefit2),

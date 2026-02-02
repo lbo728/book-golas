@@ -31,6 +31,10 @@ class AppConfig {
         '';
   }
 
+  // Google Books API 설정
+  static String get googleBooksApiKey =>
+      dotenv.env['GOOGLE_BOOKS_API_KEY'] ?? '';
+
   // Google Cloud Vision API 설정
   static String get googleCloudVisionApiKey =>
       dotenv.env['GOOGLE_CLOUD_VISION_API_KEY'] ?? '';

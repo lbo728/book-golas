@@ -10,6 +10,9 @@ abstract class BaseViewModel extends ChangeNotifier {
   bool get hasError => _errorMessage != null;
 
   @protected
+  bool get isDisposed => _isDisposed;
+
+  @protected
   void setLoading(bool value) {
     if (_isDisposed) return;
     _isLoading = value;

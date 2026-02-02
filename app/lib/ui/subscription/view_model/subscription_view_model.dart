@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 import 'package:book_golas/ui/core/view_model/base_view_model.dart';
@@ -25,7 +26,7 @@ class SubscriptionViewModel extends BaseViewModel {
   Future<void> loadSubscriptionStatus() async {
     await runAsync(() async {
       final isPro = await _subscriptionService.isPro();
-      if (!_isDisposed) {
+      if (!isDisposed) {
         _isProUser = isPro;
       }
     });
@@ -37,7 +38,7 @@ class SubscriptionViewModel extends BaseViewModel {
   Future<void> loadOfferings() async {
     await runAsync(() async {
       final offerings = await _subscriptionService.getOfferings();
-      if (!_isDisposed) {
+      if (!isDisposed) {
         _offerings = offerings;
       }
     });
