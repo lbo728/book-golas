@@ -541,21 +541,8 @@ class _MainScreenState extends State<MainScreen>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final homeVm = context.watch<HomeViewModel>();
-    final bookListVm = context.watch<BookListViewModel>();
     final isInReadingDetailContext =
         homeVm.displayMode == HomeDisplayMode.readingDetail;
-
-    // Find current book for timer
-    Book? currentBook;
-    if (homeVm.selectedBookId != null) {
-      try {
-        currentBook = bookListVm.books.firstWhere(
-          (b) => b.id == homeVm.selectedBookId,
-        );
-      } catch (_) {
-        currentBook = null;
-      }
-    }
 
     Widget body = _pages[_selectedIndex];
 
@@ -584,7 +571,6 @@ class _MainScreenState extends State<MainScreen>
           body,
           FloatingTimerBar(
             hasBottomNav: !isInReadingDetailContext || _selectedIndex != 0,
-            currentBook: currentBook,
             onNavigateToBookDetail: isInReadingDetailContext
                 ? () {
                     // Already in reading detail, just switch to home tab

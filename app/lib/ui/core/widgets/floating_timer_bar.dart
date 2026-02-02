@@ -5,22 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.dart';
+import 'package:book_golas/ui/book_list/view_model/book_list_view_model.dart';
 import 'package:book_golas/domain/models/book.dart';
 
-/// Floating Timer Bar - Clean, minimal design
+/// Floating Timer Bar with smooth left-aligned animation
 ///
 /// Two states:
-/// - Minimized: Small pill with just icon + time
+/// - Minimized: Small pill on the left with just icon + time
 /// - Expanded: Full bar with book thumbnail, title, time, controls
 class FloatingTimerBar extends StatefulWidget {
   final bool hasBottomNav;
-  final Book? currentBook;
   final VoidCallback? onNavigateToBookDetail;
 
   const FloatingTimerBar({
     super.key,
     this.hasBottomNav = true,
-    this.currentBook,
     this.onNavigateToBookDetail,
   });
 
@@ -32,7 +31,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
     with TickerProviderStateMixin {
   bool _isMinimized = false; // Start expanded by default
   late AnimationController _expandController;
-  late Animation<double> _expandAnimation;
+  late Animation<double> _widthAnimation;
 
   // Colors
   static const Color _coral = Color(0xFFE85A5A);
@@ -43,15 +42,17 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
   void initState() {
     super.initState();
     _expandController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 350),
       vsync: this,
     );
-    _expandAnimation = CurvedAnimation(
-      parent: _expandController,
-      curve: Curves.easeInOutCubic,
+    _widthAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _expandController,
+        curve: Curves.easeInOutCubic,
+      ),
     );
 
-    // Start minimized
+    // Start expanded
     _expandController.value = 0.0;
   }
 
@@ -65,9 +66,9 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
     setState(() {
       _isMinimized = !_isMinimized;
       if (_isMinimized) {
-        _expandController.reverse();
-      } else {
         _expandController.forward();
+      } else {
+        _expandController.reverse();
       }
     });
   }
@@ -86,6 +87,15 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
       return '${hours}h ${minutes}m';
     }
     return '${minutes}m';
+  }
+
+  Book? _findBookById(String? bookId, List<Book> books) {
+    if (bookId == null) return null;
+    try {
+      return books.firstWhere((b) => b.id == bookId);
+    } catch (_) {
+      return null;
+    }
   }
 
   void _showStopConfirmation(
@@ -355,42 +365,57 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Consumer<ReadingTimerViewModel>(
-      builder: (context, timerVm, child) {
+    return Consumer2<ReadingTimerViewModel, BookListViewModel>(
+      builder: (context, timerVm, bookListVm, child) {
         if (!timerVm.isRunning && !timerVm.isPaused) {
           return const SizedBox.shrink();
         }
 
+        // Get current book from timer's bookId
+        final currentBook =
+            _findBookById(timerVm.currentBookId, bookListVm.books);
+
         return AnimatedBuilder(
-          animation: _expandAnimation,
+          animation: _expandController,
           builder: (context, child) {
+            // Calculate width based on animation
+            final screenWidth = MediaQuery.of(context).size.width;
+            final expandedWidth = screenWidth - 32; // full width minus padding
+            final minimizedWidth = 120.0; // fixed small width
+            final currentWidth = expandedWidth -
+                ((expandedWidth - minimizedWidth) * _widthAnimation.value);
+
             return Positioned(
               left: 16,
-              right: _isMinimized ? null : 16,
               bottom: widget.hasBottomNav ? 90 : 16,
               child: GestureDetector(
                 onTap: _isMinimized ? _toggleExpand : null,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(32),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                    child: Container(
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? _surface.withValues(alpha: 0.95)
-                            : Colors.white.withValues(alpha: 0.95),
-                        borderRadius: BorderRadius.circular(32),
-                        border: Border.all(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 350),
+                  curve: Curves.easeInOutCubic,
+                  width: _isMinimized ? minimizedWidth : expandedWidth,
+                  height: 64,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(32),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                      child: Container(
+                        decoration: BoxDecoration(
                           color: isDark
-                              ? Colors.white.withValues(alpha: 0.1)
-                              : Colors.black.withValues(alpha: 0.05),
-                          width: 1,
+                              ? _surface.withValues(alpha: 0.95)
+                              : Colors.white.withValues(alpha: 0.95),
+                          borderRadius: BorderRadius.circular(32),
+                          border: Border.all(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.1)
+                                : Colors.black.withValues(alpha: 0.05),
+                            width: 1,
+                          ),
                         ),
+                        child: _isMinimized
+                            ? _buildMinimizedView(isDark, timerVm)
+                            : _buildExpandedView(isDark, timerVm, currentBook),
                       ),
-                      child: _isMinimized
-                          ? _buildMinimizedView(isDark, timerVm)
-                          : _buildExpandedView(isDark, timerVm),
                     ),
                   ),
                 ),
@@ -430,9 +455,8 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
     );
   }
 
-  Widget _buildExpandedView(bool isDark, ReadingTimerViewModel timerVm) {
-    final book = widget.currentBook;
-
+  Widget _buildExpandedView(
+      bool isDark, ReadingTimerViewModel timerVm, Book? book) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
