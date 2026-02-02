@@ -490,7 +490,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
   Widget _buildMinimizedView(
       bool isDark, ReadingTimerViewModel timerVm, Book? book) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.only(left: 16, right: 8),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
