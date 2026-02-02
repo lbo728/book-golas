@@ -780,5 +780,23 @@
            "@paywallRestore": {"description": "Restore purchases button"},
 
            "paywallRestoreSuccess": "Subscription restored successfully",
-           "@paywallRestoreSuccess": {"description": "Restore success message"}
+           "@paywallRestoreSuccess": {"description": "Restore success message"},
+
+           "concurrentReadingLimitTitle": "Concurrent Reading Limit",
+           "@concurrentReadingLimitTitle": {"description": "Title when concurrent reading limit reached"},
+
+           "concurrentReadingLimitMessage": "Free users can read up to 3 books simultaneously. Upgrade to Pro for unlimited access.",
+           "@concurrentReadingLimitMessage": {"description": "Message when concurrent reading limit reached"},
+
+           "aiRecallLimitTitle": "AI Recall Usage Limit",
+           "@aiRecallLimitTitle": {"description": "Title when AI Recall limit reached"},
+
+           "aiRecallLimitMessage": "You've used all your AI Recall searches for this month.",
+           "@aiRecallLimitMessage": {"description": "Message when AI Recall limit reached"},
+
+           "aiRecallRemainingUses": "{count} searches remaining this month",
+           "@aiRecallRemainingUses": {
+             "description": "Remaining AI Recall uses",
+             "placeholders": {"count": {"type": "int"}}
+           }
 }

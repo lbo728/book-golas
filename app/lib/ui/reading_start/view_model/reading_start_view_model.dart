@@ -9,6 +9,7 @@ import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/data/services/recommendation_service.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/core/utils/isbn_validator.dart';
+import 'package:book_golas/exceptions/subscription_exceptions.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ReadingStartViewModel extends BaseViewModel {
@@ -40,6 +41,9 @@ class ReadingStartViewModel extends BaseViewModel {
   bool _hasLoadedRecommendations = false;
   bool _hasCompletedBooks = false;
 
+  bool _shouldShowPaywall = false;
+  String? _paywallReason;
+
   List<BookSearchResult> get searchResults => _searchResults;
   bool get isSearching => _isSearching;
   BookSearchResult? get selectedBook => _selectedBook;
@@ -65,6 +69,15 @@ class ReadingStartViewModel extends BaseViewModel {
   bool get shouldShowRecommendations =>
       _hasCompletedBooks &&
       (_isLoadingRecommendations || _recommendations.isNotEmpty);
+
+  bool get shouldShowPaywall => _shouldShowPaywall;
+  String? get paywallReason => _paywallReason;
+
+  /// Clear paywall state
+  void clearPaywallState() {
+    _shouldShowPaywall = false;
+    _paywallReason = null;
+  }
 
   /// 실제 사용할 시작일 (상태에 따라 다름)
   DateTime get effectiveStartDate =>
@@ -431,6 +444,11 @@ class ReadingStartViewModel extends BaseViewModel {
         _createdBook = result;
         return true;
       }
+      return false;
+    } on ConcurrentReadingLimitException catch (e) {
+      _shouldShowPaywall = true;
+      _paywallReason = e.message;
+      clearError();
       return false;
     } catch (e) {
       setError(e.toString());

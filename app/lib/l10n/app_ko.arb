@@ -2292,5 +2292,23 @@
         "@paywallRestore": {"description": "Restore purchases button"},
 
         "paywallRestoreSuccess": "구독이 복원되었습니다",
-        "@paywallRestoreSuccess": {"description": "Restore success message"}
+        "@paywallRestoreSuccess": {"description": "Restore success message"},
+
+        "concurrentReadingLimitTitle": "동시 읽기 제한",
+        "@concurrentReadingLimitTitle": {"description": "Title when concurrent reading limit reached"},
+
+        "concurrentReadingLimitMessage": "무료 사용자는 동시에 3권까지 읽을 수 있습니다. Pro로 업그레이드하여 무제한으로 이용하세요.",
+        "@concurrentReadingLimitMessage": {"description": "Message when concurrent reading limit reached"},
+
+        "aiRecallLimitTitle": "AI Recall 사용량 초과",
+        "@aiRecallLimitTitle": {"description": "Title when AI Recall limit reached"},
+
+        "aiRecallLimitMessage": "이번 달 AI Recall 사용 횟수를 모두 소진했습니다.",
+        "@aiRecallLimitMessage": {"description": "Message when AI Recall limit reached"},
+
+        "aiRecallRemainingUses": "이번 달 남은 횟수: {count}회",
+        "@aiRecallRemainingUses": {
+          "description": "Remaining AI Recall uses",
+          "placeholders": {"count": {"type": "int"}}
+        }
 }
