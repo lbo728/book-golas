@@ -120,7 +120,11 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
     final minutes = duration.inMinutes % 60;
     final seconds = duration.inSeconds % 60;
 
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) {
+      return '${hours}h ${minutes}m ${seconds}s';
+    }
+
     final hourUnit = l10n.timeHour;
     final minuteUnit = l10n.timeMinute;
     final secondUnit = l10n.timeSecond;
