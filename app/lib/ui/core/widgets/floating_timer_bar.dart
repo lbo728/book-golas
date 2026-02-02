@@ -395,14 +395,13 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
 
             return Positioned(
               left: 16,
-              right: _isMinimized ? null : 16,
               bottom: widget.hasBottomNav ? 90 : 16,
               child: GestureDetector(
                 onTap: _isMinimized ? _toggleExpand : null,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 350),
                   curve: Curves.easeInOutCubic,
-                  width: _isMinimized ? null : currentWidth,
+                  width: currentWidth,
                   height: 64,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(32),
@@ -421,13 +420,9 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                             width: 1,
                           ),
                         ),
-                        child: IntrinsicWidth(
-                          child: _isMinimized
-                              ? _buildMinimizedView(
-                                  isDark, timerVm, currentBook)
-                              : _buildExpandedView(
-                                  isDark, timerVm, currentBook),
-                        ),
+                        child: _isMinimized
+                            ? _buildMinimizedView(isDark, timerVm, currentBook)
+                            : _buildExpandedView(isDark, timerVm, currentBook),
                       ),
                     ),
                   ),
