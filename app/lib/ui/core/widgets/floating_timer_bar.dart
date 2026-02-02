@@ -31,9 +31,9 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
   late AnimationController _expandController;
   late Animation<double> _widthAnimation;
 
-  // For measuring minimized content width
-  final GlobalKey _minimizedKey = GlobalKey();
-  double _minimizedWidth = 140.0; // Default, will be updated after measurement
+  // Fixed minimized width that accommodates all content
+  static const double _minimizedWidth =
+      200.0; // Enough space for thumbnail + time + icon + padding
 
   // Colors
   static const Color _coral = Color(0xFFE85A5A);
@@ -56,9 +56,6 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
 
     // Start expanded (value = 0 means expanded, 1 means minimized)
     _expandController.value = 0.0;
-
-    // Measure minimized width after first build
-    _measureMinimizedWidth();
   }
 
   @override
@@ -74,19 +71,6 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
         _expandController.forward();
       } else {
         _expandController.reverse();
-      }
-    });
-  }
-
-  void _measureMinimizedWidth() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final RenderBox? renderBox =
-          _minimizedKey.currentContext?.findRenderObject() as RenderBox?;
-      if (renderBox != null && renderBox.hasSize) {
-        final size = renderBox.size;
-        setState(() {
-          _minimizedWidth = size.width + 32; // Add padding
-        });
       }
     });
   }
@@ -457,7 +441,6 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
   Widget _buildMinimizedView(
       bool isDark, ReadingTimerViewModel timerVm, Book? book) {
     return Padding(
-      key: _minimizedKey,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisSize: MainAxisSize.min,
