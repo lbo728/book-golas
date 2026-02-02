@@ -395,13 +395,14 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
 
             return Positioned(
               left: 16,
+              right: _isMinimized ? null : 16,
               bottom: widget.hasBottomNav ? 90 : 16,
               child: GestureDetector(
                 onTap: _isMinimized ? _toggleExpand : null,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 350),
                   curve: Curves.easeInOutCubic,
-                  width: currentWidth,
+                  width: _isMinimized ? null : currentWidth,
                   height: 64,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(32),
@@ -420,9 +421,13 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                             width: 1,
                           ),
                         ),
-                        child: _isMinimized
-                            ? _buildMinimizedView(isDark, timerVm, currentBook)
-                            : _buildExpandedView(isDark, timerVm, currentBook),
+                        child: IntrinsicWidth(
+                          child: _isMinimized
+                              ? _buildMinimizedView(
+                                  isDark, timerVm, currentBook)
+                              : _buildExpandedView(
+                                  isDark, timerVm, currentBook),
+                        ),
                       ),
                     ),
                   ),
@@ -611,6 +616,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
 }
 
 /// Book info button with press feedback and haptic
+/// Long press: navigate only if released within widget bounds
 class _BookInfoButton extends StatefulWidget {
   final Book book;
   final bool isDark;
@@ -628,9 +634,12 @@ class _BookInfoButton extends StatefulWidget {
 
 class _BookInfoButtonState extends State<_BookInfoButton> {
   bool _isPressed = false;
+  final GlobalKey _key = GlobalKey();
+  Offset? _pressPosition;
 
   void _handleTapDown(TapDownDetails details) {
     setState(() => _isPressed = true);
+    _pressPosition = details.globalPosition;
     HapticFeedback.lightImpact();
   }
 
@@ -642,17 +651,48 @@ class _BookInfoButtonState extends State<_BookInfoButton> {
     setState(() => _isPressed = false);
   }
 
-  void _handleLongPress() {
+  void _handleLongPressStart(LongPressStartDetails details) {
+    setState(() => _isPressed = true);
+    _pressPosition = details.globalPosition;
     HapticFeedback.mediumImpact();
+  }
+
+  void _handleLongPressEnd(LongPressEndDetails details) {
+    setState(() => _isPressed = false);
+
+    // Check if release is within widget bounds
+    final RenderBox? renderBox =
+        _key.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox != null) {
+      final position = renderBox.localToGlobal(Offset.zero);
+      final size = renderBox.size;
+      final releasePosition = details.globalPosition;
+
+      // Check if release is within the widget
+      if (releasePosition.dx >= position.dx &&
+          releasePosition.dx <= position.dx + size.width &&
+          releasePosition.dy >= position.dy &&
+          releasePosition.dy <= position.dy + size.height) {
+        // Released within widget - navigate
+        widget.onTap();
+      }
+    }
+  }
+
+  void _handleLongPressCancel() {
+    setState(() => _isPressed = false);
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      key: _key,
       onTapDown: _handleTapDown,
       onTapUp: _handleTapUp,
       onTapCancel: _handleTapCancel,
-      onLongPress: _handleLongPress,
+      onLongPressStart: _handleLongPressStart,
+      onLongPressEnd: _handleLongPressEnd,
+      onLongPressCancel: _handleLongPressCancel,
       onTap: widget.onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 100),
