@@ -127,6 +127,7 @@ class _ReadingTimerModalContent extends StatelessWidget {
                             isFullWidth: true,
                             onPressed: () {
                               viewModel.start(bookId);
+                              Navigator.pop(context);
                             },
                           ),
                         ),
