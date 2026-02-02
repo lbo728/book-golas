@@ -595,8 +595,8 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                   }
                 },
                 child: Container(
-                  width: 28,
-                  height: 28,
+                  width: 32,
+                  height: 32,
                   decoration: BoxDecoration(
                     color: isDark
                         ? Colors.white.withValues(alpha: 0.15)
@@ -608,7 +608,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                         ? CupertinoIcons.pause_fill
                         : CupertinoIcons.play_fill,
                     color: isDark ? Colors.white : Colors.black,
-                    size: 12,
+                    size: 14,
                   ),
                 ),
               ),
@@ -619,8 +619,8 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
               GestureDetector(
                 onTap: () => _showStopConfirmation(context, timerVm),
                 child: Container(
-                  width: 28,
-                  height: 28,
+                  width: 32,
+                  height: 32,
                   decoration: const BoxDecoration(
                     color: _coral,
                     shape: BoxShape.circle,
@@ -628,7 +628,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                   child: const Icon(
                     CupertinoIcons.stop_fill,
                     color: Colors.white,
-                    size: 12,
+                    size: 14,
                   ),
                 ),
               ),
