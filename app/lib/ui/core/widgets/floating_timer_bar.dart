@@ -31,6 +31,10 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
   late AnimationController _expandController;
   late Animation<double> _widthAnimation;
 
+  // For measuring minimized content width
+  final GlobalKey _minimizedKey = GlobalKey();
+  double _minimizedWidth = 140.0; // Default, will be updated after measurement
+
   // Colors
   static const Color _coral = Color(0xFFE85A5A);
   static const Color _darkBg = Color(0xFF2C2C2E);
@@ -52,6 +56,9 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
 
     // Start expanded (value = 0 means expanded, 1 means minimized)
     _expandController.value = 0.0;
+
+    // Measure minimized width after first build
+    _measureMinimizedWidth();
   }
 
   @override
@@ -67,6 +74,19 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
         _expandController.forward();
       } else {
         _expandController.reverse();
+      }
+    });
+  }
+
+  void _measureMinimizedWidth() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final RenderBox? renderBox =
+          _minimizedKey.currentContext?.findRenderObject() as RenderBox?;
+      if (renderBox != null && renderBox.hasSize) {
+        final size = renderBox.size;
+        setState(() {
+          _minimizedWidth = size.width + 32; // Add padding
+        });
       }
     });
   }
@@ -387,11 +407,10 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
           builder: (context, child) {
             final screenWidth = MediaQuery.of(context).size.width;
             final expandedWidth = screenWidth - 32;
-            final minimizedWidth = 120.0;
 
             // Calculate width: when animation is 0 = expanded, 1 = minimized
             final currentWidth = expandedWidth -
-                ((expandedWidth - minimizedWidth) * _widthAnimation.value);
+                ((expandedWidth - _minimizedWidth) * _widthAnimation.value);
 
             return Positioned(
               left: 16,
@@ -438,7 +457,8 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
   Widget _buildMinimizedView(
       bool isDark, ReadingTimerViewModel timerVm, Book? book) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      key: _minimizedKey,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
