@@ -483,7 +483,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
   Widget _buildExpandedView(
       bool isDark, ReadingTimerViewModel timerVm, Book? book) {
     return Padding(
-      padding: const EdgeInsets.only(left: 16, right: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
           // Book thumbnail + title (tappable)
@@ -494,8 +494,8 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 36,
-                    height: 44,
+                    width: 32,
+                    height: 40,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(4),
                       image: book.imageUrl != null
@@ -510,22 +510,21 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                         ? Icon(
                             CupertinoIcons.book,
                             color: isDark ? Colors.grey[600] : Colors.grey[500],
-                            size: 18,
+                            size: 16,
                           )
                         : null,
                   ),
-                  const SizedBox(width: 10),
-                  // Book title (with flexible width)
-                  Flexible(
-                    child: Text(
-                      book.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
+                  const SizedBox(width: 8),
+                  // Book title (4 chars max with ellipsis)
+                  Text(
+                    book.title.length > 4
+                        ? '${book.title.substring(0, 4)}...'
+                        : book.title,
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: isDark ? Colors.white : Colors.black,
                     ),
                   ),
                 ],
@@ -533,20 +532,20 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
             ),
           if (book == null) const Spacer(),
 
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
 
           // Timer display
           Text(
             _formatDuration(timerVm.elapsed),
             style: TextStyle(
-              fontSize: 22,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: isDark ? Colors.white : Colors.black,
               fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
 
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
 
           // Pause button
           GestureDetector(
@@ -558,8 +557,8 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
               }
             },
             child: Container(
-              width: 32,
-              height: 32,
+              width: 28,
+              height: 28,
               decoration: BoxDecoration(
                 color: isDark
                     ? Colors.white.withValues(alpha: 0.15)
@@ -571,19 +570,19 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                     ? CupertinoIcons.pause_fill
                     : CupertinoIcons.play_fill,
                 color: isDark ? Colors.white : Colors.black,
-                size: 14,
+                size: 12,
               ),
             ),
           ),
 
-          const SizedBox(width: 6),
+          const SizedBox(width: 4),
 
           // Stop button
           GestureDetector(
             onTap: () => _showStopConfirmation(context, timerVm),
             child: Container(
-              width: 32,
-              height: 32,
+              width: 28,
+              height: 28,
               decoration: const BoxDecoration(
                 color: _coral,
                 shape: BoxShape.circle,
@@ -591,19 +590,19 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
               child: const Icon(
                 CupertinoIcons.stop_fill,
                 color: Colors.white,
-                size: 14,
+                size: 12,
               ),
             ),
           ),
 
-          const SizedBox(width: 6),
+          const SizedBox(width: 4),
 
           // Collapse button (minimize icon)
           GestureDetector(
             onTap: _toggleExpand,
             child: Container(
-              width: 32,
-              height: 32,
+              width: 28,
+              height: 28,
               decoration: BoxDecoration(
                 color: isDark
                     ? Colors.white.withValues(alpha: 0.1)
@@ -613,7 +612,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
               child: Icon(
                 CupertinoIcons.arrow_down_right_arrow_up_left,
                 color: isDark ? Colors.white70 : Colors.black54,
-                size: 14,
+                size: 12,
               ),
             ),
           ),
