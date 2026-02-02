@@ -42,14 +42,14 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
       duration: const Duration(milliseconds: 350),
       vsync: this,
     );
-    _widthAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+    _widthAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _expandController,
         curve: Curves.easeInOutCubic,
       ),
     );
 
-    // Start expanded
+    // Start expanded (value = 0 means expanded, 1 means minimized)
     _expandController.value = 0.0;
   }
 
@@ -388,7 +388,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
             final expandedWidth = screenWidth - 32;
             final minimizedWidth = 120.0;
 
-            // Interpolate width during animation
+            // Calculate width: when animation is 0 = expanded, 1 = minimized
             final currentWidth = expandedWidth -
                 ((expandedWidth - minimizedWidth) * _widthAnimation.value);
 
