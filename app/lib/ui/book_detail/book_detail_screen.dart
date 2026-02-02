@@ -48,6 +48,7 @@ import 'package:book_golas/data/services/note_structure_service.dart';
 import 'package:book_golas/ui/book_detail/widgets/note_structure_mindmap.dart';
 import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.dart';
 import 'package:book_golas/ui/book_detail/widgets/reading_timer_modal.dart';
+import 'package:book_golas/ui/core/widgets/floating_timer_bar.dart';
 
 class BookDetailScreen extends StatelessWidget {
   final Book book;
@@ -295,6 +296,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
               SafeArea(
                 bottom: !widget.isEmbedded,
                 child: NestedScrollView(
+                  key: ValueKey('nested_scroll_${book.id}'),
                   controller: _scrollController,
                   headerSliverBuilder: (context, innerBoxIsScrolled) {
                     return [
@@ -503,6 +505,10 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     gravity: 0.2,
                   ),
                 ),
+              // 플로팅 타이머 바
+              const FloatingTimerBar(
+                hasBottomNav: false,
+              ),
             ],
           ),
         );
