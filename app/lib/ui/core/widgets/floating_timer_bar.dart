@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.dart';
@@ -436,32 +437,62 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
 
   Widget _buildMinimizedView(
       bool isDark, ReadingTimerViewModel timerVm, Book? book) {
-    return GestureDetector(
-      onTap: _toggleExpand, // Tap anywhere to expand
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Timer icon only (no book thumbnail in minimized mode)
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Book thumbnail (left side)
+          if (book != null)
+            Container(
+              width: 28,
+              height: 36,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                image: book.imageUrl != null
+                    ? DecorationImage(
+                        image: NetworkImage(book.imageUrl!),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
+                color: isDark ? Colors.grey[800] : Colors.grey[300],
+              ),
+              child: book.imageUrl == null
+                  ? Icon(
+                      CupertinoIcons.book,
+                      color: isDark ? Colors.grey[600] : Colors.grey[500],
+                      size: 14,
+                    )
+                  : null,
+            ),
+          if (book == null)
             Icon(
               CupertinoIcons.timer,
               color: isDark ? Colors.white70 : Colors.black54,
               size: 18,
             ),
-            const SizedBox(width: 8),
-            // Time only (no title)
-            Text(
-              _formatDuration(timerVm.elapsed),
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: isDark ? Colors.white : Colors.black,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
+          const SizedBox(width: 8),
+          // Time
+          Text(
+            _formatDuration(timerVm.elapsed),
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white : Colors.black,
+              fontFeatures: const [FontFeature.tabularFigures()],
             ),
-          ],
-        ),
+          ),
+          const SizedBox(width: 8),
+          // Expand icon (right side)
+          GestureDetector(
+            onTap: _toggleExpand,
+            child: Icon(
+              CupertinoIcons.arrow_up_left_arrow_down_right,
+              color: isDark ? Colors.white54 : Colors.black45,
+              size: 16,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -472,49 +503,12 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
-          // Book thumbnail + title (tappable, left side)
+          // Book thumbnail + title (tappable with feedback, left side)
           if (book != null)
-            GestureDetector(
+            _BookInfoButton(
+              book: book,
+              isDark: isDark,
               onTap: () => _navigateToBookDetail(context, book),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 32,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4),
-                      image: book.imageUrl != null
-                          ? DecorationImage(
-                              image: NetworkImage(book.imageUrl!),
-                              fit: BoxFit.cover,
-                            )
-                          : null,
-                      color: isDark ? Colors.grey[800] : Colors.grey[300],
-                    ),
-                    child: book.imageUrl == null
-                        ? Icon(
-                            CupertinoIcons.book,
-                            color: isDark ? Colors.grey[600] : Colors.grey[500],
-                            size: 16,
-                          )
-                        : null,
-                  ),
-                  const SizedBox(width: 8),
-                  // Book title (4 chars max with ellipsis)
-                  Text(
-                    book.title.length > 4
-                        ? '${book.title.substring(0, 4)}...'
-                        : book.title,
-                    maxLines: 1,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
-                  ),
-                ],
-              ),
             ),
           if (book == null) const SizedBox(width: 40),
 
@@ -611,6 +605,106 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Book info button with press feedback and haptic
+class _BookInfoButton extends StatefulWidget {
+  final Book book;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _BookInfoButton({
+    required this.book,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  State<_BookInfoButton> createState() => _BookInfoButtonState();
+}
+
+class _BookInfoButtonState extends State<_BookInfoButton> {
+  bool _isPressed = false;
+
+  void _handleTapDown(TapDownDetails details) {
+    setState(() => _isPressed = true);
+    HapticFeedback.lightImpact();
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    setState(() => _isPressed = false);
+  }
+
+  void _handleTapCancel() {
+    setState(() => _isPressed = false);
+  }
+
+  void _handleLongPress() {
+    HapticFeedback.mediumImpact();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: _handleTapDown,
+      onTapUp: _handleTapUp,
+      onTapCancel: _handleTapCancel,
+      onLongPress: _handleLongPress,
+      onTap: widget.onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 100),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        decoration: BoxDecoration(
+          color: _isPressed
+              ? (widget.isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : Colors.black.withValues(alpha: 0.05))
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 32,
+              height: 40,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                image: widget.book.imageUrl != null
+                    ? DecorationImage(
+                        image: NetworkImage(widget.book.imageUrl!),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
+                color: widget.isDark ? Colors.grey[800] : Colors.grey[300],
+              ),
+              child: widget.book.imageUrl == null
+                  ? Icon(
+                      CupertinoIcons.book,
+                      color:
+                          widget.isDark ? Colors.grey[600] : Colors.grey[500],
+                      size: 16,
+                    )
+                  : null,
+            ),
+            const SizedBox(width: 8),
+            // Book title (4 chars max with ellipsis)
+            Text(
+              widget.book.title.length > 4
+                  ? '${widget.book.title.substring(0, 4)}...'
+                  : widget.book.title,
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: widget.isDark ? Colors.white : Colors.black,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
