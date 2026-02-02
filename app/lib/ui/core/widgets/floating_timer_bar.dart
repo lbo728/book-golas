@@ -437,47 +437,20 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
   Widget _buildMinimizedView(
       bool isDark, ReadingTimerViewModel timerVm, Book? book) {
     return GestureDetector(
-      onTap: () {
-        if (book != null) {
-          _navigateToBookDetail(context, book);
-        }
-      },
+      onTap: _toggleExpand, // Tap anywhere to expand
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Book thumbnail (instead of timer icon)
-            if (book != null)
-              Container(
-                width: 32,
-                height: 40,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                  image: book.imageUrl != null
-                      ? DecorationImage(
-                          image: NetworkImage(book.imageUrl!),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
-                  color: isDark ? Colors.grey[800] : Colors.grey[300],
-                ),
-                child: book.imageUrl == null
-                    ? Icon(
-                        CupertinoIcons.book,
-                        color: isDark ? Colors.grey[600] : Colors.grey[500],
-                        size: 16,
-                      )
-                    : null,
-              ),
-            if (book == null)
-              Icon(
-                CupertinoIcons.timer,
-                color: isDark ? Colors.white70 : Colors.black54,
-                size: 18,
-              ),
-            const SizedBox(width: 10),
-            // Time
+            // Timer icon only (no book thumbnail in minimized mode)
+            Icon(
+              CupertinoIcons.timer,
+              color: isDark ? Colors.white70 : Colors.black54,
+              size: 18,
+            ),
+            const SizedBox(width: 8),
+            // Time only (no title)
             Text(
               _formatDuration(timerVm.elapsed),
               style: TextStyle(
