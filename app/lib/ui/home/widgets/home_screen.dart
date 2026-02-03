@@ -9,12 +9,14 @@ import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/home/view_model/home_view_model.dart';
 import 'package:book_golas/ui/home/widgets/home_mode_toggle_button.dart';
 import 'package:book_golas/ui/home/widgets/ai_feature_banner.dart';
+import 'package:book_golas/ui/home/widgets/pro_upgrade_banner.dart';
 import 'package:book_golas/ui/book_list/view_model/book_list_view_model.dart';
 import 'package:book_golas/ui/book_list/widgets/book_list_screen.dart';
 import 'package:book_golas/ui/book_list/widgets/sheets/reading_books_selection_sheet.dart';
 import 'package:book_golas/ui/reading_progress/widgets/reading_progress_screen.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 import 'package:book_golas/ui/recall/widgets/recall_search_sheet.dart';
+import 'package:book_golas/ui/subscription/view_model/subscription_view_model.dart';
 
 class HomeScreen extends StatefulWidget {
   final void Function(VoidCallback updatePage, VoidCallback addMemorable)?
@@ -209,6 +211,14 @@ class _HomeScreenState extends State<HomeScreen> {
           appBar: _buildAppBar(vm, isDark),
           body: Column(
             children: [
+              Consumer<SubscriptionViewModel>(
+                builder: (context, subscriptionVm, _) =>
+                    !subscriptionVm.isProUser
+                        ? ProUpgradeBanner(
+                            onTap: () => subscriptionVm.showPaywall(context),
+                          )
+                        : const SizedBox.shrink(),
+              ),
               AiFeatureBanner(
                 onRecallTap: _showRecallBookSelection,
                 onRecommendTap: _navigateToRecommendation,

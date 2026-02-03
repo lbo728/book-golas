@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/domain/models/recall_models.dart';
+import 'package:book_golas/utils/subscription_utils.dart';
+import 'package:book_golas/exceptions/subscription_exceptions.dart';
 
 class RecallService {
   static final RecallService _instance = RecallService._internal();
@@ -89,6 +91,15 @@ class RecallService {
     String? bookId,
     required String query,
   }) async {
+    // Check AI Recall usage limit for free users
+    if (!await SubscriptionUtils.canUseAiRecall()) {
+      final remaining = await SubscriptionUtils.getRemainingAiRecallUses();
+      throw AiRecallLimitException(
+        '이번 달 AI Recall 사용 횟수를 모두 소진했습니다.',
+        remainingUses: remaining,
+      );
+    }
+
     try {
       debugPrint('🔍 Recall search: bookId=$bookId, query=$query');
       final response = await _supabase.functions.invoke(
@@ -107,6 +118,9 @@ class RecallService {
             '🔴 Recall search failed: ${response.status} - ${response.data}');
         return null;
       }
+
+      // Increment usage counter after successful search
+      await SubscriptionUtils.incrementAiRecallUsage();
 
       final data = response.data as Map<String, dynamic>;
       return RecallSearchResult.fromJson(data);

@@ -22,6 +22,8 @@ import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_text_field.dart';
 
 import 'login_screen.dart';
+import 'package:book_golas/ui/subscription/view_model/subscription_view_model.dart';
+import 'package:book_golas/ui/subscription/widgets/subscription_screen.dart';
 
 class MyPageScreen extends StatelessWidget {
   const MyPageScreen({super.key});
@@ -895,6 +897,29 @@ class _MyPageContentState extends State<_MyPageContent> {
                     ),
                   ],
                 ],
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+          Consumer<SubscriptionViewModel>(
+            builder: (context, subscriptionVm, child) {
+              return LiquidGlassButton(
+                text: subscriptionVm.isProUser
+                    ? AppLocalizations.of(context)!.myPageSubscriptionManage
+                    : AppLocalizations.of(context)!.myPageSubscriptionUpgrade,
+                icon: subscriptionVm.isProUser ? Icons.star : Icons.star_border,
+                variant: LiquidGlassButtonVariant.secondary,
+                isFullWidth: true,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => SubscriptionScreen(
+                        onClose: () => Navigator.pop(context),
+                      ),
+                    ),
+                  );
+                },
               );
             },
           ),

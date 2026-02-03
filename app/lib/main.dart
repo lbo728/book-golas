@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:book_golas/ui/home/widgets/home_screen.dart';
@@ -43,9 +45,11 @@ import 'ui/onboarding/view_model/onboarding_view_model.dart';
 import 'ui/onboarding/widgets/onboarding_screen.dart';
 import 'data/services/note_structure_service.dart';
 import 'data/services/subscription_service.dart';
+import 'ui/subscription/view_model/subscription_view_model.dart';
 import 'ui/book_detail/view_model/note_structure_view_model.dart';
 import 'ui/my_library/view_model/my_library_view_model.dart';
 import 'ui/my_library/widgets/my_library_screen.dart';
+import 'ui/reading_chart/view_model/reading_insights_view_model.dart';
 
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
@@ -229,12 +233,8 @@ class MyApp extends StatelessWidget {
         Provider<ReadingProgressService>(
           create: (_) => ReadingProgressService(),
         ),
-        Provider<NoteStructureService>(
-          create: (_) => NoteStructureService(),
-        ),
-        Provider<SubscriptionService>(
-          create: (_) => SubscriptionService(),
-        ),
+        Provider<NoteStructureService>(create: (_) => NoteStructureService()),
+        Provider<SubscriptionService>(create: (_) => SubscriptionService()),
         // === Repositories ===
         Provider<BookRepository>(
           create: (context) => BookRepositoryImpl(context.read<BookService>()),
@@ -275,6 +275,10 @@ class MyApp extends StatelessWidget {
           ),
         ),
         ChangeNotifierProvider(create: (_) => MyLibraryViewModel()),
+        ChangeNotifierProvider<SubscriptionViewModel>(
+          create: (context) =>
+              SubscriptionViewModel(context.read<SubscriptionService>()),
+        ),
       ],
       child: Consumer2<ThemeViewModel, LocaleViewModel>(
         builder: (context, themeViewModel, localeViewModel, child) {
@@ -285,16 +289,13 @@ class MyApp extends StatelessWidget {
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,
             locale: localeViewModel.locale,
-            localizationsDelegates: const [
+            localizationsDelegates: [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            supportedLocales: const [
-              Locale('ko'),
-              Locale('en'),
-            ],
+            supportedLocales: const [Locale('ko'), Locale('en')],
             navigatorObservers: [routeObserver],
             home: const AuthWrapper(),
           );
@@ -414,8 +415,9 @@ class _MainScreenState extends State<MainScreen>
         final userId = Supabase.instance.client.auth.currentUser?.id;
         if (userId != null) {
           await Purchases.configure(
-              PurchasesConfiguration(AppConfig.revenueCatPublicKey)
-                ..appUserID = userId);
+            PurchasesConfiguration(AppConfig.revenueCatPublicKey)
+              ..appUserID = userId,
+          );
           debugPrint('✅ RevenueCat 초기화 완료 (userId: $userId)');
         } else {
           debugPrint('⚠️ RevenueCat 초기화 스킵: 사용자 미인증');
@@ -535,7 +537,8 @@ class _MainScreenState extends State<MainScreen>
 
   void _onItemTapped(int index) {
     debugPrint(
-        '🔍 _onItemTapped called with index: $index, current: $_selectedIndex');
+      '🔍 _onItemTapped called with index: $index, current: $_selectedIndex',
+    );
     if (index == 0 && _selectedIndex == 0) {
       HapticFeedback.lightImpact();
       context.read<BookListViewModel>().cycleToNextTab();
