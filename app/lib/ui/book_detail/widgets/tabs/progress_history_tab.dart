@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/data/services/reading_timer_service.dart';
 
 class ProgressHistoryTab extends StatelessWidget {
   final Future<List<Map<String, dynamic>>> progressFuture;
@@ -14,6 +15,7 @@ class ProgressHistoryTab extends StatelessWidget {
   final int daysLeft;
   final DateTime startDate;
   final DateTime targetDate;
+  final String bookId;
 
   const ProgressHistoryTab({
     super.key,
@@ -24,6 +26,7 @@ class ProgressHistoryTab extends StatelessWidget {
     required this.daysLeft,
     required this.startDate,
     required this.targetDate,
+    required this.bookId,
   });
 
   @override
@@ -105,6 +108,8 @@ class ProgressHistoryTab extends StatelessWidget {
         children: [
           _buildChartCard(
               data, spots, maxPage, dailyPagesSpots, maxDailyPage, isDark),
+          const SizedBox(height: 16),
+          _buildReadingTimeCard(isDark),
           const SizedBox(height: 16),
           _buildReadingStateAnalysis(isDark, data),
           const SizedBox(height: 16),
@@ -443,6 +448,162 @@ class ProgressHistoryTab extends StatelessWidget {
     );
   }
 
+  Widget _buildReadingTimeCard(bool isDark) {
+    return FutureBuilder<int>(
+      future: ReadingTimerService().getTotalReadingTime(bookId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return _buildReadingTimeCardSkeleton(isDark);
+        }
+
+        final totalSeconds = snapshot.data ?? 0;
+        final hours = totalSeconds ~/ 3600;
+        final minutes = (totalSeconds % 3600) ~/ 60;
+        final seconds = totalSeconds % 60;
+
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.surfaceDark : Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '⏱️ 독서 시간 통계',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildStatItem(
+                      '총 독서 시간',
+                      '$hours시간 $minutes분 $seconds초',
+                      AppColors.primary,
+                      isDark,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildStatItem(
+                      '총 세션',
+                      '${(totalSeconds / 60).toStringAsFixed(0)}분',
+                      AppColors.success,
+                      isDark,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildReadingTimeCardSkeleton(bool isDark) {
+    return Shimmer.fromColors(
+      baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+      highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surfaceDark : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 120,
+              height: 20,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Container(
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatItem(
+    String label,
+    String value,
+    Color color,
+    bool isDark,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildReadingStateAnalysis(
       bool isDark, List<Map<String, dynamic>> progressData) {
     final analysisResult = _analyzeReadingState(progressData);
@@ -488,8 +649,7 @@ class ProgressHistoryTab extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 5, vertical: 1),
                         decoration: BoxDecoration(
-                          color:
-                              AppColors.warning.withValues(alpha: 0.15),
+                          color: AppColors.warning.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(

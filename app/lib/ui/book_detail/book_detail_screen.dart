@@ -439,6 +439,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                   daysLeft: bookVm.daysLeft,
                                   startDate: book.startDate,
                                   targetDate: book.targetDate,
+                                  bookId: book.id ?? '',
                                 );
                               },
                             ),
