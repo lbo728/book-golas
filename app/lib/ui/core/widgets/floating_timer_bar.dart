@@ -10,6 +10,7 @@ import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.da
 import 'package:book_golas/ui/book_list/view_model/book_list_view_model.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/ui/core/theme/app_colors.dart';
 
 /// Floating Timer Bar with smooth animation
 ///
@@ -295,6 +296,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      isDismissible: false,
       builder: (context) => Padding(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -390,39 +392,43 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                 ),
               ),
               const SizedBox(height: 24),
-              GestureDetector(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  decoration: BoxDecoration(
-                    color: _coral,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    '기록하기',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Text(
+                      '기록하기',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
               ),
               const SizedBox(height: 8),
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Text(
-                    '나중에 하기',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      '나중에 하기',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
                     ),
                   ),
                 ),
