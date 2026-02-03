@@ -38,7 +38,7 @@ import 'ui/auth/widgets/login_screen.dart';
 import 'ui/calendar/view_model/calendar_view_model.dart';
 import 'ui/auth/widgets/my_page_screen.dart';
 import 'ui/my_library/widgets/my_library_screen.dart';
-import 'ui/my_library/view_model/my_library_view_model.dart';
+
 import 'domain/models/book.dart';
 import 'ui/book_detail/book_detail_screen.dart';
 import 'ui/onboarding/view_model/onboarding_view_model.dart';
@@ -50,6 +50,9 @@ import 'ui/book_detail/view_model/note_structure_view_model.dart';
 import 'ui/my_library/view_model/my_library_view_model.dart';
 import 'ui/my_library/widgets/my_library_screen.dart';
 import 'ui/reading_chart/view_model/reading_insights_view_model.dart';
+import 'ui/my_library/view_model/my_library_view_model.dart';
+import 'ui/book_detail/view_model/reading_timer_view_model.dart';
+import 'ui/core/widgets/floating_timer_bar.dart';
 
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
@@ -279,6 +282,7 @@ class MyApp extends StatelessWidget {
           create: (context) =>
               SubscriptionViewModel(context.read<SubscriptionService>()),
         ),
+        ChangeNotifierProvider(create: (_) => ReadingTimerViewModel()..init()),
       ],
       child: Consumer2<ThemeViewModel, LocaleViewModel>(
         builder: (context, themeViewModel, localeViewModel, child) {
@@ -620,7 +624,14 @@ class _MainScreenState extends State<MainScreen>
     }
 
     return Scaffold(
-      body: body,
+      body: Stack(
+        children: [
+          body,
+          const FloatingTimerBar(
+            hasBottomNav: true,
+          ),
+        ],
+      ),
       backgroundColor:
           isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
       extendBody: true,
