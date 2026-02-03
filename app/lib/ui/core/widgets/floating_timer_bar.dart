@@ -121,32 +121,19 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
     final minutes = duration.inMinutes % 60;
     final seconds = duration.inSeconds % 60;
 
-    try {
-      final l10n = AppLocalizations.of(context);
-      if (l10n == null) {
-        return '${hours}h ${minutes}m ${seconds}s';
-      }
+    final parts = <String>[];
 
-      final hourUnit = l10n.timeHour;
-      final minuteUnit = l10n.timeMinute;
-      final secondUnit = l10n.timeSecond;
-
-      final parts = <String>[];
-
-      if (hours > 0) {
-        parts.add('$hours$hourUnit');
-      }
-      if (minutes > 0) {
-        parts.add('$minutes$minuteUnit');
-      }
-      if (seconds > 0 || parts.isEmpty) {
-        parts.add('$seconds$secondUnit');
-      }
-
-      return parts.join(' ');
-    } catch (e) {
-      return '${hours}h ${minutes}m ${seconds}s';
+    if (hours > 0) {
+      parts.add('${hours}h');
     }
+    if (minutes > 0) {
+      parts.add('${minutes}m');
+    }
+    if (seconds > 0 || parts.isEmpty) {
+      parts.add('${seconds}s');
+    }
+
+    return parts.join(' ');
   }
 
   void _navigateToBookDetail(BuildContext context, Book book) {
