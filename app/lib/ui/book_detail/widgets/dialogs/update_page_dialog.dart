@@ -38,7 +38,7 @@ class UpdatePageDialog {
       if (page > totalPages) {
         return l10n.validationPageExceedsTotal(totalPages);
       }
-      if (page <= currentPage) {
+      if (page < currentPage) {
         return l10n.validationPageBelowCurrent(currentPage);
       }
       return null;
@@ -47,6 +47,8 @@ class UpdatePageDialog {
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      isDismissible: true,
+      enableDrag: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
         return StatefulBuilder(

@@ -654,8 +654,10 @@ class ProgressHistoryTab extends StatelessWidget {
               final index = data.indexOf(record);
               final prevPage = index > 0 ? data[index - 1]['page'] as int : 0;
               final pagesRead = page - prevPage;
+              final readingTime = record['reading_time'] as int? ?? 0;
 
-              return _buildDailyRecordItem(date, page, pagesRead, isDark);
+              return _buildDailyRecordItem(
+                  date, page, pagesRead, readingTime, isDark);
             }),
           ],
         );
@@ -664,7 +666,7 @@ class ProgressHistoryTab extends StatelessWidget {
   }
 
   Widget _buildDailyRecordItem(
-      DateTime date, int page, int pagesRead, bool isDark) {
+      DateTime date, int page, int pagesRead, int readingTime, bool isDark) {
     return Builder(
       builder: (context) {
         final l10n = AppLocalizations.of(context)!;
@@ -725,21 +727,34 @@ class ProgressHistoryTab extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    '+$pagesRead',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.success,
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '+$pagesRead',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.success,
+                        ),
+                      ),
+                      Text(
+                        ' ${l10n.historyTabPagesUnit}',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    l10n.historyTabPagesUnit,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  if (readingTime > 0)
+                    Text(
+                      _formatDuration(readingTime),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
                     ),
-                  ),
                 ],
               ),
             ],
@@ -747,6 +762,22 @@ class ProgressHistoryTab extends StatelessWidget {
         );
       },
     );
+  }
+
+  String _formatDuration(int seconds) {
+    if (seconds < 60) {
+      return '${seconds}초';
+    }
+    final minutes = seconds ~/ 60;
+    if (minutes < 60) {
+      return '${minutes}분';
+    }
+    final hours = minutes ~/ 60;
+    final remainingMinutes = minutes % 60;
+    if (remainingMinutes == 0) {
+      return '${hours}시간';
+    }
+    return '${hours}시간 ${remainingMinutes}분';
   }
 
   List<Map<String, dynamic>> _aggregateByDate(List<Map<String, dynamic>> data) {
@@ -759,14 +790,22 @@ class ProgressHistoryTab extends StatelessWidget {
       final dateKey =
           '${createdAt.year}-${createdAt.month.toString().padLeft(2, '0')}-${createdAt.day.toString().padLeft(2, '0')}';
       final page = entry['page'] as int;
+      final readingTime = entry['reading_time'] as int? ?? 0;
 
-      if (!dateMap.containsKey(dateKey) ||
-          (dateMap[dateKey]!['page'] as int) < page) {
+      if (!dateMap.containsKey(dateKey)) {
         dateMap[dateKey] = {
           'page': page,
           'created_at':
               DateTime(createdAt.year, createdAt.month, createdAt.day),
+          'reading_time': readingTime,
         };
+      } else {
+        final existingPage = dateMap[dateKey]!['page'] as int;
+        final existingTime = dateMap[dateKey]!['reading_time'] as int;
+        if (existingPage < page) {
+          dateMap[dateKey]!['page'] = page;
+        }
+        dateMap[dateKey]!['reading_time'] = existingTime + readingTime;
       }
     }
 

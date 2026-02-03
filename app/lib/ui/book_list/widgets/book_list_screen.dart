@@ -522,13 +522,24 @@ class _BookListScreenState extends State<BookListScreen>
     );
   }
 
-  void _navigateToBookDetail(Book book) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => BookDetailScreen(book: book),
-      ),
-    );
+  void _navigateToBookDetail(Book book, {String? currentBookId}) async {
+    final isSameBook = currentBookId != null && currentBookId == book.id;
+
+    if (isSameBook) {
+      await Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BookDetailScreen(book: book),
+        ),
+      );
+    } else {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BookDetailScreen(book: book),
+        ),
+      );
+    }
     if (mounted) {
       context.read<BookListViewModel>().refresh();
     }
