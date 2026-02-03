@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.dart';
-import 'package:book_golas/ui/book_list/view_model/book_list_view_model.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/core/theme/app_colors.dart';
@@ -147,15 +146,6 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
       return parts.join(' ');
     } catch (e) {
       return '${hours}h ${minutes}m ${seconds}s';
-    }
-  }
-
-  Book? _findBookById(String? bookId, List<Book> books) {
-    if (bookId == null) return null;
-    try {
-      return books.firstWhere((b) => b.id == bookId);
-    } catch (_) {
-      return null;
     }
   }
 
@@ -444,15 +434,14 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Consumer2<ReadingTimerViewModel, BookListViewModel>(
-      builder: (context, timerVm, bookListVm, child) {
+    return Consumer<ReadingTimerViewModel>(
+      builder: (context, timerVm, child) {
         if (!timerVm.isRunning && !timerVm.isPaused) {
           return const SizedBox.shrink();
         }
 
-        // Get current book from timer's bookId
-        final currentBook =
-            _findBookById(timerVm.currentBookId, bookListVm.books);
+        // Book info is not available in all screens, so we display null
+        final currentBook = null;
 
         // Calculate dynamic minimized width based on current time
         final timeText = _formatDuration(timerVm.elapsed);
