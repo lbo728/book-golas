@@ -131,8 +131,7 @@ jobs:
       - name: Build Flutter iOS
         run: |
           cd app
-          BUILD_NUMBER=$((43 + ${{ github.run_number }}))
-          flutter build ios --flavor dev -t lib/main_dev.dart --release --no-codesign --build-number=$BUILD_NUMBER
+          flutter build ios --flavor dev -t lib/main_dev.dart --release --no-codesign --build-number=${{ github.run_number }}
 
       - name: Build and Upload to TestFlight
         env:
