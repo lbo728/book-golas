@@ -6,17 +6,32 @@ import 'package:book_golas/l10n/app_localizations.dart';
 ///
 /// 사용자가 현재 읽은 페이지를 업데이트할 수 있는 바텀시트
 class UpdatePageDialog {
+  /// 읽기 완료 메시지 포맷
+  static String _formatReadingComplete(
+      Duration duration, BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes % 60;
+    final seconds = duration.inSeconds % 60;
+
+    return l10n.readingComplete(hours, minutes, seconds);
+  }
+
   /// 페이지 업데이트 다이얼로그 표시
   ///
   /// [context] - BuildContext
   /// [currentPage] - 현재 페이지
   /// [totalPages] - 총 페이지
   /// [onUpdate] - 업데이트 완료 콜백 (새 페이지 번호 전달)
+  /// [readingDuration] - 독서 완료 시간 (타이머 종료 후 표시용, optional)
+  /// [onSkip] - 나중에 하기 콜백 (optional)
   static Future<void> show({
     required BuildContext context,
     required int currentPage,
     required int totalPages,
     required Function(int newPage) onUpdate,
+    Duration? readingDuration,
+    VoidCallback? onSkip,
   }) async {
     final TextEditingController controller = TextEditingController(text: '');
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -69,6 +84,28 @@ class UpdatePageDialog {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Reading duration badge (shown when timer stopped)
+                  if (readingDuration != null) ...[
+                    Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          _formatReadingComplete(readingDuration, context),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.green,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                   Text(
                     AppLocalizations.of(context)!.updatePageTitle,
                     style: TextStyle(
@@ -147,12 +184,18 @@ class UpdatePageDialog {
                     children: [
                       Expanded(
                         child: TextButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            onSkip?.call();
+                          },
                           style: TextButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
-                          child:
-                              Text(AppLocalizations.of(context)!.commonCancel),
+                          child: Text(
+                            onSkip != null
+                                ? AppLocalizations.of(context)!.pageUpdateLater
+                                : AppLocalizations.of(context)!.commonCancel,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
