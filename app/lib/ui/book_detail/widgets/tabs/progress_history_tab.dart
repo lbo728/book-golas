@@ -3,7 +3,6 @@ import 'dart:collection';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:book_golas/l10n/app_localizations.dart';
@@ -867,7 +866,13 @@ class ProgressHistoryTab extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      DateFormat('MM/dd/yyyy').format(date),
+                      l10n.historyDateTimeFormat(
+                        date.year,
+                        date.month,
+                        date.day,
+                        date.hour,
+                        date.minute,
+                      ),
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -910,7 +915,7 @@ class ProgressHistoryTab extends StatelessWidget {
                   ),
                   if (readingTime > 0)
                     Text(
-                      _formatDuration(readingTime),
+                      _formatDuration(readingTime, l10n),
                       style: TextStyle(
                         fontSize: 11,
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -925,20 +930,20 @@ class ProgressHistoryTab extends StatelessWidget {
     );
   }
 
-  String _formatDuration(int seconds) {
+  String _formatDuration(int seconds, AppLocalizations l10n) {
     if (seconds < 60) {
-      return '${seconds}초';
+      return l10n.durationSeconds(seconds);
     }
     final minutes = seconds ~/ 60;
     if (minutes < 60) {
-      return '${minutes}분';
+      return l10n.durationMinutes(minutes);
     }
     final hours = minutes ~/ 60;
     final remainingMinutes = minutes % 60;
     if (remainingMinutes == 0) {
-      return '${hours}시간';
+      return l10n.durationHours(hours);
     }
-    return '${hours}시간 ${remainingMinutes}분';
+    return l10n.durationHoursMinutes(hours, remainingMinutes);
   }
 
   List<Map<String, dynamic>> _aggregateByDate(List<Map<String, dynamic>> data) {
