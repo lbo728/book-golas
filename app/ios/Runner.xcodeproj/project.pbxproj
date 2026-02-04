@@ -580,6 +580,7 @@
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "북골라스";
+				APP_DISPLAY_NAME = "북골라스";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -988,6 +989,7 @@
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "북골라스 DEV";
+			APP_DISPLAY_NAME = "북골라스 DEV";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1015,6 +1017,7 @@
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "북골라스";
+				APP_DISPLAY_NAME = "북골라스";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1042,6 +1045,7 @@
 			ENABLE_BITCODE = NO;
 			INFOPLIST_FILE = Runner/Info.plist;
 			INFOPLIST_KEY_CFBundleDisplayName = "북골라스 DEV";
+			APP_DISPLAY_NAME = "북골라스 DEV";
 			INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 			LD_RUNPATH_SEARCH_PATHS = (
 				"$(inherited)",
@@ -1068,6 +1072,7 @@
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "북골라스";
+				APP_DISPLAY_NAME = "북골라스";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1094,6 +1099,7 @@
 			ENABLE_BITCODE = NO;
 			INFOPLIST_FILE = Runner/Info.plist;
 			INFOPLIST_KEY_CFBundleDisplayName = "북골라스 DEV";
+			APP_DISPLAY_NAME = "북골라스 DEV";
 			INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 			LD_RUNPATH_SEARCH_PATHS = (
 				"$(inherited)",
@@ -1120,6 +1126,7 @@
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "북골라스";
+				APP_DISPLAY_NAME = "북골라스";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1359,6 +1366,7 @@
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "북골라스";
+				APP_DISPLAY_NAME = "북골라스";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1386,6 +1394,7 @@
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "북골라스";
+				APP_DISPLAY_NAME = "북골라스";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
