@@ -8,18 +8,21 @@ import 'package:provider/provider.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
-import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/core/theme/app_colors.dart';
+import 'package:book_golas/data/services/book_service.dart';
+import 'package:book_golas/domain/models/book.dart';
 
 /// Floating Timer Bar with smooth animation
 ///
 /// Layout: [Book Info] <-Spacer-> [Timer] <-Spacer-> [Buttons]
 class FloatingTimerBar extends StatefulWidget {
   final bool hasBottomNav;
+  final String? currentViewingBookId;
 
   const FloatingTimerBar({
     super.key,
     this.hasBottomNav = true,
+    this.currentViewingBookId,
   });
 
   @override
@@ -101,7 +104,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
 
     // Component widths
     final thumbnailWidth =
-        hasBook ? 28.0 : 18.0; // 28 for book, 18 for timer icon
+        hasBook ? 32.0 : 18.0; // 32 for book, 18 for timer icon
     final thumbnailSpacing = 8.0; // Always 8
     final iconWidth = 16.0; // expand icon
     final iconSpacing = 8.0;
@@ -136,13 +139,23 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
     return parts.join(' ');
   }
 
-  void _navigateToBookDetail(BuildContext context, Book book) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => BookDetailScreen(book: book),
-      ),
-    );
+  Future<void> _navigateToBookDetail(String? bookId) async {
+    if (bookId == null) return;
+
+    try {
+      final bookService = BookService();
+      final book = await bookService.getBookById(bookId);
+      if (book != null && mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => BookDetailScreen(book: book),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('책 상세 이동 실패: $e');
+    }
   }
 
   void _showStopConfirmation(
@@ -154,7 +167,8 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => Container(
+      useRootNavigator: true,
+      builder: (sheetContext) => Container(
         padding: EdgeInsets.fromLTRB(
           24,
           24,
@@ -204,7 +218,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
               children: [
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
+                    onTap: () => Navigator.pop(sheetContext),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       decoration: BoxDecoration(
@@ -229,12 +243,18 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                 Expanded(
                   child: GestureDetector(
                     onTap: () async {
-                      if (context.mounted) {
-                        Navigator.pop(context);
+                      // Save book info before stop() resets them
+                      final bookId = timerVm.currentBookId;
+                      final savedDurationText =
+                          _formatDurationShort(timerVm.elapsed, sheetContext);
+
+                      if (sheetContext.mounted) {
+                        Navigator.pop(sheetContext);
                       }
                       await timerVm.stop();
-                      if (context.mounted) {
-                        _showPageUpdateModal(context, timerVm);
+                      if (mounted && bookId != null) {
+                        _showPageUpdateModal(
+                            context, bookId, savedDurationText);
                       }
                     },
                     child: Container(
@@ -264,9 +284,8 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
   }
 
   void _showPageUpdateModal(
-      BuildContext context, ReadingTimerViewModel timerVm) {
+      BuildContext context, String bookId, String durationText) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final durationText = _formatDurationShort(timerVm.elapsed, context);
     final TextEditingController pageController = TextEditingController();
 
     showModalBottomSheet(
@@ -274,16 +293,17 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       isDismissible: false,
-      builder: (context) => Padding(
+      useRootNavigator: true,
+      builder: (sheetContext) => Padding(
         padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
+          bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
         ),
         child: Container(
           padding: EdgeInsets.fromLTRB(
             24,
             24,
             24,
-            24 + MediaQuery.of(context).viewPadding.bottom,
+            24 + MediaQuery.of(sheetContext).viewPadding.bottom,
           ),
           decoration: BoxDecoration(
             color: isDark ? _darkBg : Colors.white,
@@ -369,10 +389,44 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                 ),
               ),
               const SizedBox(height: 24),
-              Expanded(
+              SizedBox(
+                width: double.infinity,
                 child: GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
+                  onTap: () async {
+                    final pageText = pageController.text.trim();
+                    final page = int.tryParse(pageText);
+                    if (page == null || page <= 0) {
+                      return;
+                    }
+
+                    try {
+                      final bookService = BookService();
+                      await bookService.updateCurrentPage(bookId, page);
+
+                      if (sheetContext.mounted) {
+                        Navigator.pop(sheetContext);
+                        ScaffoldMessenger.of(sheetContext).showSnackBar(
+                          SnackBar(
+                            content: Text('$page 페이지로 업데이트되었습니다'),
+                            behavior: SnackBarBehavior.floating,
+                            backgroundColor: Colors.green,
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      if (sheetContext.mounted) {
+                        Navigator.pop(sheetContext);
+                        ScaffoldMessenger.of(sheetContext).showSnackBar(
+                          SnackBar(
+                            content: const Text('페이지 업데이트에 실패했습니다'),
+                            behavior: SnackBarBehavior.floating,
+                            backgroundColor: Colors.red,
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      }
+                    }
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -381,7 +435,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Text(
-                      '기록하기',
+                      '페이지 업데이트',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
@@ -393,9 +447,10 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                 ),
               ),
               const SizedBox(height: 8),
-              Expanded(
+              SizedBox(
+                width: double.infinity,
                 child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
+                  onTap: () => Navigator.pop(sheetContext),
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     child: Text(
@@ -427,14 +482,18 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
           return const SizedBox.shrink();
         }
 
-        // Book info is not available in all screens, so we display null
-        final currentBook = null;
+        // Get book info from timer ViewModel
+        // Hide book info if viewing the same book's detail screen
+        final isViewingSameBook = widget.currentViewingBookId != null &&
+            widget.currentViewingBookId == timerVm.currentBookId;
+        final hasBookInfo =
+            timerVm.currentBookTitle != null && !isViewingSameBook;
 
         // Calculate dynamic minimized width based on current time
         final timeText = _formatDuration(timerVm.elapsed);
         final calculatedWidth = _calculateMinimizedWidth(
           timeText,
-          currentBook != null,
+          hasBookInfo,
         );
         // Update minimized width if changed (with small threshold to avoid jitter)
         if ((calculatedWidth - _minimizedWidth).abs() > 5.0) {
@@ -457,36 +516,43 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
             final currentWidth = expandedWidth -
                 ((expandedWidth - _minimizedWidth) * _widthAnimation.value);
 
-            return Positioned(
-              left: 16,
-              bottom: widget.hasBottomNav ? 90 : 16,
-              child: GestureDetector(
-                onTap: _isMinimized ? _toggleExpand : null,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 350),
-                  curve: Curves.easeInOutCubic,
-                  width: currentWidth,
-                  height: 64,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(32),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? _surface.withValues(alpha: 0.95)
-                              : Colors.white.withValues(alpha: 0.95),
-                          borderRadius: BorderRadius.circular(32),
-                          border: Border.all(
+            return Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: 16,
+                  bottom: widget.hasBottomNav ? 90 : 16,
+                ),
+                child: GestureDetector(
+                  onTap: _isMinimized ? _toggleExpand : null,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 350),
+                    curve: Curves.easeInOutCubic,
+                    width: currentWidth,
+                    height: 64,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(32),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                        child: Container(
+                          decoration: BoxDecoration(
                             color: isDark
-                                ? Colors.white.withValues(alpha: 0.1)
-                                : Colors.black.withValues(alpha: 0.05),
-                            width: 1,
+                                ? _surface.withValues(alpha: 0.95)
+                                : Colors.white.withValues(alpha: 0.95),
+                            borderRadius: BorderRadius.circular(32),
+                            border: Border.all(
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.1)
+                                  : Colors.black.withValues(alpha: 0.05),
+                              width: 1,
+                            ),
                           ),
+                          child: _isMinimized
+                              ? _buildMinimizedView(
+                                  isDark, timerVm, hasBookInfo)
+                              : _buildExpandedView(
+                                  isDark, timerVm, hasBookInfo),
                         ),
-                        child: _isMinimized
-                            ? _buildMinimizedView(isDark, timerVm, currentBook)
-                            : _buildExpandedView(isDark, timerVm, currentBook),
                       ),
                     ),
                   ),
@@ -500,36 +566,38 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
   }
 
   Widget _buildMinimizedView(
-      bool isDark, ReadingTimerViewModel timerVm, Book? book) {
+      bool isDark, ReadingTimerViewModel timerVm, bool hasBookInfo) {
+    final imageUrl = timerVm.currentBookImageUrl;
+
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 8),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Book thumbnail (left side)
-          if (book != null)
+          // Book thumbnail (left side) - same size as expanded view
+          if (hasBookInfo)
             Container(
-              width: 28,
-              height: 36,
+              width: 32,
+              height: 40,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4),
-                image: book.imageUrl != null
+                image: imageUrl != null
                     ? DecorationImage(
-                        image: NetworkImage(book.imageUrl!),
+                        image: NetworkImage(imageUrl),
                         fit: BoxFit.cover,
                       )
                     : null,
                 color: isDark ? Colors.grey[800] : Colors.grey[300],
               ),
-              child: book.imageUrl == null
+              child: imageUrl == null
                   ? Icon(
                       CupertinoIcons.book,
                       color: isDark ? Colors.grey[600] : Colors.grey[500],
-                      size: 14,
+                      size: 16,
                     )
                   : null,
             ),
-          if (book == null)
+          if (!hasBookInfo)
             Icon(
               CupertinoIcons.timer,
               color: isDark ? Colors.white70 : Colors.black54,
@@ -562,19 +630,21 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
   }
 
   Widget _buildExpandedView(
-      bool isDark, ReadingTimerViewModel timerVm, Book? book) {
+      bool isDark, ReadingTimerViewModel timerVm, bool hasBookInfo) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
-          // Book thumbnail + title (tappable with feedback, left side)
-          if (book != null)
+          // Book thumbnail + title (left side, tappable to navigate)
+          if (hasBookInfo)
             _BookInfoButton(
-              book: book,
+              title: timerVm.currentBookTitle!,
+              imageUrl: timerVm.currentBookImageUrl,
               isDark: isDark,
-              onTap: () => _navigateToBookDetail(context, book),
+              onTap: () => _navigateToBookDetail(timerVm.currentBookId),
             ),
-          if (book == null) const SizedBox(width: 40),
+          // No spacer when no book info - timer starts from left
+          if (!hasBookInfo) const SizedBox(width: 8),
 
           // Spacer to push timer to center
           const Spacer(),
@@ -674,94 +744,27 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
   }
 }
 
-/// Book info button with press feedback and haptic
-/// Long press: navigate only if released within widget bounds
-class _BookInfoButton extends StatefulWidget {
-  final Book book;
+/// Book info display widget with thumbnail and title
+class _BookInfoButton extends StatelessWidget {
+  final String title;
+  final String? imageUrl;
   final bool isDark;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const _BookInfoButton({
-    required this.book,
+    required this.title,
+    this.imageUrl,
     required this.isDark,
-    required this.onTap,
+    this.onTap,
   });
-
-  @override
-  State<_BookInfoButton> createState() => _BookInfoButtonState();
-}
-
-class _BookInfoButtonState extends State<_BookInfoButton> {
-  bool _isPressed = false;
-  final GlobalKey _key = GlobalKey();
-  Offset? _pressPosition;
-
-  void _handleTapDown(TapDownDetails details) {
-    setState(() => _isPressed = true);
-    _pressPosition = details.globalPosition;
-    HapticFeedback.lightImpact();
-  }
-
-  void _handleTapUp(TapUpDetails details) {
-    setState(() => _isPressed = false);
-  }
-
-  void _handleTapCancel() {
-    setState(() => _isPressed = false);
-  }
-
-  void _handleLongPressStart(LongPressStartDetails details) {
-    setState(() => _isPressed = true);
-    _pressPosition = details.globalPosition;
-    HapticFeedback.mediumImpact();
-  }
-
-  void _handleLongPressEnd(LongPressEndDetails details) {
-    setState(() => _isPressed = false);
-
-    // Check if release is within widget bounds
-    final RenderBox? renderBox =
-        _key.currentContext?.findRenderObject() as RenderBox?;
-    if (renderBox != null) {
-      final position = renderBox.localToGlobal(Offset.zero);
-      final size = renderBox.size;
-      final releasePosition = details.globalPosition;
-
-      // Check if release is within the widget
-      if (releasePosition.dx >= position.dx &&
-          releasePosition.dx <= position.dx + size.width &&
-          releasePosition.dy >= position.dy &&
-          releasePosition.dy <= position.dy + size.height) {
-        // Released within widget - navigate
-        widget.onTap();
-      }
-    }
-  }
-
-  void _handleLongPressCancel() {
-    setState(() => _isPressed = false);
-  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      key: _key,
-      onTapDown: _handleTapDown,
-      onTapUp: _handleTapUp,
-      onTapCancel: _handleTapCancel,
-      onLongPressStart: _handleLongPressStart,
-      onLongPressEnd: _handleLongPressEnd,
-      onLongPressCancel: _handleLongPressCancel,
-      onTap: widget.onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 100),
+      onTap: onTap,
+      child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
         decoration: BoxDecoration(
-          color: _isPressed
-              ? (widget.isDark
-                  ? Colors.white.withValues(alpha: 0.1)
-                  : Colors.black.withValues(alpha: 0.05))
-              : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -772,19 +775,18 @@ class _BookInfoButtonState extends State<_BookInfoButton> {
               height: 40,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4),
-                image: widget.book.imageUrl != null
+                image: imageUrl != null
                     ? DecorationImage(
-                        image: NetworkImage(widget.book.imageUrl!),
+                        image: NetworkImage(imageUrl!),
                         fit: BoxFit.cover,
                       )
                     : null,
-                color: widget.isDark ? Colors.grey[800] : Colors.grey[300],
+                color: isDark ? Colors.grey[800] : Colors.grey[300],
               ),
-              child: widget.book.imageUrl == null
+              child: imageUrl == null
                   ? Icon(
                       CupertinoIcons.book,
-                      color:
-                          widget.isDark ? Colors.grey[600] : Colors.grey[500],
+                      color: isDark ? Colors.grey[600] : Colors.grey[500],
                       size: 16,
                     )
                   : null,
@@ -792,14 +794,13 @@ class _BookInfoButtonState extends State<_BookInfoButton> {
             const SizedBox(width: 8),
             // Book title (4 chars max with ellipsis)
             Text(
-              widget.book.title.length > 4
-                  ? '${widget.book.title.substring(0, 4)}...'
-                  : widget.book.title,
+              title.length > 4 ? '${title.substring(0, 4)}...' : title,
               maxLines: 1,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: widget.isDark ? Colors.white : Colors.black,
+                color: isDark ? Colors.white : Colors.black,
+                decoration: TextDecoration.none,
               ),
             ),
           ],

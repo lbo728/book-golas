@@ -10,6 +10,7 @@ Future<void> showReadingTimerModal({
   required BuildContext context,
   required String bookId,
   required String bookTitle,
+  String? bookImageUrl,
   VoidCallback? onTimerStopped,
 }) async {
   final viewModel = context.read<ReadingTimerViewModel>();
@@ -21,6 +22,7 @@ Future<void> showReadingTimerModal({
       return _ReadingTimerModalContent(
         bookId: bookId,
         bookTitle: bookTitle,
+        bookImageUrl: bookImageUrl,
         viewModel: viewModel,
         onTimerStopped: onTimerStopped,
       );
@@ -31,12 +33,14 @@ Future<void> showReadingTimerModal({
 class _ReadingTimerModalContent extends StatelessWidget {
   final String bookId;
   final String bookTitle;
+  final String? bookImageUrl;
   final ReadingTimerViewModel viewModel;
   final VoidCallback? onTimerStopped;
 
   const _ReadingTimerModalContent({
     required this.bookId,
     required this.bookTitle,
+    this.bookImageUrl,
     required this.viewModel,
     this.onTimerStopped,
   });
@@ -126,7 +130,11 @@ class _ReadingTimerModalContent extends StatelessWidget {
                             variant: LiquidGlassButtonVariant.primary,
                             isFullWidth: true,
                             onPressed: () {
-                              viewModel.start(bookId);
+                              viewModel.start(
+                                bookId,
+                                bookTitle: bookTitle,
+                                imageUrl: bookImageUrl,
+                              );
                               Navigator.pop(context);
                             },
                           ),

@@ -627,9 +627,7 @@ class _MainScreenState extends State<MainScreen>
       body: Stack(
         children: [
           body,
-          const FloatingTimerBar(
-            hasBottomNav: true,
-          ),
+          const FloatingTimerBar(hasBottomNav: true),
         ],
       ),
       backgroundColor:

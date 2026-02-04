@@ -13,6 +13,8 @@ class ReadingTimerService {
   static const String _tableName = 'reading_sessions';
 
   static const String _keyBookId = 'timer_book_id';
+  static const String _keyBookTitle = 'timer_book_title';
+  static const String _keyBookImageUrl = 'timer_book_image_url';
   static const String _keyStartTime = 'timer_start_time';
   static const String _keyIsRunning = 'timer_is_running';
   static const String _keyAccumulatedMs = 'timer_accumulated_ms';
@@ -90,15 +92,24 @@ class ReadingTimerService {
     String bookId,
     DateTime startTime,
     bool isRunning,
-    int accumulatedMs,
-  ) async {
+    int accumulatedMs, {
+    String? bookTitle,
+    String? bookImageUrl,
+  }) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_keyBookId, bookId);
       await prefs.setString(_keyStartTime, startTime.toIso8601String());
       await prefs.setBool(_keyIsRunning, isRunning);
       await prefs.setInt(_keyAccumulatedMs, accumulatedMs);
-      debugPrint('타이머 상태 저장 성공: bookId=$bookId, isRunning=$isRunning');
+      if (bookTitle != null) {
+        await prefs.setString(_keyBookTitle, bookTitle);
+      }
+      if (bookImageUrl != null) {
+        await prefs.setString(_keyBookImageUrl, bookImageUrl);
+      }
+      debugPrint(
+          '타이머 상태 저장 성공: bookId=$bookId, title=$bookTitle, isRunning=$isRunning');
     } catch (e) {
       debugPrint('타이머 상태 저장 실패: $e');
     }
@@ -114,11 +125,15 @@ class ReadingTimerService {
       final startTimeStr = prefs.getString(_keyStartTime);
       final isRunning = prefs.getBool(_keyIsRunning);
       final accumulatedMs = prefs.getInt(_keyAccumulatedMs);
+      final bookTitle = prefs.getString(_keyBookTitle);
+      final bookImageUrl = prefs.getString(_keyBookImageUrl);
 
       if (startTimeStr == null) return null;
 
       return {
         'timer_book_id': bookId,
+        'timer_book_title': bookTitle,
+        'timer_book_image_url': bookImageUrl,
         'timer_start_time': DateTime.parse(startTimeStr),
         'timer_is_running': isRunning ?? false,
         'timer_accumulated_ms': accumulatedMs ?? 0,
@@ -133,6 +148,8 @@ class ReadingTimerService {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_keyBookId);
+      await prefs.remove(_keyBookTitle);
+      await prefs.remove(_keyBookImageUrl);
       await prefs.remove(_keyStartTime);
       await prefs.remove(_keyIsRunning);
       await prefs.remove(_keyAccumulatedMs);

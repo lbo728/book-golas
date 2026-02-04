@@ -525,8 +525,9 @@ class _BookDetailContentState extends State<_BookDetailContent>
                   ),
                 ),
               // 플로팅 타이머 바
-              const FloatingTimerBar(
+              FloatingTimerBar(
                 hasBottomNav: false,
+                currentViewingBookId: bookVm.currentBook.id,
               ),
             ],
           ),
@@ -1765,6 +1766,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
       context: context,
       bookId: bookVm.currentBook.id!,
       bookTitle: bookVm.currentBook.title,
+      bookImageUrl: bookVm.currentBook.imageUrl,
       onTimerStopped: () {
         if (_isBookReading(bookVm.currentBook)) {
           _showUpdatePageDialog(bookVm);
