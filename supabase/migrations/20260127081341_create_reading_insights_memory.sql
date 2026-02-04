@@ -31,21 +31,21 @@ CREATE INDEX IF NOT EXISTS idx_reading_insights_memory_expires
 -- RLS 정책
 ALTER TABLE reading_insights_memory ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can view own insights memory"
-  ON reading_insights_memory FOR SELECT
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert own insights memory"
-  ON reading_insights_memory FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update own insights memory"
-  ON reading_insights_memory FOR UPDATE
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete own insights memory"
-  ON reading_insights_memory FOR DELETE
-  USING (auth.uid() = user_id);
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'reading_insights_memory' AND policyname = 'Users can view own insights memory') THEN
+    CREATE POLICY "Users can view own insights memory" ON reading_insights_memory FOR SELECT USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'reading_insights_memory' AND policyname = 'Users can insert own insights memory') THEN
+    CREATE POLICY "Users can insert own insights memory" ON reading_insights_memory FOR INSERT WITH CHECK (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'reading_insights_memory' AND policyname = 'Users can update own insights memory') THEN
+    CREATE POLICY "Users can update own insights memory" ON reading_insights_memory FOR UPDATE USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'reading_insights_memory' AND policyname = 'Users can delete own insights memory') THEN
+    CREATE POLICY "Users can delete own insights memory" ON reading_insights_memory FOR DELETE USING (auth.uid() = user_id);
+  END IF;
+END $$;
 
 -- 2. 독서 인사이트 레이트 제한 테이블
 -- 사용자별 마지막 인사이트 생성 시간 추적
@@ -64,21 +64,21 @@ CREATE INDEX IF NOT EXISTS idx_reading_insights_rate_limit_user
 -- RLS 정책
 ALTER TABLE reading_insights_rate_limit ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can view own rate limit"
-  ON reading_insights_rate_limit FOR SELECT
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert own rate limit"
-  ON reading_insights_rate_limit FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update own rate limit"
-  ON reading_insights_rate_limit FOR UPDATE
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete own rate limit"
-  ON reading_insights_rate_limit FOR DELETE
-  USING (auth.uid() = user_id);
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'reading_insights_rate_limit' AND policyname = 'Users can view own rate limit') THEN
+    CREATE POLICY "Users can view own rate limit" ON reading_insights_rate_limit FOR SELECT USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'reading_insights_rate_limit' AND policyname = 'Users can insert own rate limit') THEN
+    CREATE POLICY "Users can insert own rate limit" ON reading_insights_rate_limit FOR INSERT WITH CHECK (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'reading_insights_rate_limit' AND policyname = 'Users can update own rate limit') THEN
+    CREATE POLICY "Users can update own rate limit" ON reading_insights_rate_limit FOR UPDATE USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'reading_insights_rate_limit' AND policyname = 'Users can delete own rate limit') THEN
+    CREATE POLICY "Users can delete own rate limit" ON reading_insights_rate_limit FOR DELETE USING (auth.uid() = user_id);
+  END IF;
+END $$;
 
 -- 3. 만료된 인사이트 자동 삭제 함수
 CREATE OR REPLACE FUNCTION cleanup_expired_insights()

@@ -15,18 +15,19 @@ ALTER TABLE public.books ADD COLUMN IF NOT EXISTS total_reading_seconds integer 
 -- Enable RLS on reading_sessions
 ALTER TABLE public.reading_sessions ENABLE ROW LEVEL SECURITY;
 
--- RLS Policy: Users can view their own reading sessions
-CREATE POLICY "Users can view own reading sessions" ON public.reading_sessions
-  FOR SELECT USING (auth.uid() = user_id);
-
--- RLS Policy: Users can insert their own reading sessions
-CREATE POLICY "Users can insert own reading sessions" ON public.reading_sessions
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-
--- RLS Policy: Users can update their own reading sessions
-CREATE POLICY "Users can update own reading sessions" ON public.reading_sessions
-  FOR UPDATE USING (auth.uid() = user_id);
-
--- RLS Policy: Users can delete their own reading sessions
-CREATE POLICY "Users can delete own reading sessions" ON public.reading_sessions
-  FOR DELETE USING (auth.uid() = user_id);
+-- RLS Policies (idempotent)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'reading_sessions' AND policyname = 'Users can view own reading sessions') THEN
+    CREATE POLICY "Users can view own reading sessions" ON public.reading_sessions FOR SELECT USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'reading_sessions' AND policyname = 'Users can insert own reading sessions') THEN
+    CREATE POLICY "Users can insert own reading sessions" ON public.reading_sessions FOR INSERT WITH CHECK (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'reading_sessions' AND policyname = 'Users can update own reading sessions') THEN
+    CREATE POLICY "Users can update own reading sessions" ON public.reading_sessions FOR UPDATE USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'reading_sessions' AND policyname = 'Users can delete own reading sessions') THEN
+    CREATE POLICY "Users can delete own reading sessions" ON public.reading_sessions FOR DELETE USING (auth.uid() = user_id);
+  END IF;
+END $$;

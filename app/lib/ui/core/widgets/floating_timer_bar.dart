@@ -9,6 +9,7 @@ import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/core/theme/app_colors.dart';
+import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/domain/models/book.dart';
 
@@ -123,20 +124,31 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
     final hours = duration.inHours;
     final minutes = duration.inMinutes % 60;
     final seconds = duration.inSeconds % 60;
+    final l10n = AppLocalizations.of(context)!;
 
     final parts = <String>[];
 
     if (hours > 0) {
-      parts.add('${hours}h');
+      parts.add('$hours${l10n.unitHour}');
     }
     if (minutes > 0) {
-      parts.add('${minutes}m');
+      parts.add('$minutes${l10n.unitMinute}');
     }
     if (seconds > 0 || parts.isEmpty) {
-      parts.add('${seconds}s');
+      parts.add('$seconds${l10n.unitSecond}');
     }
 
     return parts.join(' ');
+  }
+
+  /// Get reading complete message for localization (e.g., "17분 55초 독서 완료!")
+  String _getReadingCompleteMessage(Duration duration, BuildContext context) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes % 60;
+    final seconds = duration.inSeconds % 60;
+    final l10n = AppLocalizations.of(context)!;
+
+    return l10n.readingComplete(hours, minutes, seconds);
   }
 
   Future<void> _navigateToBookDetail(String? bookId) async {
@@ -159,9 +171,11 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
   }
 
   void _showStopConfirmation(
-      BuildContext context, ReadingTimerViewModel timerVm) {
+      BuildContext context, ReadingTimerViewModel timerVm,
+      {bool isInBookDetailScreen = false}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final durationText = _formatDurationShort(timerVm.elapsed, context);
+    final l10n = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
       context: context,
@@ -198,7 +212,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
             ),
             const SizedBox(height: 16),
             Text(
-              '독서를 종료하시겠어요?',
+              l10n.timerStopConfirmTitle,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -207,7 +221,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
             ),
             const SizedBox(height: 8),
             Text(
-              '지금까지 $durationText 동안 독서하셨습니다.',
+              l10n.timerStopConfirmMessage(durationText),
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -228,7 +242,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        '계속하기',
+                        l10n.timerContinueButton,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 16,
@@ -245,16 +259,15 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                     onTap: () async {
                       // Save book info before stop() resets them
                       final bookId = timerVm.currentBookId;
-                      final savedDurationText =
-                          _formatDurationShort(timerVm.elapsed, sheetContext);
+                      final savedDuration = timerVm.elapsed;
 
                       if (sheetContext.mounted) {
                         Navigator.pop(sheetContext);
                       }
                       await timerVm.stop();
                       if (mounted && bookId != null) {
-                        _showPageUpdateModal(
-                            context, bookId, savedDurationText);
+                        _showPageUpdateModal(context, bookId, savedDuration,
+                            isInBookDetailScreen);
                       }
                     },
                     child: Container(
@@ -263,10 +276,10 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                         color: _coral,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Text(
-                        '종료하기',
+                      child: Text(
+                        l10n.timerStopButton,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
@@ -283,10 +296,12 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
     );
   }
 
-  void _showPageUpdateModal(
-      BuildContext context, String bookId, String durationText) {
+  void _showPageUpdateModal(BuildContext context, String bookId,
+      Duration duration, bool isInBookDetailScreen) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final TextEditingController pageController = TextEditingController();
+    final l10n = AppLocalizations.of(context)!;
+    final readingCompleteMsg = _getReadingCompleteMessage(duration, context);
 
     showModalBottomSheet(
       context: context,
@@ -329,8 +344,8 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  '$durationText 독서 완료!',
-                  style: TextStyle(
+                  readingCompleteMsg,
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: Colors.green,
@@ -339,7 +354,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
               ),
               const SizedBox(height: 24),
               Text(
-                '어디까지 읽었는지 기록해주세요',
+                l10n.pageUpdateDialogTitle,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -348,7 +363,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
               ),
               const SizedBox(height: 8),
               Text(
-                '현재까지 읽은 페이지를 입력하면 진행률이 업데이트됩니다',
+                l10n.pageUpdateValidationRequired,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
@@ -367,7 +382,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                   color: isDark ? Colors.white : Colors.black,
                 ),
                 decoration: InputDecoration(
-                  hintText: '페이지 번호',
+                  hintText: l10n.pageInputHint,
                   hintStyle: TextStyle(
                     color: isDark ? Colors.grey[600] : Colors.grey[400],
                   ),
@@ -405,25 +420,35 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
 
                       if (sheetContext.mounted) {
                         Navigator.pop(sheetContext);
-                        ScaffoldMessenger.of(sheetContext).showSnackBar(
-                          SnackBar(
-                            content: Text('$page 페이지로 업데이트되었습니다'),
-                            behavior: SnackBarBehavior.floating,
-                            backgroundColor: Colors.green,
-                            duration: const Duration(seconds: 2),
-                          ),
-                        );
+                      }
+
+                      if (mounted) {
+                        if (!isInBookDetailScreen) {
+                          await _navigateToBookDetail(bookId);
+                        }
+
+                        if (mounted) {
+                          CustomSnackbar.show(
+                            context,
+                            message: l10n.pageUpdateSuccess(page),
+                            type: SnackbarType.success,
+                            rootOverlay: true,
+                            bottomOffset: 100,
+                          );
+                        }
                       }
                     } catch (e) {
                       if (sheetContext.mounted) {
                         Navigator.pop(sheetContext);
-                        ScaffoldMessenger.of(sheetContext).showSnackBar(
-                          SnackBar(
-                            content: const Text('페이지 업데이트에 실패했습니다'),
-                            behavior: SnackBarBehavior.floating,
-                            backgroundColor: Colors.red,
-                            duration: const Duration(seconds: 2),
-                          ),
+                      }
+
+                      if (mounted) {
+                        CustomSnackbar.show(
+                          context,
+                          message: l10n.pageUpdateFailed,
+                          type: SnackbarType.error,
+                          rootOverlay: true,
+                          bottomOffset: isInBookDetailScreen ? 100 : 32,
                         );
                       }
                     }
@@ -434,10 +459,10 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text(
-                      '페이지 업데이트',
+                    child: Text(
+                      l10n.pageUpdateButton,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
@@ -454,7 +479,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     child: Text(
-                      '나중에 하기',
+                      l10n.pageUpdateLater,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
@@ -488,6 +513,11 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
             widget.currentViewingBookId == timerVm.currentBookId;
         final hasBookInfo =
             timerVm.currentBookTitle != null && !isViewingSameBook;
+
+        // When viewing the same book, show in-context timer bar above action buttons
+        if (isViewingSameBook) {
+          return _buildInContextTimerBar(isDark, timerVm);
+        }
 
         // Calculate dynamic minimized width based on current time
         final timeText = _formatDuration(timerVm.elapsed);
@@ -562,6 +592,124 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
           },
         );
       },
+    );
+  }
+
+  /// In-context timer bar shown when viewing the same book's detail screen
+  /// Positioned above the FloatingActionBar with left-aligned larger timer text
+  Widget _buildInContextTimerBar(bool isDark, ReadingTimerViewModel timerVm) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 96),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              height: 64,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? _surface.withValues(alpha: 0.95)
+                    : Colors.white.withValues(alpha: 0.95),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.1)
+                      : Colors.black.withValues(alpha: 0.05),
+                  width: 1,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    // Timer icon
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        CupertinoIcons.timer,
+                        color: AppColors.primary,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Timer display (left-aligned, larger text)
+                    Expanded(
+                      child: Text(
+                        _formatDuration(timerVm.elapsed),
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    ),
+                    // Buttons (right side)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Pause/Resume button
+                        GestureDetector(
+                          onTap: () {
+                            if (timerVm.isRunning) {
+                              timerVm.pause();
+                            } else {
+                              timerVm.resume();
+                            }
+                          },
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.15)
+                                  : Colors.black.withValues(alpha: 0.08),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              timerVm.isRunning
+                                  ? CupertinoIcons.pause_fill
+                                  : CupertinoIcons.play_fill,
+                              color: isDark ? Colors.white : Colors.black,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        // Stop button
+                        GestureDetector(
+                          onTap: () => _showStopConfirmation(context, timerVm,
+                              isInBookDetailScreen: true),
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: const BoxDecoration(
+                              color: _coral,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              CupertinoIcons.stop_fill,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 

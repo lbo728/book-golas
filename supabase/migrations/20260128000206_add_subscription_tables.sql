@@ -46,20 +46,27 @@ COMMENT ON COLUMN public.subscription_events.payload IS 'Full webhook payload fr
 ALTER TABLE public.ai_recall_usage ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.subscription_events ENABLE ROW LEVEL SECURITY;
 
--- RLS Policies for ai_recall_usage
-CREATE POLICY "Users can view their own AI Recall usage" ON public.ai_recall_usage
-  FOR SELECT USING (auth.uid() = user_id);
+-- RLS Policies for ai_recall_usage (idempotent)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'ai_recall_usage' AND policyname = 'Users can view their own AI Recall usage') THEN
+    CREATE POLICY "Users can view their own AI Recall usage" ON public.ai_recall_usage FOR SELECT USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'ai_recall_usage' AND policyname = 'Users can insert their own AI Recall usage') THEN
+    CREATE POLICY "Users can insert their own AI Recall usage" ON public.ai_recall_usage FOR INSERT WITH CHECK (auth.uid() = user_id);
+  END IF;
+END $$;
 
-CREATE POLICY "Users can insert their own AI Recall usage" ON public.ai_recall_usage
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-
--- RLS Policies for subscription_events (read-only for users)
-CREATE POLICY "Users can view their own subscription events" ON public.subscription_events
-  FOR SELECT USING (auth.uid() = user_id);
-
--- Service role can insert subscription events (for webhook handler)
-CREATE POLICY "Service role can insert subscription events" ON public.subscription_events
-  FOR INSERT WITH CHECK (true);
+-- RLS Policies for subscription_events (idempotent)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'subscription_events' AND policyname = 'Users can view their own subscription events') THEN
+    CREATE POLICY "Users can view their own subscription events" ON public.subscription_events FOR SELECT USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'subscription_events' AND policyname = 'Service role can insert subscription events') THEN
+    CREATE POLICY "Service role can insert subscription events" ON public.subscription_events FOR INSERT WITH CHECK (true);
+  END IF;
+END $$;
 
 -- Create indexes for performance
 CREATE INDEX IF NOT EXISTS idx_ai_recall_usage_user_id ON public.ai_recall_usage(user_id);

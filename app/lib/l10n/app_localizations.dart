@@ -296,6 +296,66 @@ abstract class AppLocalizations {
   /// **'분'**
   String get unitMinute;
 
+  /// Second unit
+  ///
+  /// In ko, this message translates to:
+  /// **'초'**
+  String get unitSecond;
+
+  /// Reading complete message with duration
+  ///
+  /// In ko, this message translates to:
+  /// **'{hours, plural, =0{{minutes}분 {seconds}초 독서 완료!} other{{hours}시간 {minutes}분 독서 완료!}}'**
+  String readingComplete(int hours, int minutes, int seconds);
+
+  /// Timer stop confirmation title
+  ///
+  /// In ko, this message translates to:
+  /// **'독서를 종료하시겠어요?'**
+  String get timerStopConfirmTitle;
+
+  /// Timer stop confirmation message with duration
+  ///
+  /// In ko, this message translates to:
+  /// **'지금까지 {duration} 동안 독서하셨습니다.'**
+  String timerStopConfirmMessage(String duration);
+
+  /// Continue reading button
+  ///
+  /// In ko, this message translates to:
+  /// **'계속하기'**
+  String get timerContinueButton;
+
+  /// Stop reading button
+  ///
+  /// In ko, this message translates to:
+  /// **'종료하기'**
+  String get timerStopButton;
+
+  /// Page input placeholder
+  ///
+  /// In ko, this message translates to:
+  /// **'페이지 번호'**
+  String get pageInputHint;
+
+  /// Page update success message
+  ///
+  /// In ko, this message translates to:
+  /// **'{page} 페이지로 업데이트되었습니다'**
+  String pageUpdateSuccess(int page);
+
+  /// Page update failed message
+  ///
+  /// In ko, this message translates to:
+  /// **'페이지 업데이트에 실패했습니다'**
+  String get pageUpdateFailed;
+
+  /// Skip page update button
+  ///
+  /// In ko, this message translates to:
+  /// **'나중에 하기'**
+  String get pageUpdateLater;
+
   /// Reading status
   ///
   /// In ko, this message translates to:
