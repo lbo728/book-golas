@@ -1,7 +1,7 @@
 default_platform(:ios)
 
 platform :ios do
-  desc "Build and upload to TestFlight"
+  desc "Build and upload to TestFlight (DEV)"
   lane :beta do
     api_key = app_store_connect_api_key(
       key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
@@ -14,18 +14,19 @@ platform :ios do
       use_automatic_signing: false,
       path: "Runner.xcodeproj",
       team_id: "7PFH55UQ86",
-      bundle_identifier: "com.bookgolas.app",
+      bundle_identifier: "com.bookgolas.app.dev",
       code_sign_identity: "Apple Distribution",
-      profile_name: ENV["PROVISIONING_PROFILE_NAME"] || "Bookgolas App Store"
+      profile_name: ENV["PROVISIONING_PROFILE_NAME"] || "Bookgolas Dev - Distribution"
     )
 
     build_app(
       workspace: "Runner.xcworkspace",
-      scheme: "Runner",
+      scheme: "dev",
+      configuration: "Release-dev",
       export_method: "app-store",
       export_options: {
         provisioningProfiles: {
-          "com.bookgolas.app" => ENV["PROVISIONING_PROFILE_NAME"] || "Bookgolas App Store"
+          "com.bookgolas.app.dev" => ENV["PROVISIONING_PROFILE_NAME"] || "Bookgolas Dev - Distribution"
         }
       },
       output_directory: "./build",
@@ -39,7 +40,7 @@ platform :ios do
     )
   end
 
-  desc "Build and upload to App Store for review"
+  desc "Build and upload to App Store for review (PROD)"
   lane :release do
     api_key = app_store_connect_api_key(
       key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
@@ -59,7 +60,8 @@ platform :ios do
 
     build_app(
       workspace: "Runner.xcworkspace",
-      scheme: "Runner",
+      scheme: "prod",
+      configuration: "Release-prod",
       export_method: "app-store",
       export_options: {
         provisioningProfiles: {
