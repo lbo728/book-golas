@@ -423,13 +423,19 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                       }
 
                       if (mounted) {
-                        CustomSnackbar.show(
-                          context,
-                          message: l10n.pageUpdateSuccess(page),
-                          type: SnackbarType.success,
-                          rootOverlay: true,
-                          bottomOffset: isInBookDetailScreen ? 100 : 32,
-                        );
+                        if (!isInBookDetailScreen) {
+                          await _navigateToBookDetail(bookId);
+                        }
+
+                        if (mounted) {
+                          CustomSnackbar.show(
+                            context,
+                            message: l10n.pageUpdateSuccess(page),
+                            type: SnackbarType.success,
+                            rootOverlay: true,
+                            bottomOffset: 100,
+                          );
+                        }
                       }
                     } catch (e) {
                       if (sheetContext.mounted) {

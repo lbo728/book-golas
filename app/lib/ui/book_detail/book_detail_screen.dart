@@ -489,18 +489,23 @@ class _BookDetailContentState extends State<_BookDetailContent>
               else if (!_isBookPlanned(bookVm.currentBook) &&
                   !widget.isEmbedded)
                 Consumer<ReadingTimerViewModel>(
-                  builder: (context, timerVm, child) => FloatingActionBar(
-                    onUpdatePageTap: _isBookReading(bookVm.currentBook)
-                        ? () => _showUpdatePageDialog(bookVm)
-                        : null,
-                    onAddMemorablePageTap: _showAddMemorablePageModal,
-                    onRecallSearchTap: () => _showRecallSearchSheet(bookVm),
-                    onTimerTap: _isBookReading(bookVm.currentBook)
-                        ? _showReadingTimerModal
-                        : null,
-                    isReadingMode: _isBookReading(bookVm.currentBook),
-                    isTimerRunning: timerVm.isRunning,
-                  ),
+                  builder: (context, timerVm, child) {
+                    final isTimerActiveForThisBook = timerVm.isRunning &&
+                        timerVm.currentBookId == bookVm.currentBook.id;
+                    return FloatingActionBar(
+                      onUpdatePageTap: _isBookReading(bookVm.currentBook)
+                          ? () => _showUpdatePageDialog(bookVm)
+                          : null,
+                      onAddMemorablePageTap: _showAddMemorablePageModal,
+                      onRecallSearchTap: () => _showRecallSearchSheet(bookVm),
+                      onTimerTap: _isBookReading(bookVm.currentBook) &&
+                              !isTimerActiveForThisBook
+                          ? _showReadingTimerModal
+                          : null,
+                      isReadingMode: _isBookReading(bookVm.currentBook),
+                      isTimerRunning: timerVm.isRunning,
+                    );
+                  },
                 ),
               // 컨페티 애니메이션
               if (_confettiController != null)
