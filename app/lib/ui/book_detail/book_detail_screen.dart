@@ -556,10 +556,17 @@ class _BookDetailContentState extends State<_BookDetailContent>
 
   Future<void> _showUpdatePageDialog(BookDetailViewModel bookVm) async {
     final book = bookVm.currentBook;
+    final timerVm = context.read<ReadingTimerViewModel>();
+
+    // Show reading duration badge if timer is running for this book
+    final isTimerActiveForThisBook = (timerVm.isRunning || timerVm.isPaused) &&
+        timerVm.currentBookId == book.id;
+
     await UpdatePageDialog.show(
       context: context,
       currentPage: book.currentPage,
       totalPages: book.totalPages,
+      readingDuration: isTimerActiveForThisBook ? timerVm.elapsed : null,
       onUpdate: (newPage) => _updateCurrentPage(bookVm, newPage),
     );
   }

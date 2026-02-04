@@ -463,9 +463,16 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.only(left: 20, right: 16),
+                padding: const EdgeInsets.only(left: 16, right: 16),
                 child: Row(
                   children: [
+                    // Book icon
+                    Icon(
+                      CupertinoIcons.book_fill,
+                      color: AppColors.primary,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 12),
                     // Timer display (left-aligned, larger text)
                     Expanded(
                       child: Text(
