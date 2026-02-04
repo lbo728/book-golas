@@ -112,10 +112,57 @@
   "unitHour": "시",
   "@unitHour": {"description": "Hour unit"},
   
-  "unitMinute": "분",
-  "@unitMinute": {"description": "Minute unit"},
-  
-  "statusReading": "독서 중",
+   "unitMinute": "분",
+   "@unitMinute": {"description": "Minute unit"},
+   
+   "unitSecond": "초",
+   "@unitSecond": {"description": "Second unit"},
+   
+   "readingComplete": "{hours, plural, =0{{minutes}분 {seconds}초 독서 완료!} other{{hours}시간 {minutes}분 독서 완료!}}",
+   "@readingComplete": {
+     "description": "Reading complete message with duration",
+     "placeholders": {
+       "hours": {"type": "int"},
+       "minutes": {"type": "int"},
+       "seconds": {"type": "int"}
+     }
+   },
+   
+   "timerStopConfirmTitle": "독서를 종료하시겠어요?",
+   "@timerStopConfirmTitle": {"description": "Timer stop confirmation title"},
+   
+   "timerStopConfirmMessage": "지금까지 {duration} 동안 독서하셨습니다.",
+   "@timerStopConfirmMessage": {
+     "description": "Timer stop confirmation message with duration",
+     "placeholders": {
+       "duration": {"type": "String"}
+     }
+   },
+   
+   "timerContinueButton": "계속하기",
+   "@timerContinueButton": {"description": "Continue reading button"},
+   
+   "timerStopButton": "종료하기",
+   "@timerStopButton": {"description": "Stop reading button"},
+   
+   "pageInputHint": "페이지 번호",
+   "@pageInputHint": {"description": "Page input placeholder"},
+   
+   "pageUpdateSuccess": "{page} 페이지로 업데이트되었습니다",
+   "@pageUpdateSuccess": {
+     "description": "Page update success message",
+     "placeholders": {
+       "page": {"type": "int"}
+     }
+   },
+   
+   "pageUpdateFailed": "페이지 업데이트에 실패했습니다",
+   "@pageUpdateFailed": {"description": "Page update failed message"},
+   
+   "pageUpdateLater": "나중에 하기",
+   "@pageUpdateLater": {"description": "Skip page update button"},
+   
+   "statusReading": "독서 중",
   "@statusReading": {"description": "Reading status"},
   
   "statusPlanned": "읽을 예정",

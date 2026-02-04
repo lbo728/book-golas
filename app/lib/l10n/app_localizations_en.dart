@@ -132,6 +132,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unitMinute => '';
 
   @override
+  String get unitSecond => '';
+
+  @override
+  String readingComplete(int hours, int minutes, int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hours hr $minutes min reading complete!',
+      zero: '$minutes min $seconds sec reading complete!',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get timerStopConfirmTitle => 'Stop reading?';
+
+  @override
+  String timerStopConfirmMessage(String duration) {
+    return 'You\'ve been reading for $duration.';
+  }
+
+  @override
+  String get timerContinueButton => 'Continue';
+
+  @override
+  String get timerStopButton => 'Stop';
+
+  @override
+  String get pageInputHint => 'Page number';
+
+  @override
+  String pageUpdateSuccess(int page) {
+    return 'Updated to page $page';
+  }
+
+  @override
+  String get pageUpdateFailed => 'Failed to update page';
+
+  @override
+  String get pageUpdateLater => 'Later';
+
+  @override
   String get statusReading => 'Reading';
 
   @override

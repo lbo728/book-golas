@@ -114,6 +114,48 @@ class AppLocalizationsKo extends AppLocalizations {
   String get unitMinute => '분';
 
   @override
+  String get unitSecond => '초';
+
+  @override
+  String readingComplete(int hours, int minutes, int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hours시간 $minutes분 독서 완료!',
+      zero: '$minutes분 $seconds초 독서 완료!',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get timerStopConfirmTitle => '독서를 종료하시겠어요?';
+
+  @override
+  String timerStopConfirmMessage(String duration) {
+    return '지금까지 $duration 동안 독서하셨습니다.';
+  }
+
+  @override
+  String get timerContinueButton => '계속하기';
+
+  @override
+  String get timerStopButton => '종료하기';
+
+  @override
+  String get pageInputHint => '페이지 번호';
+
+  @override
+  String pageUpdateSuccess(int page) {
+    return '$page 페이지로 업데이트되었습니다';
+  }
+
+  @override
+  String get pageUpdateFailed => '페이지 업데이트에 실패했습니다';
+
+  @override
+  String get pageUpdateLater => '나중에 하기';
+
+  @override
   String get statusReading => '독서 중';
 
   @override

@@ -39,8 +39,53 @@
   "unitDay": "",
   "unitHour": "",
   "unitMinute": "",
+  "unitSecond": "",
   
-  "statusReading": "Reading",
+  "readingComplete": "{hours, plural, =0{{minutes} min {seconds} sec reading complete!} other{{hours} hr {minutes} min reading complete!}}",
+  "@readingComplete": {
+    "description": "Reading complete message with duration",
+    "placeholders": {
+      "hours": {"type": "int"},
+      "minutes": {"type": "int"},
+      "seconds": {"type": "int"}
+    }
+  },
+  
+  "timerStopConfirmTitle": "Stop reading?",
+  "@timerStopConfirmTitle": {"description": "Timer stop confirmation title"},
+  
+  "timerStopConfirmMessage": "You've been reading for {duration}.",
+  "@timerStopConfirmMessage": {
+    "description": "Timer stop confirmation message with duration",
+    "placeholders": {
+      "duration": {"type": "String"}
+    }
+  },
+  
+  "timerContinueButton": "Continue",
+  "@timerContinueButton": {"description": "Continue reading button"},
+  
+"timerStopButton": "Stop",
+   "@timerStopButton": {"description": "Stop reading button"},
+   
+   "pageInputHint": "Page number",
+   "@pageInputHint": {"description": "Page input placeholder"},
+   
+   "pageUpdateSuccess": "Updated to page {page}",
+   "@pageUpdateSuccess": {
+     "description": "Page update success message",
+     "placeholders": {
+       "page": {"type": "int"}
+     }
+   },
+   
+   "pageUpdateFailed": "Failed to update page",
+   "@pageUpdateFailed": {"description": "Page update failed message"},
+   
+   "pageUpdateLater": "Later",
+   "@pageUpdateLater": {"description": "Skip page update button"},
+   
+   "statusReading": "Reading",
   "statusPlanned": "To Read",
   "statusCompleted": "Completed",
   "statusReread": "Reread",

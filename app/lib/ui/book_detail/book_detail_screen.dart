@@ -93,9 +93,6 @@ class BookDetailScreen extends StatelessWidget {
             service: NoteStructureService(),
           ),
         ),
-        ChangeNotifierProvider(
-          create: (_) => ReadingTimerViewModel()..init(),
-        ),
       ],
       child: _BookDetailContent(
         showCelebration: showCelebration,
