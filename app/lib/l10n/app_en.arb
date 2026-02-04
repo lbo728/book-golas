@@ -1345,5 +1345,15 @@
            "recallSuggestedQuestion4": "What inspired me most?",
            "recallSearchCurious": "Search for what you're curious about",
            "recallFindInRecords": "Find in highlights, notes, and photos",
-           "recallCopy": "Copy"
+            "recallCopy": "Copy",
+            "durationSeconds": "{seconds}s",
+            "@durationSeconds": {"placeholders": {"seconds": {"type": "int"}}},
+            "durationMinutes": "{minutes}m",
+            "@durationMinutes": {"placeholders": {"minutes": {"type": "int"}}},
+            "durationHours": "{hours}h",
+            "@durationHours": {"placeholders": {"hours": {"type": "int"}}},
+            "durationHoursMinutes": "{hours}h {minutes}m",
+            "@durationHoursMinutes": {"placeholders": {"hours": {"type": "int"}, "minutes": {"type": "int"}}},
+            "historyDateTimeFormat": "{month}/{day}/{year} {hour}:{minute}",
+            "@historyDateTimeFormat": {"placeholders": {"year": {"type": "int"}, "month": {"type": "int"}, "day": {"type": "int"}, "hour": {"type": "int"}, "minute": {"type": "int"}}}
 }

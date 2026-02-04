@@ -6045,6 +6045,37 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'복사'**
   String get recallCopy;
+
+  /// No description provided for @durationSeconds.
+  ///
+  /// In ko, this message translates to:
+  /// **'{seconds}초'**
+  String durationSeconds(int seconds);
+
+  /// No description provided for @durationMinutes.
+  ///
+  /// In ko, this message translates to:
+  /// **'{minutes}분'**
+  String durationMinutes(int minutes);
+
+  /// No description provided for @durationHours.
+  ///
+  /// In ko, this message translates to:
+  /// **'{hours}시간'**
+  String durationHours(int hours);
+
+  /// No description provided for @durationHoursMinutes.
+  ///
+  /// In ko, this message translates to:
+  /// **'{hours}시간 {minutes}분'**
+  String durationHoursMinutes(int hours, int minutes);
+
+  /// No description provided for @historyDateTimeFormat.
+  ///
+  /// In ko, this message translates to:
+  /// **'{year}년 {month}월 {day}일 {hour}시 {minute}분'**
+  String historyDateTimeFormat(
+      int year, int month, int day, int hour, int minute);
 }
 
 class _AppLocalizationsDelegate

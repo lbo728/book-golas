@@ -12,12 +12,12 @@ import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/domain/models/highlight_data.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
+import 'package:book_golas/ui/core/widgets/page_update_modal.dart';
 import 'package:book_golas/ui/book_detail/view_model/book_detail_view_model.dart';
 import 'package:book_golas/ui/book_detail/view_model/memorable_page_view_model.dart';
 import 'package:book_golas/ui/book_detail/view_model/reading_progress_view_model.dart';
 import 'package:book_golas/ui/book_detail/utils/ocr_utils.dart';
 import 'widgets/dialogs/daily_target_dialog.dart';
-import 'widgets/dialogs/update_page_dialog.dart';
 import 'widgets/dialogs/update_target_date_dialog.dart';
 import 'widgets/draggable_dismiss_image.dart';
 import 'utils/sticky_tab_bar_delegate.dart';
@@ -556,11 +556,18 @@ class _BookDetailContentState extends State<_BookDetailContent>
 
   Future<void> _showUpdatePageDialog(BookDetailViewModel bookVm) async {
     final book = bookVm.currentBook;
-    await UpdatePageDialog.show(
+    final timerVm = context.read<ReadingTimerViewModel>();
+
+    // Show reading duration badge if timer is running for this book
+    final isTimerActiveForThisBook = (timerVm.isRunning || timerVm.isPaused) &&
+        timerVm.currentBookId == book.id;
+
+    await PageUpdateModal.show(
       context: context,
       currentPage: book.currentPage,
       totalPages: book.totalPages,
-      onUpdate: (newPage) => _updateCurrentPage(bookVm, newPage),
+      readingDuration: isTimerActiveForThisBook ? timerVm.elapsed : null,
+      onUpdate: (newPage) async => _updateCurrentPage(bookVm, newPage),
     );
   }
 

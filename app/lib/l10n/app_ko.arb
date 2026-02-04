@@ -2881,5 +2881,15 @@
         "recallSuggestedQuestion4": "가장 영감을 준 것은?",
         "recallSearchCurious": "궁금한 내용을 검색해보세요",
         "recallFindInRecords": "하이라이트, 메모, 사진에서 찾기",
-        "recallCopy": "복사"
+        "recallCopy": "복사",
+        "durationSeconds": "{seconds}초",
+        "@durationSeconds": {"placeholders": {"seconds": {"type": "int"}}},
+        "durationMinutes": "{minutes}분",
+        "@durationMinutes": {"placeholders": {"minutes": {"type": "int"}}},
+        "durationHours": "{hours}시간",
+        "@durationHours": {"placeholders": {"hours": {"type": "int"}}},
+        "durationHoursMinutes": "{hours}시간 {minutes}분",
+        "@durationHoursMinutes": {"placeholders": {"hours": {"type": "int"}, "minutes": {"type": "int"}}},
+        "historyDateTimeFormat": "{year}년 {month}월 {day}일 {hour}시 {minute}분",
+        "@historyDateTimeFormat": {"placeholders": {"year": {"type": "int"}, "month": {"type": "int"}, "day": {"type": "int"}, "hour": {"type": "int"}, "minute": {"type": "int"}}}
 }

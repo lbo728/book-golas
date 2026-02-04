@@ -10,6 +10,7 @@ import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.da
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/core/theme/app_colors.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
+import 'package:book_golas/ui/core/widgets/page_update_modal.dart';
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/domain/models/book.dart';
 
@@ -141,16 +142,6 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
     return parts.join(' ');
   }
 
-  /// Get reading complete message for localization (e.g., "17분 55초 독서 완료!")
-  String _getReadingCompleteMessage(Duration duration, BuildContext context) {
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes % 60;
-    final seconds = duration.inSeconds % 60;
-    final l10n = AppLocalizations.of(context)!;
-
-    return l10n.readingComplete(hours, minutes, seconds);
-  }
-
   Future<void> _navigateToBookDetail(String? bookId) async {
     if (bookId == null) return;
 
@@ -266,8 +257,8 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                       }
                       await timerVm.stop();
                       if (mounted && bookId != null) {
-                        _showPageUpdateModal(context, bookId, savedDuration,
-                            isInBookDetailScreen);
+                        await _showPageUpdateModal(context, bookId,
+                            savedDuration, isInBookDetailScreen);
                       }
                     },
                     child: Container(
@@ -296,204 +287,43 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
     );
   }
 
-  void _showPageUpdateModal(BuildContext context, String bookId,
-      Duration duration, bool isInBookDetailScreen) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final TextEditingController pageController = TextEditingController();
+  Future<void> _showPageUpdateModal(BuildContext context, String bookId,
+      Duration duration, bool isInBookDetailScreen) async {
     final l10n = AppLocalizations.of(context)!;
-    final readingCompleteMsg = _getReadingCompleteMessage(duration, context);
 
-    showModalBottomSheet(
+    // Fetch book info to get currentPage and totalPages
+    final bookService = BookService();
+    final book = await bookService.getBookById(bookId);
+
+    if (book == null || !mounted) return;
+
+    await PageUpdateModal.show(
       context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      isDismissible: false,
-      useRootNavigator: true,
-      builder: (sheetContext) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
-        ),
-        child: Container(
-          padding: EdgeInsets.fromLTRB(
-            24,
-            24,
-            24,
-            24 + MediaQuery.of(sheetContext).viewPadding.bottom,
-          ),
-          decoration: BoxDecoration(
-            color: isDark ? _darkBg : Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.grey[700] : Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  readingCompleteMsg,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.green,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                l10n.pageUpdateDialogTitle,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : Colors.black,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                l10n.pageUpdateValidationRequired,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: isDark ? Colors.grey[400] : Colors.grey[600],
-                ),
-              ),
-              const SizedBox(height: 24),
-              TextField(
-                controller: pageController,
-                keyboardType: TextInputType.number,
-                autofocus: true,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : Colors.black,
-                ),
-                decoration: InputDecoration(
-                  hintText: l10n.pageInputHint,
-                  hintStyle: TextStyle(
-                    color: isDark ? Colors.grey[600] : Colors.grey[400],
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: isDark
-                          ? Colors.white.withValues(alpha: 0.2)
-                          : Colors.black.withValues(alpha: 0.1),
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Colors.blue,
-                      width: 2,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: GestureDetector(
-                  onTap: () async {
-                    final pageText = pageController.text.trim();
-                    final page = int.tryParse(pageText);
-                    if (page == null || page <= 0) {
-                      return;
-                    }
+      currentPage: book.currentPage,
+      totalPages: book.totalPages,
+      readingDuration: duration,
+      onUpdate: (newPage) async {
+        await bookService.updateCurrentPage(bookId, newPage);
 
-                    try {
-                      final bookService = BookService();
-                      await bookService.updateCurrentPage(bookId, page);
+        if (mounted) {
+          if (!isInBookDetailScreen) {
+            await _navigateToBookDetail(bookId);
+          }
 
-                      if (sheetContext.mounted) {
-                        Navigator.pop(sheetContext);
-                      }
-
-                      if (mounted) {
-                        if (!isInBookDetailScreen) {
-                          await _navigateToBookDetail(bookId);
-                        }
-
-                        if (mounted) {
-                          CustomSnackbar.show(
-                            context,
-                            message: l10n.pageUpdateSuccess(page),
-                            type: SnackbarType.success,
-                            rootOverlay: true,
-                            bottomOffset: 100,
-                          );
-                        }
-                      }
-                    } catch (e) {
-                      if (sheetContext.mounted) {
-                        Navigator.pop(sheetContext);
-                      }
-
-                      if (mounted) {
-                        CustomSnackbar.show(
-                          context,
-                          message: l10n.pageUpdateFailed,
-                          type: SnackbarType.error,
-                          rootOverlay: true,
-                          bottomOffset: isInBookDetailScreen ? 100 : 32,
-                        );
-                      }
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      l10n.pageUpdateButton,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(sheetContext),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Text(
-                      l10n.pageUpdateLater,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.grey[400] : Colors.grey[600],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+          if (mounted) {
+            CustomSnackbar.show(
+              context,
+              message: l10n.pageUpdateSuccess(newPage),
+              type: SnackbarType.success,
+              rootOverlay: true,
+              bottomOffset: 100,
+            );
+          }
+        }
+      },
+      onSkip: () {
+        // Do nothing on skip - just close the dialog
+      },
     );
   }
 
@@ -621,22 +451,14 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.only(left: 16, right: 16),
                 child: Row(
                   children: [
-                    // Timer icon
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.15),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        CupertinoIcons.timer,
-                        color: AppColors.primary,
-                        size: 20,
-                      ),
+                    // Book icon
+                    Icon(
+                      CupertinoIcons.book_fill,
+                      color: AppColors.primary,
+                      size: 22,
                     ),
                     const SizedBox(width: 12),
                     // Timer display (left-aligned, larger text)
@@ -644,7 +466,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                       child: Text(
                         _formatDuration(timerVm.elapsed),
                         style: TextStyle(
-                          fontSize: 28,
+                          fontSize: 32,
                           fontWeight: FontWeight.bold,
                           color: isDark ? Colors.white : Colors.black,
                           fontFeatures: const [FontFeature.tabularFigures()],

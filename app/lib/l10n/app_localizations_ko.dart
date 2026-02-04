@@ -3231,4 +3231,30 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get recallCopy => '복사';
+
+  @override
+  String durationSeconds(int seconds) {
+    return '$seconds초';
+  }
+
+  @override
+  String durationMinutes(int minutes) {
+    return '$minutes분';
+  }
+
+  @override
+  String durationHours(int hours) {
+    return '$hours시간';
+  }
+
+  @override
+  String durationHoursMinutes(int hours, int minutes) {
+    return '$hours시간 $minutes분';
+  }
+
+  @override
+  String historyDateTimeFormat(
+      int year, int month, int day, int hour, int minute) {
+    return '$year년 $month월 $day일 $hour시 $minute분';
+  }
 }

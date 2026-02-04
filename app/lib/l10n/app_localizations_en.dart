@@ -3302,4 +3302,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recallCopy => 'Copy';
+
+  @override
+  String durationSeconds(int seconds) {
+    return '${seconds}s';
+  }
+
+  @override
+  String durationMinutes(int minutes) {
+    return '${minutes}m';
+  }
+
+  @override
+  String durationHours(int hours) {
+    return '${hours}h';
+  }
+
+  @override
+  String durationHoursMinutes(int hours, int minutes) {
+    return '${hours}h ${minutes}m';
+  }
+
+  @override
+  String historyDateTimeFormat(
+      int year, int month, int day, int hour, int minute) {
+    return '$month/$day/$year $hour:$minute';
+  }
 }
