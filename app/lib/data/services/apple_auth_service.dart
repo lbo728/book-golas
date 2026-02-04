@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -26,7 +27,7 @@ class AppleAuthService {
 
       return response;
     } catch (e) {
-      print('Apple Sign In 오류: $e');
+      debugPrint('Apple Sign In 오류: $e');
       return null;
     }
   }
@@ -41,7 +42,7 @@ class AppleAuthService {
     try {
       await Supabase.instance.client.auth.signOut();
     } catch (e) {
-      print('Apple Sign Out 오류: $e');
+      debugPrint('Apple Sign Out 오류: $e');
     }
   }
 

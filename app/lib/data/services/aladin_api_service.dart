@@ -1,7 +1,11 @@
 import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import '../../domain/models/book.dart';
-import '../../config/app_config.dart';
+
+import 'package:book_golas/config/app_config.dart';
+import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/ui/core/utils/isbn_validator.dart';
 
 class AladinApiService {
   static Future<List<BookSearchResult>> searchBooks(String query) async {
@@ -10,6 +14,12 @@ class AladinApiService {
     AppConfig.validateApiKeys();
 
     try {
+      final cleanedQuery = IsbnValidator.cleanISBN(query);
+      if (IsbnValidator.isValidISBN13(cleanedQuery)) {
+        final result = await lookupByISBN(cleanedQuery);
+        return result != null ? [result] : [];
+      }
+
       final searchUri =
           Uri.parse(AppConfig.aladinBaseUrl).replace(queryParameters: {
         'ttbkey': AppConfig.aladinApiKey,
@@ -20,7 +30,7 @@ class AladinApiService {
         'SearchTarget': 'Book',
         'output': 'js',
         'Version': AppConfig.apiVersion,
-        'Cover': 'Big', // 200px 고화질 이미지
+        'Cover': 'Big',
       });
 
       final searchResponse = await http.get(searchUri);
@@ -34,7 +44,7 @@ class AladinApiService {
         for (var item in searchItems.take(5)) {
           final isbn13 = item['isbn13'];
           if (isbn13 != null && isbn13.toString().isNotEmpty) {
-            final detailedBook = await _fetchBookDetails(isbn13.toString());
+            final detailedBook = await lookupByISBN(isbn13.toString());
             if (detailedBook != null) {
               detailedBooks.add(detailedBook);
             } else {
@@ -50,12 +60,12 @@ class AladinApiService {
         throw Exception('Failed to load books: ${searchResponse.statusCode}');
       }
     } catch (e) {
-      print('Error searching books: $e');
+      debugPrint('Error searching books: $e');
       return [];
     }
   }
 
-  static Future<BookSearchResult?> _fetchBookDetails(String isbn) async {
+  static Future<BookSearchResult?> lookupByISBN(String isbn) async {
     try {
       final lookupUri =
           Uri.parse('http://www.aladin.co.kr/ttb/api/ItemLookUp.aspx')
@@ -66,25 +76,21 @@ class AladinApiService {
         'output': 'js',
         'Version': AppConfig.apiVersion,
         'OptResult': 'ebookList,usedList,reviewList',
-        'Cover': 'Big', // 200px 고화질 이미지
+        'Cover': 'Big',
       });
 
-      print('📡 상품 조회 API 요청: $lookupUri');
       final response = await http.get(lookupUri);
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
-        print('📩 상세 정보 응답: ${jsonData.toString()}');
 
         final List<dynamic> items = jsonData['item'] ?? [];
         if (items.isNotEmpty) {
           return BookSearchResult.fromJson(items[0]);
         }
-      } else {
-        print('⚠️ 상세 정보 API 응답 실패 (HTTP ${response.statusCode})');
       }
     } catch (e) {
-      print('❌ 상세 정보 조회 실패: $e');
+      // 에러 발생 시 null 반환
     }
     return null;
   }

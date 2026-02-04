@@ -53,9 +53,11 @@
 			<false/>
 		</dict>
 		<key>NSCameraUsageDescription</key>
-		<string>프로필 사진을 촬영하기 위해 카메라에 접근합니다.</string>
+		<string>책 페이지를 스캔하기 위해 카메라 권한이 필요합니다.</string>
 		<key>NSPhotoLibraryUsageDescription</key>
-		<string>프로필 사진을 변경하기 위해 사진 라이브러리에 접근합니다.</string>
+		<string>갤러리에서 이미지를 선택하기 위해 권한이 필요합니다.</string>
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>스캔한 이미지를 저장하기 위해 권한이 필요합니다.</string>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
 		<key>UILaunchStoryboardName</key>

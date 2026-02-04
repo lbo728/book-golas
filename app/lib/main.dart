@@ -1,17 +1,32 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'package:book_golas/ui/reading/widgets/reading_chart_screen.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:book_golas/ui/book/widgets/book_list_screen.dart';
-import 'package:book_golas/ui/reading/widgets/reading_start_screen.dart';
+import 'package:book_golas/ui/home/widgets/home_screen.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_bottom_bar.dart';
+import 'package:book_golas/ui/core/widgets/reading_detail_bottom_bar.dart';
+import 'package:book_golas/ui/core/widgets/expanded_navigation_bottom_bar.dart';
+import 'package:book_golas/domain/models/home_display_mode.dart';
+import 'package:book_golas/ui/reading_chart/widgets/reading_chart_screen.dart';
+import 'package:book_golas/ui/calendar/widgets/calendar_screen.dart';
+import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 import 'package:book_golas/config/app_config.dart';
 import 'package:book_golas/data/repositories/book_repository.dart';
+import 'package:book_golas/data/repositories/auth_repository.dart';
+import 'package:book_golas/data/repositories/notification_settings_repository.dart';
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/ui/home/view_model/home_view_model.dart';
+import 'package:book_golas/ui/book_list/view_model/book_list_view_model.dart';
 import 'package:book_golas/ui/core/view_model/theme_view_model.dart';
+import 'package:book_golas/ui/core/view_model/locale_view_model.dart';
+import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
+import 'package:book_golas/ui/core/view_model/notification_settings_view_model.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
@@ -20,9 +35,27 @@ import 'data/services/fcm_service.dart';
 import 'data/services/notification_settings_service.dart';
 import 'data/services/reading_progress_service.dart';
 import 'ui/auth/widgets/login_screen.dart';
+import 'ui/calendar/view_model/calendar_view_model.dart';
 import 'ui/auth/widgets/my_page_screen.dart';
+import 'ui/my_library/widgets/my_library_screen.dart';
+
 import 'domain/models/book.dart';
-import 'ui/book/widgets/book_detail_screen_redesigned.dart';
+import 'ui/book_detail/book_detail_screen.dart';
+import 'ui/onboarding/view_model/onboarding_view_model.dart';
+import 'ui/onboarding/widgets/onboarding_screen.dart';
+import 'data/services/note_structure_service.dart';
+import 'data/services/subscription_service.dart';
+import 'ui/subscription/view_model/subscription_view_model.dart';
+import 'ui/book_detail/view_model/note_structure_view_model.dart';
+import 'ui/my_library/view_model/my_library_view_model.dart';
+import 'ui/my_library/widgets/my_library_screen.dart';
+import 'ui/reading_chart/view_model/reading_insights_view_model.dart';
+import 'ui/my_library/view_model/my_library_view_model.dart';
+import 'ui/book_detail/view_model/reading_timer_view_model.dart';
+import 'ui/core/widgets/floating_timer_bar.dart';
+
+final RouteObserver<ModalRoute<void>> routeObserver =
+    RouteObserver<ModalRoute<void>>();
 
 // 백그라운드 메시지 핸들러 (main 함수 밖에 정의)
 @pragma('vm:entry-point')
@@ -79,7 +112,8 @@ class AppBootstrap extends StatelessWidget {
       // 백그라운드 메시지 핸들러 등록
       debugPrint('📱 FCM 백그라운드 핸들러 등록');
       FirebaseMessaging.onBackgroundMessage(
-          _firebaseMessagingBackgroundHandler);
+        _firebaseMessagingBackgroundHandler,
+      );
       debugPrint('✅ FCM 백그라운드 핸들러 등록 완료');
 
       // Supabase 초기화
@@ -92,6 +126,22 @@ class AppBootstrap extends StatelessWidget {
         ),
       );
       debugPrint('✅ Supabase 초기화 성공');
+
+      // HomeViewModel preferences 프리로드
+      debugPrint('📚 홈 화면 설정 프리로드 시작');
+      await HomeViewModel.preloadPreferences();
+
+      // OnboardingViewModel 프리로드
+      debugPrint('👋 온보딩 설정 프리로드 시작');
+      await OnboardingViewModel.preloadPreferences();
+
+      // ThemeViewModel 프리로드
+      debugPrint('🎨 테마 설정 프리로드 시작');
+      await ThemeViewModel.preloadTheme();
+
+      // LocaleViewModel 프리로드
+      debugPrint('🌐 로케일 설정 프리로드 시작');
+      await LocaleViewModel.preloadLocale();
 
       debugPrint('🎉 모든 초기화 완료');
     } catch (e, stackTrace) {
@@ -117,13 +167,18 @@ class AppBootstrap extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.error_outline,
-                          size: 48, color: Colors.red),
+                      const Icon(
+                        Icons.error_outline,
+                        size: 48,
+                        color: Colors.red,
+                      ),
                       const SizedBox(height: 16),
                       const Text(
                         '초기화 중 오류가 발생했습니다',
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -172,48 +227,80 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<BookService>(
-          create: (_) => BookService(),
+        // === Services (Pure) ===
+        Provider<BookService>(create: (_) => BookService()),
+        Provider<AuthService>(create: (_) => AuthService()),
+        Provider<NotificationSettingsService>(
+          create: (_) => NotificationSettingsService(),
         ),
-        Provider<BookRepository>(
-          create: (context) => BookRepositoryImpl(
-            context.read<BookService>(),
-          ),
-        ),
-        ChangeNotifierProvider<HomeViewModel>(
-          create: (context) => HomeViewModel(
-            context.read<BookRepository>(),
-          ),
-        ),
-        ChangeNotifierProvider(create: (_) => AuthService()),
-        ChangeNotifierProvider(create: (_) => ThemeViewModel()),
-        ChangeNotifierProvider(create: (_) => NotificationSettingsService()),
         Provider<ReadingProgressService>(
           create: (_) => ReadingProgressService(),
         ),
+        Provider<NoteStructureService>(create: (_) => NoteStructureService()),
+        Provider<SubscriptionService>(create: (_) => SubscriptionService()),
+        // === Repositories ===
+        Provider<BookRepository>(
+          create: (context) => BookRepositoryImpl(context.read<BookService>()),
+        ),
+        Provider<AuthRepository>(
+          create: (context) => AuthRepositoryImpl(context.read<AuthService>()),
+        ),
+        Provider<NotificationSettingsRepository>(
+          create: (context) => NotificationSettingsRepositoryImpl(
+            context.read<NotificationSettingsService>(),
+          ),
+        ),
+        // === ViewModels ===
+        ChangeNotifierProvider<HomeViewModel>(
+          create: (context) => HomeViewModel(context.read<BookRepository>()),
+        ),
+        ChangeNotifierProvider<AuthViewModel>(
+          create: (context) => AuthViewModel(context.read<AuthRepository>()),
+        ),
+        ChangeNotifierProvider<NotificationSettingsViewModel>(
+          create: (context) => NotificationSettingsViewModel(
+            context.read<NotificationSettingsRepository>(),
+          ),
+        ),
+        ChangeNotifierProvider<BookListViewModel>(
+          create: (_) => BookListViewModel(),
+        ),
+        ChangeNotifierProvider<CalendarViewModel>(
+          create: (context) =>
+              CalendarViewModel(context.read<ReadingProgressService>()),
+        ),
+        ChangeNotifierProvider(create: (_) => ThemeViewModel()),
+        ChangeNotifierProvider(create: (_) => LocaleViewModel()),
+        ChangeNotifierProvider(create: (_) => OnboardingViewModel()),
+        ChangeNotifierProvider(
+          create: (_) => ReadingInsightsViewModel(
+            userId: Supabase.instance.client.auth.currentUser!.id,
+          ),
+        ),
+        ChangeNotifierProvider(create: (_) => MyLibraryViewModel()),
+        ChangeNotifierProvider<SubscriptionViewModel>(
+          create: (context) =>
+              SubscriptionViewModel(context.read<SubscriptionService>()),
+        ),
+        ChangeNotifierProvider(create: (_) => ReadingTimerViewModel()..init()),
       ],
-      child: Consumer<ThemeViewModel>(
-        builder: (context, themeViewModel, child) {
+      child: Consumer2<ThemeViewModel, LocaleViewModel>(
+        builder: (context, themeViewModel, localeViewModel, child) {
           return MaterialApp(
-            title: 'LitGoal',
+            title: 'Bookgolas',
             debugShowCheckedModeBanner: false,
             themeMode: themeViewModel.themeMode,
-            theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: Colors.blue,
-                brightness: Brightness.light,
-              ),
-              useMaterial3: true,
-              scaffoldBackgroundColor: Colors.grey[50],
-            ),
-            darkTheme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: Colors.blue,
-                brightness: Brightness.dark,
-              ),
-              useMaterial3: true,
-              scaffoldBackgroundColor: const Color(0xFF121212),
-            ),
+            theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
+            locale: localeViewModel.locale,
+            localizationsDelegates: [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('ko'), Locale('en')],
+            navigatorObservers: [routeObserver],
             home: const AuthWrapper(),
           );
         },
@@ -232,12 +319,27 @@ class AuthWrapper extends StatefulWidget {
 class _AuthWrapperState extends State<AuthWrapper> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthService>(
-      builder: (context, authService, _) {
-        if (authService.currentUser != null) {
-          return const MainScreen();
+    return Consumer2<AuthViewModel, OnboardingViewModel>(
+      builder: (context, authViewModel, onboardingViewModel, _) {
+        if (!authViewModel.isAuthenticated) {
+          return const LoginScreen();
         }
-        return const LoginScreen();
+
+        if (onboardingViewModel.isLoading) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (onboardingViewModel.shouldShowOnboarding) {
+          return OnboardingScreen(
+            onComplete: () {
+              onboardingViewModel.completeOnboarding();
+            },
+          );
+        }
+
+        return const MainScreen();
       },
     );
   }
@@ -251,21 +353,83 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen>
-    with SingleTickerProviderStateMixin {
+    with RouteAware, TickerProviderStateMixin {
   int _selectedIndex = 0;
-  bool _isDropdownOpen = false;
-  late AnimationController _animationController;
+  bool _showRegularBarInReadingMode = false;
+  bool _showExpandedMenu = false;
+  late AnimationController _barSwitchController;
+  late Animation<Offset> _readingDetailBarSlide;
+  late Animation<Offset> _regularBarSlide;
+
+  VoidCallback? _updatePageCallback;
+  VoidCallback? _addMemorablePageCallback;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    _barSwitchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    if (_selectedIndex == 0) {
+      context.read<BookListViewModel>().refresh();
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
+
+    _barSwitchController = AnimationController(
+      duration: const Duration(milliseconds: 350),
       vsync: this,
-      duration: const Duration(milliseconds: 300),
     );
 
-    // FCM 초기화를 첫 프레임 이후에 실행
+    _readingDetailBarSlide =
+        Tween<Offset>(begin: Offset.zero, end: const Offset(-1.0, 0.0)).animate(
+      CurvedAnimation(
+        parent: _barSwitchController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+
+    _regularBarSlide =
+        Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(
+      CurvedAnimation(
+        parent: _barSwitchController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+
+    // 인증 완료 후 BookListViewModel 초기화 및 FCM 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      context.read<BookListViewModel>().initialize();
+
+      // RevenueCat 초기화 (인증 후)
+      try {
+        debugPrint('💳 RevenueCat 초기화 시작 (인증 후)');
+        final userId = Supabase.instance.client.auth.currentUser?.id;
+        if (userId != null) {
+          await Purchases.configure(
+            PurchasesConfiguration(AppConfig.revenueCatPublicKey)
+              ..appUserID = userId,
+          );
+          debugPrint('✅ RevenueCat 초기화 완료 (userId: $userId)');
+        } else {
+          debugPrint('⚠️ RevenueCat 초기화 스킵: 사용자 미인증');
+        }
+      } catch (e) {
+        debugPrint('❌ RevenueCat 초기화 실패: $e');
+      }
+
       await FCMService().initialize();
       debugPrint('FCM 서비스 초기화 완료');
 
@@ -319,9 +483,11 @@ class _MainScreenState extends State<MainScreen>
 
             // 완독하지 않은 책 찾기
             final unfinishedBooks = (response as List)
-                .where((bookData) =>
-                    (bookData['current_page'] as int) <
-                    (bookData['total_pages'] as int))
+                .where(
+                  (bookData) =>
+                      (bookData['current_page'] as int) <
+                      (bookData['total_pages'] as int),
+                )
                 .toList();
 
             if (unfinishedBooks.isEmpty) {
@@ -343,8 +509,7 @@ class _MainScreenState extends State<MainScreen>
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    BookDetailScreenRedesigned(book: targetBook),
+                builder: (context) => BookDetailScreen(book: targetBook),
               ),
             );
           }
@@ -361,296 +526,249 @@ class _MainScreenState extends State<MainScreen>
     });
   }
 
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
   List<Widget> get _pages => [
-        const BookListScreen(),
-        const ReadingChartScreen(),
+        HomeScreen(
+          onCallbacksReady: (updatePage, addMemorable) {
+            _updatePageCallback = updatePage;
+            _addMemorablePageCallback = addMemorable;
+          },
+        ),
+        const MyLibraryScreen(),
+        ReadingChartScreen(key: ReadingChartScreen.globalKey),
+        const CalendarScreen(),
         const MyPageScreen(),
       ];
 
   void _onItemTapped(int index) {
+    debugPrint(
+      '🔍 _onItemTapped called with index: $index, current: $_selectedIndex',
+    );
+    if (index == 0 && _selectedIndex == 0) {
+      HapticFeedback.lightImpact();
+      context.read<BookListViewModel>().cycleToNextTab();
+    } else if (index == 2 && _selectedIndex == 2) {
+      HapticFeedback.lightImpact();
+      ReadingChartScreen.cycleToNextTab();
+    } else {
+      debugPrint('🔍 Setting _selectedIndex to: $index');
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+  }
+
+  void _onSearchTap(Offset searchButtonPosition, double searchButtonSize) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const ReadingStartScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 200),
+      ),
+    );
+  }
+
+  void _switchToRegularBar() {
     setState(() {
-      _selectedIndex = index;
+      _showRegularBarInReadingMode = true;
+    });
+    _barSwitchController.forward();
+  }
+
+  void _switchToReadingDetailBar() {
+    _barSwitchController.reverse().then((_) {
+      if (mounted) {
+        setState(() {
+          _showRegularBarInReadingMode = false;
+        });
+      }
     });
   }
 
-  Widget _buildLiquidGlassBottomBar() {
-    return Container(
-      margin: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1C1C1E).withOpacity(0.88),
-        borderRadius: BorderRadius.circular(36),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.25),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final homeVm = context.watch<HomeViewModel>();
+    final isInReadingDetailContext =
+        homeVm.displayMode == HomeDisplayMode.readingDetail;
+
+    Widget body;
+    try {
+      body = _pages[_selectedIndex];
+    } catch (e, stackTrace) {
+      debugPrint('❌ Error accessing _pages[$_selectedIndex]: $e');
+      debugPrint('Stack trace: $stackTrace');
+      rethrow;
+    }
+
+    if (_showExpandedMenu) {
+      body = Stack(
+        children: [
+          body,
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _showExpandedMenu = false;
+                });
+              },
+              behavior: HitTestBehavior.opaque,
+              child: Container(color: Colors.transparent),
+            ),
           ),
         ],
+      );
+    }
+
+    return Scaffold(
+      body: Stack(
+        children: [
+          body,
+          const FloatingTimerBar(hasBottomNav: true),
+        ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(36),
+      backgroundColor:
+          isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+      extendBody: true,
+      bottomNavigationBar: _buildAnimatedBottomBar(isInReadingDetailContext),
+    );
+  }
+
+  Widget _buildAnimatedBottomBar(bool isInReadingDetailContext) {
+    if (!isInReadingDetailContext) {
+      if (_showRegularBarInReadingMode || _showExpandedMenu) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            setState(() {
+              _showRegularBarInReadingMode = false;
+              _showExpandedMenu = false;
+            });
+            _barSwitchController.reset();
+          }
+        });
+      }
+      return LiquidGlassBottomBar(
+        selectedIndex: _selectedIndex,
+        onTabSelected: _onItemTapped,
+        onSearchTap: _onSearchTap,
+      );
+    }
+
+    if (_showExpandedMenu) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 12, right: 12, bottom: 22),
+        child: ExpandedNavigationBottomBar(
+          selectedIndex: _selectedIndex,
+          onTabSelected: _onExpandedMenuTabSelected,
+          onBackToReadingDetail: _onBackToReadingDetailFromMenu,
+          onUpdatePageTap: _onUpdatePageTap,
+          onSearchTap: _onSearchTap,
+        ),
+      );
+    }
+
+    if (_selectedIndex != 0) {
+      return LiquidGlassBottomBar(
+        selectedIndex: _selectedIndex,
+        onTabSelected: _onTabSelectedInReadingModeFromOtherTab,
+        onSearchTap: _onSearchTap,
+        showReadingDetailButton: true,
+        onReadingDetailTap: _switchToHomeWithReadingDetail,
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 12, right: 12, bottom: 22),
+      child: SizedBox(
+        height: 62,
         child: Stack(
+          clipBehavior: Clip.none,
           children: [
-            // 슬라이딩 배경 인디케이터
-            Positioned(
-              top: 4,
-              bottom: 4,
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  // 부모 컨테이너의 너비를 가져오기 위해 MediaQuery 사용
-                  final containerWidth = MediaQuery.of(context).size.width -
-                      32 -
-                      24; // margin + padding
-                  final itemWidth = containerWidth / 3;
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                    transform: Matrix4.translationValues(
-                      itemWidth * _selectedIndex + 4,
-                      0,
-                      0,
-                    ),
-                    width: itemWidth - 8,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.18),
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                  );
-                },
+            SlideTransition(
+              position: _readingDetailBarSlide,
+              child: ReadingDetailBottomBar(
+                onBackTap: _switchToRegularBar,
+                onUpdatePageTap: _onUpdatePageTap,
+                onAddMemorablePageTap: _onAddMemorablePageTap,
               ),
             ),
-            // 네비게이션 아이템들
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(
-                    0, CupertinoIcons.house_fill, CupertinoIcons.house, '홈'),
-                _buildNavItem(1, CupertinoIcons.chart_bar_square_fill,
-                    CupertinoIcons.chart_bar_square, '독서 상태'),
-                _buildNavItem(2, CupertinoIcons.person_crop_circle_fill,
-                    CupertinoIcons.person_crop_circle, '마이페이지'),
-              ],
-            ),
+            if (_showRegularBarInReadingMode)
+              SlideTransition(
+                position: _regularBarSlide,
+                child: _buildRegularBarContent(),
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildNavItem(
-      int index, IconData activeIcon, IconData inactiveIcon, String label) {
-    final isSelected = _selectedIndex == index;
-
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          if (!_isDropdownOpen) {
-            _onItemTapped(index);
-            _animationController.forward(from: 0.0);
-          }
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                isSelected ? activeIcon : inactiveIcon,
-                color: Colors.white,
-                size: 26,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  color: Colors.white.withOpacity(isSelected ? 1.0 : 0.7),
-                  fontSize: 11,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ),
+  Widget _buildRegularBarContent() {
+    return LiquidGlassBottomBar(
+      selectedIndex: _selectedIndex,
+      onTabSelected: _onTabSelectedInReadingMode,
+      onSearchTap: _onSearchTap,
+      showReadingDetailButton: true,
+      onReadingDetailTap: _switchToReadingDetailBar,
+      noMargin: true,
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  void _onTabSelectedInReadingMode(int index) {
+    if (index == 0) {
+      setState(() {
+        _showExpandedMenu = true;
+      });
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+  }
 
-    return Stack(
-      children: [
-        Scaffold(
-          body: _pages[_selectedIndex],
-          backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
-          extendBody: true,
-          bottomNavigationBar: _buildLiquidGlassBottomBar(),
-        ),
-        if (_isDropdownOpen)
-          AnimatedOpacity(
-            opacity: _isDropdownOpen ? 1.0 : 0.0,
-            duration: const Duration(
-              milliseconds: 200,
-            ),
-            curve: Curves.easeInOut,
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _isDropdownOpen = false;
-                });
-              },
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: const Color.fromRGBO(0, 0, 0, 0.3),
-              ),
-            ),
-          ),
-        Positioned(
-          bottom: 108,
-          right: 16,
-          child: Stack(
-            alignment: Alignment.bottomRight,
-            children: [
-              AnimatedOpacity(
-                opacity: _isDropdownOpen ? 1.0 : 0.0,
-                duration: const Duration(
-                  milliseconds: 200,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    bottom: 64,
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color.fromRGBO(0, 0, 0, 0.2),
-                          offset: Offset(0, 4),
-                          blurRadius: 24,
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: IntrinsicWidth(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _isDropdownOpen = false;
-                              });
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ReadingStartScreen(),
-                                ),
-                              );
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.only(
-                                left: 12,
-                                right: 16,
-                                top: 8,
-                                bottom: 8,
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.book,
-                                    color: isDark ? Colors.white : Colors.black,
-                                  ),
-                                  const SizedBox(
-                                    width: 8,
-                                  ),
-                                  Text(
-                                    '새 독서 시작',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w400,
-                                      color:
-                                          isDark ? Colors.white : Colors.black,
-                                      decoration: TextDecoration.none,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          // GestureDetector(
-                          //   onTap: () {
-                          //     setState(() {
-                          //       _isDropdownOpen = false;
-                          //     });
-                          //   },
-                          //   child: Container(
-                          //     padding: const EdgeInsets.only(
-                          //       left: 12,
-                          //       right: 16,
-                          //       top: 8,
-                          //       bottom: 8,
-                          //     ),
-                          //     child: const Row(
-                          //       children: [
-                          //         Icon(
-                          //           Icons.camera_alt,
-                          //           color: Colors.black,
-                          //         ),
-                          //         SizedBox(
-                          //           width: 8,
-                          //         ),
-                          //         Text(
-                          //           '사진 추가',
-                          //           style: TextStyle(
-                          //             fontSize: 16,
-                          //             fontWeight: FontWeight.w400,
-                          //             color: Colors.black,
-                          //             decoration: TextDecoration.none,
-                          //           ),
-                          //         ),
-                          //       ],
-                          //     ),
-                          //   ),
-                          // ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              FloatingActionButton(
-                backgroundColor: Colors.blue,
-                elevation: 2,
-                shape: const CircleBorder(),
-                onPressed: () {
-                  setState(() {
-                    _isDropdownOpen = !_isDropdownOpen;
-                  });
-                },
-                child: Icon(
-                  _isDropdownOpen ? Icons.close : Icons.add,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
+  void _onExpandedMenuTabSelected(int index) {
+    setState(() {
+      _selectedIndex = index;
+      _showExpandedMenu = false;
+    });
+  }
+
+  void _onBackToReadingDetailFromMenu() {
+    setState(() {
+      _selectedIndex = 0;
+      _showExpandedMenu = false;
+      _showRegularBarInReadingMode = false;
+    });
+    _barSwitchController.reverse();
+  }
+
+  void _onTabSelectedInReadingModeFromOtherTab(int index) {
+    if (index == 0) {
+      _switchToHomeWithReadingDetail();
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+  }
+
+  void _switchToHomeWithReadingDetail() {
+    setState(() {
+      _selectedIndex = 0;
+      _showRegularBarInReadingMode = false;
+      _showExpandedMenu = false;
+    });
+    _barSwitchController.reverse();
+  }
+
+  void _onUpdatePageTap() {
+    _updatePageCallback?.call();
+  }
+
+  void _onAddMemorablePageTap() {
+    _addMemorablePageCallback?.call();
   }
 }

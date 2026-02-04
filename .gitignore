@@ -3,7 +3,8 @@ book-golas-*.json
 *-firebase-adminsdk-*.json
 firebase-service-account*.json
 
-# Supabase
+# Environment Variables
+.env
 supabase/.env
 
 # OS
@@ -14,3 +15,7 @@ firebase-debug.log
 
 # Claude Code
 .claude/settings.local.json
+AGENTS.local.md
+.sisyphus/
+.claude/linear-simple.json
+AGENTS.local.md

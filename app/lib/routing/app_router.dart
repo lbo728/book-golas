@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import '../ui/home/widgets/home_screen.dart';
-import '../ui/book/widgets/book_list_screen.dart';
-import '../ui/book/widgets/book_detail_screen_redesigned.dart';
-import '../ui/reading/widgets/reading_start_screen.dart';
-import '../ui/reading/widgets/reading_chart_screen.dart';
-import '../ui/calendar/widgets/calendar_screen.dart';
-import '../domain/models/book.dart';
+
+import 'package:book_golas/ui/home/widgets/home_screen.dart';
+import 'package:book_golas/ui/book_list/widgets/book_list_screen.dart';
+import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
+import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
+import 'package:book_golas/ui/reading_chart/widgets/reading_chart_screen.dart';
+import 'package:book_golas/ui/calendar/widgets/calendar_screen.dart';
+import 'package:book_golas/domain/models/book.dart';
 
 class AppRouter {
   static const String home = '/';
@@ -24,7 +25,7 @@ class AppRouter {
       case bookDetail:
         final book = settings.arguments as Book;
         return MaterialPageRoute(
-          builder: (_) => BookDetailScreenRedesigned(book: book),
+          builder: (_) => BookDetailScreen(book: book),
         );
       case readingStart:
         return MaterialPageRoute(builder: (_) => const ReadingStartScreen());

@@ -7,7 +7,41 @@ on:
   workflow_dispatch:
 
 jobs:
+  migrate-database:
+    name: Apply Database Migrations (Dev)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link to Dev Project
+        run: |
+          supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF_DEV }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Apply Migrations
+        run: |
+          echo "Applying migrations to Dev database..."
+          supabase db push --include-all
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Verify Migration Status
+        run: |
+          echo "Checking migration status..."
+          supabase migration list
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
   build-and-deploy:
+    # needs: migrate-database  # Temporarily disabled due to migration history mismatch
     runs-on: macos-15
 
     steps:
@@ -17,7 +51,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.5'
+          flutter-version: '3.35.0'
           channel: 'stable'
           cache: true
 
@@ -45,15 +79,17 @@ jobs:
         run: |
           cd app
           echo "ALADIN_TTB_KEY=${{ secrets.ALADIN_TTB_KEY }}" >> .env
-          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
-          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
-          echo "ENVIRONMENT=production" >> .env
+          echo "SUPABASE_URL_DEV=${{ secrets.SUPABASE_URL_DEV }}" >> .env
+          echo "SUPABASE_ANON_KEY_DEV=${{ secrets.SUPABASE_ANON_KEY_DEV }}" >> .env
+          echo "GOOGLE_CLOUD_VISION_API_KEY=${{ secrets.GOOGLE_CLOUD_VISION_API_KEY }}" >> .env
+          echo "ENVIRONMENT=development" >> .env
 
       - name: Install Certificate and Provisioning Profile
+        id: install-cert
         env:
           CERTIFICATE_P12_BASE64: ${{ secrets.CERTIFICATE_P12_BASE64 }}
           CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
-          PROVISIONING_PROFILE_BASE64: ${{ secrets.PROVISIONING_PROFILE_BASE64 }}
+          PROVISIONING_PROFILE_BASE64: ${{ secrets.PROVISIONING_PROFILE_DEV_BASE64 }}
           KEYCHAIN_PASSWORD: ${{ github.run_id }}
         run: |
           CERTIFICATE_PATH=$RUNNER_TEMP/certificate.p12
@@ -69,21 +105,40 @@ jobs:
 
           security import $CERTIFICATE_PATH -P "$CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security list-keychain -d user -s $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH login.keychain-db
 
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp $PROVISIONING_PROFILE_PATH ~/Library/MobileDevice/Provisioning\ Profiles/
+
+          PROFILE_PLIST=$(/usr/bin/security cms -D -i $PROVISIONING_PROFILE_PATH)
+          PROFILE_UUID=$(echo "$PROFILE_PLIST" | /usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin)
+          PROFILE_NAME=$(echo "$PROFILE_PLIST" | /usr/libexec/PlistBuddy -c "Print Name" /dev/stdin)
+
+          cp $PROVISIONING_PROFILE_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$PROFILE_UUID.mobileprovision
+
+          echo "PROVISIONING_PROFILE_UUID=$PROFILE_UUID" >> $GITHUB_OUTPUT
+          echo "PROVISIONING_PROFILE_NAME=$PROFILE_NAME" >> $GITHUB_OUTPUT
+
+          echo "✅ Installed provisioning profile:"
+          echo "   UUID: $PROFILE_UUID"
+          echo "   Name: $PROFILE_NAME"
+          echo ""
+          echo "📋 Installed profiles:"
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/
+          echo ""
+          echo "🔐 Keychain certificates:"
+          security find-identity -v -p codesigning $KEYCHAIN_PATH
 
       - name: Build Flutter iOS
         run: |
           cd app
-          flutter build ios --release --no-codesign --build-number=${{ github.run_number }}
+          flutter build ios --flavor dev -t lib/main_dev.dart --release --no-codesign --build-number=${{ github.run_number }}
 
       - name: Build and Upload to TestFlight
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          PROVISIONING_PROFILE_NAME: ${{ steps.install-cert.outputs.PROVISIONING_PROFILE_NAME }}
         run: |
           cd app/ios
           bundle exec fastlane beta

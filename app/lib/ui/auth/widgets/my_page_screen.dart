@@ -1,32 +1,70 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:provider/provider.dart';
-import '../../../data/services/auth_service.dart';
-import '../../../data/services/fcm_service.dart';
-import '../../../data/services/notification_settings_service.dart';
-import '../../core/view_model/theme_view_model.dart';
-import 'login_screen.dart';
 import 'dart:io';
-import 'package:image_picker/image_picker.dart';
 
-class MyPageScreen extends StatefulWidget {
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+
+import 'package:book_golas/data/services/fcm_service.dart';
+import 'package:book_golas/ui/auth/view_model/my_page_view_model.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
+import 'package:book_golas/ui/core/view_model/notification_settings_view_model.dart';
+import 'package:book_golas/ui/core/view_model/locale_view_model.dart';
+import 'package:book_golas/ui/core/view_model/theme_view_model.dart';
+import 'package:book_golas/ui/core/widgets/locale_time_picker.dart';
+import '../../../l10n/app_localizations.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_button.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_card.dart';
+import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_text_field.dart';
+
+import 'login_screen.dart';
+import 'package:book_golas/ui/subscription/view_model/subscription_view_model.dart';
+import 'package:book_golas/ui/subscription/widgets/subscription_screen.dart';
+
+class MyPageScreen extends StatelessWidget {
   const MyPageScreen({super.key});
 
   @override
-  State<MyPageScreen> createState() => _MyPageScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => MyPageViewModel(),
+      child: const _MyPageContent(),
+    );
+  }
 }
 
-class _MyPageScreenState extends State<MyPageScreen> {
-  bool _isEditingNickname = false;
-  late TextEditingController _nicknameController;
+class _MyPageContent extends StatefulWidget {
+  const _MyPageContent();
 
-  File? _pendingAvatarFile;
+  @override
+  State<_MyPageContent> createState() => _MyPageContentState();
+}
+
+class _MyPageContentState extends State<_MyPageContent> {
+  late TextEditingController _nicknameController;
+  bool _isUploadingAvatar = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nicknameController = TextEditingController();
+    Future.microtask(() {
+      context.read<AuthViewModel>().fetchCurrentUser();
+      context.read<NotificationSettingsViewModel>().loadSettings();
+    });
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final user = context.watch<AuthService>().currentUser;
-    _nicknameController = TextEditingController(text: user?.nickname ?? '');
+    final user = context.watch<AuthViewModel>().currentUser;
+    if (_nicknameController.text.isEmpty && user?.nickname != null) {
+      _nicknameController.text = user!.nickname!;
+    }
   }
 
   @override
@@ -35,39 +73,51 @@ class _MyPageScreenState extends State<MyPageScreen> {
     super.dispose();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      context.read<AuthService>().fetchCurrentUser();
-      context.read<NotificationSettingsService>().loadSettings();
-    });
-  }
-
   void _showDeleteAccountDialog(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('계정 삭제'),
-          content: const Text(
-            '정말로 계정을 삭제하시겠습니까?\n\n'
-            '이 작업은 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.',
+          backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            AppLocalizations.of(context)!.myPageDeleteAccount,
+            style: TextStyle(
+              color: isDark ? Colors.white : Colors.black,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          content: Text(
+            AppLocalizations.of(context)!.myPageDeleteAccountConfirm,
+            style: TextStyle(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.7)
+                  : Colors.black.withValues(alpha: 0.7),
+            ),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('취소'),
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(
+                AppLocalizations.of(context)!.commonCancel,
+                style: TextStyle(
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
             ),
             TextButton(
               onPressed: () async {
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
                 await _deleteAccount();
               },
               style: TextButton.styleFrom(
-                foregroundColor: Colors.red,
+                foregroundColor: AppColors.error,
               ),
-              child: const Text('삭제'),
+              child: Text(AppLocalizations.of(context)!.commonDelete),
             ),
           ],
         );
@@ -77,15 +127,15 @@ class _MyPageScreenState extends State<MyPageScreen> {
 
   Future<void> _deleteAccount() async {
     try {
-      final authService = context.read<AuthService>();
-      final success = await authService.deleteAccount();
+      final authViewModel = context.read<AuthViewModel>();
+      final success = await authViewModel.deleteAccount();
 
       if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('계정이 성공적으로 삭제되었습니다.'),
-            backgroundColor: Colors.green,
-          ),
+        CustomSnackbar.show(
+          context,
+          message: AppLocalizations.of(context)!.myPageDeleteAccountSuccess,
+          type: SnackbarType.success,
+          bottomOffset: 32,
         );
 
         Navigator.of(context).pushAndRemoveUntil(
@@ -93,40 +143,42 @@ class _MyPageScreenState extends State<MyPageScreen> {
           (route) => false,
         );
       } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('계정 삭제에 실패했습니다. 다시 시도해주세요.'),
-            backgroundColor: Colors.red,
-          ),
+        CustomSnackbar.show(
+          context,
+          message: AppLocalizations.of(context)!.myPageDeleteAccountFailed,
+          type: SnackbarType.error,
+          bottomOffset: 32,
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('오류가 발생했습니다: $e'),
-            backgroundColor: Colors.red,
-          ),
+        CustomSnackbar.show(
+          context,
+          message: AppLocalizations.of(context)!
+              .myPageDeleteAccountError(e.toString()),
+          type: SnackbarType.error,
+          bottomOffset: 32,
         );
       }
     }
   }
 
-  Future<int?> _showHourPicker({
-    required BuildContext context,
+  Future<void> _showTimePicker({
     required int initialHour,
+    required int initialMinute,
   }) async {
-    final hours = NotificationSettingsService.getAvailableHours();
-    int selectedIndex = initialHour;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    int selectedHour = initialHour;
+    int selectedMinute = initialMinute;
 
-    return showModalBottomSheet<int>(
+    await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
+      builder: (BuildContext sheetContext) {
         return Container(
           height: 350,
           decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
+            color: isDark ? AppColors.surfaceDark : Colors.white,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(20),
               topRight: Radius.circular(20),
@@ -135,11 +187,14 @@ class _MyPageScreenState extends State<MyPageScreen> {
           child: Column(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: Colors.grey.withOpacity(0.3),
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : Colors.black.withValues(alpha: 0.1),
                       width: 0.5,
                     ),
                   ),
@@ -147,32 +202,35 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text(
-                        '취소',
-                        style: TextStyle(
-                          color: Colors.red,
+                    TextButton(
+                      onPressed: () => Navigator.pop(sheetContext),
+                      child: Text(
+                        AppLocalizations.of(context)!.commonCancel,
+                        style: const TextStyle(
+                          color: AppColors.error,
                           fontSize: 17,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
-                    const Text(
-                      '알림 시간 설정',
+                    Text(
+                      AppLocalizations.of(context)!.myPageNotificationTimeTitle,
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
                       ),
                     ),
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: () {
-                        Navigator.of(context).pop(selectedIndex);
+                    TextButton(
+                      onPressed: () async {
+                        Navigator.pop(sheetContext);
+                        await _saveNotificationTime(
+                            selectedHour, selectedMinute);
                       },
-                      child: const Text(
-                        '확인',
-                        style: TextStyle(
+                      child: Text(
+                        AppLocalizations.of(context)!.commonConfirm,
+                        style: const TextStyle(
+                          color: AppColors.primary,
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
                         ),
@@ -182,22 +240,14 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 ),
               ),
               Expanded(
-                child: CupertinoPicker(
-                  scrollController: FixedExtentScrollController(
-                    initialItem: initialHour,
-                  ),
-                  itemExtent: 44,
-                  onSelectedItemChanged: (int index) {
-                    selectedIndex = index;
+                child: LocaleTimePicker(
+                  isDark: isDark,
+                  initialHour: initialHour,
+                  initialMinute: initialMinute,
+                  onTimeChanged: (hour, minute) {
+                    selectedHour = hour;
+                    selectedMinute = minute;
                   },
-                  children: hours.map((hourData) {
-                    return Center(
-                      child: Text(
-                        hourData['label'] as String,
-                        style: const TextStyle(fontSize: 20),
-                      ),
-                    );
-                  }).toList(),
                 ),
               ),
             ],
@@ -207,441 +257,829 @@ class _MyPageScreenState extends State<MyPageScreen> {
     );
   }
 
-  Widget _buildNotificationSettings() {
-    return Consumer<NotificationSettingsService>(
-      builder: (context, settingsService, child) {
-        final settings = settingsService.settings;
-        final isLoading = settingsService.isLoading;
+  Future<void> _saveNotificationTime(int hour, int minute) async {
+    final settingsViewModel = context.read<NotificationSettingsViewModel>();
+    final success = await settingsViewModel.updatePreferredTime(hour, minute);
 
-        return Column(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.notifications),
-              title: const Text('매일 독서 목표 알림'),
-              subtitle: Text(
-                settings.notificationEnabled
-                    ? '매일 ${settingsService.getFormattedTime()}에 알림을 받습니다'
-                    : '알림을 받지 않습니다',
-              ),
-              trailing: isLoading
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Switch(
-                      value: settings.notificationEnabled,
-                      onChanged: (value) async {
-                        final success = await settingsService.updateNotificationEnabled(value);
+    if (success) {
+      await FCMService().scheduleDailyNotification(
+        hour: hour,
+        minute: minute,
+      );
 
-                        if (success) {
-                          if (value) {
-                            await FCMService().scheduleDailyNotification(
-                              hour: settings.preferredHour,
-                              minute: 0,
-                            );
-                          } else {
-                            await FCMService().cancelDailyNotification();
-                          }
+      if (mounted) {
+        CustomSnackbar.show(
+          context,
+          message: AppLocalizations.of(context)!
+              .myPageNotificationTime(settingsViewModel.getFormattedTime()),
+          type: SnackbarType.success,
+          bottomOffset: 32,
+        );
+      }
+    } else if (mounted) {
+      CustomSnackbar.show(
+        context,
+        message: settingsViewModel.errorMessage ??
+            AppLocalizations.of(context)!.myPageNotificationChangeFailed,
+        type: SnackbarType.error,
+        bottomOffset: 32,
+      );
+    }
+  }
 
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  value ? '알림이 활성화되었습니다' : '알림이 비활성화되었습니다',
-                                ),
-                                backgroundColor: value ? Colors.green : null,
-                              ),
-                            );
-                          }
-                        } else if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                settingsService.error ?? '알림 설정 변경에 실패했습니다',
-                              ),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      },
+  String _formatTime(int hour, [int minute = 0]) {
+    final l10n = AppLocalizations.of(context)!;
+    String hourStr;
+    if (hour == 0) {
+      hourStr = '${l10n.timeAm} 12${l10n.unitHour}';
+    } else if (hour < 12) {
+      hourStr = '${l10n.timeAm} $hour${l10n.unitHour}';
+    } else if (hour == 12) {
+      hourStr = '${l10n.timePm} 12${l10n.unitHour}';
+    } else {
+      hourStr = '${l10n.timePm} ${hour - 12}${l10n.unitHour}';
+    }
+
+    if (minute == 0) {
+      return hourStr;
+    }
+    return '$hourStr $minute${l10n.unitMinute}';
+  }
+
+  Widget _buildProfileCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final authViewModel = context.watch<AuthViewModel>();
+    final user = authViewModel.currentUser;
+    final vm = context.watch<MyPageViewModel>();
+
+    if (user == null) {
+      return const SizedBox.shrink();
+    }
+
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return LiquidGlassCard(
+      child: Column(
+        children: [
+          GestureDetector(
+            onTap: vm.pendingAvatarFile != null
+                ? null
+                : () async {
+                    HapticFeedback.selectionClick();
+                    final picker = ImagePicker();
+                    final picked =
+                        await picker.pickImage(source: ImageSource.gallery);
+                    if (picked != null) {
+                      vm.setPendingAvatarFile(File(picked.path));
+                    }
+                  },
+            child: Stack(
+              children: [
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.2)
+                          : Colors.black.withValues(alpha: 0.1),
+                      width: 2,
                     ),
+                  ),
+                  child: ClipOval(
+                    child: vm.pendingAvatarFile != null
+                        ? Image.file(
+                            vm.pendingAvatarFile!,
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.cover,
+                          )
+                        : (user.avatarUrl != null && user.avatarUrl!.isNotEmpty)
+                            ? Image.network(
+                                user.avatarUrl!,
+                                width: 80,
+                                height: 80,
+                                fit: BoxFit.cover,
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Shimmer.fromColors(
+                                    baseColor: isDark
+                                        ? Colors.grey[800]!
+                                        : Colors.grey[300]!,
+                                    highlightColor: isDark
+                                        ? Colors.grey[700]!
+                                        : Colors.grey[100]!,
+                                    child: Container(
+                                      width: 80,
+                                      height: 80,
+                                      decoration: BoxDecoration(
+                                        color: isDark
+                                            ? Colors.grey[800]
+                                            : Colors.grey[300],
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return _buildDefaultAvatar(isDark);
+                                },
+                              )
+                            : _buildDefaultAvatar(isDark),
+                  ),
+                ),
+                if (vm.pendingAvatarFile == null)
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isDark ? AppColors.surfaceDark : Colors.white,
+                          width: 2,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.camera_alt,
+                        color: Colors.white,
+                        size: 14,
+                      ),
+                    ),
+                  ),
+              ],
             ),
-            if (settings.notificationEnabled)
-              ListTile(
-                leading: const SizedBox(width: 24),
-                title: const Text('알림 시간'),
-                trailing: TextButton(
-                  onPressed: isLoading
+          ),
+          if (vm.pendingAvatarFile != null) ...[
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                LiquidGlassButton(
+                  text: _isUploadingAvatar ? '' : '변경',
+                  variant: LiquidGlassButtonVariant.primary,
+                  onPressed: _isUploadingAvatar
                       ? null
                       : () async {
-                          final selectedHour = await _showHourPicker(
-                            context: context,
-                            initialHour: settings.preferredHour,
-                          );
+                          if (vm.pendingAvatarFile != null) {
+                            setState(() => _isUploadingAvatar = true);
+                            try {
+                              await authViewModel
+                                  .uploadAvatar(vm.pendingAvatarFile!);
+                              vm.clearPendingAvatarFile();
 
-                          if (selectedHour != null) {
-                            final success = await settingsService.updatePreferredHour(selectedHour);
-
-                            if (success) {
-                              await FCMService().scheduleDailyNotification(
-                                hour: selectedHour,
-                                minute: 0,
-                              );
-
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      '알림 시간이 ${settingsService.getFormattedTime()}으로 변경되었습니다',
-                                    ),
-                                    backgroundColor: Colors.green,
-                                  ),
+                              if (context.mounted) {
+                                CustomSnackbar.show(
+                                  context,
+                                  message: AppLocalizations.of(context)!
+                                      .myPageAvatarChanged,
+                                  type: SnackbarType.success,
+                                  bottomOffset: 32,
                                 );
                               }
-                            } else if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    settingsService.error ?? '알림 시간 변경에 실패했습니다',
-                                  ),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
+                            } catch (e) {
+                              debugPrint('🖼️ [Avatar] Error: $e');
+                              vm.clearPendingAvatarFile();
+                              if (context.mounted) {
+                                CustomSnackbar.show(
+                                  context,
+                                  message: AppLocalizations.of(context)!
+                                      .myPageAvatarChangeFailed(e.toString()),
+                                  type: SnackbarType.error,
+                                  bottomOffset: 32,
+                                );
+                              }
+                            } finally {
+                              if (mounted) {
+                                setState(() => _isUploadingAvatar = false);
+                              }
                             }
                           }
                         },
-                  child: Text(
-                    settingsService.getFormattedTime(),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                  child: _isUploadingAvatar
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : null,
+                ),
+                const SizedBox(width: 8),
+                LiquidGlassButton(
+                  text: '취소',
+                  variant: LiquidGlassButtonVariant.secondary,
+                  onPressed: _isUploadingAvatar
+                      ? null
+                      : () {
+                          vm.clearPendingAvatarFile();
+                        },
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 16),
+          if (!vm.isEditingNickname) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  user.nickname ??
+                      AppLocalizations.of(context)!.myPageNoNickname,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: textColor,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    vm.startEditingNickname();
+                    _nicknameController.text = user.nickname ?? '';
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : Colors.black.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.edit,
+                      size: 16,
+                      color: textColor.withValues(alpha: 0.6),
                     ),
                   ),
                 ),
-              ),
+              ],
+            ),
+          ] else ...[
+            Row(
+              children: [
+                Expanded(
+                  child: LiquidGlassTextField(
+                    controller: _nicknameController,
+                    hintText: AppLocalizations.of(context)!.myPageNicknameHint,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: () async {
+                    HapticFeedback.selectionClick();
+                    await authViewModel
+                        .updateNickname(_nicknameController.text);
+                    vm.finishEditingNickname();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.success,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    vm.cancelEditingNickname();
+                    _nicknameController.text = user.nickname ?? '';
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : Colors.black.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      Icons.close,
+                      color: textColor.withValues(alpha: 0.6),
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
-        );
-      },
+          const SizedBox(height: 8),
+          Text(
+            user.email ?? '',
+            style: TextStyle(
+              fontSize: 15,
+              color: textColor.withValues(alpha: 0.6),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDefaultAvatar(bool isDark) {
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.subtleDark : Colors.blue[50],
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        Icons.person,
+        size: 40,
+        color: isDark ? Colors.white.withValues(alpha: 0.5) : Colors.blue[300],
+      ),
+    );
+  }
+
+  Widget _buildSettingsCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return LiquidGlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppLocalizations.of(context)!.myPageSettings,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Consumer<ThemeViewModel>(
+            builder: (context, themeViewModel, child) {
+              return _buildSettingRow(
+                context: context,
+                icon: themeViewModel.isDarkMode
+                    ? Icons.dark_mode
+                    : Icons.light_mode,
+                title: AppLocalizations.of(context)!.myPageDarkMode,
+                trailing: Switch(
+                  value: themeViewModel.isDarkMode,
+                  onChanged: (value) {
+                    HapticFeedback.selectionClick();
+                    themeViewModel.toggleTheme();
+                  },
+                  activeTrackColor: AppColors.primary,
+                ),
+              );
+            },
+          ),
+          Divider(
+            height: 32,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.1),
+          ),
+          Consumer<LocaleViewModel>(
+            builder: (context, localeViewModel, child) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSettingRow(
+                    context: context,
+                    icon: Icons.language,
+                    title: AppLocalizations.of(context)!.languageSettingLabel,
+                    trailing: const SizedBox.shrink(),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: SegmentedButton<String>(
+                      segments: [
+                        ButtonSegment(
+                            value: 'ko',
+                            label: Text(
+                                AppLocalizations.of(context)!.languageKorean)),
+                        ButtonSegment(
+                            value: 'en',
+                            label: Text(
+                                AppLocalizations.of(context)!.languageEnglish)),
+                      ],
+                      selected: {localeViewModel.locale.languageCode},
+                      onSelectionChanged: (selection) async {
+                        final newLocale = selection.first;
+                        if (newLocale == localeViewModel.locale.languageCode) {
+                          return;
+                        }
+
+                        HapticFeedback.selectionClick();
+
+                        final localizations = AppLocalizations.of(context)!;
+                        final languageName = newLocale == 'ko'
+                            ? localizations.languageKorean
+                            : localizations.languageEnglish;
+
+                        final confirmed = await showModalBottomSheet<bool>(
+                          context: context,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) => Container(
+                            decoration: BoxDecoration(
+                              color:
+                                  isDark ? AppColors.surfaceDark : Colors.white,
+                              borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(24)),
+                            ),
+                            padding: const EdgeInsets.all(24),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 4,
+                                  margin: const EdgeInsets.only(bottom: 20),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[400],
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                ),
+                                Text(
+                                  localizations.languageChangeConfirmTitle,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? Colors.white : Colors.black,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  localizations.languageChangeConfirmMessage(
+                                      languageName),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: isDark
+                                        ? Colors.grey[400]
+                                        : Colors.grey[600],
+                                  ),
+                                ),
+                                const SizedBox(height: 24),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: OutlinedButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, false),
+                                        style: OutlinedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 14),
+                                          side: BorderSide(
+                                            color: isDark
+                                                ? Colors.white
+                                                    .withValues(alpha: 0.2)
+                                                : Colors.black
+                                                    .withValues(alpha: 0.2),
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          localizations.commonCancel,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: isDark
+                                                ? Colors.white
+                                                : Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, true),
+                                        style: ElevatedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 14),
+                                          backgroundColor: AppColors.primary,
+                                          foregroundColor: Colors.white,
+                                          elevation: 0,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          localizations.commonConfirm,
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+
+                        if (confirmed == true) {
+                          localeViewModel.setLocale(Locale(newLocale));
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+          Divider(
+            height: 32,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.1),
+          ),
+          Consumer<NotificationSettingsViewModel>(
+            builder: (context, settingsViewModel, child) {
+              final settings = settingsViewModel.settings;
+              final isLoading = settingsViewModel.isLoading;
+
+              return Column(
+                children: [
+                  _buildSettingRow(
+                    context: context,
+                    icon: Icons.notifications,
+                    title: AppLocalizations.of(context)!
+                        .myPageDailyReadingNotification,
+                    subtitle: settings.notificationEnabled
+                        ? AppLocalizations.of(context)!.myPageNotificationTime(
+                            _formatTime(settings.preferredHour,
+                                settings.preferredMinute))
+                        : AppLocalizations.of(context)!.myPageNoNotification,
+                    trailing: isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Switch(
+                            value: settings.notificationEnabled,
+                            onChanged: (value) async {
+                              HapticFeedback.selectionClick();
+                              final success = await settingsViewModel
+                                  .updateNotificationEnabled(value);
+
+                              if (success) {
+                                if (value) {
+                                  await FCMService().scheduleDailyNotification(
+                                    hour: settings.preferredHour,
+                                    minute: settings.preferredMinute,
+                                  );
+                                } else {
+                                  await FCMService().cancelDailyNotification();
+                                }
+
+                                if (mounted) {
+                                  CustomSnackbar.show(
+                                    context,
+                                    message: value
+                                        ? AppLocalizations.of(context)!
+                                            .myPageNotificationEnabled
+                                        : AppLocalizations.of(context)!
+                                            .myPageNotificationDisabled,
+                                    type: value
+                                        ? SnackbarType.success
+                                        : SnackbarType.info,
+                                    bottomOffset: 32,
+                                  );
+                                }
+                              } else if (mounted) {
+                                CustomSnackbar.show(
+                                  context,
+                                  message: settingsViewModel.errorMessage ??
+                                      '알림 설정 변경에 실패했습니다',
+                                  type: SnackbarType.error,
+                                  bottomOffset: 32,
+                                );
+                              }
+                            },
+                            activeTrackColor: AppColors.primary,
+                          ),
+                  ),
+                  if (settings.notificationEnabled) ...[
+                    const SizedBox(height: 16),
+                    LiquidGlassButton(
+                      text: _formatTime(
+                          settings.preferredHour, settings.preferredMinute),
+                      icon: Icons.access_time,
+                      variant: LiquidGlassButtonVariant.secondary,
+                      isFullWidth: true,
+                      onPressed: isLoading
+                          ? null
+                          : () => _showTimePicker(
+                                initialHour: settings.preferredHour,
+                                initialMinute: settings.preferredMinute,
+                              ),
+                    ),
+                  ],
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+          Consumer<SubscriptionViewModel>(
+            builder: (context, subscriptionVm, child) {
+              return LiquidGlassButton(
+                text: subscriptionVm.isProUser
+                    ? AppLocalizations.of(context)!.myPageSubscriptionManage
+                    : AppLocalizations.of(context)!.myPageSubscriptionUpgrade,
+                icon: subscriptionVm.isProUser ? Icons.star : Icons.star_border,
+                variant: LiquidGlassButtonVariant.secondary,
+                isFullWidth: true,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => SubscriptionScreen(
+                        onClose: () => Navigator.pop(context),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+          if (kDebugMode) ...[
+            const SizedBox(height: 20),
+            LiquidGlassButton(
+              text: AppLocalizations.of(context)!.myPageTestNotification,
+              icon: Icons.notifications_active,
+              variant: LiquidGlassButtonVariant.secondary,
+              isFullWidth: true,
+              onPressed: () async {
+                await FCMService().scheduleTestNotification(seconds: 30);
+
+                if (mounted) {
+                  CustomSnackbar.show(
+                    context,
+                    message: AppLocalizations.of(context)!
+                        .myPageTestNotificationSent,
+                    type: SnackbarType.success,
+                    bottomOffset: 32,
+                    duration: const Duration(seconds: 3),
+                  );
+                }
+              },
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingRow({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    required Widget trailing,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            icon,
+            size: 20,
+            color: textColor.withValues(alpha: 0.7),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: textColor,
+                ),
+              ),
+              if (subtitle != null) ...[
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: textColor.withValues(alpha: 0.5),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        trailing,
+      ],
+    );
+  }
+
+  Widget _buildDangerZoneCard(BuildContext context) {
+    return LiquidGlassCard(
+      child: Column(
+        children: [
+          LiquidGlassButton(
+            text: AppLocalizations.of(context)!.myPageLogout,
+            icon: Icons.logout,
+            variant: LiquidGlassButtonVariant.destructive,
+            isFullWidth: true,
+            onPressed: () async {
+              await context.read<AuthViewModel>().signOut();
+              if (context.mounted) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  (route) => false,
+                );
+              }
+            },
+          ),
+          const SizedBox(height: 16),
+          TextButton(
+            onPressed: () => _showDeleteAccountDialog(context),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.error,
+            ),
+            child: Text(
+              AppLocalizations.of(context)!.myPageDeleteAccount,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final authService = context.watch<AuthService>();
-    final user = authService.currentUser;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final authViewModel = context.watch<AuthViewModel>();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('마이페이지'),
+        title: Text(AppLocalizations.of(context)!.myPageTitle),
         centerTitle: false,
         titleTextStyle: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: Theme.of(context).brightness == Brightness.dark
-              ? Colors.white
-              : Colors.black,
+          color: isDark ? Colors.white : Colors.black,
         ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          await authService.fetchCurrentUser();
-
-          setState(() {});
+          await authViewModel.fetchCurrentUser();
+          await context.read<NotificationSettingsViewModel>().loadSettings();
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (user != null) ...[
-                  Center(
-                    child: Column(
-                      children: [
-                        GestureDetector(
-                          onTap: _pendingAvatarFile != null
-                              ? null
-                              : () async {
-                                  final picker = ImagePicker();
-                                  final picked = await picker.pickImage(
-                                      source: ImageSource.gallery);
-                                  if (picked != null) {
-                                    setState(() {
-                                      _pendingAvatarFile = File(picked.path);
-                                    });
-                                  }
-                                },
-                          child: SizedBox(
-                            width: 80,
-                            height: 80,
-                            child: ClipOval(
-                              child: _pendingAvatarFile != null
-                                  ? Image.file(
-                                      _pendingAvatarFile!,
-                                      width: 80,
-                                      height: 80,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : (user.avatarUrl != null &&
-                                          user.avatarUrl!.isNotEmpty)
-                                      ? Image.network(
-                                          user.avatarUrl!,
-                                          width: 80,
-                                          height: 80,
-                                          fit: BoxFit.cover,
-                                          loadingBuilder: (
-                                            context,
-                                            child,
-                                            loadingProgress,
-                                          ) {
-                                            if (loadingProgress == null) {
-                                              return child;
-                                            }
-                                            return Container(
-                                              width: 80,
-                                              height: 80,
-                                              color: Colors.grey[200],
-                                              child: const Center(
-                                                child: SizedBox(
-                                                  width: 20,
-                                                  height: 20,
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    strokeWidth: 2,
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          errorBuilder: (
-                                            context,
-                                            error,
-                                            stackTrace,
-                                          ) {
-                                            return Container(
-                                              width: 80,
-                                              height: 80,
-                                              decoration: BoxDecoration(
-                                                color: Colors.lightBlue[100],
-                                                shape: BoxShape.circle,
-                                              ),
-                                              child: const Icon(
-                                                Icons.person,
-                                                size: 40,
-                                                color: Colors.blue,
-                                              ),
-                                            );
-                                          },
-                                        )
-                                      : Container(
-                                          width: 80,
-                                          height: 80,
-                                          decoration: BoxDecoration(
-                                            color: Colors.lightBlue[100],
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: const Icon(
-                                            Icons.person,
-                                            size: 40,
-                                            color: Colors.blue,
-                                          ),
-                                        ),
-                            ),
-                          ),
-                        ),
-                        if (_pendingAvatarFile != null) ...[
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () async {
-                                  if (_pendingAvatarFile != null) {
-                                    print(
-                                        '_pendingAvatarFile: $_pendingAvatarFile');
-                                    await authService
-                                        .uploadAvatar(_pendingAvatarFile!);
-                                    setState(() {
-                                      _pendingAvatarFile = null;
-                                    });
-                                  }
-                                },
-                                child: const Text('변경'),
-                              ),
-                              const SizedBox(width: 8),
-                              OutlinedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _pendingAvatarFile = null;
-                                  });
-                                },
-                                child: const Text('취소'),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  _isEditingNickname
-                      ? Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: _nicknameController,
-                                decoration: const InputDecoration(
-                                  labelText: '닉네임',
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            ElevatedButton(
-                              onPressed: () async {
-                                await authService
-                                    .updateNickname(_nicknameController.text);
-                                setState(() {
-                                  _isEditingNickname = false;
-                                });
-                              },
-                              child: const Text('변경하기'),
-                            ),
-                            const SizedBox(width: 8),
-                            OutlinedButton(
-                              onPressed: () {
-                                setState(() {
-                                  _isEditingNickname = false;
-                                  _nicknameController.text =
-                                      user.nickname ?? '';
-                                });
-                              },
-                              child: const Text('취소'),
-                            ),
-                          ],
-                        )
-                      : Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                user.nickname ?? '닉네임 없음',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  _isEditingNickname = true;
-                                  _nicknameController.text =
-                                      user.nickname ?? '';
-                                });
-                              },
-                              child: const Text('닉네임 변경'),
-                            ),
-                          ],
-                        ),
-                  const SizedBox(height: 16),
-                  Text('이메일: ${user.email}'),
-                  const SizedBox(height: 32),
-                ],
-                const Divider(),
-                const SizedBox(height: 16),
-                const Text(
-                  '설정',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Consumer<ThemeViewModel>(
-                  builder: (context, themeViewModel, child) {
-                    return ListTile(
-                      leading: Icon(
-                        themeViewModel.isDarkMode
-                            ? Icons.dark_mode
-                            : Icons.light_mode,
-                      ),
-                      title: const Text('다크 모드'),
-                      trailing: Switch(
-                        value: themeViewModel.isDarkMode,
-                        onChanged: (value) {
-                          themeViewModel.toggleTheme();
-                        },
-                      ),
-                    );
-                  },
-                ),
-                const Divider(),
-                const SizedBox(height: 16),
-                _buildNotificationSettings(),
-                const SizedBox(height: 16),
-                // 테스트용 알림 버튼
-                Center(
-                  child: ElevatedButton.icon(
-                    onPressed: () async {
-                      await FCMService().scheduleTestNotification(seconds: 30);
-
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('30초 후에 테스트 알림이 발송됩니다! 📱'),
-                            backgroundColor: Colors.green,
-                            duration: Duration(seconds: 3),
-                          ),
-                        );
-                      }
-                    },
-                    icon: const Icon(Icons.notifications_active),
-                    label: const Text('테스트 알림 (30초 후)'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Center(
-                  child: Column(
-                    children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          await context.read<AuthService>().signOut();
-                          if (context.mounted) {
-                            Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(
-                                  builder: (_) => const LoginScreen()),
-                              (route) => false,
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                        ),
-                        child: const Text('로그아웃'),
-                      ),
-                      const SizedBox(height: 16),
-                      TextButton(
-                        onPressed: () => _showDeleteAccountDialog(context),
-                        style: TextButton.styleFrom(
-                          foregroundColor: Colors.red,
-                        ),
-                        child: const Text('계정 삭제'),
-                      ),
-                    ],
-                  ),
-                ),
+                _buildProfileCard(context),
+                const SizedBox(height: 24),
+                _buildSettingsCard(context),
+                const SizedBox(height: 24),
+                _buildDangerZoneCard(context),
+                const SizedBox(height: 40),
               ],
             ),
           ),

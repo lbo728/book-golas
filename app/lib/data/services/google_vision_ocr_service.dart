@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-import '../../config/app_config.dart';
+import 'package:book_golas/config/app_config.dart';
 
 class GoogleVisionOcrService {
   static final GoogleVisionOcrService _instance =
@@ -40,6 +41,11 @@ class GoogleVisionOcrService {
       return null;
     }
 
+    final apiKey = AppConfig.googleCloudVisionApiKey;
+    final maskedKey = apiKey.length > 8
+        ? '${apiKey.substring(0, 4)}...${apiKey.substring(apiKey.length - 4)}'
+        : '****';
+    debugPrint('🟡 OCR: API 키 확인 - $maskedKey (길이: ${apiKey.length})');
     debugPrint('🟡 OCR: 텍스트 추출 시작 (이미지 크기: ${imageBytes.length} bytes)');
 
     try {
@@ -75,9 +81,21 @@ class GoogleVisionOcrService {
       );
 
       debugPrint('🟡 OCR: API 응답 코드 - ${response.statusCode}');
+      debugPrint('🟡 OCR: API 응답 헤더 - ${response.headers}');
 
       if (response.statusCode != 200) {
-        debugPrint('🔴 OCR: API 에러 - ${response.body}');
+        debugPrint('🔴 OCR: API 에러 (상태코드: ${response.statusCode})');
+        debugPrint('🔴 OCR: API 에러 응답 본문 - ${response.body}');
+
+        try {
+          final errorJson = jsonDecode(response.body) as Map<String, dynamic>;
+          final error = errorJson['error'] as Map<String, dynamic>?;
+          if (error != null) {
+            debugPrint('🔴 OCR: 에러 코드 - ${error['code']}');
+            debugPrint('🔴 OCR: 에러 메시지 - ${error['message']}');
+            debugPrint('🔴 OCR: 에러 상태 - ${error['status']}');
+          }
+        } catch (_) {}
         return null;
       }
 
