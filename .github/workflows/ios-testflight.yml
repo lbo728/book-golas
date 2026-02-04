@@ -89,7 +89,7 @@ jobs:
         env:
           CERTIFICATE_P12_BASE64: ${{ secrets.CERTIFICATE_P12_BASE64 }}
           CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
-          PROVISIONING_PROFILE_BASE64: ${{ secrets.PROVISIONING_PROFILE_BASE64 }}
+          PROVISIONING_PROFILE_BASE64: ${{ secrets.PROVISIONING_PROFILE_DEV_BASE64 }}
           KEYCHAIN_PASSWORD: ${{ github.run_id }}
         run: |
           CERTIFICATE_PATH=$RUNNER_TEMP/certificate.p12
