@@ -345,6 +345,80 @@ class AppLocalizationsKo extends AppLocalizations {
   String get loginPasswordTooShort => '비밀번호는 6자 이상이어야 합니다.';
 
   @override
+  String get loginErrorInvalidCredentials => '이메일 또는 비밀번호가 올바르지 않습니다.';
+
+  @override
+  String get loginErrorEmailNotConfirmed => '이메일 인증이 완료되지 않았습니다.';
+
+  @override
+  String get loginErrorEmailAlreadyRegistered => '이미 등록된 이메일입니다.';
+
+  @override
+  String get loginErrorPasswordTooShort => '비밀번호는 6자 이상이어야 합니다.';
+
+  @override
+  String get loginEmailHint => '이메일을 입력하세요';
+
+  @override
+  String get loginForgotPassword => '비밀번호를 잊으셨나요?';
+
+  @override
+  String get loginNoAccount => '계정이 없으신가요?';
+
+  @override
+  String get loginHaveAccount => '이미 계정이 있으신가요?';
+
+  @override
+  String get loginBackToSignIn => '로그인으로 돌아가기';
+
+  @override
+  String get myPageDeleteAccount => '계정 삭제';
+
+  @override
+  String myPageDeleteAccountError(String error) {
+    return '계정 삭제에 실패했습니다: $error';
+  }
+
+  @override
+  String myPageNotificationTime(String time) {
+    return '$time에 알림 설정됨';
+  }
+
+  @override
+  String get myPageNotificationChangeFailed => '알림 설정 변경에 실패했습니다';
+
+  @override
+  String get myPageAvatarChanged => '프로필 사진이 변경되었습니다';
+
+  @override
+  String myPageAvatarChangeFailed(String error) {
+    return '프로필 사진 변경에 실패했습니다: $error';
+  }
+
+  @override
+  String get myPageNicknameHint => '닉네임을 입력하세요';
+
+  @override
+  String get languageKorean => '한국어';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get languageChangeConfirmTitle => '언어 변경';
+
+  @override
+  String languageChangeConfirmMessage(String language) {
+    return '$language(으)로 언어를 변경하시겠습니까?';
+  }
+
+  @override
+  String get myPageNoNotification => '알림 없음';
+
+  @override
+  String get myPageNotificationEnabled => '알림 활성화됨';
+
+  @override
   String get reviewTitle => '독후감';
 
   @override
@@ -560,9 +634,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String bookDetailGoalAchieved(int pagesRead) {
-    return '오늘 목표 달성! +$pagesRead 페이지 🎉';
-  }
+  String get bookDetailGoalAchieved => '목표 달성!';
 
   @override
   String bookDetailPagesRead(int pagesRead, int pagesLeft) {
@@ -1987,4 +2059,1134 @@ class AppLocalizationsKo extends AppLocalizations {
   String genreMessageDefault3(String genre) {
     return '$genre 마니아의 기질이 보여요';
   }
+
+  @override
+  String get paywallTitle => 'Bookgolas Pro';
+
+  @override
+  String get paywallSubtitle => '모든 기능을 제한 없이 사용하세요';
+
+  @override
+  String get paywallBenefit1 => '동시 읽기 무제한';
+
+  @override
+  String get paywallBenefit2 => 'AI Recall 월 30회 사용';
+
+  @override
+  String get paywallBenefit3 => '독서 인사이트 및 통계';
+
+  @override
+  String get paywallMonthly => '월간 구독';
+
+  @override
+  String get paywallMonthlyPrice => '₩3,900';
+
+  @override
+  String get paywallPerMonth => '/월';
+
+  @override
+  String get paywallYearly => '연간 구독';
+
+  @override
+  String get paywallYearlyPrice => '₩29,900';
+
+  @override
+  String get paywallPerYear => '/년';
+
+  @override
+  String get paywallYearlySavings => '연간 구독 시 36% 절약';
+
+  @override
+  String get paywallRestore => '이전 구매 복원';
+
+  @override
+  String get paywallRestoreSuccess => '구독이 복원되었습니다';
+
+  @override
+  String get concurrentReadingLimitTitle => '동시 읽기 제한';
+
+  @override
+  String get concurrentReadingLimitMessage =>
+      '무료 사용자는 동시에 3권까지 읽을 수 있습니다. Pro로 업그레이드하여 무제한으로 이용하세요.';
+
+  @override
+  String get aiRecallLimitTitle => 'AI Recall 사용량 초과';
+
+  @override
+  String get aiRecallLimitMessage => '이번 달 AI Recall 사용 횟수를 모두 소진했습니다.';
+
+  @override
+  String aiRecallRemainingUses(int count) {
+    return '이번 달 남은 횟수: $count회';
+  }
+
+  @override
+  String get subscriptionTitle => '구독 관리';
+
+  @override
+  String get subscriptionProStatus => 'Bookgolas Pro';
+
+  @override
+  String get subscriptionFreeStatus => '무료 사용자';
+
+  @override
+  String get subscriptionProDescription => '모든 기능을 무제한으로 이용하세요';
+
+  @override
+  String get subscriptionFreeDescription => '기능 제한이 적용됩니다';
+
+  @override
+  String get subscriptionUpgradeTitle => 'Pro로 업그레이드';
+
+  @override
+  String get subscriptionMonthly => '월간 구독';
+
+  @override
+  String get subscriptionMonthlyPrice => '₩3,900';
+
+  @override
+  String get subscriptionPerMonth => '/월';
+
+  @override
+  String get subscriptionYearly => '연간 구독';
+
+  @override
+  String get subscriptionYearlyPrice => '₩29,900';
+
+  @override
+  String get subscriptionPerYear => '/년';
+
+  @override
+  String get subscriptionYearlySavings => '36% 절약';
+
+  @override
+  String get subscriptionBenefitsTitle => 'Pro 혜택';
+
+  @override
+  String get subscriptionBenefit1 => '동시 읽기 무제한';
+
+  @override
+  String get subscriptionBenefit2 => 'AI Recall 월 30회 사용';
+
+  @override
+  String get subscriptionBenefit3 => '독서 인사이트 및 통계';
+
+  @override
+  String get subscriptionManageTitle => '구독 관리';
+
+  @override
+  String get subscriptionRestore => '이전 구매 복원';
+
+  @override
+  String get subscriptionManageSubscription => '구독 설정';
+
+  @override
+  String get subscriptionManageSubtitle => '구독 변경 또는 해지';
+
+  @override
+  String get subscriptionRestoreSuccess => '구독이 복원되었습니다';
+
+  @override
+  String get subscriptionRestoreFailed => '복원에 실패했습니다';
+
+  @override
+  String get proUpgradeBannerTitle => 'Pro로 업그레이드';
+
+  @override
+  String get proUpgradeBannerSubtitle => '동시 읽기 · AI Recall 무제한';
+
+  @override
+  String get proUpgradeBannerCta => '업그레이드하기';
+
+  @override
+  String get proUpgradeBannerMini => 'Pro로 무제한 이용하기';
+
+  @override
+  String get myPageSubscriptionUpgrade => 'Pro로 업그레이드';
+
+  @override
+  String get myPageSubscriptionManage => '구독 관리';
+
+  @override
+  String get myPageNotificationDisabled => '알림이 비활성화됨';
+
+  @override
+  String get myPageTestNotificationSent => '테스트 알림이 전송됨';
+
+  @override
+  String get barcodeScannerHint => '바코드를 프레임 안에 맞춰주세요';
+
+  @override
+  String get scannerErrorDefault => '스캐너 오류가 발생했습니다';
+
+  @override
+  String get extractingText => '텍스트 추출 중...';
+
+  @override
+  String get ocrExtractionFailed => '텍스트 추출 실패';
+
+  @override
+  String get extractTextConfirmTitle => '텍스트 추출';
+
+  @override
+  String get extractTextCreditsMessage => '크레딧이 사용됩니다';
+
+  @override
+  String get noThanksButton => '괜찮아요';
+
+  @override
+  String get extractButton => '추출하기';
+
+  @override
+  String get ocrAreaSelectTitle => '추출할 영역 선택';
+
+  @override
+  String get imageLoadFailed => '이미지 로드 실패';
+
+  @override
+  String get extractTextOverwriteMessage => '기존 텍스트를 덮어씁니다';
+
+  @override
+  String get loadingImage => '이미지 로딩 중...';
+
+  @override
+  String get ocrReExtractionFailed => '재추출 실패';
+
+  @override
+  String get reScanButton => '다시 스캔';
+
+  @override
+  String get documentScanFailed => '문서 스캔 실패';
+
+  @override
+  String get expectedSchedule => '예상 스케줄';
+
+  @override
+  String get dailyTargetChangeTitle => '일일 목표 변경';
+
+  @override
+  String get pagesPerDay => '페이지/일';
+
+  @override
+  String get bookInfoNotFound => '책 정보를 찾을 수 없습니다';
+
+  @override
+  String get goalChangeFailed => '목표 변경 실패';
+
+  @override
+  String get editReadingPlanTitle => '독서 계획 수정';
+
+  @override
+  String get editPlannedStartDate => '시작 예정일';
+
+  @override
+  String get validationEnterNumber => '숫자를 입력해주세요';
+
+  @override
+  String get validationPageMinimum => '페이지는 0 이상이어야 합니다';
+
+  @override
+  String validationPageExceedsTotal(int totalPages) {
+    return '총 페이지($totalPages)를 초과할 수 없습니다';
+  }
+
+  @override
+  String validationPageBelowCurrent(int currentPage) {
+    return '현재 페이지($currentPage)보다 작을 수 없습니다';
+  }
+
+  @override
+  String get updatePageTitle => '페이지 업데이트';
+
+  @override
+  String currentPageLabel(int page) {
+    return '현재: ${page}p';
+  }
+
+  @override
+  String totalPageLabel(int page) {
+    return '총: ${page}p';
+  }
+
+  @override
+  String get newPageNumber => '새 페이지 번호';
+
+  @override
+  String get updateButton => '업데이트';
+
+  @override
+  String get changeTargetDateTitle => '목표일 변경';
+
+  @override
+  String attemptChangeMessage(int attempt) {
+    return '$attempt번째 도전이 시작됩니다';
+  }
+
+  @override
+  String get confirmChange => '변경 확인';
+
+  @override
+  String get searchRecordsButton => '기록 검색';
+
+  @override
+  String get resetConfirmMessage => '정말 초기화하시겠습니까?';
+
+  @override
+  String get resetButton => '초기화';
+
+  @override
+  String get addRecordTitle => '기록 추가';
+
+  @override
+  String get highlightLabel => '하이라이트';
+
+  @override
+  String highlightWithCount(int count) {
+    return '하이라이트 ($count)';
+  }
+
+  @override
+  String get extractTextButton => '텍스트 추출';
+
+  @override
+  String get replaceButton => '교체하기';
+
+  @override
+  String get tapToAddImage => '탭하여 이미지 추가';
+
+  @override
+  String get optionalLabel => '(선택사항)';
+
+  @override
+  String get recallPage => '페이지';
+
+  @override
+  String get recordHint => '생각을 기록해주세요...';
+
+  @override
+  String get recordTextLabel => '기록 텍스트';
+
+  @override
+  String get viewFullButton => '전체보기';
+
+  @override
+  String get clearAllButton => '전체 삭제';
+
+  @override
+  String get uploadButton => '업로드';
+
+  @override
+  String get uploading => '업로드 중...';
+
+  @override
+  String get unsavedChangesMessage => '저장되지 않은 변경 사항이 있습니다';
+
+  @override
+  String get discardChangesButton => '버리기';
+
+  @override
+  String get continueEditingButton => '계속 편집';
+
+  @override
+  String pageExceedsTotalError(int totalPages) {
+    return '총 페이지($totalPages)를 초과할 수 없습니다';
+  }
+
+  @override
+  String get pageNotSet => '페이지 미설정';
+
+  @override
+  String get textInputHint => '텍스트 입력...';
+
+  @override
+  String get textCopied => '텍스트 복사됨';
+
+  @override
+  String get copyButton => '복사';
+
+  @override
+  String get editButton => '수정';
+
+  @override
+  String get noRecordedText => '기록된 텍스트 없음';
+
+  @override
+  String get bookInfoDetail => '도서 상세';
+
+  @override
+  String get invalidUrl => '잘못된 URL';
+
+  @override
+  String get bookReviewTabTitle => '독후감';
+
+  @override
+  String get bookDetailDeleteReading => '독서 삭제';
+
+  @override
+  String get bookDetailSchedule => '독서 일정';
+
+  @override
+  String get bookDetailGoalProgress => '목표 진행';
+
+  @override
+  String bookDetailAchievementStatus(int achieved, int total) {
+    return '$total일 중 $achieved일 달성';
+  }
+
+  @override
+  String get bookDetailNoPhotos => '사진이 없습니다';
+
+  @override
+  String get bookDetailAddPhotoHint => '아래 + 버튼으로 추가하세요';
+
+  @override
+  String get memorablePagesSortByPage => '페이지순';
+
+  @override
+  String get memorablePagesSortByDate => '날짜순';
+
+  @override
+  String get memorablePagesDelete => '삭제';
+
+  @override
+  String get memorablePagesDone => '완료';
+
+  @override
+  String get memorablePagesSelect => '선택';
+
+  @override
+  String get noProgressRecords => '진행 기록 없음';
+
+  @override
+  String get historyTabCumulativePages => '누적 페이지';
+
+  @override
+  String get historyTabDailyPages => '일일 페이지';
+
+  @override
+  String get historyTabDailyRecords => '일별 기록';
+
+  @override
+  String historyTabCumulativeLabel(int page) {
+    return '누적: ${page}p';
+  }
+
+  @override
+  String get historyTabPagesUnit => '페이지';
+
+  @override
+  String daysRecorded(int days) {
+    return '$days일 기록됨';
+  }
+
+  @override
+  String get unitPages => '페이지';
+
+  @override
+  String get bookListErrorNetworkCheck => '네트워크 연결을 확인해주세요';
+
+  @override
+  String bookListCompletedIn(int days) {
+    return '$days일만에 완독';
+  }
+
+  @override
+  String get bookListCompletedSameDay => '당일 완독';
+
+  @override
+  String bookListAchievementRate(int rate) {
+    return '달성률 $rate%';
+  }
+
+  @override
+  String bookListCompletedDate(String date) {
+    return '완독: $date';
+  }
+
+  @override
+  String get bookListUnknown => '알 수 없음';
+
+  @override
+  String bookListPlannedStartDate(String date) {
+    return '시작: $date';
+  }
+
+  @override
+  String get bookListUndetermined => '시작일 미정';
+
+  @override
+  String get reviewReplaceConfirm => 'AI 초안으로 대체하시겠습니까?';
+
+  @override
+  String get reviewReplaceButton => '대체하기';
+
+  @override
+  String get reviewAIDraftFailed => 'AI 초안 생성 실패';
+
+  @override
+  String get reviewAIDraftError => 'AI 초안 생성 오류';
+
+  @override
+  String get reviewSaveComplete => '독후감 저장됨';
+
+  @override
+  String get reviewExitConfirm => '저장하지 않고 나가시겠습니까?';
+
+  @override
+  String get reviewExitMessage => '임시 저장됩니다';
+
+  @override
+  String get aiDraftGenerating => 'AI가 작성 중...';
+
+  @override
+  String get aiDraftGenerate => 'AI 초안 생성';
+
+  @override
+  String get reviewHint => '책에 대한 생각을 적어보세요...';
+
+  @override
+  String get bookstoreSelectTitle => '서점 선택';
+
+  @override
+  String get bookstoreAladdin => '알라딘';
+
+  @override
+  String get bookstoreKyobo => '교보문고';
+
+  @override
+  String get expandedNavBackToDetail => '상세로 돌아가기';
+
+  @override
+  String get highlightEditTitle => '하이라이트 수정';
+
+  @override
+  String get highlightEditDone => '완료';
+
+  @override
+  String get datePickerMonthJan => '1월';
+
+  @override
+  String get datePickerMonthFeb => '2월';
+
+  @override
+  String get datePickerMonthMar => '3월';
+
+  @override
+  String get datePickerMonthApr => '4월';
+
+  @override
+  String get datePickerMonthMay => '5월';
+
+  @override
+  String get datePickerMonthJun => '6월';
+
+  @override
+  String get datePickerMonthJul => '7월';
+
+  @override
+  String get datePickerMonthAug => '8월';
+
+  @override
+  String get datePickerMonthSep => '9월';
+
+  @override
+  String get datePickerMonthOct => '10월';
+
+  @override
+  String get datePickerMonthNov => '11월';
+
+  @override
+  String get datePickerMonthDec => '12월';
+
+  @override
+  String get koreanDatePickerYear => '년';
+
+  @override
+  String get koreanDatePickerMonth => '월';
+
+  @override
+  String get koreanDatePickerDay => '일';
+
+  @override
+  String get recommendationViewDetail => '상세 보기';
+
+  @override
+  String get recommendationViewDetailSubtitle => '도서 정보 확인';
+
+  @override
+  String get recommendationStartReading => '독서 시작';
+
+  @override
+  String get recommendationStartReadingSubtitle => '이 책으로 독서 시작';
+
+  @override
+  String get recommendationBookstoreSelect => '서점 선택';
+
+  @override
+  String get aiFeaturesTitle => 'AI 기능';
+
+  @override
+  String get bookRecommendButton => '도서 추천';
+
+  @override
+  String get homeViewAllBooksMessage => '전체 도서 보기';
+
+  @override
+  String get homeViewReadingMessage => '읽는 중인 도서만 보기';
+
+  @override
+  String get homeViewAllBooks => '전체 보기';
+
+  @override
+  String get homeViewReadingOnly => '읽는 중만';
+
+  @override
+  String get myLibraryTabReading => '읽는 중';
+
+  @override
+  String get myLibraryTabReview => '독후감';
+
+  @override
+  String get myLibraryTabRecord => '기록';
+
+  @override
+  String get myLibrarySearchHint => '도서 검색...';
+
+  @override
+  String get myLibraryFilterAll => '전체';
+
+  @override
+  String get myLibraryNoSearchResults => '검색 결과 없음';
+
+  @override
+  String get myLibraryNoBooks => '도서가 없습니다';
+
+  @override
+  String get myLibraryNoReviewBooks => '독후감 도서 없음';
+
+  @override
+  String get myLibraryNoRecords => '기록 없음';
+
+  @override
+  String get myLibraryAiSearch => 'AI 검색';
+
+  @override
+  String get myLibraryFilterHighlight => '하이라이트';
+
+  @override
+  String get myLibraryFilterMemo => '메모';
+
+  @override
+  String get myLibraryFilterPhoto => '사진';
+
+  @override
+  String get onboardingTitle1 => '독서 기록하기';
+
+  @override
+  String get onboardingDescription1 => '매일 독서 목표를 세우고 진행 상황을 추적하세요';
+
+  @override
+  String get onboardingTitle2 => '인상적인 순간 저장';
+
+  @override
+  String get onboardingDescription2 => '책에서 하이라이트와 생각을 캡처하세요';
+
+  @override
+  String get onboardingTitle3 => '목표 달성하기';
+
+  @override
+  String get onboardingDescription3 => '책을 완독하고 성과를 축하하세요';
+
+  @override
+  String totalDaysFormat(int days) {
+    return '총 $days일';
+  }
+
+  @override
+  String attemptOrdinal(int attempt) {
+    return '$attempt번째 도전';
+  }
+
+  @override
+  String streakDaysAchieved(int days) {
+    return '$days일 연속 달성!';
+  }
+
+  @override
+  String pagesRemaining(int pages) {
+    return '$pages페이지 남음';
+  }
+
+  @override
+  String todayGoalWithPages(int pages) {
+    return '오늘 목표: ${pages}p';
+  }
+
+  @override
+  String pagesRemainingShort(int pages) {
+    return '${pages}p 남음';
+  }
+
+  @override
+  String pagesRemainingWithDays(int days) {
+    return ' · D-$days';
+  }
+
+  @override
+  String todayGoalChanged(int pages) {
+    return '오늘 목표가 ${pages}p로 변경됨';
+  }
+
+  @override
+  String get chartAiInsightTitle => 'AI 인사이트';
+
+  @override
+  String get chartAiInsightClearMemory => '기억 삭제';
+
+  @override
+  String get chartAiInsightClearMemoryTitle => 'AI 기억을 삭제하시겠습니까?';
+
+  @override
+  String get chartAiInsightClearMemoryMessage => '이전 분석이 삭제됩니다';
+
+  @override
+  String get chartAiInsightClearMemoryCancel => '취소';
+
+  @override
+  String get chartAiInsightClearMemoryConfirm => '삭제';
+
+  @override
+  String get chartAiInsightAnalyzing => '분석 중...';
+
+  @override
+  String get chartAiInsightUnknownError => '알 수 없는 오류 발생';
+
+  @override
+  String get chartAiInsightRetry => '다시 시도';
+
+  @override
+  String get chartAiInsightMinBooksRequired => '더 많은 책이 필요합니다';
+
+  @override
+  String chartAiInsightMinBooksMessage(int count) {
+    return 'AI 분석을 위해 최소 $count권을 완독해주세요';
+  }
+
+  @override
+  String get chartAiInsightMinBooksHint => '인사이트를 잠금 해제하려면 계속 읽어주세요';
+
+  @override
+  String get chartAiInsightSampleLabel => '샘플';
+
+  @override
+  String get chartAiInsightEmptyState => '인사이트 없음';
+
+  @override
+  String get chartAiInsightGenerateButton => '인사이트 생성';
+
+  @override
+  String get chartAiInsightAlreadyAnalyzed => '이미 분석됨';
+
+  @override
+  String chartAnnualGoalTitle(int year) {
+    return '$year년 독서 목표';
+  }
+
+  @override
+  String chartAnnualGoalAchieved(int count) {
+    return '$count권 완독!';
+  }
+
+  @override
+  String chartAnnualGoalRemaining(int count) {
+    return '$count권 남음';
+  }
+
+  @override
+  String get chartAnnualGoalAchievedMessage => '축하합니다! 목표를 달성했습니다!';
+
+  @override
+  String chartAnnualGoalAheadMessage(int diff) {
+    return '$diff권 앞서고 있습니다!';
+  }
+
+  @override
+  String get chartAnnualGoalMotivationMessage => '목표 달성을 위해 계속 읽어주세요!';
+
+  @override
+  String get chartAnnualGoalSetGoal => '목표 설정';
+
+  @override
+  String get chartAnnualGoalSetGoalMessage => '연간 독서 목표를 설정하세요';
+
+  @override
+  String get chartCompletionRateLabel => '완독률';
+
+  @override
+  String chartCompletionRateBooks(int count) {
+    return '$count권';
+  }
+
+  @override
+  String get chartAbandonRateLabel => '포기율';
+
+  @override
+  String chartAbandonRateBooks(int count) {
+    return '$count권';
+  }
+
+  @override
+  String get chartRetrySuccessRateLabel => '재도전 성공률';
+
+  @override
+  String get chartRetrySuccessRateBooks => '성공한 재도전';
+
+  @override
+  String get chartCompletionRateTitle => '완독률';
+
+  @override
+  String get chartCompletionRateSummaryStarted => '시작함';
+
+  @override
+  String get chartCompletionRateSummaryCompleted => '완료함';
+
+  @override
+  String get chartCompletionRateSummaryInProgress => '진행 중';
+
+  @override
+  String get chartCompletionRateSummaryAbandoned => '포기함';
+
+  @override
+  String get chartCompletionRateEmptyMessage => '완독 데이터 없음';
+
+  @override
+  String get chartCompletionRateEmptyHint => '책을 완독하면 통계를 확인할 수 있습니다';
+
+  @override
+  String get chartGenreAnalysisTitle => '장르 분석';
+
+  @override
+  String get chartGenreAnalysisTotalCompleted => '총 완독';
+
+  @override
+  String get chartGenreAnalysisDiversity => '장르 다양성';
+
+  @override
+  String get chartGenreAnalysisEmptyMessage => '장르 데이터 없음';
+
+  @override
+  String get chartGenreAnalysisEmptyHint => '책을 완독하면 분석을 확인할 수 있습니다';
+
+  @override
+  String get chartHighlightStatsTitle => '하이라이트 통계';
+
+  @override
+  String get chartHighlightStatsHighlights => '하이라이트';
+
+  @override
+  String get chartHighlightStatsMemos => '메모';
+
+  @override
+  String get chartHighlightStatsPhotos => '사진';
+
+  @override
+  String get chartHighlightStatsByGenre => '장르별';
+
+  @override
+  String get chartHighlightStatsEmptyMessage => '하이라이트 없음';
+
+  @override
+  String get chartHighlightStatsEmptyHint => '독서 중 하이라이트를 추가해보세요';
+
+  @override
+  String chartMonthlyBooksTitle(int year) {
+    return '$year년 월별 도서';
+  }
+
+  @override
+  String get chartMonthlyBooksThisMonth => '이번 달';
+
+  @override
+  String get chartMonthlyBooksLastMonth => '지난 달';
+
+  @override
+  String get chartMonthlyBooksChange => '변화';
+
+  @override
+  String chartMonthlyBooksTooltip(int month, int count) {
+    return '$month: $count권';
+  }
+
+  @override
+  String chartReadingStreakTitle(int year) {
+    return '$year년 독서 활동';
+  }
+
+  @override
+  String get chartReadingStreakDaysRead => '읽은 날';
+
+  @override
+  String get chartReadingStreakTotalPages => '총 페이지';
+
+  @override
+  String get chartReadingStreakDailyAverage => '일 평균';
+
+  @override
+  String chartReadingStreakTooltip(int month, int day, int pages) {
+    return '$month/$day: ${pages}p';
+  }
+
+  @override
+  String get chartReadingStreakMonthJan => '1월';
+
+  @override
+  String get chartReadingStreakMonthMar => '3월';
+
+  @override
+  String get chartReadingStreakMonthMay => '5월';
+
+  @override
+  String get chartReadingStreakMonthJul => '7월';
+
+  @override
+  String get chartReadingStreakMonthSep => '9월';
+
+  @override
+  String get chartReadingStreakMonthNov => '11월';
+
+  @override
+  String get chartReadingStreakLess => '적음';
+
+  @override
+  String get chartReadingStreakMore => '많음';
+
+  @override
+  String get chartErrorLoadFailed => '차트 로딩 실패';
+
+  @override
+  String get chartErrorRetry => '다시 시도';
+
+  @override
+  String get chartAiInsight => 'AI 인사이트';
+
+  @override
+  String get chartCompletionRate => '완독률';
+
+  @override
+  String get chartRecordsHighlights => '기록 & 하이라이트';
+
+  @override
+  String get chartGenreAnalysis => '장르 분석';
+
+  @override
+  String get chartReadingStats => '독서 통계';
+
+  @override
+  String get chartTotalPages => '총 페이지';
+
+  @override
+  String get chartDailyAvgPages => '일 평균';
+
+  @override
+  String get chartMaxDaily => '최대 일일';
+
+  @override
+  String get chartConsecutiveDays => '연속 일수';
+
+  @override
+  String get chartMinDaily => '최소 일일';
+
+  @override
+  String get chartTodayGoal => '오늘 목표';
+
+  @override
+  String get chartDailyPages => '일일 페이지';
+
+  @override
+  String get chartCumulativePages => '누적 페이지';
+
+  @override
+  String get chartDailyReadPages => '일별 읽은 페이지';
+
+  @override
+  String get chartReadingProgress => '독서 진행';
+
+  @override
+  String get chartNoData => '데이터 없음';
+
+  @override
+  String get chartNoReadingRecords => '독서 기록 없음';
+
+  @override
+  String get readingProgressTitle => '독서 진행';
+
+  @override
+  String get readingProgressLoadFailed => '진행 로딩 실패';
+
+  @override
+  String get readingProgressNoRecords => '진행 기록 없음';
+
+  @override
+  String readingGoalSheetTitle(int year) {
+    return '$year년 독서 목표';
+  }
+
+  @override
+  String get readingGoalSheetQuestion => '몇 권의 책을 읽고 싶으신가요?';
+
+  @override
+  String get readingGoalSheetRecommended => '추천';
+
+  @override
+  String get readingGoalSheetBooks => '권';
+
+  @override
+  String get readingGoalSheetCustom => '직접 입력';
+
+  @override
+  String get readingGoalSheetHint => '숫자 입력';
+
+  @override
+  String get readingGoalSheetCancel => '취소';
+
+  @override
+  String get readingGoalSheetUpdate => '업데이트';
+
+  @override
+  String get readingGoalSheetSet => '목표 설정';
+
+  @override
+  String readingGoalSheetBooksPerMonth(String books) {
+    return '월 $books권';
+  }
+
+  @override
+  String get readingGoalSheetMotivation1 => '좋은 시작이에요!';
+
+  @override
+  String get readingGoalSheetMotivation2 => '좋은 페이스!';
+
+  @override
+  String get readingGoalSheetMotivation3 => '야심찬 독서가!';
+
+  @override
+  String get readingGoalSheetMotivation4 => '도서 매니아!';
+
+  @override
+  String get readingGoalSheetMotivation5 => '독서 챔피언!';
+
+  @override
+  String get readingStartPriority => '우선순위';
+
+  @override
+  String get readingStartAiRecommendation => 'AI 추천';
+
+  @override
+  String readingStartAiRecommendationDesc(String userName) {
+    return '$userName님의 독서 패턴을 기반으로 추천하는 도서';
+  }
+
+  @override
+  String get readingStartConfirm => '확인';
+
+  @override
+  String readingStartPages(int pages) {
+    return '$pages페이지';
+  }
+
+  @override
+  String get readingStartPlannedDate => '시작 예정일';
+
+  @override
+  String get readingStartToday => '오늘';
+
+  @override
+  String get readingStartTargetDate => '목표일';
+
+  @override
+  String get readingStartTargetDateNote => '목표일은 나중에 변경할 수 있습니다';
+
+  @override
+  String get readingStartSaveError => '저장 실패';
+
+  @override
+  String get readingStartReserve => '예약';
+
+  @override
+  String get readingStartBegin => '시작';
+
+  @override
+  String get scheduleTargetDays => '목표 일수';
+
+  @override
+  String scheduleTargetDaysValue(int days) {
+    return '$days일';
+  }
+
+  @override
+  String get scheduleDailyGoal => '일일 목표';
+
+  @override
+  String get readingStatusLabel => '독서 상태';
+
+  @override
+  String get readingStatusPlanned => '읽을 예정';
+
+  @override
+  String get readingStatusStartNow => '지금 시작';
+
+  @override
+  String get recallSearchAllRecords => '전체 기록 검색';
+
+  @override
+  String get recallSearchingAllBooks => '모든 책에서 검색 중...';
+
+  @override
+  String get recallSearchAllReadingRecords => '모든 독서 기록 검색';
+
+  @override
+  String get recallAiFindsScatteredRecords => 'AI가 여러 책에서 흩어진 기록을 찾습니다';
+
+  @override
+  String get recallAiAnswer => 'AI 답변';
+
+  @override
+  String get recallReferencedRecords => '참조된 기록';
+
+  @override
+  String recallMoreBooks(int count) {
+    return '$count권 더 보기';
+  }
+
+  @override
+  String recallRecordCount(int count) {
+    return '$count개 기록';
+  }
+
+  @override
+  String get recallSearchMyRecords => '내 기록 검색';
+
+  @override
+  String get recallSearchingYourRecords => '기록 검색 중...';
+
+  @override
+  String get recallSuggestedQuestion1 => '핵심 내용은 무엇이었나요?';
+
+  @override
+  String get recallSuggestedQuestion2 => '습관에 대해 뭐라고 했나요?';
+
+  @override
+  String get recallSuggestedQuestion3 => '인상적인 문구가 있나요?';
+
+  @override
+  String get recallSuggestedQuestion4 => '가장 영감을 준 것은?';
+
+  @override
+  String get recallSearchCurious => '궁금한 내용을 검색해보세요';
+
+  @override
+  String get recallFindInRecords => '하이라이트, 메모, 사진에서 찾기';
+
+  @override
+  String get recallCopy => '복사';
 }

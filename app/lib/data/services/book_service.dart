@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/utils/subscription_utils.dart';
+import 'package:book_golas/exceptions/subscription_exceptions.dart';
 
 class BookService {
   static final BookService _instance = BookService._internal();
@@ -40,6 +42,13 @@ class BookService {
   }
 
   Future<Book?> addBook(Book book) async {
+    // Check concurrent reading limit for free users
+    if (!await SubscriptionUtils.canAddMoreConcurrentBooks(_books.length)) {
+      throw ConcurrentReadingLimitException(
+        '동시 읽기 제한에 도달했습니다. Pro 업그레이드로 무제한 이용하세요.',
+      );
+    }
+
     try {
       final bookData = book.toJson();
       bookData.remove('id');
@@ -59,6 +68,13 @@ class BookService {
   }
 
   Future<Book?> addBookWithUserId(Map<String, dynamic> bookData) async {
+    // Check concurrent reading limit for free users
+    if (!await SubscriptionUtils.canAddMoreConcurrentBooks(_books.length)) {
+      throw ConcurrentReadingLimitException(
+        '동시 읽기 제한에 도달했습니다. Pro 업그레이드로 무제한 이용하세요.',
+      );
+    }
+
     try {
       bookData.remove('id');
       bookData['created_at'] = DateTime.now().toIso8601String();

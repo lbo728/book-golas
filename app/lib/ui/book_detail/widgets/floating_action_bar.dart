@@ -5,19 +5,24 @@ import 'package:flutter/material.dart';
 
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/core/widgets/timer_button.dart';
 
 class FloatingActionBar extends StatelessWidget {
   final VoidCallback? onUpdatePageTap;
   final VoidCallback onAddMemorablePageTap;
   final VoidCallback? onRecallSearchTap;
+  final VoidCallback? onTimerTap;
   final bool isReadingMode;
+  final bool isTimerRunning;
 
   const FloatingActionBar({
     super.key,
     this.onUpdatePageTap,
     required this.onAddMemorablePageTap,
     this.onRecallSearchTap,
+    this.onTimerTap,
     this.isReadingMode = true,
+    this.isTimerRunning = false,
   });
 
   @override
@@ -37,6 +42,10 @@ class FloatingActionBar extends StatelessWidget {
   Widget _buildReadingModeLayout(bool isDark) {
     return Row(
       children: [
+        if (onTimerTap != null) ...[
+          _buildTimerButtonCircle(isDark),
+          const SizedBox(width: 12),
+        ],
         if (onRecallSearchTap != null) ...[
           _buildRecallSearchButtonCircle(isDark),
           const SizedBox(width: 12),
@@ -61,6 +70,13 @@ class FloatingActionBar extends StatelessWidget {
         const SizedBox(width: 12),
         _buildAddButton(isDark),
       ],
+    );
+  }
+
+  Widget _buildTimerButtonCircle(bool isDark) {
+    return TimerButton(
+      onTap: onTimerTap,
+      isRunning: isTimerRunning,
     );
   }
 
