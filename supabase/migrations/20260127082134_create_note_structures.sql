@@ -21,9 +21,12 @@ ON note_structures(user_id, book_id);
 ALTER TABLE note_structures ENABLE ROW LEVEL SECURITY;
 
 -- 4. RLS 정책: 사용자는 자신의 구조만 관리 가능
-CREATE POLICY "Users can manage own structures"
-  ON note_structures FOR ALL
-  USING (auth.uid() = user_id);
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'note_structures' AND policyname = 'Users can manage own structures') THEN
+    CREATE POLICY "Users can manage own structures" ON note_structures FOR ALL USING (auth.uid() = user_id);
+  END IF;
+END $$;
 
 -- 5. 코멘트 추가
 COMMENT ON TABLE note_structures IS '마인드맵 구조 저장 (노드, 연결, 클러스터)';
