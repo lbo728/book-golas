@@ -283,7 +283,7 @@ class MyApp extends StatelessWidget {
       child: Consumer2<ThemeViewModel, LocaleViewModel>(
         builder: (context, themeViewModel, localeViewModel, child) {
           return MaterialApp(
-            title: 'LitGoal',
+            title: 'Bookgolas',
             debugShowCheckedModeBanner: false,
             themeMode: themeViewModel.themeMode,
             theme: AppTheme.light,

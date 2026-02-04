@@ -137,7 +137,7 @@ jobs:
       - name: Build Flutter iOS
         run: |
           cd app
-          flutter build ios --release --no-codesign --build-number=${{ github.run_number }}
+          flutter build ios --flavor prod -t lib/main_prod.dart --release --no-codesign --build-number=${{ github.run_number }}
 
       - name: Build and Upload to App Store
         env:
