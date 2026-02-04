@@ -8,9 +8,9 @@ import 'package:provider/provider.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
-import 'package:book_golas/ui/book_detail/widgets/dialogs/update_page_dialog.dart';
 import 'package:book_golas/ui/core/theme/app_colors.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
+import 'package:book_golas/ui/core/widgets/page_update_modal.dart';
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/domain/models/book.dart';
 
@@ -297,38 +297,26 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
 
     if (book == null || !mounted) return;
 
-    await UpdatePageDialog.show(
+    await PageUpdateModal.show(
       context: context,
       currentPage: book.currentPage,
       totalPages: book.totalPages,
       readingDuration: duration,
       onUpdate: (newPage) async {
-        try {
-          await bookService.updateCurrentPage(bookId, newPage);
+        await bookService.updateCurrentPage(bookId, newPage);
 
-          if (mounted) {
-            if (!isInBookDetailScreen) {
-              await _navigateToBookDetail(bookId);
-            }
-
-            if (mounted) {
-              CustomSnackbar.show(
-                context,
-                message: l10n.pageUpdateSuccess(newPage),
-                type: SnackbarType.success,
-                rootOverlay: true,
-                bottomOffset: 100,
-              );
-            }
+        if (mounted) {
+          if (!isInBookDetailScreen) {
+            await _navigateToBookDetail(bookId);
           }
-        } catch (e) {
+
           if (mounted) {
             CustomSnackbar.show(
               context,
-              message: l10n.pageUpdateFailed,
-              type: SnackbarType.error,
+              message: l10n.pageUpdateSuccess(newPage),
+              type: SnackbarType.success,
               rootOverlay: true,
-              bottomOffset: isInBookDetailScreen ? 100 : 32,
+              bottomOffset: 100,
             );
           }
         }
