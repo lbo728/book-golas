@@ -15,6 +15,8 @@ import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_tab_bar.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/book_list/widgets/book_list_card.dart';
+import 'package:book_golas/ui/my_library/widgets/my_library_book_skeleton.dart';
+import 'package:book_golas/ui/my_library/widgets/my_library_record_skeleton.dart';
 import 'package:book_golas/ui/my_library/widgets/record_list_item.dart';
 import 'package:book_golas/ui/recall/widgets/global_recall_search_sheet.dart';
 import 'package:book_golas/ui/recall/widgets/record_detail_sheet.dart';
@@ -365,8 +367,8 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
         Expanded(
           child: Consumer<MyLibraryViewModel>(
             builder: (context, vm, _) {
-              if (vm.isLoading) {
-                return const Center(child: CircularProgressIndicator());
+              if (vm.isLoading && vm.books.isEmpty) {
+                return const MyLibraryBookSkeleton();
               }
 
               final books = vm.filteredBooks;
@@ -409,8 +411,8 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
         Expanded(
           child: Consumer<MyLibraryViewModel>(
             builder: (context, vm, _) {
-              if (vm.isLoading) {
-                return const Center(child: CircularProgressIndicator());
+              if (vm.isLoading && vm.books.isEmpty) {
+                return const MyLibraryBookSkeleton();
               }
 
               final books = vm.booksWithReview;
@@ -449,8 +451,8 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
         Expanded(
           child: Consumer<MyLibraryViewModel>(
             builder: (context, vm, _) {
-              if (vm.isLoadingRecords) {
-                return const Center(child: CircularProgressIndicator());
+              if (vm.isLoadingRecords && vm.groupedRecords.isEmpty) {
+                return const MyLibraryRecordSkeleton();
               }
 
               final groups = vm.groupedRecords;
