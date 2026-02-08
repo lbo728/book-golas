@@ -50,6 +50,7 @@ import 'ui/book_detail/view_model/note_structure_view_model.dart';
 import 'ui/my_library/view_model/my_library_view_model.dart';
 import 'ui/my_library/widgets/my_library_screen.dart';
 import 'ui/reading_chart/view_model/reading_insights_view_model.dart';
+import 'ui/reading_chart/view_model/reading_chart_view_model.dart';
 import 'ui/my_library/view_model/my_library_view_model.dart';
 import 'ui/book_detail/view_model/reading_timer_view_model.dart';
 import 'ui/core/widgets/floating_timer_bar.dart';
@@ -277,6 +278,7 @@ class MyApp extends StatelessWidget {
             userId: Supabase.instance.client.auth.currentUser!.id,
           ),
         ),
+        ChangeNotifierProvider(create: (_) => ReadingChartViewModel()),
         ChangeNotifierProvider(create: (_) => MyLibraryViewModel()),
         ChangeNotifierProvider<SubscriptionViewModel>(
           create: (context) =>
