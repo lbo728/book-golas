@@ -1,24 +1,26 @@
-import 'dart:async';
-import 'package:flutter/material.dart';
-import 'package:book_golas/l10n/app_localizations.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:collection';
-import 'package:book_golas/data/services/reading_progress_service.dart';
-import 'package:book_golas/data/services/reading_goal_service.dart';
-import 'package:book_golas/data/services/book_service.dart';
-import 'package:book_golas/ui/reading_chart/widgets/cards/genre_analysis_card.dart';
-import 'package:book_golas/ui/reading_chart/widgets/cards/monthly_books_chart.dart';
-import 'package:book_golas/ui/reading_chart/widgets/cards/annual_goal_card.dart';
-import 'package:book_golas/ui/reading_chart/widgets/cards/reading_streak_heatmap.dart';
-import 'package:book_golas/ui/reading_chart/widgets/sheets/reading_goal_sheet.dart';
-import 'package:book_golas/ui/core/widgets/liquid_glass_tab_bar.dart';
-import 'package:book_golas/ui/core/theme/design_system.dart';
-import 'package:book_golas/ui/reading_chart/widgets/cards/ai_insight_card.dart';
-import 'package:book_golas/ui/reading_chart/widgets/cards/completion_rate_card.dart';
-import 'package:book_golas/ui/reading_chart/widgets/cards/highlight_stats_card.dart';
-import 'package:book_golas/ui/reading_chart/view_model/reading_insights_view_model.dart';
+
+import 'package:flutter/material.dart';
+
+import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
+
+import 'package:book_golas/data/services/reading_goal_service.dart';
+import 'package:book_golas/data/services/reading_progress_service.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_tab_bar.dart';
+import 'package:book_golas/ui/reading_chart/view_model/reading_chart_view_model.dart';
+import 'package:book_golas/ui/reading_chart/view_model/reading_insights_view_model.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/ai_insight_card.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/annual_goal_card.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/completion_rate_card.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/genre_analysis_card.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/highlight_stats_card.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/monthly_books_chart.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/reading_streak_heatmap.dart';
+import 'package:book_golas/ui/reading_chart/widgets/reading_chart_skeleton.dart';
+import 'package:book_golas/ui/reading_chart/widgets/sheets/reading_goal_sheet.dart';
 
 enum TimeFilter { daily, weekly, monthly }
 
@@ -41,30 +43,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   late TabController _tabController;
   TimeFilter _selectedFilter = TimeFilter.daily;
   final ReadingProgressService _progressService = ReadingProgressService();
-  final ReadingGoalService _goalService = ReadingGoalService();
-  final BookService _bookService = BookService();
-
-  List<Map<String, dynamic>>? _cachedRawData;
-  bool _isLoading = true;
-  String? _errorMessage;
-
-  Map<String, int> _genreDistribution = {};
-  Map<int, int> _monthlyBookCount = {};
-  Map<String, dynamic> _goalProgress = {};
-  Map<DateTime, int> _heatmapData = {};
-
-  int _totalStarted = 0;
-  int _completedBooks = 0;
-  int _abandonedBooks = 0;
-  int _inProgressBooks = 0;
-  double _completionRate = 0.0;
-  double _abandonRate = 0.0;
-  double _retrySuccessRate = 0.0;
-
-  int _totalHighlights = 0;
-  int _totalNotes = 0;
-  int _totalPhotos = 0;
-  Map<String, int> _highlightGenreDistribution = {};
 
   int _selectedSectionIndex = 0;
   bool _isScrollingByTap = false;
@@ -77,7 +55,9 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _loadData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ReadingChartViewModel>().loadData();
+    });
   }
 
   @override
@@ -91,135 +71,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   void cycleToNextTab() {
     final nextIndex = (_tabController.index + 1) % 3;
     _tabController.animateTo(nextIndex);
-  }
-
-  Future<void> _loadData() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      final currentYear = DateTime.now().year;
-      final results = await Future.wait([
-        fetchUserProgressHistory(),
-        _progressService.getGenreDistribution(year: currentYear),
-        _progressService.getMonthlyBookCount(year: currentYear),
-        _goalService.getYearlyProgress(year: currentYear),
-        _progressService.getDailyReadingHeatmap(weeksToShow: 26),
-        _calculateCompletionStats(),
-        _calculateHighlightStats(),
-      ]);
-
-      if (mounted) {
-        setState(() {
-          _cachedRawData = results[0] as List<Map<String, dynamic>>;
-          _genreDistribution = results[1] as Map<String, int>;
-          _monthlyBookCount = results[2] as Map<int, int>;
-          _goalProgress = results[3] as Map<String, dynamic>;
-          _heatmapData = results[4] as Map<DateTime, int>;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessage = e.toString();
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _calculateCompletionStats() async {
-    final books = await _bookService.fetchBooks();
-
-    final startedBooks = books.where((b) => b.status != 'planned').toList();
-    final completed = books.where((b) => b.status == 'completed').length;
-    final reading = books.where((b) => b.status == 'reading').length;
-    final willRetry = books.where((b) => b.status == 'will_retry').length;
-
-    final totalStarted = startedBooks.length;
-
-    _totalStarted = totalStarted;
-    _completedBooks = completed;
-    _abandonedBooks = willRetry;
-    _inProgressBooks = reading;
-    _completionRate = totalStarted > 0 ? (completed / totalStarted * 100) : 0.0;
-    _abandonRate = totalStarted > 0 ? (willRetry / totalStarted * 100) : 0.0;
-
-    final retriedBooks = books
-        .where((b) => b.status == 'completed' && b.attemptCount > 1)
-        .length;
-    _retrySuccessRate = willRetry > 0 ? (retriedBooks / willRetry * 100) : 0.0;
-  }
-
-  Future<void> _calculateHighlightStats() async {
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) return;
-
-    final response = await Supabase.instance.client
-        .from('book_images')
-        .select('id, extracted_text, highlights, book_id')
-        .eq('user_id', user.id);
-
-    final images = response as List<Map<String, dynamic>>;
-
-    _totalPhotos = images.length;
-
-    int highlightCount = 0;
-    int noteCount = 0;
-    final Map<String, int> genreCount = {};
-
-    for (final image in images) {
-      final highlights = image['highlights'] as List?;
-      if (highlights != null && highlights.isNotEmpty) {
-        highlightCount += highlights.length;
-      }
-
-      final extractedText = image['extracted_text'] as String?;
-      if (extractedText != null && extractedText.trim().isNotEmpty) {
-        noteCount++;
-      }
-    }
-
-    final books = await _bookService.fetchBooks();
-    final bookGenreMap = {for (var b in books) b.id: b.genre};
-
-    for (final image in images) {
-      final bookId = image['book_id'] as String?;
-      if (bookId != null) {
-        final genre = bookGenreMap[bookId];
-        if (genre != null && genre.isNotEmpty) {
-          genreCount[genre] = (genreCount[genre] ?? 0) + 1;
-        }
-      }
-    }
-
-    _totalHighlights = highlightCount;
-    _totalNotes = noteCount;
-    _highlightGenreDistribution = genreCount;
-  }
-
-  Future<List<Map<String, dynamic>>> fetchUserProgressHistory() async {
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) return [];
-
-    final response = await Supabase.instance.client
-        .from('reading_progress_history')
-        .select('page, book_id, created_at')
-        .eq('user_id', user.id)
-        .order('created_at', ascending: true);
-
-    return (response as List)
-        .map(
-          (e) => {
-            'page': e['page'] as int,
-            'book_id': e['book_id'] as String?,
-            'created_at': DateTime.parse(e['created_at'] as String),
-          },
-        )
-        .toList();
   }
 
   List<Map<String, dynamic>> aggregateByDate(
@@ -349,21 +200,21 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
-  Future<double> _calculateGoalRate() async {
-    return await _progressService.calculateGoalAchievementRate();
-  }
-
   void _showGoalSheet(BuildContext context) async {
+    final vm = context.read<ReadingChartViewModel>();
     final currentYear = DateTime.now().year;
     final result = await ReadingGoalSheet.show(
       context: context,
       year: currentYear,
-      currentGoal: _goalProgress['targetBooks'] as int?,
+      currentGoal: vm.goalProgress['targetBooks'] as int?,
     );
 
     if (result != null && mounted) {
-      await _goalService.setYearlyGoal(year: currentYear, targetBooks: result);
-      _loadData();
+      await ReadingGoalService().setYearlyGoal(
+        year: currentYear,
+        targetBooks: result,
+      );
+      context.read<ReadingChartViewModel>().forceRefresh();
     }
   }
 
@@ -508,6 +359,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    context.watch<ReadingChartViewModel>();
 
     return Scaffold(
       backgroundColor:
@@ -532,21 +384,20 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
           ],
         ),
       ),
-      body: SafeArea(child: _buildContent(isDark)),
+      body: SafeArea(
+        child: Consumer<ReadingChartViewModel>(
+          builder: (context, vm, _) => _buildContent(isDark, vm),
+        ),
+      ),
     );
   }
 
-  Widget _buildContent(bool isDark) {
-    if (_isLoading) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32.0),
-          child: CircularProgressIndicator(),
-        ),
-      );
+  Widget _buildContent(bool isDark, ReadingChartViewModel vm) {
+    if (vm.isLoading && !vm.hasData) {
+      return const ReadingChartSkeleton();
     }
 
-    if (_errorMessage != null) {
+    if (vm.errorMessage != null) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
@@ -561,7 +412,8 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                  onPressed: _loadData,
+                  onPressed: () =>
+                      context.read<ReadingChartViewModel>().loadData(),
                   child: Text(AppLocalizations.of(context)!.chartErrorRetry)),
             ],
           ),
@@ -569,7 +421,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
       );
     }
 
-    final rawData = _cachedRawData ?? [];
+    final rawData = vm.cachedRawData ?? [];
     final aggregated = aggregateByDate(rawData, _selectedFilter);
     final stats = calculateStatistics(aggregated);
     final streak = _calculateStreak(aggregated);
@@ -578,20 +430,21 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     return TabBarView(
       controller: _tabController,
       children: [
-        _buildOverviewTab(isDark, stats, streak, currentYear),
-        _buildAnalysisTab(isDark, currentYear, stats, streak),
-        _buildActivityTab(isDark, aggregated, streak, currentYear),
+        _buildOverviewTab(isDark, vm, stats, streak, currentYear),
+        _buildAnalysisTab(isDark, vm, currentYear, stats, streak),
+        _buildActivityTab(isDark, vm, aggregated, streak, currentYear),
       ],
     );
   }
 
   Widget _buildOverviewTab(
     bool isDark,
+    ReadingChartViewModel vm,
     Map<String, dynamic> stats,
     int streak,
     int currentYear,
   ) {
-    final monthlyDataForChart = _monthlyBookCount.map(
+    final monthlyDataForChart = vm.monthlyBookCount.map(
       (month, count) =>
           MapEntry('$currentYear-${month.toString().padLeft(2, '0')}', count),
     );
@@ -602,8 +455,8 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AnnualGoalCard(
-            targetBooks: _goalProgress['targetBooks'] as int? ?? 0,
-            completedBooks: _goalProgress['completedBooks'] as int? ?? 0,
+            targetBooks: vm.goalProgress['targetBooks'] as int? ?? 0,
+            completedBooks: vm.goalProgress['completedBooks'] as int? ?? 0,
             year: currentYear,
             onSetGoal: () => _showGoalSheet(context),
           ),
@@ -619,13 +472,14 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
 
   Widget _buildAnalysisTab(
     bool isDark,
+    ReadingChartViewModel vm,
     int currentYear,
     Map<String, dynamic> stats,
     int streak,
   ) {
     final l10n = AppLocalizations.of(context)!;
     final genreMessage = _progressService.getTopGenreMessage(
-      _genreDistribution,
+      vm.genreDistribution,
       l10n,
     );
     final sections = [
@@ -683,34 +537,32 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                   Container(
                     key: _sectionKeys[1],
                     child: CompletionRateCard(
-                      totalStarted: _totalStarted,
-                      completed: _completedBooks,
-                      abandoned: _abandonedBooks,
-                      inProgress: _inProgressBooks,
-                      completionRate: _completionRate,
-                      abandonRate: _abandonRate,
-                      retrySuccessRate: _retrySuccessRate,
+                      totalStarted: vm.totalStarted,
+                      completed: vm.completedBooks,
+                      abandoned: vm.abandonedBooks,
+                      inProgress: vm.inProgressBooks,
+                      completionRate: vm.completionRate,
+                      abandonRate: vm.abandonRate,
+                      retrySuccessRate: vm.retrySuccessRate,
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  // Highlight Stats Card
                   Container(
                     key: _sectionKeys[2],
                     child: HighlightStatsCard(
-                      totalHighlights: _totalHighlights,
-                      totalNotes: _totalNotes,
-                      totalPhotos: _totalPhotos,
-                      genreDistribution: _highlightGenreDistribution,
+                      totalHighlights: vm.totalHighlights,
+                      totalNotes: vm.totalNotes,
+                      totalPhotos: vm.totalPhotos,
+                      genreDistribution: vm.highlightGenreDistribution,
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  // Genre Analysis Card
                   Container(
                     key: _sectionKeys[3],
                     child: GenreAnalysisCard(
-                      genreDistribution: _genreDistribution,
+                      genreDistribution: vm.genreDistribution,
                       topGenreMessage: genreMessage,
                     ),
                   ),
@@ -773,18 +625,12 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                               AppColors.info,
                               isDark,
                             ),
-                            FutureBuilder<double>(
-                              future: _calculateGoalRate(),
-                              builder: (context, snapshot) {
-                                final goalRate = snapshot.data ?? 0.0;
-                                return _buildStatCard(
-                                  AppLocalizations.of(context)!.chartTodayGoal,
-                                  '${(goalRate * 100).toStringAsFixed(0)}%',
-                                  Icons.flag_rounded,
-                                  AppColors.info,
-                                  isDark,
-                                );
-                              },
+                            _buildStatCard(
+                              AppLocalizations.of(context)!.chartTodayGoal,
+                              '${(vm.goalRate * 100).toStringAsFixed(0)}%',
+                              Icons.flag_rounded,
+                              AppColors.info,
+                              isDark,
                             ),
                           ],
                         ),
@@ -802,6 +648,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
 
   Widget _buildActivityTab(
     bool isDark,
+    ReadingChartViewModel vm,
     List<Map<String, dynamic>> aggregated,
     int streak,
     int currentYear,
@@ -812,7 +659,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ReadingStreakHeatmap(
-            dailyPages: _heatmapData,
+            dailyPages: vm.heatmapData,
             year: currentYear,
             currentStreak: streak,
           ),
