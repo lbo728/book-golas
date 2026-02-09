@@ -1,8 +1,11 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
@@ -152,11 +155,30 @@ class _LoginScreenState extends State<LoginScreen> {
 
         case AuthMode.signUp:
           final nickname = _nicknameController.text.trim();
-          await supabase.auth.signUp(
+          final authViewModel = context.read<AuthViewModel>();
+          final error = await authViewModel.signUpWithEmail(
             email: email,
             password: password,
-            data: {'nickname': nickname},
+            name: nickname,
           );
+          if (error != null) {
+            if (mounted) {
+              final l10n = AppLocalizations.of(context)!;
+              String errorMessage;
+              if (error == 'EXISTING_EMAIL') {
+                errorMessage = l10n.loginSignupExistingEmail;
+              } else {
+                errorMessage = _getAuthErrorMessage(error, l10n);
+              }
+              CustomSnackbar.show(
+                context,
+                message: errorMessage,
+                type: SnackbarType.error,
+                bottomOffset: 32,
+              );
+            }
+            return;
+          }
           if (mounted) {
             final l10n = AppLocalizations.of(context)!;
             CustomSnackbar.show(

@@ -40,7 +40,7 @@ class AuthService {
         await _supabase.from('users').insert({
           'id': userId,
           'email': email,
-          'name': name,
+          'nickname': name,
           'created_at': DateTime.now().toUtc().toIso8601String(),
         });
       }
