@@ -57,20 +57,29 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
 
     final hasIsbn = widget.book.isbn != null && widget.book.isbn!.isNotEmpty;
 
+    debugPrint(
+        '📚 [BookInfo] 시작: title="${widget.book.title}", isbn=${widget.book.isbn}, hasIsbn=$hasIsbn');
+
     try {
       BookDetailInfo? detail;
 
       if (hasIsbn) {
+        debugPrint('📚 [BookInfo] Step1: 네이버 ISBN 검색 (${widget.book.isbn})');
         final naverDesc =
             await NaverBooksApiService.fetchDescription(widget.book.isbn!);
+        debugPrint(
+            '📚 [BookInfo] Step1 결과: ${naverDesc != null ? "${naverDesc.length}자" : "null"}');
         if (naverDesc != null && naverDesc.isNotEmpty) {
           detail = BookDetailInfo.fromLocal(widget.book)
               .copyWith(description: naverDesc);
         }
 
         if (detail?.description == null || detail!.description!.isEmpty) {
+          debugPrint('📚 [BookInfo] Step2: 알라딘 ISBN 검색 (${widget.book.isbn})');
           final aladinDesc =
               await AladinApiService.fetchDescription(widget.book.isbn!);
+          debugPrint(
+              '📚 [BookInfo] Step2 결과: ${aladinDesc != null ? "${aladinDesc.length}자" : "null"}');
           if (aladinDesc != null && aladinDesc.isNotEmpty) {
             detail = BookDetailInfo.fromLocal(widget.book)
                 .copyWith(description: aladinDesc);
@@ -80,16 +89,23 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
         if (detail == null ||
             detail.description == null ||
             detail.description!.isEmpty) {
+          debugPrint(
+              '📚 [BookInfo] Step3: Google Books ISBN 검색 (${widget.book.isbn})');
           detail =
               await GoogleBooksApiService.fetchBookDetail(widget.book.isbn!);
+          debugPrint(
+              '📚 [BookInfo] Step3 결과: ${detail?.description != null ? "${detail!.description!.length}자" : "null"}');
         }
       }
 
       if (detail == null ||
           detail.description == null ||
           detail.description!.isEmpty) {
+        debugPrint('📚 [BookInfo] Step4: 네이버 제목 검색 ("${widget.book.title}")');
         final titleDesc = await NaverBooksApiService.fetchDescriptionByTitle(
             widget.book.title, widget.book.author);
+        debugPrint(
+            '📚 [BookInfo] Step4 결과: ${titleDesc != null ? "${titleDesc.length}자" : "null"}');
         if (titleDesc != null && titleDesc.isNotEmpty) {
           detail = (detail ?? BookDetailInfo.fromLocal(widget.book))
               .copyWith(description: titleDesc);
@@ -98,6 +114,9 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
 
       detail ??= BookDetailInfo.fromLocal(widget.book);
 
+      debugPrint(
+          '📚 [BookInfo] 최종: description=${detail.description != null ? "${detail.description!.length}자" : "null"}');
+
       if (mounted) {
         setState(() {
           _bookDetailInfo = detail;
@@ -105,7 +124,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
         });
       }
     } catch (e) {
-      debugPrint('Error loading book detail: $e');
+      debugPrint('📚 [BookInfo] ERROR: $e');
       if (mounted) {
         setState(() {
           _bookDetailInfo = BookDetailInfo.fromLocal(widget.book);
