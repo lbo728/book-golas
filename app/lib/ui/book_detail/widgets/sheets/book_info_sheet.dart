@@ -58,31 +58,38 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
     final hasIsbn = widget.book.isbn != null && widget.book.isbn!.isNotEmpty;
 
     debugPrint(
-        '📚 [BookInfo] 시작: title="${widget.book.title}", isbn=${widget.book.isbn}, hasIsbn=$hasIsbn');
+      '📚 [BookInfo] 시작: title="${widget.book.title}", isbn=${widget.book.isbn}, hasIsbn=$hasIsbn',
+    );
 
     try {
       BookDetailInfo? detail;
 
       if (hasIsbn) {
         debugPrint('📚 [BookInfo] Step1: 네이버 ISBN 검색 (${widget.book.isbn})');
-        final naverDesc =
-            await NaverBooksApiService.fetchDescription(widget.book.isbn!);
+        final naverDesc = await NaverBooksApiService.fetchDescription(
+          widget.book.isbn!,
+        );
         debugPrint(
-            '📚 [BookInfo] Step1 결과: ${naverDesc != null ? "${naverDesc.length}자" : "null"}');
+          '📚 [BookInfo] Step1 결과: ${naverDesc != null ? "${naverDesc.length}자" : "null"}',
+        );
         if (naverDesc != null && naverDesc.isNotEmpty) {
-          detail = BookDetailInfo.fromLocal(widget.book)
-              .copyWith(description: naverDesc);
+          detail = BookDetailInfo.fromLocal(
+            widget.book,
+          ).copyWith(description: naverDesc);
         }
 
         if (detail?.description == null || detail!.description!.isEmpty) {
           debugPrint('📚 [BookInfo] Step2: 알라딘 ISBN 검색 (${widget.book.isbn})');
-          final aladinDesc =
-              await AladinApiService.fetchDescription(widget.book.isbn!);
+          final aladinDesc = await AladinApiService.fetchDescription(
+            widget.book.isbn!,
+          );
           debugPrint(
-              '📚 [BookInfo] Step2 결과: ${aladinDesc != null ? "${aladinDesc.length}자" : "null"}');
+            '📚 [BookInfo] Step2 결과: ${aladinDesc != null ? "${aladinDesc.length}자" : "null"}',
+          );
           if (aladinDesc != null && aladinDesc.isNotEmpty) {
-            detail = BookDetailInfo.fromLocal(widget.book)
-                .copyWith(description: aladinDesc);
+            detail = BookDetailInfo.fromLocal(
+              widget.book,
+            ).copyWith(description: aladinDesc);
           }
         }
 
@@ -90,11 +97,14 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
             detail.description == null ||
             detail.description!.isEmpty) {
           debugPrint(
-              '📚 [BookInfo] Step3: Google Books ISBN 검색 (${widget.book.isbn})');
-          detail =
-              await GoogleBooksApiService.fetchBookDetail(widget.book.isbn!);
+            '📚 [BookInfo] Step3: Google Books ISBN 검색 (${widget.book.isbn})',
+          );
+          detail = await GoogleBooksApiService.fetchBookDetail(
+            widget.book.isbn!,
+          );
           debugPrint(
-              '📚 [BookInfo] Step3 결과: ${detail?.description != null ? "${detail!.description!.length}자" : "null"}');
+            '📚 [BookInfo] Step3 결과: ${detail?.description != null ? "${detail!.description!.length}자" : "null"}',
+          );
         }
       }
 
@@ -103,19 +113,41 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
           detail.description!.isEmpty) {
         debugPrint('📚 [BookInfo] Step4: 네이버 제목 검색 ("${widget.book.title}")');
         final titleDesc = await NaverBooksApiService.fetchDescriptionByTitle(
-            widget.book.title, widget.book.author);
+          widget.book.title,
+          widget.book.author,
+        );
         debugPrint(
-            '📚 [BookInfo] Step4 결과: ${titleDesc != null ? "${titleDesc.length}자" : "null"}');
+          '📚 [BookInfo] Step4 결과: ${titleDesc != null ? "${titleDesc.length}자" : "null"}',
+        );
         if (titleDesc != null && titleDesc.isNotEmpty) {
-          detail = (detail ?? BookDetailInfo.fromLocal(widget.book))
-              .copyWith(description: titleDesc);
+          detail = (detail ?? BookDetailInfo.fromLocal(widget.book)).copyWith(
+            description: titleDesc,
+          );
+        }
+      }
+
+      if (detail == null ||
+          detail.description == null ||
+          detail.description!.isEmpty) {
+        debugPrint('📚 [BookInfo] Step5: 알라딘 제목 검색 ("${widget.book.title}")');
+        final aladinTitleDesc = await AladinApiService.fetchDescriptionByTitle(
+          widget.book.title,
+        );
+        debugPrint(
+          '📚 [BookInfo] Step5 결과: ${aladinTitleDesc != null ? "${aladinTitleDesc.length}자" : "null"}',
+        );
+        if (aladinTitleDesc != null && aladinTitleDesc.isNotEmpty) {
+          detail = (detail ?? BookDetailInfo.fromLocal(widget.book)).copyWith(
+            description: aladinTitleDesc,
+          );
         }
       }
 
       detail ??= BookDetailInfo.fromLocal(widget.book);
 
       debugPrint(
-          '📚 [BookInfo] 최종: description=${detail.description != null ? "${detail.description!.length}자" : "null"}');
+        '📚 [BookInfo] 최종: description=${detail.description != null ? "${detail.description!.length}자" : "null"}',
+      );
 
       if (mounted) {
         setState(() {
@@ -330,7 +362,8 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
             const SizedBox(height: 8),
             GestureDetector(
               onTap: () => setState(
-                  () => _isDescriptionExpanded = !_isDescriptionExpanded),
+                () => _isDescriptionExpanded = !_isDescriptionExpanded,
+              ),
               child: Text(
                 _isDescriptionExpanded ? '접기' : '더보기',
                 style: const TextStyle(
@@ -437,17 +470,9 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
             detail?.categories?.join(', ') ?? book.genre ?? '-',
           ),
           if (detail?.publishedDate != null)
-            _buildInfoRow(
-              isDark,
-              '출판일',
-              detail!.publishedDate!,
-            ),
+            _buildInfoRow(isDark, '출판일', detail!.publishedDate!),
           if (detail?.language != null)
-            _buildInfoRow(
-              isDark,
-              '언어',
-              detail!.language!.toUpperCase(),
-            ),
+            _buildInfoRow(isDark, '언어', detail!.language!.toUpperCase()),
         ],
       ),
     );
