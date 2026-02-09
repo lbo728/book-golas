@@ -1369,6 +1369,18 @@
              "loginResendVerificationCooldown": "Please try again in a moment.",
              "@loginResendVerificationCooldown": {"description": "Resend verification email cooldown message"},
 
-             "loginSignupExistingEmail": "This email is already registered. Please try logging in.",
-             "@loginSignupExistingEmail": {"description": "Signup with existing email error message"}
+              "loginSignupExistingEmail": "This email is already registered. Please try logging in.",
+              "@loginSignupExistingEmail": {"description": "Signup with existing email error message"},
+
+              "bookInfoViewButton": "View Book Info",
+              "bookInfoSheetTitle": "Book Details",
+              "bookInfoTabDescription": "Synopsis",
+              "bookInfoTabDetail": "Details",
+              "bookInfoNoDescription": "No synopsis available",
+              "bookInfoNoIsbn": "Cannot load details without ISBN",
+              "bookInfoPublisher": "Publisher",
+              "bookInfoIsbn": "ISBN",
+              "bookInfoPageCount": "Pages",
+              "bookInfoGenre": "Genre",
+              "bookInfoViewInBookstore": "View in Bookstore"
 }
