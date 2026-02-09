@@ -40,6 +40,9 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _unconfirmedEmail;
   bool _isResendCooldown = false;
   Timer? _resendCooldownTimer;
+  bool _emailHasText = false;
+  bool _passwordHasText = false;
+  bool _nicknameHasText = false;
 
   @override
   void initState() {
@@ -48,6 +51,24 @@ class _LoginScreenState extends State<LoginScreen> {
     _emailFocusNode.addListener(() => _onFocusChange(_emailFieldKey));
     _passwordFocusNode.addListener(() => _onFocusChange(_passwordFieldKey));
     _nicknameFocusNode.addListener(() => _onFocusChange(_nicknameFieldKey));
+    _emailController.addListener(_onTextChanged);
+    _passwordController.addListener(_onTextChanged);
+    _nicknameController.addListener(_onTextChanged);
+  }
+
+  void _onTextChanged() {
+    final emailHas = _emailController.text.isNotEmpty;
+    final passwordHas = _passwordController.text.isNotEmpty;
+    final nicknameHas = _nicknameController.text.isNotEmpty;
+    if (_emailHasText != emailHas ||
+        _passwordHasText != passwordHas ||
+        _nicknameHasText != nicknameHas) {
+      setState(() {
+        _emailHasText = emailHas;
+        _passwordHasText = passwordHas;
+        _nicknameHasText = nicknameHas;
+      });
+    }
   }
 
   void _onFocusChange(GlobalKey fieldKey) {
@@ -169,17 +190,12 @@ class _LoginScreenState extends State<LoginScreen> {
           if (error != null) {
             if (mounted) {
               final l10n = AppLocalizations.of(context)!;
-              String errorMessage;
-              if (error == 'EXISTING_EMAIL') {
-                errorMessage = l10n.loginSignupExistingEmail;
-              } else {
-                errorMessage = _getAuthErrorMessage(error, l10n);
-              }
               CustomSnackbar.show(
                 context,
-                message: errorMessage,
+                message: _getAuthErrorMessage(error, l10n),
                 type: SnackbarType.error,
                 bottomOffset: 32,
+                aboveKeyboard: true,
               );
             }
             return;
@@ -191,6 +207,7 @@ class _LoginScreenState extends State<LoginScreen> {
               message: l10n.loginSignupSuccess,
               type: SnackbarType.success,
               bottomOffset: 32,
+              aboveKeyboard: true,
             );
             _setAuthMode(AuthMode.signIn);
           }
@@ -205,6 +222,7 @@ class _LoginScreenState extends State<LoginScreen> {
               message: l10n.loginResetPasswordSuccess,
               type: SnackbarType.success,
               bottomOffset: 32,
+              aboveKeyboard: true,
             );
             _setAuthMode(AuthMode.signIn);
           }
@@ -223,6 +241,7 @@ class _LoginScreenState extends State<LoginScreen> {
           message: _getAuthErrorMessage(e.message, l10n),
           type: SnackbarType.error,
           bottomOffset: 32,
+          aboveKeyboard: true,
         );
       }
     } catch (e) {
@@ -233,6 +252,7 @@ class _LoginScreenState extends State<LoginScreen> {
           message: l10n.loginUnexpectedError,
           type: SnackbarType.error,
           bottomOffset: 32,
+          aboveKeyboard: true,
         );
       }
     } finally {
@@ -274,6 +294,7 @@ class _LoginScreenState extends State<LoginScreen> {
           message: l10n.loginResendVerificationSuccess,
           type: SnackbarType.success,
           bottomOffset: 32,
+          aboveKeyboard: true,
         );
         setState(() => _isResendCooldown = true);
         _resendCooldownTimer?.cancel();
@@ -291,6 +312,7 @@ class _LoginScreenState extends State<LoginScreen> {
           message: l10n.loginUnexpectedError,
           type: SnackbarType.error,
           bottomOffset: 32,
+          aboveKeyboard: true,
         );
       }
     }
@@ -485,6 +507,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     autofillHints: const [AutofillHints.email],
                     autocorrect: false,
                     enableSuggestions: false,
+                    suffixIcon: _emailHasText
+                        ? _buildClearButton(
+                            controller: _emailController,
+                            isDark: isDark,
+                          )
+                        : null,
                     validator: (value) {
                       final l10n = AppLocalizations.of(context)!;
                       if (value == null || value.isEmpty) {
@@ -517,17 +545,29 @@ class _LoginScreenState extends State<LoginScreen> {
                           : const [AutofillHints.newPassword],
                       autocorrect: false,
                       enableSuggestions: false,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          color: isDark ? Colors.grey[400] : Colors.grey[600],
-                          size: 20,
-                        ),
-                        onPressed: () {
-                          setState(() => _obscurePassword = !_obscurePassword);
-                        },
+                      suffixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (_passwordHasText)
+                            _buildClearButton(
+                              controller: _passwordController,
+                              isDark: isDark,
+                            ),
+                          IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                              color:
+                                  isDark ? Colors.grey[400] : Colors.grey[600],
+                              size: 20,
+                            ),
+                            onPressed: () {
+                              setState(
+                                  () => _obscurePassword = !_obscurePassword);
+                            },
+                          ),
+                        ],
                       ),
                       validator: (value) {
                         final l10n = AppLocalizations.of(context)!;
@@ -555,6 +595,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       onFieldSubmitted: (_) => _dismissKeyboard(),
                       isDark: isDark,
                       autofillHints: const [AutofillHints.nickname],
+                      suffixIcon: _nicknameHasText
+                          ? _buildClearButton(
+                              controller: _nicknameController,
+                              isDark: isDark,
+                            )
+                          : null,
                       validator: (value) {
                         final l10n = AppLocalizations.of(context)!;
                         if (value == null || value.isEmpty) {
@@ -638,6 +684,22 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildClearButton({
+    required TextEditingController controller,
+    required bool isDark,
+  }) {
+    return IconButton(
+      icon: Icon(
+        Icons.cancel,
+        color: isDark ? Colors.grey[500] : Colors.grey[400],
+        size: 20,
+      ),
+      onPressed: () {
+        controller.clear();
+      },
     );
   }
 
