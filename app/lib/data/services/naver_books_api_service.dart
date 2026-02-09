@@ -16,9 +16,49 @@ class NaverBooksApiService {
 
   static Future<String?> fetchDescriptionByTitle(
       String title, String? author) async {
-    final query =
-        author != null && author.isNotEmpty ? '$title $author' : title;
-    return _fetchDescriptionByQuery(query);
+    final shortTitle = _extractMainTitle(title);
+    final cleanAuthor = _cleanAuthorName(author);
+
+    final query = cleanAuthor != null ? '$shortTitle $cleanAuthor' : shortTitle;
+    final result = await _fetchDescriptionByQuery(query);
+
+    if (result != null) return result;
+
+    if (cleanAuthor != null) {
+      debugPrint('📗 [Naver] 제목+저자 실패 → 제목만 재시도');
+      return _fetchDescriptionByQuery(shortTitle);
+    }
+
+    return null;
+  }
+
+  static String _extractMainTitle(String title) {
+    var main = title;
+
+    final dashIdx = main.indexOf(' - ');
+    if (dashIdx > 0) main = main.substring(0, dashIdx);
+
+    final colonIdx = main.indexOf(' : ');
+    if (colonIdx > 0) main = main.substring(0, colonIdx);
+
+    final parenIdx = main.indexOf(' (');
+    if (parenIdx > 0) main = main.substring(0, parenIdx);
+
+    return main.trim();
+  }
+
+  static String? _cleanAuthorName(String? author) {
+    if (author == null || author.isEmpty) return null;
+    var clean = author
+        .replaceAll(RegExp(r'\s*\(지은이\)'), '')
+        .replaceAll(RegExp(r'\s*\(저\)'), '')
+        .replaceAll(RegExp(r'\s*\(옮긴이\)'), '')
+        .replaceAll(RegExp(r'\s*\(글\)'), '')
+        .replaceAll(RegExp(r'\s*\(그림\)'), '')
+        .replaceAll(RegExp(r'\s*\(엮은이\)'), '')
+        .replaceAll(RegExp(r'\s*\(편\)'), '')
+        .trim();
+    return clean.isNotEmpty ? clean : null;
   }
 
   static Future<String?> _fetchDescriptionByQuery(String query) async {
