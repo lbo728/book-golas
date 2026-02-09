@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:book_golas/domain/models/book.dart';
@@ -15,6 +16,7 @@ class CompactBookHeader extends StatelessWidget {
   final String? status;
   final void Function(String heroTag, String imageUrl) onImageTap;
   final VoidCallback? onTitleTap;
+  final VoidCallback? onBookInfoTap;
 
   const CompactBookHeader({
     super.key,
@@ -27,6 +29,7 @@ class CompactBookHeader extends StatelessWidget {
     this.status,
     required this.onImageTap,
     this.onTitleTap,
+    this.onBookInfoTap,
   });
 
   bool get isCompleted =>
@@ -62,6 +65,31 @@ class CompactBookHeader extends StatelessWidget {
                 _buildTitle(isDark),
                 const SizedBox(height: 4),
                 _buildAuthorAndStatus(context, isDark),
+                if (onBookInfoTap != null) ...[
+                  const SizedBox(height: 6),
+                  GestureDetector(
+                    onTap: onBookInfoTap,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          CupertinoIcons.info_circle,
+                          size: 14,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          AppLocalizations.of(context)!.bookInfoViewButton,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
