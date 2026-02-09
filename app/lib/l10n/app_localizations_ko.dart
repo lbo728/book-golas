@@ -3272,4 +3272,37 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get loginSignupExistingEmail => '이미 등록된 이메일입니다. 로그인을 시도해주세요.';
+
+  @override
+  String get bookInfoViewButton => '책 정보 보기';
+
+  @override
+  String get bookInfoSheetTitle => '도서 상세 정보';
+
+  @override
+  String get bookInfoTabDescription => '줄거리';
+
+  @override
+  String get bookInfoTabDetail => '기본정보';
+
+  @override
+  String get bookInfoNoDescription => '줄거리 정보가 없습니다';
+
+  @override
+  String get bookInfoNoIsbn => 'ISBN 정보가 없어 상세 정보를 불러올 수 없습니다';
+
+  @override
+  String get bookInfoPublisher => '출판사';
+
+  @override
+  String get bookInfoIsbn => 'ISBN';
+
+  @override
+  String get bookInfoPageCount => '페이지';
+
+  @override
+  String get bookInfoGenre => '장르';
+
+  @override
+  String get bookInfoViewInBookstore => '서점에서 보기';
 }

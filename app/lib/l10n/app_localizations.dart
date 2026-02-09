@@ -6106,6 +6106,72 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'이미 등록된 이메일입니다. 로그인을 시도해주세요.'**
   String get loginSignupExistingEmail;
+
+  /// No description provided for @bookInfoViewButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'책 정보 보기'**
+  String get bookInfoViewButton;
+
+  /// No description provided for @bookInfoSheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'도서 상세 정보'**
+  String get bookInfoSheetTitle;
+
+  /// No description provided for @bookInfoTabDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'줄거리'**
+  String get bookInfoTabDescription;
+
+  /// No description provided for @bookInfoTabDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본정보'**
+  String get bookInfoTabDetail;
+
+  /// No description provided for @bookInfoNoDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'줄거리 정보가 없습니다'**
+  String get bookInfoNoDescription;
+
+  /// No description provided for @bookInfoNoIsbn.
+  ///
+  /// In ko, this message translates to:
+  /// **'ISBN 정보가 없어 상세 정보를 불러올 수 없습니다'**
+  String get bookInfoNoIsbn;
+
+  /// No description provided for @bookInfoPublisher.
+  ///
+  /// In ko, this message translates to:
+  /// **'출판사'**
+  String get bookInfoPublisher;
+
+  /// No description provided for @bookInfoIsbn.
+  ///
+  /// In ko, this message translates to:
+  /// **'ISBN'**
+  String get bookInfoIsbn;
+
+  /// No description provided for @bookInfoPageCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'페이지'**
+  String get bookInfoPageCount;
+
+  /// No description provided for @bookInfoGenre.
+  ///
+  /// In ko, this message translates to:
+  /// **'장르'**
+  String get bookInfoGenre;
+
+  /// No description provided for @bookInfoViewInBookstore.
+  ///
+  /// In ko, this message translates to:
+  /// **'서점에서 보기'**
+  String get bookInfoViewInBookstore;
 }
 
 class _AppLocalizationsDelegate
