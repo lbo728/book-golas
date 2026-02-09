@@ -97,6 +97,7 @@ class AladinApiService {
   }
 
   static Future<String?> fetchDescription(String isbn13) async {
+    debugPrint('📕 [Aladin] fetchDescription isbn=$isbn13');
     try {
       final uri = Uri.parse('http://www.aladin.co.kr/ttb/api/ItemLookUp.aspx')
           .replace(queryParameters: {
@@ -108,19 +109,23 @@ class AladinApiService {
       });
 
       final response = await http.get(uri).timeout(const Duration(seconds: 5));
+      debugPrint('📕 [Aladin] status=${response.statusCode}');
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
         final List<dynamic> items = jsonData['item'] ?? [];
+        debugPrint('📕 [Aladin] items=${items.length}');
         if (items.isNotEmpty) {
           final description = items[0]['description'] as String?;
+          debugPrint(
+              '📕 [Aladin] desc=${description != null ? "${description.length}자" : "null"}');
           if (description != null && description.isNotEmpty) {
             return stripAndDecodeHtml(description);
           }
         }
       }
     } catch (e) {
-      debugPrint('Error fetching description: $e');
+      debugPrint('📕 [Aladin] ERROR: $e');
     }
     return null;
   }
