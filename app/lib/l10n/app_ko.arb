@@ -2905,6 +2905,18 @@
         "loginResendVerificationCooldown": "잠시 후 다시 시도해주세요.",
         "@loginResendVerificationCooldown": {"description": "Resend verification email cooldown message"},
 
-        "loginSignupExistingEmail": "이미 등록된 이메일입니다. 로그인을 시도해주세요.",
-        "@loginSignupExistingEmail": {"description": "Signup with existing email error message"}
+         "loginSignupExistingEmail": "이미 등록된 이메일입니다. 로그인을 시도해주세요.",
+         "@loginSignupExistingEmail": {"description": "Signup with existing email error message"},
+
+         "bookInfoViewButton": "책 정보 보기",
+         "bookInfoSheetTitle": "도서 상세 정보",
+         "bookInfoTabDescription": "줄거리",
+         "bookInfoTabDetail": "기본정보",
+         "bookInfoNoDescription": "줄거리 정보가 없습니다",
+         "bookInfoNoIsbn": "ISBN 정보가 없어 상세 정보를 불러올 수 없습니다",
+         "bookInfoPublisher": "출판사",
+         "bookInfoIsbn": "ISBN",
+         "bookInfoPageCount": "페이지",
+         "bookInfoGenre": "장르",
+         "bookInfoViewInBookstore": "서점에서 보기"
 }
