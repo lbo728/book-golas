@@ -32,6 +32,9 @@ class AuthService {
         password: password,
         data: {'name': name},
       );
+      if (response.user?.identities?.isEmpty == true) {
+        return 'EXISTING_EMAIL';
+      }
       final userId = response.user?.id;
       if (userId != null) {
         await _supabase.from('users').insert({

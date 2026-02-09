@@ -219,6 +219,9 @@ class _LoginScreenState extends State<LoginScreen> {
       return l10n.loginErrorEmailAlreadyRegistered;
     } else if (message.contains('Password should be at least')) {
       return l10n.loginErrorPasswordTooShort;
+    } else if (message.contains('Email address') &&
+        message.contains('invalid')) {
+      return l10n.loginErrorEmailInvalid;
     }
     return message;
   }

@@ -3328,4 +3328,22 @@ class AppLocalizationsEn extends AppLocalizations {
       int year, int month, int day, int hour, int minute) {
     return '$month/$day/$year $hour:$minute';
   }
+
+  @override
+  String get loginErrorEmailInvalid =>
+      'Email address is invalid or already registered.';
+
+  @override
+  String get loginResendVerification => 'Resend verification email';
+
+  @override
+  String get loginResendVerificationSuccess =>
+      'Verification email has been resent. Please check your email.';
+
+  @override
+  String get loginResendVerificationCooldown => 'Please try again in a moment.';
+
+  @override
+  String get loginSignupExistingEmail =>
+      'This email is already registered. Please try logging in.';
 }

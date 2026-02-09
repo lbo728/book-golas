@@ -1354,6 +1354,21 @@
             "@durationHours": {"placeholders": {"hours": {"type": "int"}}},
             "durationHoursMinutes": "{hours}h {minutes}m",
             "@durationHoursMinutes": {"placeholders": {"hours": {"type": "int"}, "minutes": {"type": "int"}}},
-            "historyDateTimeFormat": "{month}/{day}/{year} {hour}:{minute}",
-            "@historyDateTimeFormat": {"placeholders": {"year": {"type": "int"}, "month": {"type": "int"}, "day": {"type": "int"}, "hour": {"type": "int"}, "minute": {"type": "int"}}}
+             "historyDateTimeFormat": "{month}/{day}/{year} {hour}:{minute}",
+             "@historyDateTimeFormat": {"placeholders": {"year": {"type": "int"}, "month": {"type": "int"}, "day": {"type": "int"}, "hour": {"type": "int"}, "minute": {"type": "int"}}},
+
+             "loginErrorEmailInvalid": "Email address is invalid or already registered.",
+             "@loginErrorEmailInvalid": {"description": "Email invalid or already registered error"},
+
+             "loginResendVerification": "Resend verification email",
+             "@loginResendVerification": {"description": "Resend verification email button"},
+
+             "loginResendVerificationSuccess": "Verification email has been resent. Please check your email.",
+             "@loginResendVerificationSuccess": {"description": "Resend verification email success message"},
+
+             "loginResendVerificationCooldown": "Please try again in a moment.",
+             "@loginResendVerificationCooldown": {"description": "Resend verification email cooldown message"},
+
+             "loginSignupExistingEmail": "This email is already registered. Please try logging in.",
+             "@loginSignupExistingEmail": {"description": "Signup with existing email error message"}
 }

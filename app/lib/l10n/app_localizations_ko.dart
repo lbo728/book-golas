@@ -3257,4 +3257,19 @@ class AppLocalizationsKo extends AppLocalizations {
       int year, int month, int day, int hour, int minute) {
     return '$year년 $month월 $day일 $hour시 $minute분';
   }
+
+  @override
+  String get loginErrorEmailInvalid => '이메일 주소가 유효하지 않거나 이미 등록된 이메일입니다.';
+
+  @override
+  String get loginResendVerification => '인증 이메일 재전송';
+
+  @override
+  String get loginResendVerificationSuccess => '인증 이메일이 재전송되었습니다. 이메일을 확인해주세요.';
+
+  @override
+  String get loginResendVerificationCooldown => '잠시 후 다시 시도해주세요.';
+
+  @override
+  String get loginSignupExistingEmail => '이미 등록된 이메일입니다. 로그인을 시도해주세요.';
 }

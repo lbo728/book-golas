@@ -2891,5 +2891,20 @@
         "durationHoursMinutes": "{hours}시간 {minutes}분",
         "@durationHoursMinutes": {"placeholders": {"hours": {"type": "int"}, "minutes": {"type": "int"}}},
         "historyDateTimeFormat": "{year}년 {month}월 {day}일 {hour}시 {minute}분",
-        "@historyDateTimeFormat": {"placeholders": {"year": {"type": "int"}, "month": {"type": "int"}, "day": {"type": "int"}, "hour": {"type": "int"}, "minute": {"type": "int"}}}
+        "@historyDateTimeFormat": {"placeholders": {"year": {"type": "int"}, "month": {"type": "int"}, "day": {"type": "int"}, "hour": {"type": "int"}, "minute": {"type": "int"}}},
+
+        "loginErrorEmailInvalid": "이메일 주소가 유효하지 않거나 이미 등록된 이메일입니다.",
+        "@loginErrorEmailInvalid": {"description": "Email invalid or already registered error"},
+
+        "loginResendVerification": "인증 이메일 재전송",
+        "@loginResendVerification": {"description": "Resend verification email button"},
+
+        "loginResendVerificationSuccess": "인증 이메일이 재전송되었습니다. 이메일을 확인해주세요.",
+        "@loginResendVerificationSuccess": {"description": "Resend verification email success message"},
+
+        "loginResendVerificationCooldown": "잠시 후 다시 시도해주세요.",
+        "@loginResendVerificationCooldown": {"description": "Resend verification email cooldown message"},
+
+        "loginSignupExistingEmail": "이미 등록된 이메일입니다. 로그인을 시도해주세요.",
+        "@loginSignupExistingEmail": {"description": "Signup with existing email error message"}
 }

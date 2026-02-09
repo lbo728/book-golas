@@ -6076,6 +6076,36 @@ abstract class AppLocalizations {
   /// **'{year}년 {month}월 {day}일 {hour}시 {minute}분'**
   String historyDateTimeFormat(
       int year, int month, int day, int hour, int minute);
+
+  /// Email invalid or already registered error
+  ///
+  /// In ko, this message translates to:
+  /// **'이메일 주소가 유효하지 않거나 이미 등록된 이메일입니다.'**
+  String get loginErrorEmailInvalid;
+
+  /// Resend verification email button
+  ///
+  /// In ko, this message translates to:
+  /// **'인증 이메일 재전송'**
+  String get loginResendVerification;
+
+  /// Resend verification email success message
+  ///
+  /// In ko, this message translates to:
+  /// **'인증 이메일이 재전송되었습니다. 이메일을 확인해주세요.'**
+  String get loginResendVerificationSuccess;
+
+  /// Resend verification email cooldown message
+  ///
+  /// In ko, this message translates to:
+  /// **'잠시 후 다시 시도해주세요.'**
+  String get loginResendVerificationCooldown;
+
+  /// Signup with existing email error message
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 등록된 이메일입니다. 로그인을 시도해주세요.'**
+  String get loginSignupExistingEmail;
 }
 
 class _AppLocalizationsDelegate
