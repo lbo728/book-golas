@@ -11,6 +11,17 @@ class NaverBooksApiService {
       'https://openapi.naver.com/v1/search/book.json';
 
   static Future<String?> fetchDescription(String isbn) async {
+    return _fetchDescriptionByQuery(isbn);
+  }
+
+  static Future<String?> fetchDescriptionByTitle(
+      String title, String? author) async {
+    final query =
+        author != null && author.isNotEmpty ? '$title $author' : title;
+    return _fetchDescriptionByQuery(query);
+  }
+
+  static Future<String?> _fetchDescriptionByQuery(String query) async {
     if (AppConfig.naverClientId.isEmpty ||
         AppConfig.naverClientSecret.isEmpty) {
       return null;
@@ -18,7 +29,7 @@ class NaverBooksApiService {
 
     try {
       final uri = Uri.parse(_baseUrl).replace(queryParameters: {
-        'query': isbn,
+        'query': query,
       });
 
       final response = await http.get(

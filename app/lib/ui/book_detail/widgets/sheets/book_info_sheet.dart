@@ -53,39 +53,47 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
   }
 
   Future<void> _loadBookDetail() async {
-    if (widget.book.isbn == null || widget.book.isbn!.isEmpty) {
-      setState(() {
-        _bookDetailInfo = BookDetailInfo.fromLocal(widget.book);
-        _isLoading = false;
-      });
-      return;
-    }
-
     setState(() => _isLoading = true);
+
+    final hasIsbn = widget.book.isbn != null && widget.book.isbn!.isNotEmpty;
 
     try {
       BookDetailInfo? detail;
 
-      final naverDesc =
-          await NaverBooksApiService.fetchDescription(widget.book.isbn!);
-      if (naverDesc != null && naverDesc.isNotEmpty) {
-        detail = BookDetailInfo.fromLocal(widget.book)
-            .copyWith(description: naverDesc);
-      }
-
-      if (detail?.description == null || detail!.description!.isEmpty) {
-        final aladinDesc =
-            await AladinApiService.fetchDescription(widget.book.isbn!);
-        if (aladinDesc != null && aladinDesc.isNotEmpty) {
+      if (hasIsbn) {
+        final naverDesc =
+            await NaverBooksApiService.fetchDescription(widget.book.isbn!);
+        if (naverDesc != null && naverDesc.isNotEmpty) {
           detail = BookDetailInfo.fromLocal(widget.book)
-              .copyWith(description: aladinDesc);
+              .copyWith(description: naverDesc);
+        }
+
+        if (detail?.description == null || detail!.description!.isEmpty) {
+          final aladinDesc =
+              await AladinApiService.fetchDescription(widget.book.isbn!);
+          if (aladinDesc != null && aladinDesc.isNotEmpty) {
+            detail = BookDetailInfo.fromLocal(widget.book)
+                .copyWith(description: aladinDesc);
+          }
+        }
+
+        if (detail == null ||
+            detail.description == null ||
+            detail.description!.isEmpty) {
+          detail =
+              await GoogleBooksApiService.fetchBookDetail(widget.book.isbn!);
         }
       }
 
       if (detail == null ||
           detail.description == null ||
           detail.description!.isEmpty) {
-        detail = await GoogleBooksApiService.fetchBookDetail(widget.book.isbn!);
+        final titleDesc = await NaverBooksApiService.fetchDescriptionByTitle(
+            widget.book.title, widget.book.author);
+        if (titleDesc != null && titleDesc.isNotEmpty) {
+          detail = (detail ?? BookDetailInfo.fromLocal(widget.book))
+              .copyWith(description: titleDesc);
+        }
       }
 
       detail ??= BookDetailInfo.fromLocal(widget.book);
