@@ -1,0 +1,466 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
+
+import 'package:book_golas/data/services/google_books_api_service.dart';
+import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/domain/models/book_detail_info.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
+import 'package:book_golas/ui/core/widgets/bookstore_select_sheet.dart';
+
+Future<void> showBookInfoSheet(BuildContext context, Book book) {
+  return showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    isDismissible: true,
+    enableDrag: true,
+    builder: (_) => _BookInfoSheetContent(book: book),
+  );
+}
+
+class _BookInfoSheetContent extends StatefulWidget {
+  final Book book;
+
+  const _BookInfoSheetContent({required this.book});
+
+  @override
+  State<_BookInfoSheetContent> createState() => _BookInfoSheetContentState();
+}
+
+class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
+    with SingleTickerProviderStateMixin {
+  BookDetailInfo? _bookDetailInfo;
+  bool _isLoading = true;
+  bool _isDescriptionExpanded = false;
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _loadBookDetail();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadBookDetail() async {
+    if (widget.book.isbn != null && widget.book.isbn!.isNotEmpty) {
+      setState(() => _isLoading = true);
+      final detail =
+          await GoogleBooksApiService.fetchBookDetail(widget.book.isbn!);
+      if (mounted) {
+        setState(() {
+          _bookDetailInfo = detail;
+          _isLoading = false;
+        });
+      }
+    } else {
+      setState(() {
+        _bookDetailInfo = BookDetailInfo.fromLocal(widget.book);
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.95,
+      minChildSize: 0.4,
+      maxChildSize: 0.95,
+      builder: (context, scrollController) => Container(
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surfaceDark : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.grey[700] : Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                controller: scrollController,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 8),
+                    _buildCoverImage(isDark),
+                    const SizedBox(height: 20),
+                    _buildTitle(isDark),
+                    const SizedBox(height: 6),
+                    _buildAuthor(isDark),
+                    const SizedBox(height: 20),
+                    _buildTabSection(isDark, l10n),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            ),
+            _buildBottomButton(isDark, l10n),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCoverImage(bool isDark) {
+    return Center(
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.15),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: BookImageWidget(
+            imageUrl: widget.book.imageUrl,
+            width: 140,
+            height: 200,
+            iconSize: 48,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTitle(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Text(
+        widget.book.title,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          color: isDark ? Colors.white : Colors.black,
+          height: 1.3,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAuthor(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Text(
+        widget.book.author ?? '-',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 14,
+          color: isDark ? Colors.grey[400] : Colors.grey[600],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabSection(bool isDark, AppLocalizations l10n) {
+    return Column(
+      children: [
+        TabBar(
+          controller: _tabController,
+          labelColor: AppColors.primary,
+          unselectedLabelColor: isDark ? Colors.grey[500] : Colors.grey[400],
+          labelStyle: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+          ),
+          indicatorColor: AppColors.primary,
+          indicatorWeight: 2.5,
+          dividerColor: isDark ? Colors.grey[800] : Colors.grey[200],
+          tabs: [
+            Tab(text: l10n.bookInfoTabDescription),
+            Tab(text: l10n.bookInfoTabDetail),
+          ],
+        ),
+        SizedBox(
+          height: 320,
+          child: TabBarView(
+            controller: _tabController,
+            physics: const NeverScrollableScrollPhysics(),
+            children: [
+              _buildDescriptionTab(isDark, l10n),
+              _buildDetailTab(isDark, l10n),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDescriptionTab(bool isDark, AppLocalizations l10n) {
+    if (_isLoading) {
+      return _buildDescriptionShimmer(isDark);
+    }
+
+    final description = _bookDetailInfo?.description;
+
+    if (description == null || description.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              CupertinoIcons.book,
+              size: 40,
+              color: isDark ? Colors.grey[700] : Colors.grey[300],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              l10n.bookInfoNoDescription,
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.grey[500] : Colors.grey[400],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            description,
+            maxLines: _isDescriptionExpanded ? null : 8,
+            overflow: _isDescriptionExpanded
+                ? TextOverflow.visible
+                : TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 14,
+              height: 1.7,
+              color: isDark ? Colors.grey[300] : Colors.grey[800],
+            ),
+          ),
+          if (description.length > 200) ...[
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: () => setState(
+                  () => _isDescriptionExpanded = !_isDescriptionExpanded),
+              child: Text(
+                _isDescriptionExpanded ? '접기' : '더보기',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDescriptionShimmer(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Shimmer.fromColors(
+        baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+        highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 14,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              height: 14,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              height: 14,
+              width: MediaQuery.of(context).size.width * 0.6,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              height: 14,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              height: 14,
+              width: MediaQuery.of(context).size.width * 0.45,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailTab(bool isDark, AppLocalizations l10n) {
+    final book = widget.book;
+    final detail = _bookDetailInfo;
+
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          _buildInfoRow(
+            isDark,
+            l10n.bookInfoPublisher,
+            detail?.publisher ?? book.publisher ?? '-',
+          ),
+          _buildInfoRow(
+            isDark,
+            l10n.bookInfoIsbn,
+            detail?.isbn ?? book.isbn ?? '-',
+          ),
+          _buildInfoRow(
+            isDark,
+            l10n.bookInfoPageCount,
+            (detail?.pageCount ??
+                        (book.totalPages > 0 ? book.totalPages : null))
+                    ?.toString() ??
+                '-',
+          ),
+          _buildInfoRow(
+            isDark,
+            l10n.bookInfoGenre,
+            detail?.categories?.join(', ') ?? book.genre ?? '-',
+          ),
+          if (detail?.publishedDate != null)
+            _buildInfoRow(
+              isDark,
+              '출판일',
+              detail!.publishedDate!,
+            ),
+          if (detail?.language != null)
+            _buildInfoRow(
+              isDark,
+              '언어',
+              detail!.language!.toUpperCase(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(bool isDark, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 80,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: isDark ? Colors.grey[500] : Colors.grey[500],
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomButton(bool isDark, AppLocalizations l10n) {
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+        child: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+            showBookstoreSelectSheet(
+              context: context,
+              title: widget.book.title,
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  CupertinoIcons.arrow_up_right_square,
+                  size: 18,
+                  color: Colors.white,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  l10n.bookInfoViewInBookstore,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -35,6 +35,7 @@ import 'widgets/custom_tab_bar.dart';
 import 'widgets/sheets/daily_target_confirm_sheet.dart';
 import 'widgets/sheets/delete_confirmation_sheet.dart';
 import 'widgets/sheets/image_source_sheet.dart';
+import 'widgets/sheets/book_info_sheet.dart';
 import 'widgets/sheets/full_title_sheet.dart';
 import 'widgets/sheets/pause_reading_confirmation_sheet.dart';
 import 'widgets/dialogs/edit_planned_book_dialog.dart';
@@ -316,6 +317,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 onImageTap: _showFullScreenImage,
                                 onTitleTap: () => showFullTitleSheet(
                                     context: context, title: book.title),
+                                onBookInfoTap: () =>
+                                    showBookInfoSheet(context, book),
                               ),
                               const SizedBox(height: 10),
                               CompactReadingSchedule(
