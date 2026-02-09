@@ -25,6 +25,8 @@ abstract class AuthRepository {
 
   Future<String?> resetPassword(String email);
 
+  Future<String?> resendVerificationEmail(String email);
+
   Future<UserModel?> fetchCurrentUser();
 
   Future<void> updateNickname(String nickname);
@@ -78,6 +80,10 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<String?> resetPassword(String email) =>
       _authService.resetPassword(email);
+
+  @override
+  Future<String?> resendVerificationEmail(String email) =>
+      _authService.resendVerificationEmail(email);
 
   @override
   Future<UserModel?> fetchCurrentUser() => _authService.fetchCurrentUser();

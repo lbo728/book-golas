@@ -127,6 +127,20 @@ class AuthService {
     }
   }
 
+  Future<String?> resendVerificationEmail(String email) async {
+    try {
+      await _supabase.auth.resend(
+        type: OtpType.signup,
+        email: email,
+      );
+      return null;
+    } on AuthException catch (error) {
+      return error.message;
+    } catch (error) {
+      return '알 수 없는 오류가 발생했습니다.';
+    }
+  }
+
   Future<UserModel?> fetchCurrentUser() async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return null;

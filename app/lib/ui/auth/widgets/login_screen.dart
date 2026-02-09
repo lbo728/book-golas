@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
@@ -36,6 +37,9 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _saveEmail = false;
   bool _obscurePassword = true;
   bool _isKeyboardVisible = false;
+  String? _unconfirmedEmail;
+  bool _isResendCooldown = false;
+  Timer? _resendCooldownTimer;
 
   @override
   void initState() {
@@ -125,6 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
+    _resendCooldownTimer?.cancel();
     _emailController.dispose();
     _passwordController.dispose();
     _nicknameController.dispose();
@@ -187,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
               type: SnackbarType.success,
               bottomOffset: 32,
             );
-            setState(() => _authMode = AuthMode.signIn);
+            _setAuthMode(AuthMode.signIn);
           }
           break;
 
@@ -201,12 +206,17 @@ class _LoginScreenState extends State<LoginScreen> {
               type: SnackbarType.success,
               bottomOffset: 32,
             );
-            setState(() => _authMode = AuthMode.signIn);
+            _setAuthMode(AuthMode.signIn);
           }
           break;
       }
     } on AuthException catch (e) {
       if (mounted) {
+        if (e.message.contains('Email not confirmed')) {
+          setState(() {
+            _unconfirmedEmail = _emailController.text.trim();
+          });
+        }
         final l10n = AppLocalizations.of(context)!;
         CustomSnackbar.show(
           context,
@@ -246,6 +256,51 @@ class _LoginScreenState extends State<LoginScreen> {
       return l10n.loginErrorEmailInvalid;
     }
     return message;
+  }
+
+  Future<void> _handleResendVerification() async {
+    if (_unconfirmedEmail == null || _isResendCooldown) return;
+
+    final supabase = Supabase.instance.client;
+    try {
+      await supabase.auth.resend(
+        type: OtpType.signup,
+        email: _unconfirmedEmail!,
+      );
+      if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
+        CustomSnackbar.show(
+          context,
+          message: l10n.loginResendVerificationSuccess,
+          type: SnackbarType.success,
+          bottomOffset: 32,
+        );
+        setState(() => _isResendCooldown = true);
+        _resendCooldownTimer?.cancel();
+        _resendCooldownTimer = Timer(const Duration(seconds: 60), () {
+          if (mounted) {
+            setState(() => _isResendCooldown = false);
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
+        CustomSnackbar.show(
+          context,
+          message: l10n.loginUnexpectedError,
+          type: SnackbarType.error,
+          bottomOffset: 32,
+        );
+      }
+    }
+  }
+
+  void _setAuthMode(AuthMode mode) {
+    _unconfirmedEmail = null;
+    _isResendCooldown = false;
+    _resendCooldownTimer?.cancel();
+    setState(() => _authMode = mode);
   }
 
   @override
@@ -539,9 +594,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
                   if (_authMode == AuthMode.signIn) ...[
+                    if (_unconfirmedEmail != null)
+                      _buildTextButton(
+                        _isResendCooldown
+                            ? AppLocalizations.of(context)!
+                                .loginResendVerificationCooldown
+                            : AppLocalizations.of(context)!
+                                .loginResendVerification,
+                        _isResendCooldown
+                            ? null
+                            : () => _handleResendVerification(),
+                        isDark,
+                      ),
                     _buildTextButton(
                       AppLocalizations.of(context)!.loginForgotPassword,
-                      () => setState(() => _authMode = AuthMode.forgotPassword),
+                      () => _setAuthMode(AuthMode.forgotPassword),
                       isDark,
                     ),
                     const SizedBox(height: 8),
@@ -549,19 +616,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 8),
                     _buildTextButton(
                       AppLocalizations.of(context)!.loginNoAccount,
-                      () => setState(() => _authMode = AuthMode.signUp),
+                      () => _setAuthMode(AuthMode.signUp),
                       isDark,
                     ),
                   ] else if (_authMode == AuthMode.signUp) ...[
                     _buildTextButton(
                       AppLocalizations.of(context)!.loginHaveAccount,
-                      () => setState(() => _authMode = AuthMode.signIn),
+                      () => _setAuthMode(AuthMode.signIn),
                       isDark,
                     ),
                   ] else ...[
                     _buildTextButton(
                       AppLocalizations.of(context)!.loginBackToSignIn,
-                      () => setState(() => _authMode = AuthMode.signIn),
+                      () => _setAuthMode(AuthMode.signIn),
                       isDark,
                     ),
                   ],
@@ -736,7 +803,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildTextButton(String text, VoidCallback onPressed, bool isDark) {
+  Widget _buildTextButton(String text, VoidCallback? onPressed, bool isDark) {
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
@@ -748,7 +815,9 @@ class _LoginScreenState extends State<LoginScreen> {
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          color: isDark ? Colors.grey[300] : AppColors.primary,
+          color: onPressed == null
+              ? (isDark ? Colors.grey[600] : Colors.grey[400])
+              : (isDark ? Colors.grey[300] : AppColors.primary),
         ),
       ),
     );
