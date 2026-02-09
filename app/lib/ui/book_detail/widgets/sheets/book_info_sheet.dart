@@ -66,19 +66,19 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
     try {
       BookDetailInfo? detail;
 
-      final aladinDesc =
-          await AladinApiService.fetchDescription(widget.book.isbn!);
-      if (aladinDesc != null && aladinDesc.isNotEmpty) {
+      final naverDesc =
+          await NaverBooksApiService.fetchDescription(widget.book.isbn!);
+      if (naverDesc != null && naverDesc.isNotEmpty) {
         detail = BookDetailInfo.fromLocal(widget.book)
-            .copyWith(description: aladinDesc);
+            .copyWith(description: naverDesc);
       }
 
       if (detail?.description == null || detail!.description!.isEmpty) {
-        final naverDesc =
-            await NaverBooksApiService.fetchDescription(widget.book.isbn!);
-        if (naverDesc != null && naverDesc.isNotEmpty) {
+        final aladinDesc =
+            await AladinApiService.fetchDescription(widget.book.isbn!);
+        if (aladinDesc != null && aladinDesc.isNotEmpty) {
           detail = BookDetailInfo.fromLocal(widget.book)
-              .copyWith(description: naverDesc);
+              .copyWith(description: aladinDesc);
         }
       }
 
