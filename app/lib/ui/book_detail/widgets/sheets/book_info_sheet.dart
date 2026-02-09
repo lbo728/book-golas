@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
+import 'package:book_golas/data/services/aladin_api_service.dart';
 import 'package:book_golas/data/services/google_books_api_service.dart';
+import 'package:book_golas/data/services/naver_books_api_service.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/domain/models/book_detail_info.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
@@ -51,21 +53,57 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
   }
 
   Future<void> _loadBookDetail() async {
-    if (widget.book.isbn != null && widget.book.isbn!.isNotEmpty) {
-      setState(() => _isLoading = true);
-      final detail =
-          await GoogleBooksApiService.fetchBookDetail(widget.book.isbn!);
+    if (widget.book.isbn == null || widget.book.isbn!.isEmpty) {
+      setState(() {
+        _bookDetailInfo = BookDetailInfo.fromLocal(widget.book);
+        _isLoading = false;
+      });
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      BookDetailInfo? detail;
+
+      final aladinDesc =
+          await AladinApiService.fetchDescription(widget.book.isbn!);
+      if (aladinDesc != null && aladinDesc.isNotEmpty) {
+        detail = BookDetailInfo.fromLocal(widget.book)
+            .copyWith(description: aladinDesc);
+      }
+
+      if (detail?.description == null || detail!.description!.isEmpty) {
+        final naverDesc =
+            await NaverBooksApiService.fetchDescription(widget.book.isbn!);
+        if (naverDesc != null && naverDesc.isNotEmpty) {
+          detail = BookDetailInfo.fromLocal(widget.book)
+              .copyWith(description: naverDesc);
+        }
+      }
+
+      if (detail == null ||
+          detail.description == null ||
+          detail.description!.isEmpty) {
+        detail = await GoogleBooksApiService.fetchBookDetail(widget.book.isbn!);
+      }
+
+      detail ??= BookDetailInfo.fromLocal(widget.book);
+
       if (mounted) {
         setState(() {
           _bookDetailInfo = detail;
           _isLoading = false;
         });
       }
-    } else {
-      setState(() {
-        _bookDetailInfo = BookDetailInfo.fromLocal(widget.book);
-        _isLoading = false;
-      });
+    } catch (e) {
+      debugPrint('Error loading book detail: $e');
+      if (mounted) {
+        setState(() {
+          _bookDetailInfo = BookDetailInfo.fromLocal(widget.book);
+          _isLoading = false;
+        });
+      }
     }
   }
 

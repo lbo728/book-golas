@@ -3346,4 +3346,37 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get loginSignupExistingEmail =>
       'This email is already registered. Please try logging in.';
+
+  @override
+  String get bookInfoViewButton => 'View Book Info';
+
+  @override
+  String get bookInfoSheetTitle => 'Book Details';
+
+  @override
+  String get bookInfoTabDescription => 'Synopsis';
+
+  @override
+  String get bookInfoTabDetail => 'Details';
+
+  @override
+  String get bookInfoNoDescription => 'No synopsis available';
+
+  @override
+  String get bookInfoNoIsbn => 'Cannot load details without ISBN';
+
+  @override
+  String get bookInfoPublisher => 'Publisher';
+
+  @override
+  String get bookInfoIsbn => 'ISBN';
+
+  @override
+  String get bookInfoPageCount => 'Pages';
+
+  @override
+  String get bookInfoGenre => 'Genre';
+
+  @override
+  String get bookInfoViewInBookstore => 'View in Bookstore';
 }

@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:book_golas/config/app_config.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/core/utils/isbn_validator.dart';
+import 'package:book_golas/utils/html_utils.dart';
 
 class AladinApiService {
   static Future<List<BookSearchResult>> searchBooks(String query) async {
@@ -91,6 +92,35 @@ class AladinApiService {
       }
     } catch (e) {
       // 에러 발생 시 null 반환
+    }
+    return null;
+  }
+
+  static Future<String?> fetchDescription(String isbn13) async {
+    try {
+      final uri = Uri.parse('http://www.aladin.co.kr/ttb/api/ItemLookUp.aspx')
+          .replace(queryParameters: {
+        'ttbkey': AppConfig.aladinApiKey,
+        'itemIdType': 'ISBN13',
+        'ItemId': isbn13,
+        'output': 'js',
+        'Version': AppConfig.apiVersion,
+      });
+
+      final response = await http.get(uri).timeout(const Duration(seconds: 5));
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        final List<dynamic> items = jsonData['item'] ?? [];
+        if (items.isNotEmpty) {
+          final description = items[0]['description'] as String?;
+          if (description != null && description.isNotEmpty) {
+            return stripAndDecodeHtml(description);
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching description: $e');
     }
     return null;
   }

@@ -142,7 +142,7 @@ class GoogleBooksApiService {
           'key': AppConfig.googleBooksApiKey,
       });
 
-      final response = await http.get(uri);
+      final response = await http.get(uri).timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

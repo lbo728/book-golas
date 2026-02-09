@@ -74,4 +74,30 @@ class BookDetailInfo {
       pageCount: book.totalPages > 0 ? book.totalPages : null,
     );
   }
+
+  BookDetailInfo copyWith({
+    String? description,
+    String? publishedDate,
+    List<String>? categories,
+    int? pageCount,
+    String? language,
+    String? title,
+    String? author,
+    String? imageUrl,
+    String? publisher,
+    String? isbn,
+  }) {
+    return BookDetailInfo(
+      description: description ?? this.description,
+      publishedDate: publishedDate ?? this.publishedDate,
+      categories: categories ?? this.categories,
+      pageCount: pageCount ?? this.pageCount,
+      language: language ?? this.language,
+      title: title ?? this.title,
+      author: author ?? this.author,
+      imageUrl: imageUrl ?? this.imageUrl,
+      publisher: publisher ?? this.publisher,
+      isbn: isbn ?? this.isbn,
+    );
+  }
 }
