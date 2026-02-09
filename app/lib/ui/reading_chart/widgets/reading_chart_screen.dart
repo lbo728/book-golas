@@ -363,10 +363,10 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
 
     return Scaffold(
       backgroundColor:
-          isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+          isDark ? BLabColors.scaffoldDark : BLabColors.scaffoldLight,
       appBar: AppBar(
         backgroundColor:
-            isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+            isDark ? BLabColors.scaffoldDark : BLabColors.scaffoldLight,
         elevation: 0,
         title: Text(AppLocalizations.of(context)!.chartTitle),
         centerTitle: false,
@@ -593,21 +593,21 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                               AppLocalizations.of(context)!.chartTotalPages,
                               '${stats['total_pages']}p',
                               Icons.menu_book_rounded,
-                              AppColors.primary,
+                              BLabColors.primary,
                               isDark,
                             ),
                             _buildStatCard(
                               AppLocalizations.of(context)!.chartDailyAvgPages,
                               '${(stats['average_daily'] as double).toStringAsFixed(1)}p',
                               Icons.calendar_today_rounded,
-                              AppColors.success,
+                              BLabColors.success,
                               isDark,
                             ),
                             _buildStatCard(
                               AppLocalizations.of(context)!.chartMaxDaily,
                               '${stats['max_daily']}p',
                               Icons.trending_up_rounded,
-                              AppColors.warningAlt,
+                              BLabColors.warningAlt,
                               isDark,
                             ),
                             _buildStatCard(
@@ -615,21 +615,21 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                                   .chartConsecutiveDays,
                               '$streak${AppLocalizations.of(context)!.unitDay}',
                               Icons.local_fire_department_rounded,
-                              AppColors.destructive,
+                              BLabColors.destructive,
                               isDark,
                             ),
                             _buildStatCard(
                               AppLocalizations.of(context)!.chartMinDaily,
                               '${stats['min_daily']}p',
                               Icons.trending_down_rounded,
-                              AppColors.info,
+                              BLabColors.info,
                               isDark,
                             ),
                             _buildStatCard(
                               AppLocalizations.of(context)!.chartTodayGoal,
                               '${(vm.goalRate * 100).toStringAsFixed(0)}%',
                               Icons.flag_rounded,
-                              AppColors.info,
+                              BLabColors.info,
                               isDark,
                             ),
                           ],
@@ -693,7 +693,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.surfaceDark : Colors.white,
+                    color: isDark ? BLabColors.surfaceDark : Colors.white,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -705,7 +705,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
+                          color: BLabColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
@@ -714,7 +714,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.primary,
+                              color: BLabColors.primary,
                             ),
                           ),
                         ),
@@ -754,7 +754,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                                 Icons.add,
                                 size: 16,
                                 color: dailyPage > 0
-                                    ? AppColors.success
+                                    ? BLabColors.success
                                     : Colors.grey,
                               ),
                               Text(
@@ -763,7 +763,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: dailyPage > 0
-                                      ? AppColors.success
+                                      ? BLabColors.success
                                       : Colors.grey,
                                 ),
                               ),
@@ -796,7 +796,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.grey[50],
+        color: isDark ? BLabColors.surfaceDark : Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -837,7 +837,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                           ),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? AppColors.primary
+                                ? BLabColors.primary
                                 : (isDark
                                     ? Colors.grey[800]
                                     : Colors.grey[200]),
@@ -873,7 +873,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color:
-                      isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+                      isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -893,7 +893,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 width: 12,
                 height: 3,
                 decoration: BoxDecoration(
-                  color: AppColors.primary,
+                  color: BLabColors.primary,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -936,7 +936,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.grey[50],
+        color: isDark ? BLabColors.surfaceDark : Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -977,7 +977,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         barRods: [
           BarChartRodData(
             toY: normalizedDaily,
-            color: AppColors.success.withValues(alpha: 0.7),
+            color: BLabColors.success.withValues(alpha: 0.7),
             width: aggregated.length > 30 ? 4 : 8,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(2),
@@ -1087,14 +1087,14 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                   LineChartBarData(
                     spots: lineSpots,
                     isCurved: true,
-                    color: AppColors.primary,
+                    color: BLabColors.primary,
                     barWidth: 3,
                     dotData: FlDotData(
                       show: aggregated.length <= 30,
                       getDotPainter: (spot, percent, barData, index) {
                         return FlDotCirclePainter(
                           radius: 3,
-                          color: AppColors.primary,
+                          color: BLabColors.primary,
                           strokeWidth: 2,
                           strokeColor: Colors.white,
                         );
@@ -1153,7 +1153,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -1239,7 +1239,7 @@ class _SectionTabBarDelegate extends SliverPersistentHeaderDelegate {
     bool overlapsContent,
   ) {
     return Container(
-      color: isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+      color: isDark ? BLabColors.scaffoldDark : BLabColors.scaffoldLight,
       child: SingleChildScrollView(
         controller: scrollController,
         scrollDirection: Axis.horizontal,
@@ -1263,12 +1263,12 @@ class _SectionTabBarDelegate extends SliverPersistentHeaderDelegate {
                     ),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? AppColors.primary
-                          : AppColors.primary.withOpacity(0.1),
+                          ? BLabColors.primary
+                          : BLabColors.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                       border: !isSelected
                           ? Border.all(
-                              color: AppColors.primary.withOpacity(0.3),
+                              color: BLabColors.primary.withOpacity(0.3),
                               width: 1,
                             )
                           : null,

@@ -21,7 +21,7 @@ Future<bool?> showDailyTargetConfirmSheet({
           24 + MediaQuery.of(context).viewPadding.bottom,
         ),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
@@ -39,12 +39,12 @@ Future<bool?> showDailyTargetConfirmSheet({
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.warning.withValues(alpha: 0.1),
+                color: BLabColors.warning.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: const Icon(
                 CupertinoIcons.calendar_today,
-                color: AppColors.warning,
+                color: BLabColors.warning,
                 size: 32,
               ),
             ),
@@ -104,7 +104,7 @@ Future<bool?> showDailyTargetConfirmSheet({
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(context, true),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.success,
+                      backgroundColor: BLabColors.success,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),

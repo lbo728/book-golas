@@ -94,7 +94,7 @@ class _ExtractedTextModalState extends State<ExtractedTextModal> {
               constraints: BoxConstraints(maxHeight: maxModalHeight),
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: widget.isDark ? AppColors.surfaceDark : Colors.white,
+                color: widget.isDark ? BLabColors.surfaceDark : Colors.white,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -242,7 +242,7 @@ class _ExtractedTextModalState extends State<ExtractedTextModal> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               decoration: BoxDecoration(
-                                color: AppColors.primary,
+                                color: BLabColors.primary,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Center(

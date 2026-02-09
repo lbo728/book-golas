@@ -251,7 +251,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
           CustomSnackbar.show(
             context,
             message: '총 페이지 수(${widget.totalPages})를 초과할 수 없습니다',
-            type: SnackbarType.error,
+            type: BLabSnackbarType.error,
             rootOverlay: true,
             aboveKeyboard: true,
           );
@@ -338,7 +338,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                   height: MediaQuery.of(context).size.height * 0.85 -
                       MediaQuery.of(context).padding.top,
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.surfaceDark : Colors.white,
+                    color: isDark ? BLabColors.surfaceDark : Colors.white,
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(24),
                     ),
@@ -393,7 +393,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
       builder: (bottomSheetContext) => Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
@@ -697,7 +697,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: _highlights.isNotEmpty
-                      ? AppColors.primary.withValues(alpha: 0.9)
+                      ? BLabColors.primary.withValues(alpha: 0.9)
                       : Colors.black54,
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -939,7 +939,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                     borderSide: BorderSide(
                       color: _pageValidationError != null
                           ? Colors.red[400]!
-                          : AppColors.primary,
+                          : BLabColors.primary,
                     ),
                   ),
                 ),
@@ -1155,13 +1155,13 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
             color: _canUpload
-                ? AppColors.primary
+                ? BLabColors.primary
                 : (isDark ? Colors.grey[700] : Colors.grey[300]),
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
                 color: _canUpload
-                    ? AppColors.primary.withValues(alpha: 0.3)
+                    ? BLabColors.primary.withValues(alpha: 0.3)
                     : Colors.transparent,
                 blurRadius: 12,
                 offset: const Offset(0, 4),
@@ -1246,7 +1246,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const CircularProgressIndicator(color: AppColors.primary),
+              const CircularProgressIndicator(color: BLabColors.primary),
               const SizedBox(height: 16),
               Text(
                 AppLocalizations.of(context)!.uploading,

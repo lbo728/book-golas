@@ -135,7 +135,7 @@ class ProgressHistoryTab extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -175,7 +175,7 @@ class ProgressHistoryTab extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.warning.withValues(alpha: 0.12),
+                  color: BLabColors.warning.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -183,7 +183,7 @@ class ProgressHistoryTab extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.warning,
+                    color: BLabColors.warning,
                   ),
                 ),
               ),
@@ -193,7 +193,7 @@ class ProgressHistoryTab extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.12),
+            color: BLabColors.primary.withOpacity(0.12),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
@@ -201,7 +201,7 @@ class ProgressHistoryTab extends StatelessWidget {
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: AppColors.primary,
+              color: BLabColors.primary,
             ),
           ),
         ),
@@ -215,9 +215,9 @@ class ProgressHistoryTab extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _buildLegendItem(
-            l10n.historyTabCumulativePages, AppColors.primary, isDark),
+            l10n.historyTabCumulativePages, BLabColors.primary, isDark),
         const SizedBox(width: 24),
-        _buildLegendItem(l10n.historyTabDailyPages, AppColors.success, isDark),
+        _buildLegendItem(l10n.historyTabDailyPages, BLabColors.success, isDark),
       ],
     );
   }
@@ -272,7 +272,7 @@ class ProgressHistoryTab extends StatelessWidget {
               lineTouchData: LineTouchData(
                 touchTooltipData: LineTouchTooltipData(
                   tooltipBgColor:
-                      isDark ? AppColors.elevatedDark : Colors.white,
+                      isDark ? BLabColors.elevatedDark : Colors.white,
                   tooltipBorder: BorderSide(
                     color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
                     width: 1,
@@ -304,7 +304,7 @@ class ProgressHistoryTab extends StatelessWidget {
                             TextSpan(
                               text: '누적: $cumulativePage p\n',
                               style: const TextStyle(
-                                color: AppColors.primary,
+                                color: BLabColors.primary,
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -312,7 +312,7 @@ class ProgressHistoryTab extends StatelessWidget {
                             TextSpan(
                               text: '일일: +$dailyPage p',
                               style: const TextStyle(
-                                color: AppColors.success,
+                                color: BLabColors.success,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -335,7 +335,7 @@ class ProgressHistoryTab extends StatelessWidget {
                       FlSpot(spot.x, scaledY.clamp(0, scaledMaxY * 0.35)),
                     ],
                     isCurved: false,
-                    color: AppColors.success,
+                    color: BLabColors.success,
                     barWidth: barWidth,
                     dotData: const FlDotData(show: false),
                   );
@@ -344,7 +344,7 @@ class ProgressHistoryTab extends StatelessWidget {
                   spots: spots,
                   isCurved: true,
                   gradient: const LinearGradient(
-                    colors: [AppColors.primary, AppColors.primary],
+                    colors: [BLabColors.primary, BLabColors.primary],
                   ),
                   barWidth: 3,
                   dotData: FlDotData(
@@ -352,9 +352,9 @@ class ProgressHistoryTab extends StatelessWidget {
                     getDotPainter: (spot, percent, barData, index) {
                       return FlDotCirclePainter(
                         radius: 4,
-                        color: isDark ? AppColors.surfaceDark : Colors.white,
+                        color: isDark ? BLabColors.surfaceDark : Colors.white,
                         strokeWidth: 2,
-                        strokeColor: AppColors.primary,
+                        strokeColor: BLabColors.primary,
                       );
                     },
                   ),
@@ -362,8 +362,8 @@ class ProgressHistoryTab extends StatelessWidget {
                     show: true,
                     gradient: LinearGradient(
                       colors: [
-                        AppColors.primary.withValues(alpha: 0.15),
-                        AppColors.primary.withValues(alpha: 0.0),
+                        BLabColors.primary.withValues(alpha: 0.15),
+                        BLabColors.primary.withValues(alpha: 0.0),
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -472,7 +472,7 @@ class ProgressHistoryTab extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.surfaceDark : Colors.white,
+            color: isDark ? BLabColors.surfaceDark : Colors.white,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -496,7 +496,7 @@ class ProgressHistoryTab extends StatelessWidget {
                     child: _buildStatItem(
                       '총 독서 시간',
                       '$hours시간 $minutes분 $seconds초',
-                      AppColors.primary,
+                      BLabColors.primary,
                       isDark,
                     ),
                   ),
@@ -505,7 +505,7 @@ class ProgressHistoryTab extends StatelessWidget {
                     child: _buildStatItem(
                       '총 세션',
                       '${(totalSeconds / 60).toStringAsFixed(0)}분',
-                      AppColors.success,
+                      BLabColors.success,
                       isDark,
                     ),
                   ),
@@ -525,7 +525,7 @@ class ProgressHistoryTab extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -657,7 +657,7 @@ class ProgressHistoryTab extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 5, vertical: 1),
                         decoration: BoxDecoration(
-                          color: AppColors.warning.withValues(alpha: 0.15),
+                          color: BLabColors.warning.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -665,7 +665,7 @@ class ProgressHistoryTab extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.warning,
+                            color: BLabColors.warning,
                           ),
                         ),
                       ),
@@ -704,14 +704,14 @@ class ProgressHistoryTab extends StatelessWidget {
           'emoji': '🏆',
           'title': '드디어 완독!',
           'message': '$attemptCount번의 도전 끝에 완독에 성공했어요. 포기하지 않은 당신이 멋져요!',
-          'color': AppColors.success,
+          'color': BLabColors.success,
         };
       }
       return {
         'emoji': '🎉',
         'title': '완독 축하해요!',
         'message': '목표를 달성했어요. 다음 책도 함께 읽어볼까요?',
-        'color': AppColors.success,
+        'color': BLabColors.success,
       };
     }
 
@@ -721,14 +721,14 @@ class ProgressHistoryTab extends StatelessWidget {
           'emoji': '💪',
           'title': '이번엔 완주해봐요',
           'message': '$attemptCount번째 도전이에요. 목표일을 재설정하고 끝까지 읽어볼까요?',
-          'color': AppColors.destructive,
+          'color': BLabColors.destructive,
         };
       }
       return {
         'emoji': '⏰',
         'title': '목표일이 지났어요',
         'message': '괜찮아요, 새 목표일을 설정하고 다시 시작해봐요!',
-        'color': AppColors.destructive,
+        'color': BLabColors.destructive,
       };
     }
 
@@ -737,7 +737,7 @@ class ProgressHistoryTab extends StatelessWidget {
         'emoji': '🚀',
         'title': '놀라운 속도예요!',
         'message': '예상보다 훨씬 빠르게 읽고 있어요. 이 페이스면 일찍 완독할 수 있겠어요!',
-        'color': AppColors.primary,
+        'color': BLabColors.primary,
       };
     }
 
@@ -746,7 +746,7 @@ class ProgressHistoryTab extends StatelessWidget {
         'emoji': '✨',
         'title': '순조롭게 진행 중!',
         'message': '계획보다 앞서가고 있어요. 이대로만 하면 목표 달성 확실해요!',
-        'color': AppColors.success,
+        'color': BLabColors.success,
       };
     }
 
@@ -755,7 +755,7 @@ class ProgressHistoryTab extends StatelessWidget {
         'emoji': '📖',
         'title': '계획대로 진행 중',
         'message': '꾸준히 읽고 있어요. 오늘도 조금씩 읽어볼까요?',
-        'color': AppColors.primary,
+        'color': BLabColors.primary,
       };
     }
 
@@ -765,14 +765,14 @@ class ProgressHistoryTab extends StatelessWidget {
           'emoji': '🔥',
           'title': '조금 더 속도를 내볼까요?',
           'message': '이번에는 꼭 완독해봐요. 매일 조금씩 더 읽으면 따라잡을 수 있어요!',
-          'color': AppColors.warning,
+          'color': BLabColors.warning,
         };
       }
       return {
         'emoji': '📚',
         'title': '조금 더 읽어볼까요?',
         'message': '계획보다 살짝 뒤처졌어요. 오늘 조금 더 읽으면 따라잡을 수 있어요!',
-        'color': AppColors.warning,
+        'color': BLabColors.warning,
       };
     }
 
@@ -781,14 +781,14 @@ class ProgressHistoryTab extends StatelessWidget {
         'emoji': '💫',
         'title': '포기하지 마세요!',
         'message': '$attemptCount번째 도전 중이에요. 목표일을 조정하거나 더 집중해서 읽어봐요!',
-        'color': AppColors.destructive,
+        'color': BLabColors.destructive,
       };
     }
     return {
       'emoji': '📅',
       'title': '목표 재설정이 필요할 수도',
       'message': '현재 페이스로는 목표 달성이 어려워요. 목표일을 조정해볼까요?',
-      'color': AppColors.destructive,
+      'color': BLabColors.destructive,
     };
   }
 
@@ -834,7 +834,7 @@ class ProgressHistoryTab extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 8),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.surfaceDark : Colors.white,
+            color: isDark ? BLabColors.surfaceDark : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -846,7 +846,7 @@ class ProgressHistoryTab extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: BLabColors.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Center(
@@ -855,7 +855,7 @@ class ProgressHistoryTab extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
+                      color: BLabColors.primary,
                     ),
                   ),
                 ),
@@ -901,7 +901,7 @@ class ProgressHistoryTab extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.success,
+                          color: BLabColors.success,
                         ),
                       ),
                       Text(
@@ -999,7 +999,7 @@ class ProgressHistoryTab extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: isDark ? AppColors.surfaceDark : Colors.white,
+                color: isDark ? BLabColors.surfaceDark : Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isDark ? Colors.grey[800]! : Colors.grey[200]!,

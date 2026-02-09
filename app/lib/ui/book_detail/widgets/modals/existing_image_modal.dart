@@ -222,7 +222,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
         builder: (bottomSheetContext) => Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.surfaceDark : Colors.white,
+            color: isDark ? BLabColors.surfaceDark : Colors.white,
             borderRadius: const BorderRadius.vertical(
               top: Radius.circular(20),
             ),
@@ -294,7 +294,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         decoration: BoxDecoration(
-                          color: AppColors.primary,
+                          color: BLabColors.primary,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
@@ -335,7 +335,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
           context,
           message: AppLocalizations.of(context)!
               .pageExceedsTotalError(widget.totalPages),
-          type: SnackbarType.error,
+          type: BLabSnackbarType.error,
           rootOverlay: true,
           aboveKeyboard: true,
         );
@@ -367,7 +367,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
         Navigator.pop(context);
         CustomSnackbar.show(context,
             message: AppLocalizations.of(context)!.dialogSaved,
-            type: SnackbarType.success);
+            type: BLabSnackbarType.success);
       } else {
         setState(() => _isSaving = false);
       }
@@ -419,7 +419,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
               Container(
                 height: modalHeight,
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.surfaceDark : Colors.white,
+                  color: isDark ? BLabColors.surfaceDark : Colors.white,
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(24),
                   ),
@@ -522,7 +522,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: _isSaving ? Colors.grey : AppColors.primary,
+                  color: _isSaving ? Colors.grey : BLabColors.primary,
                 ),
               ),
             )
@@ -594,7 +594,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(
-                  color: _pageNumberError ? Colors.red : AppColors.primary,
+                  color: _pageNumberError ? Colors.red : BLabColors.primary,
                 ),
               ),
             ),
@@ -818,7 +818,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: hasHighlights
-              ? AppColors.primary.withValues(alpha: 0.9)
+              ? BLabColors.primary.withValues(alpha: 0.9)
               : Colors.black54,
           borderRadius: BorderRadius.circular(8),
         ),
@@ -1088,14 +1088,14 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
           child: Row(
             children: [
               const Icon(CupertinoIcons.pencil,
-                  size: 14, color: AppColors.primary),
+                  size: 14, color: BLabColors.primary),
               const SizedBox(width: 4),
               Text(
                 AppLocalizations.of(context)!.editButton,
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.primary,
+                  color: BLabColors.primary,
                 ),
               ),
             ],

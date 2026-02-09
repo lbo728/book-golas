@@ -145,7 +145,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
       maxChildSize: 0.95,
       builder: (context, scrollController) => Container(
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
@@ -245,7 +245,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
       children: [
         TabBar(
           controller: _tabController,
-          labelColor: AppColors.primary,
+          labelColor: BLabColors.primary,
           unselectedLabelColor: isDark ? Colors.grey[500] : Colors.grey[400],
           labelStyle: const TextStyle(
             fontSize: 15,
@@ -255,7 +255,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
             fontSize: 15,
             fontWeight: FontWeight.w500,
           ),
-          indicatorColor: AppColors.primary,
+          indicatorColor: BLabColors.primary,
           indicatorWeight: 2.5,
           dividerColor: isDark ? Colors.grey[800] : Colors.grey[200],
           tabs: [
@@ -336,7 +336,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: BLabColors.primary,
                 ),
               ),
             ),
@@ -501,7 +501,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 16),
             decoration: BoxDecoration(
-              color: AppColors.primary,
+              color: BLabColors.primary,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(

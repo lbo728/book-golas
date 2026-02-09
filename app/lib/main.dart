@@ -292,8 +292,8 @@ class MyApp extends StatelessWidget {
             title: 'Bookgolas',
             debugShowCheckedModeBanner: false,
             themeMode: themeViewModel.themeMode,
-            theme: AppTheme.light,
-            darkTheme: AppTheme.dark,
+            theme: BLabTheme.light,
+            darkTheme: BLabTheme.dark,
             locale: localeViewModel.locale,
             localizationsDelegates: [
               AppLocalizations.delegate,
@@ -633,7 +633,7 @@ class _MainScreenState extends State<MainScreen>
         ],
       ),
       backgroundColor:
-          isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+          isDark ? BLabColors.scaffoldDark : BLabColors.scaffoldLight,
       extendBody: true,
       bottomNavigationBar: _buildAnimatedBottomBar(isInReadingDetailContext),
     );
@@ -652,7 +652,7 @@ class _MainScreenState extends State<MainScreen>
           }
         });
       }
-      return LiquidGlassBottomBar(
+      return BLabBottomBar(
         selectedIndex: _selectedIndex,
         onTabSelected: _onItemTapped,
         onSearchTap: _onSearchTap,
@@ -673,7 +673,7 @@ class _MainScreenState extends State<MainScreen>
     }
 
     if (_selectedIndex != 0) {
-      return LiquidGlassBottomBar(
+      return BLabBottomBar(
         selectedIndex: _selectedIndex,
         onTabSelected: _onTabSelectedInReadingModeFromOtherTab,
         onSearchTap: _onSearchTap,
@@ -709,7 +709,7 @@ class _MainScreenState extends State<MainScreen>
   }
 
   Widget _buildRegularBarContent() {
-    return LiquidGlassBottomBar(
+    return BLabBottomBar(
       selectedIndex: _selectedIndex,
       onTabSelected: _onTabSelectedInReadingMode,
       onSearchTap: _onSearchTap,

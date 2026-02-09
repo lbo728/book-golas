@@ -73,7 +73,7 @@ class _RecordDetailSheetContentState extends State<_RecordDetailSheetContent> {
     CustomSnackbar.show(
       context,
       message: AppLocalizations.of(context)!.recallContentCopied,
-      type: SnackbarType.success,
+      type: BLabSnackbarType.success,
       bottomOffset: 32,
     );
   }
@@ -88,7 +88,7 @@ class _RecordDetailSheetContentState extends State<_RecordDetailSheetContent> {
         maxHeight: MediaQuery.of(context).size.height * 0.85,
       ),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -340,7 +340,7 @@ class _RecordDetailSheetContentState extends State<_RecordDetailSheetContent> {
         icon: const Icon(CupertinoIcons.book, size: 18),
         label: Text(AppLocalizations.of(context)!.recallViewInBook),
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor: BLabColors.primary,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
@@ -354,7 +354,7 @@ class _RecordDetailSheetContentState extends State<_RecordDetailSheetContent> {
   Color _getTypeColor(String type) {
     switch (type) {
       case 'highlight':
-        return AppColors.primary;
+        return BLabColors.primary;
       case 'note':
         return Colors.orange;
       case 'photo_ocr':

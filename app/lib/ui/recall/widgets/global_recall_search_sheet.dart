@@ -87,7 +87,7 @@ class _GlobalRecallSearchSheetContentState
     CustomSnackbar.show(
       context,
       message: AppLocalizations.of(context)!.recallTextCopied,
-      type: SnackbarType.success,
+      type: BLabSnackbarType.success,
       bottomOffset: 32,
     );
   }
@@ -139,7 +139,7 @@ class _GlobalRecallSearchSheetContentState
         children: [
           Container(
             decoration: BoxDecoration(
-              color: isDark ? AppColors.surfaceDark : Colors.white,
+              color: isDark ? BLabColors.surfaceDark : Colors.white,
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(20)),
             ),
@@ -169,12 +169,12 @@ class _GlobalRecallSearchSheetContentState
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                   color:
-                                      AppColors.primary.withValues(alpha: 0.1),
+                                      BLabColors.primary.withValues(alpha: 0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
                                   Icons.auto_awesome,
-                                  color: AppColors.primary,
+                                  color: BLabColors.primary,
                                   size: 20,
                                 ),
                               ),
@@ -226,12 +226,12 @@ class _GlobalRecallSearchSheetContentState
                                 padding: const EdgeInsets.all(4),
                                 decoration: BoxDecoration(
                                   color:
-                                      AppColors.primary.withValues(alpha: 0.15),
+                                      BLabColors.primary.withValues(alpha: 0.15),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
                                   Icons.auto_awesome,
-                                  color: AppColors.primary,
+                                  color: BLabColors.primary,
                                   size: 16,
                                 ),
                               ),
@@ -244,7 +244,7 @@ class _GlobalRecallSearchSheetContentState
                                     ? (isDark
                                         ? Colors.grey[600]
                                         : Colors.grey[400])
-                                    : AppColors.primary,
+                                    : BLabColors.primary,
                               ),
                               onPressed: () => _search(_controller.text),
                             ),
@@ -254,7 +254,7 @@ class _GlobalRecallSearchSheetContentState
                             ),
                             filled: true,
                             fillColor: isDark
-                                ? AppColors.elevatedDark
+                                ? BLabColors.elevatedDark
                                 : Colors.grey[100],
                           ),
                           onSubmitted: _search,
@@ -270,7 +270,7 @@ class _GlobalRecallSearchSheetContentState
                             width: 48,
                             decoration: BoxDecoration(
                               color: isDark
-                                  ? AppColors.elevatedDark
+                                  ? BLabColors.elevatedDark
                                   : Colors.grey[100],
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -322,7 +322,7 @@ class _GlobalRecallSearchSheetContentState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const CircularProgressIndicator(color: AppColors.primary),
+            const CircularProgressIndicator(color: BLabColors.primary),
             const SizedBox(height: 16),
             Text(
               AppLocalizations.of(context)!.recallSearchingAllBooks,
@@ -439,7 +439,7 @@ class _GlobalRecallSearchSheetContentState
           margin: const EdgeInsets.only(bottom: 8),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.elevatedDark : Colors.grey[100],
+            color: isDark ? BLabColors.elevatedDark : Colors.grey[100],
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -482,13 +482,13 @@ class _GlobalRecallSearchSheetContentState
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: BLabColors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.auto_awesome,
               size: 40,
-              color: AppColors.primary,
+              color: BLabColors.primary,
             ),
           ),
           const SizedBox(height: 20),
@@ -537,11 +537,11 @@ class _GlobalRecallSearchSheetContentState
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDark
-            ? AppColors.primary.withValues(alpha: 0.15)
-            : AppColors.primary.withValues(alpha: 0.08),
+            ? BLabColors.primary.withValues(alpha: 0.15)
+            : BLabColors.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.2),
+          color: BLabColors.primary.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -552,13 +552,13 @@ class _GlobalRecallSearchSheetContentState
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.2),
+                  color: BLabColors.primary.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.auto_awesome,
                   size: 16,
-                  color: AppColors.primary,
+                  color: BLabColors.primary,
                 ),
               ),
               const SizedBox(width: 8),
@@ -567,7 +567,7 @@ class _GlobalRecallSearchSheetContentState
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: BLabColors.primary,
                 ),
               ),
               const Spacer(),
@@ -635,7 +635,7 @@ class _GlobalRecallSearchSheetContentState
                         .recallMoreBooks(viewModel.hiddenBooksCount),
                     style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.primary,
+                      color: BLabColors.primary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -852,7 +852,7 @@ class _GlobalRecallSearchSheetContentState
   Color _getTypeColor(String type) {
     switch (type) {
       case 'highlight':
-        return AppColors.primary;
+        return BLabColors.primary;
       case 'note':
         return Colors.orange;
       case 'photo_ocr':

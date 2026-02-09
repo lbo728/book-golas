@@ -179,7 +179,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.subtleDark : Colors.grey[100],
+          color: isDark ? BLabColors.subtleDark : Colors.grey[100],
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -213,7 +213,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
       child: Row(
         children: [
           if (widget.sortMode == value)
-            const Icon(Icons.check, size: 18, color: AppColors.primary)
+            const Icon(Icons.check, size: 18, color: BLabColors.primary)
           else
             const SizedBox(width: 18),
           const SizedBox(width: 8),
@@ -233,12 +233,12 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
             icon: const Icon(
               CupertinoIcons.trash,
               size: 18,
-              color: AppColors.error,
+              color: BLabColors.error,
             ),
             label: Text(
               l10n.memorablePagesDelete,
               style: const TextStyle(
-                color: AppColors.error,
+                color: BLabColors.error,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -259,7 +259,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: AppColors.primary,
+              color: BLabColors.primary,
             ),
           ),
         ),
@@ -304,7 +304,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -452,10 +452,10 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
           height: 24,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isSelected ? AppColors.primary : Colors.transparent,
+            color: isSelected ? BLabColors.primary : Colors.transparent,
             border: Border.all(
               color: isSelected
-                  ? AppColors.primary
+                  ? BLabColors.primary
                   : (isDark ? Colors.grey[600]! : Colors.grey[400]!),
               width: 2,
             ),

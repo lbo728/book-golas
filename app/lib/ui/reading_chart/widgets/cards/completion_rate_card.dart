@@ -35,7 +35,7 @@ class CompletionRateCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -58,7 +58,7 @@ class CompletionRateCard extends StatelessWidget {
               AppLocalizations.of(context)!.chartCompletionRateLabel,
               completionRate,
               Icons.check_circle_outline,
-              AppColors.primary,
+              BLabColors.primary,
               AppLocalizations.of(context)!.chartCompletionRateBooks(completed),
             ),
             const SizedBox(height: 16),
@@ -95,13 +95,13 @@ class CompletionRateCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
+            color: BLabColors.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(
             Icons.analytics_outlined,
             size: 24,
-            color: AppColors.primary,
+            color: BLabColors.primary,
           ),
         ),
         const SizedBox(width: 12),
@@ -254,7 +254,7 @@ class CompletionRateCard extends StatelessWidget {
   Widget _buildEmptyState(BuildContext context, bool isDark) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(

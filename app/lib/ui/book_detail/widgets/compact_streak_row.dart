@@ -58,7 +58,7 @@ class CompactStreakRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
@@ -99,7 +99,7 @@ class CompactStreakRow extends StatelessWidget {
                   fontSize: 11,
                   fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
                   color: isToday
-                      ? AppColors.primary
+                      ? BLabColors.primary
                       : (isDark ? Colors.grey[400] : Colors.grey[500]),
                 ),
               ),
@@ -109,14 +109,14 @@ class CompactStreakRow extends StatelessWidget {
                 height: 20,
                 decoration: BoxDecoration(
                   color: isAchieved
-                      ? AppColors.success
+                      ? BLabColors.success
                       : (isDark
                           ? Colors.white.withValues(alpha: 0.12)
                           : Colors.grey[200]),
                   shape: BoxShape.circle,
                   border: isToday
                       ? Border.all(
-                          color: AppColors.primary,
+                          color: BLabColors.primary,
                           width: 2,
                         )
                       : null,
@@ -145,7 +145,7 @@ class CompactStreakRow extends StatelessWidget {
           CupertinoIcons.flame_fill,
           size: 16,
           color: streak > 0
-              ? AppColors.warning
+              ? BLabColors.warning
               : (isDark ? Colors.grey[500] : Colors.grey[400]),
         ),
         const SizedBox(width: 4),

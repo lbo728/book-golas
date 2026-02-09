@@ -31,7 +31,7 @@ class ReviewLinkSection extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.subtleDark : Colors.grey[50],
+        color: isDark ? BLabColors.subtleDark : Colors.grey[50],
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -211,7 +211,7 @@ class ReviewLinkSection extends StatelessWidget {
           builder: (context, setModalState) {
             return Container(
               decoration: BoxDecoration(
-                color: isDark ? AppColors.surfaceDark : Colors.white,
+                color: isDark ? BLabColors.surfaceDark : Colors.white,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -268,7 +268,7 @@ class ReviewLinkSection extends StatelessWidget {
                         borderSide: BorderSide(
                           color: errorText != null
                               ? Colors.red
-                              : AppColors.primary,
+                              : BLabColors.primary,
                           width: 2,
                         ),
                       ),
@@ -315,7 +315,7 @@ class ReviewLinkSection extends StatelessWidget {
                                 }
                               : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: BLabColors.primary,
                             disabledBackgroundColor:
                                 isDark ? Colors.grey[700] : Colors.grey[300],
                             padding: const EdgeInsets.symmetric(vertical: 16),

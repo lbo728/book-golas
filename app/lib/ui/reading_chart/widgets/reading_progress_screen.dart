@@ -29,12 +29,12 @@ class ReadingProgressScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context).readingProgressTitle),
         backgroundColor:
-            isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+            isDark ? BLabColors.scaffoldDark : BLabColors.scaffoldLight,
         foregroundColor: isDark ? Colors.white : Colors.black,
         elevation: 0,
       ),
       backgroundColor:
-          isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+          isDark ? BLabColors.scaffoldDark : BLabColors.scaffoldLight,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: FutureBuilder<List<Map<String, dynamic>>>(
@@ -65,7 +65,7 @@ class ReadingProgressScreen extends StatelessWidget {
                     LineChartBarData(
                       spots: spots,
                       isCurved: true,
-                      color: AppColors.primary,
+                      color: BLabColors.primary,
                       barWidth: 3,
                       dotData: const FlDotData(show: true),
                     ),
