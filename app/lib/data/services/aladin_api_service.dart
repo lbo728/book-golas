@@ -103,37 +103,78 @@ class AladinApiService {
     try {
       AppConfig.validateApiKeys();
 
-      final searchUri =
-          Uri.parse(AppConfig.aladinBaseUrl).replace(queryParameters: {
-        'ttbkey': AppConfig.aladinApiKey,
-        'Query': author != null ? '$title $author' : title,
-        'QueryType': 'Title',
-        'MaxResults': '1',
-        'start': '1',
-        'SearchTarget': 'Book',
-        'output': 'js',
-        'Version': AppConfig.apiVersion,
-        'Cover': 'Big',
-      });
+      final cleanTitle = _cleanTitle(title);
+      final cleanAuthor = _cleanAuthor(author);
+      final query =
+          cleanAuthor != null ? '$cleanTitle $cleanAuthor' : cleanTitle;
 
-      final response = await http.get(searchUri).timeout(
-            const Duration(seconds: 5),
-          );
+      debugPrint('📕 [Aladin] searchByTitle query="$query"');
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final List<dynamic> items = data['item'] ?? [];
-        if (items.isNotEmpty) {
-          final isbn13 = items[0]['isbn13']?.toString();
-          if (isbn13 != null && isbn13.isNotEmpty) {
-            final detailed = await lookupByISBN(isbn13);
-            if (detailed != null) return detailed;
-          }
-          return BookSearchResult.fromJson(items[0]);
-        }
+      var result = await _searchAladin(query);
+
+      if (result == null && cleanAuthor != null) {
+        debugPrint('📕 [Aladin] searchByTitle fallback: 제목만으로 재검색');
+        result = await _searchAladin(cleanTitle);
       }
+
+      return result;
     } catch (e) {
       debugPrint('📕 [Aladin] searchByTitle ERROR: $e');
+    }
+    return null;
+  }
+
+  static String _cleanTitle(String title) {
+    var cleaned = title.split(' - ').first.trim();
+    cleaned = cleaned.split(' : ').first.trim();
+    cleaned = cleaned.split('(').first.trim();
+    return cleaned;
+  }
+
+  static String? _cleanAuthor(String? author) {
+    if (author == null || author.isEmpty) return null;
+    var cleaned = author
+        .replaceAll(RegExp(r'\s*\(지은이\)'), '')
+        .replaceAll(RegExp(r'\s*\(옮긴이\)'), '')
+        .replaceAll(RegExp(r'\s*\(글\)'), '')
+        .replaceAll(RegExp(r'\s*\(그림\)'), '')
+        .replaceAll(RegExp(r'\s*\(저\)'), '')
+        .replaceAll(RegExp(r'\s*\(역\)'), '')
+        .replaceAll(RegExp(r'\s*\(편\)'), '')
+        .trim();
+    final firstAuthor = cleaned.split(',').first.trim();
+    return firstAuthor.isEmpty ? null : firstAuthor;
+  }
+
+  static Future<BookSearchResult?> _searchAladin(String query) async {
+    final searchUri =
+        Uri.parse(AppConfig.aladinBaseUrl).replace(queryParameters: {
+      'ttbkey': AppConfig.aladinApiKey,
+      'Query': query,
+      'QueryType': 'Title',
+      'MaxResults': '1',
+      'start': '1',
+      'SearchTarget': 'Book',
+      'output': 'js',
+      'Version': AppConfig.apiVersion,
+      'Cover': 'Big',
+    });
+
+    final response = await http.get(searchUri).timeout(
+          const Duration(seconds: 5),
+        );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final List<dynamic> items = data['item'] ?? [];
+      if (items.isNotEmpty) {
+        final isbn13 = items[0]['isbn13']?.toString();
+        if (isbn13 != null && isbn13.isNotEmpty) {
+          final detailed = await lookupByISBN(isbn13);
+          if (detailed != null) return detailed;
+        }
+        return BookSearchResult.fromJson(items[0]);
+      }
     }
     return null;
   }
