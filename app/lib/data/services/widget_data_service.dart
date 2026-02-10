@@ -13,7 +13,10 @@ class WidgetDataService {
   factory WidgetDataService() => _instance;
   WidgetDataService._internal();
 
-  static const String _widgetName = 'BookgolasWidget';
+  static const List<String> _widgetKinds = [
+    'BookgolasSmallWidget',
+    'BookgolasMediumWidget',
+  ];
 
   Future<void> syncCurrentBook(Book book) async {
     try {
@@ -22,10 +25,8 @@ class WidgetDataService {
       await HomeWidget.saveWidgetData<String>('book_id', book.id ?? '');
       await HomeWidget.saveWidgetData<String>('book_title', book.title);
       await HomeWidget.saveWidgetData<String>('book_author', book.author ?? '');
-      await HomeWidget.saveWidgetData<String>(
-          'current_page', book.currentPage.toString());
-      await HomeWidget.saveWidgetData<String>(
-          'total_pages', book.totalPages.toString());
+      await HomeWidget.saveWidgetData<int>('current_page', book.currentPage);
+      await HomeWidget.saveWidgetData<int>('total_pages', book.totalPages);
       await HomeWidget.saveWidgetData<String>(
           'image_path', localImagePath ?? '');
       await HomeWidget.saveWidgetData<String>('book_status', book.status ?? '');
@@ -45,8 +46,8 @@ class WidgetDataService {
       await HomeWidget.saveWidgetData<String>('book_id', '');
       await HomeWidget.saveWidgetData<String>('book_title', '');
       await HomeWidget.saveWidgetData<String>('book_author', '');
-      await HomeWidget.saveWidgetData<String>('current_page', '');
-      await HomeWidget.saveWidgetData<String>('total_pages', '');
+      await HomeWidget.saveWidgetData<int>('current_page', 0);
+      await HomeWidget.saveWidgetData<int>('total_pages', 0);
       await HomeWidget.saveWidgetData<String>('image_path', '');
       await HomeWidget.saveWidgetData<String>('book_status', '');
       await HomeWidget.saveWidgetData<String>('last_updated', '');
@@ -62,7 +63,12 @@ class WidgetDataService {
 
   Future<void> refreshWidget() async {
     try {
-      await HomeWidget.updateWidget(name: _widgetName);
+      for (final kind in _widgetKinds) {
+        await HomeWidget.updateWidget(
+          iOSName: kind,
+          name: kind,
+        );
+      }
       debugPrint('📱 [WidgetDataService] 위젯 갱신 요청 완료');
     } catch (e) {
       debugPrint('📱 [WidgetDataService] 위젯 갱신 실패: $e');
@@ -101,18 +107,15 @@ class WidgetDataService {
       if (!needsSync) return;
 
       final bookId = await HomeWidget.getWidgetData<String>('book_id');
-      final currentPageStr =
-          await HomeWidget.getWidgetData<String>('current_page');
+      final currentPageRaw =
+          await HomeWidget.getWidgetData<int>('current_page');
 
-      if (bookId == null ||
-          bookId.isEmpty ||
-          currentPageStr == null ||
-          currentPageStr.isEmpty) {
+      if (bookId == null || bookId.isEmpty) {
         return;
       }
 
-      final currentPage = int.tryParse(currentPageStr);
-      if (currentPage == null) return;
+      final currentPage = currentPageRaw;
+      if (currentPage == null || currentPage <= 0) return;
 
       final supabase = Supabase.instance.client;
       final userId = supabase.auth.currentUser?.id;

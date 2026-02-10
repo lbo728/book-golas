@@ -92,10 +92,12 @@ Future<void> widgetBackgroundCallback(Uri? uri) async {
 
   final newPage = (currentPage + delta).clamp(0, totalPages);
 
-  await HomeWidget.saveWidgetData<String>('current_page', newPage.toString());
+  await HomeWidget.saveWidgetData<int>('current_page', newPage);
   await HomeWidget.saveWidgetData<bool>('needs_sync', true);
-  await HomeWidget.updateWidget(name: 'BookgolasSmallWidget');
-  await HomeWidget.updateWidget(name: 'BookgolasMediumWidget');
+  await HomeWidget.updateWidget(
+      iOSName: 'BookgolasSmallWidget', name: 'BookgolasSmallWidget');
+  await HomeWidget.updateWidget(
+      iOSName: 'BookgolasMediumWidget', name: 'BookgolasMediumWidget');
 }
 
 Future<void> main() async {
