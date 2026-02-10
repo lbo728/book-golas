@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/data/services/widget_data_service.dart';
 import 'package:book_golas/utils/subscription_utils.dart';
 import 'package:book_golas/exceptions/subscription_exceptions.dart';
 
@@ -230,6 +231,12 @@ class BookService {
         } catch (historyError) {
           debugPrint('📖 [BookService] 히스토리 기록 실패 (무시됨): $historyError');
         }
+      }
+
+      try {
+        await WidgetDataService().syncCurrentBook(updatedBook);
+      } catch (widgetError) {
+        debugPrint('📖 [BookService] 위젯 동기화 실패 (무시됨): $widgetError');
       }
 
       return updatedBook;
