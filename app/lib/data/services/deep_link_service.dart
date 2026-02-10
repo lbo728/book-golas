@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
+import 'package:home_widget/home_widget.dart';
 
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/domain/models/book.dart';
@@ -12,6 +13,7 @@ enum DeepLinkAction {
   search,
   bookDetail,
   bookRecord,
+  bookScan,
 }
 
 class DeepLinkResult {
@@ -24,6 +26,7 @@ class DeepLinkResult {
 class DeepLinkService {
   static final AppLinks _appLinks = AppLinks();
   static StreamSubscription<Uri>? _linkSubscription;
+  static StreamSubscription<Uri?>? _widgetClickSubscription;
 
   static DeepLinkResult? parseUri(Uri uri) {
     if (uri.scheme != 'bookgolas') return null;
@@ -57,10 +60,51 @@ class DeepLinkService {
       }
     }
 
+    if (pathSegments.length == 3 && pathSegments[1] == 'scan') {
+      final bookId = pathSegments[2];
+      if (bookId.isNotEmpty) {
+        return DeepLinkResult(
+          action: DeepLinkAction.bookScan,
+          bookId: bookId,
+        );
+      }
+    }
+
     return null;
   }
 
   static Future<void> init(BuildContext context) async {
+    await _initWidgetClickHandler(context);
+    await _initAppLinks(context);
+  }
+
+  static Future<void> _initWidgetClickHandler(BuildContext context) async {
+    try {
+      final initialWidgetUri =
+          await HomeWidget.initiallyLaunchedFromHomeWidget();
+      if (initialWidgetUri != null && context.mounted) {
+        debugPrint('📱 위젯 콜드스타트 딥링크: $initialWidgetUri');
+        await _handleDeepLink(initialWidgetUri, context);
+      }
+    } catch (e) {
+      debugPrint('📱 위젯 초기 링크 처리 실패: $e');
+    }
+
+    _widgetClickSubscription?.cancel();
+    _widgetClickSubscription = HomeWidget.widgetClicked.listen(
+      (Uri? uri) {
+        if (uri != null && context.mounted) {
+          debugPrint('📱 위젯 클릭 딥링크: $uri');
+          _handleDeepLink(uri, context);
+        }
+      },
+      onError: (e) {
+        debugPrint('📱 위젯 클릭 스트림 에러: $e');
+      },
+    );
+  }
+
+  static Future<void> _initAppLinks(BuildContext context) async {
     try {
       final initialUri = await _appLinks.getInitialLink();
       if (initialUri != null && context.mounted) {
@@ -105,7 +149,6 @@ class DeepLinkService {
         break;
 
       case DeepLinkAction.bookDetail:
-      case DeepLinkAction.bookRecord:
         if (result.bookId == null) return;
         final book = await _fetchBook(result.bookId!);
         if (book == null) {
@@ -117,6 +160,46 @@ class DeepLinkService {
             context,
             MaterialPageRoute(
               builder: (context) => BookDetailScreen(book: book),
+            ),
+          );
+        }
+        break;
+
+      case DeepLinkAction.bookRecord:
+        if (result.bookId == null) return;
+        final recordBook = await _fetchBook(result.bookId!);
+        if (recordBook == null) {
+          debugPrint('🔗 책을 찾을 수 없음: ${result.bookId}');
+          return;
+        }
+        if (context.mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BookDetailScreen(
+                book: recordBook,
+                initialTabIndex: 1,
+              ),
+            ),
+          );
+        }
+        break;
+
+      case DeepLinkAction.bookScan:
+        if (result.bookId == null) return;
+        final scanBook = await _fetchBook(result.bookId!);
+        if (scanBook == null) {
+          debugPrint('🔗 책을 찾을 수 없음: ${result.bookId}');
+          return;
+        }
+        if (context.mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BookDetailScreen(
+                book: scanBook,
+                autoOpenScan: true,
+              ),
             ),
           );
         }
@@ -137,5 +220,7 @@ class DeepLinkService {
   static void dispose() {
     _linkSubscription?.cancel();
     _linkSubscription = null;
+    _widgetClickSubscription?.cancel();
+    _widgetClickSubscription = null;
   }
 }

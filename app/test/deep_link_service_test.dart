@@ -63,6 +63,37 @@ void main() {
     });
   });
 
+  group('DeepLinkService.parseUri - bookScan', () {
+    test('should extract bookId from scan URI', () {
+      final uri =
+          Uri(scheme: 'bookgolas', pathSegments: ['book', 'scan', 'abc-123']);
+      final result = DeepLinkService.parseUri(uri);
+
+      expect(result, isNotNull);
+      expect(result!.action, DeepLinkAction.bookScan);
+      expect(result.bookId, 'abc-123');
+    });
+
+    test('should parse UUID-style bookId for scan', () {
+      final uri = Uri(
+        scheme: 'bookgolas',
+        pathSegments: ['book', 'scan', '550e8400-e29b-41d4-a716-446655440000'],
+      );
+      final result = DeepLinkService.parseUri(uri);
+
+      expect(result, isNotNull);
+      expect(result!.action, DeepLinkAction.bookScan);
+      expect(result.bookId, '550e8400-e29b-41d4-a716-446655440000');
+    });
+
+    test('should return null for scan without bookId', () {
+      final uri = Uri(scheme: 'bookgolas', pathSegments: ['book', 'scan']);
+      final result = DeepLinkService.parseUri(uri);
+
+      expect(result, isNull);
+    });
+  });
+
   group('DeepLinkService.parseUri - invalid URIs', () {
     test('should return null for wrong scheme', () {
       final uri =
@@ -142,14 +173,15 @@ void main() {
   });
 
   group('DeepLinkAction enum', () {
-    test('should have three values', () {
-      expect(DeepLinkAction.values.length, 3);
+    test('should have four values', () {
+      expect(DeepLinkAction.values.length, 4);
     });
 
-    test('should contain search, bookDetail, bookRecord', () {
+    test('should contain search, bookDetail, bookRecord, bookScan', () {
       expect(DeepLinkAction.values, contains(DeepLinkAction.search));
       expect(DeepLinkAction.values, contains(DeepLinkAction.bookDetail));
       expect(DeepLinkAction.values, contains(DeepLinkAction.bookRecord));
+      expect(DeepLinkAction.values, contains(DeepLinkAction.bookScan));
     });
   });
 }

@@ -287,19 +287,19 @@ struct BookgolasMediumWidgetView: View {
 
                 VStack(spacing: 10) {
                     QuickActionButton(
-                        systemImage: "magnifyingglass",
-                        label: NSLocalizedString("widget_action_search", tableName: nil, bundle: .main, value: "Search", comment: ""),
-                        url: URL(string: "bookgolas://book/search")
-                    )
-                    QuickActionButton(
-                        systemImage: "square.and.pencil",
-                        label: NSLocalizedString("widget_action_record", tableName: nil, bundle: .main, value: "Record", comment: ""),
-                        url: URL(string: "bookgolas://book/record/\(entry.bookId)")
-                    )
-                    QuickActionButton(
-                        systemImage: "book.pages",
-                        label: NSLocalizedString("widget_action_page", tableName: nil, bundle: .main, value: "Page", comment: ""),
+                        systemImage: "book.fill",
+                        label: NSLocalizedString("widget_action_book", tableName: nil, bundle: .main, value: "Book", comment: ""),
                         url: URL(string: "bookgolas://book/detail/\(entry.bookId)")
+                    )
+                    QuickActionButton(
+                        systemImage: "doc.viewfinder",
+                        label: NSLocalizedString("widget_action_scan", tableName: nil, bundle: .main, value: "Scan", comment: ""),
+                        url: URL(string: "bookgolas://book/scan/\(entry.bookId)")
+                    )
+                    QuickActionButton(
+                        systemImage: "plus.circle",
+                        label: NSLocalizedString("widget_action_add", tableName: nil, bundle: .main, value: "Add", comment: ""),
+                        url: URL(string: "bookgolas://book/search")
                     )
                 }
                 .frame(width: 52)

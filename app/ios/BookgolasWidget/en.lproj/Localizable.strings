@@ -1,4 +1,4 @@
 "widget_empty_title" = "Add a book";
-"widget_action_search" = "Search";
-"widget_action_record" = "Record";
-"widget_action_page" = "Page";
+"widget_action_book" = "Book";
+"widget_action_scan" = "Scan";
+"widget_action_add" = "Add";
