@@ -2,6 +2,7 @@ import Flutter
 import UIKit
 import FirebaseCore
 import FirebaseMessaging
+import home_widget
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -27,6 +28,12 @@ import FirebaseMessaging
     }
 
     application.registerForRemoteNotifications()
+
+    if #available(iOS 17, *) {
+      HomeWidgetBackgroundWorker.setPluginRegistrantCallback { registry in
+        GeneratedPluginRegistrant.register(with: registry)
+      }
+    }
 
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
