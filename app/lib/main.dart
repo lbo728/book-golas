@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -31,9 +32,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
 import 'data/services/auth_service.dart';
+import 'data/services/deep_link_service.dart';
 import 'data/services/fcm_service.dart';
 import 'data/services/notification_settings_service.dart';
 import 'data/services/reading_progress_service.dart';
+import 'data/services/widget_data_service.dart';
 import 'ui/auth/widgets/login_screen.dart';
 import 'ui/calendar/view_model/calendar_view_model.dart';
 import 'ui/auth/widgets/my_page_screen.dart';
@@ -58,19 +61,46 @@ import 'ui/core/widgets/floating_timer_bar.dart';
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
 
-// 백그라운드 메시지 핸들러 (main 함수 밖에 정의)
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   debugPrint('📨 백그라운드 메시지 수신: ${message.notification?.title}');
-  debugPrint('📦 데이터 페이로드: ${message.data}');
+}
 
-  // 백그라운드에서도 데이터 페이로드를 활용할 수 있음
-  // 예: 로컬 알림 스케줄링, 데이터 저장 등
+@pragma('vm:entry-point')
+Future<void> widgetBackgroundCallback(Uri? uri) async {
+  if (uri == null) return;
+  if (uri.host != 'widget' || uri.path != '/update-page') return;
+
+  final bookId = uri.queryParameters['bookId'];
+  final deltaStr = uri.queryParameters['delta'];
+  final currentPageStr = uri.queryParameters['currentPage'];
+  final totalPagesStr = uri.queryParameters['totalPages'];
+
+  if (bookId == null ||
+      deltaStr == null ||
+      currentPageStr == null ||
+      totalPagesStr == null) {
+    return;
+  }
+
+  final delta = int.tryParse(deltaStr) ?? 0;
+  final currentPage = int.tryParse(currentPageStr) ?? 0;
+  final totalPages = int.tryParse(totalPagesStr) ?? 0;
+
+  if (delta <= 0 || totalPages <= 0) return;
+
+  final newPage = (currentPage + delta).clamp(0, totalPages);
+
+  await HomeWidget.saveWidgetData<String>('current_page', newPage.toString());
+  await HomeWidget.saveWidgetData<bool>('needs_sync', true);
+  await HomeWidget.updateWidget(name: 'BookgolasSmallWidget');
+  await HomeWidget.updateWidget(name: 'BookgolasMediumWidget');
 }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  HomeWidget.registerInteractivityCallback(widgetBackgroundCallback);
   runApp(const AppBootstrap());
 }
 
@@ -127,6 +157,9 @@ class AppBootstrap extends StatelessWidget {
         ),
       );
       debugPrint('✅ Supabase 초기화 성공');
+
+      HomeWidget.setAppGroupId('group.com.bookgolas.app');
+      debugPrint('✅ HomeWidget App Group 설정 완료');
 
       // HomeViewModel preferences 프리로드
       debugPrint('📚 홈 화면 설정 프리로드 시작');
@@ -239,6 +272,7 @@ class MyApp extends StatelessWidget {
         ),
         Provider<NoteStructureService>(create: (_) => NoteStructureService()),
         Provider<SubscriptionService>(create: (_) => SubscriptionService()),
+        Provider<WidgetDataService>(create: (_) => WidgetDataService()),
         // === Repositories ===
         Provider<BookRepository>(
           create: (context) => BookRepositoryImpl(context.read<BookService>()),
@@ -355,7 +389,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen>
-    with RouteAware, TickerProviderStateMixin {
+    with RouteAware, TickerProviderStateMixin, WidgetsBindingObserver {
   int _selectedIndex = 0;
   bool _showRegularBarInReadingMode = false;
   bool _showExpandedMenu = false;
@@ -374,9 +408,21 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     routeObserver.unsubscribe(this);
     _barSwitchController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      WidgetDataService().handleNeedsSyncFlag().then((_) {
+        if (mounted && _selectedIndex == 0) {
+          context.read<BookListViewModel>().refresh();
+        }
+      });
+    }
   }
 
   @override
@@ -389,6 +435,7 @@ class _MainScreenState extends State<MainScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     _barSwitchController = AnimationController(
       duration: const Duration(milliseconds: 350),
@@ -414,6 +461,8 @@ class _MainScreenState extends State<MainScreen>
     // 인증 완료 후 BookListViewModel 초기화 및 FCM 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       context.read<BookListViewModel>().initialize();
+
+      DeepLinkService.init(context);
 
       // RevenueCat 초기화 (인증 후)
       try {
