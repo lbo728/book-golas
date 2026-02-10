@@ -96,6 +96,48 @@ class AladinApiService {
     return null;
   }
 
+  static Future<BookSearchResult?> searchByTitle(
+    String title,
+    String? author,
+  ) async {
+    try {
+      AppConfig.validateApiKeys();
+
+      final searchUri =
+          Uri.parse(AppConfig.aladinBaseUrl).replace(queryParameters: {
+        'ttbkey': AppConfig.aladinApiKey,
+        'Query': author != null ? '$title $author' : title,
+        'QueryType': 'Title',
+        'MaxResults': '1',
+        'start': '1',
+        'SearchTarget': 'Book',
+        'output': 'js',
+        'Version': AppConfig.apiVersion,
+        'Cover': 'Big',
+      });
+
+      final response = await http.get(searchUri).timeout(
+            const Duration(seconds: 5),
+          );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List<dynamic> items = data['item'] ?? [];
+        if (items.isNotEmpty) {
+          final isbn13 = items[0]['isbn13']?.toString();
+          if (isbn13 != null && isbn13.isNotEmpty) {
+            final detailed = await lookupByISBN(isbn13);
+            if (detailed != null) return detailed;
+          }
+          return BookSearchResult.fromJson(items[0]);
+        }
+      }
+    } catch (e) {
+      debugPrint('📕 [Aladin] searchByTitle ERROR: $e');
+    }
+    return null;
+  }
+
   static Future<String?> fetchDescription(String isbn13) async {
     debugPrint('📕 [Aladin] fetchDescription isbn=$isbn13');
     try {
