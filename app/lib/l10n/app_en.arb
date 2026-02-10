@@ -1377,6 +1377,7 @@
               "bookInfoTabDescription": "Synopsis",
               "bookInfoTabDetail": "Details",
               "bookInfoNoDescription": "No synopsis available",
+              "bookInfoNoDetail": "No details available",
               "bookInfoNoIsbn": "Cannot load details without ISBN",
               "bookInfoPublisher": "Publisher",
               "bookInfoIsbn": "ISBN",

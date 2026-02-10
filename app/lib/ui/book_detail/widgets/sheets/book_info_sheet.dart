@@ -43,6 +43,11 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {});
+      }
+    });
     _loadBookDetail();
   }
 
@@ -58,64 +63,99 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
     final hasIsbn = widget.book.isbn != null && widget.book.isbn!.isNotEmpty;
 
     debugPrint(
-        '📚 [BookInfo] 시작: title="${widget.book.title}", isbn=${widget.book.isbn}, hasIsbn=$hasIsbn');
+      '📚 [BookInfo] 시작: title="${widget.book.title}", isbn=${widget.book.isbn}, hasIsbn=$hasIsbn',
+    );
 
     try {
       BookDetailInfo? detail;
+      BookDetailInfo? googleDetail;
 
       if (hasIsbn) {
-        debugPrint('📚 [BookInfo] Step1: 네이버 ISBN 검색 (${widget.book.isbn})');
-        final naverDesc =
-            await NaverBooksApiService.fetchDescription(widget.book.isbn!);
         debugPrint(
-            '📚 [BookInfo] Step1 결과: ${naverDesc != null ? "${naverDesc.length}자" : "null"}');
+          '📚 [BookInfo] Step1: 네이버 ISBN 검색 (${widget.book.isbn})',
+        );
+        final naverDesc = await NaverBooksApiService.fetchDescription(
+          widget.book.isbn!,
+        );
+        debugPrint(
+          '📚 [BookInfo] Step1 결과: ${naverDesc != null ? "${naverDesc.length}자" : "null"}',
+        );
         if (naverDesc != null && naverDesc.isNotEmpty) {
-          detail = BookDetailInfo.fromLocal(widget.book)
-              .copyWith(description: naverDesc);
+          detail = BookDetailInfo.fromLocal(
+            widget.book,
+          ).copyWith(description: naverDesc);
         }
 
         if (detail?.description == null || detail!.description!.isEmpty) {
-          debugPrint('📚 [BookInfo] Step2: 알라딘 ISBN 검색 (${widget.book.isbn})');
-          final aladinDesc =
-              await AladinApiService.fetchDescription(widget.book.isbn!);
           debugPrint(
-              '📚 [BookInfo] Step2 결과: ${aladinDesc != null ? "${aladinDesc.length}자" : "null"}');
+            '📚 [BookInfo] Step2: 알라딘 ISBN 검색 (${widget.book.isbn})',
+          );
+          final aladinDesc = await AladinApiService.fetchDescription(
+            widget.book.isbn!,
+          );
+          debugPrint(
+            '📚 [BookInfo] Step2 결과: ${aladinDesc != null ? "${aladinDesc.length}자" : "null"}',
+          );
           if (aladinDesc != null && aladinDesc.isNotEmpty) {
-            detail = BookDetailInfo.fromLocal(widget.book)
-                .copyWith(description: aladinDesc);
+            detail = BookDetailInfo.fromLocal(
+              widget.book,
+            ).copyWith(description: aladinDesc);
           }
         }
+
+        debugPrint(
+          '📚 [BookInfo] Step3: Google Books ISBN 검색 (${widget.book.isbn})',
+        );
+        googleDetail = await GoogleBooksApiService.fetchBookDetail(
+          widget.book.isbn!,
+        );
+        debugPrint(
+          '📚 [BookInfo] Step3 결과: ${googleDetail?.description != null ? "${googleDetail!.description!.length}자" : "null"}',
+        );
 
         if (detail == null ||
             detail.description == null ||
             detail.description!.isEmpty) {
-          debugPrint(
-              '📚 [BookInfo] Step3: Google Books ISBN 검색 (${widget.book.isbn})');
-          detail =
-              await GoogleBooksApiService.fetchBookDetail(widget.book.isbn!);
-          debugPrint(
-              '📚 [BookInfo] Step3 결과: ${detail?.description != null ? "${detail!.description!.length}자" : "null"}');
+          detail = googleDetail;
         }
       }
 
       if (detail == null ||
           detail.description == null ||
           detail.description!.isEmpty) {
-        debugPrint('📚 [BookInfo] Step4: 네이버 제목 검색 ("${widget.book.title}")');
-        final titleDesc = await NaverBooksApiService.fetchDescriptionByTitle(
-            widget.book.title, widget.book.author);
         debugPrint(
-            '📚 [BookInfo] Step4 결과: ${titleDesc != null ? "${titleDesc.length}자" : "null"}');
+          '📚 [BookInfo] Step4: 네이버 제목 검색 ("${widget.book.title}")',
+        );
+        final titleDesc = await NaverBooksApiService.fetchDescriptionByTitle(
+          widget.book.title,
+          widget.book.author,
+        );
+        debugPrint(
+          '📚 [BookInfo] Step4 결과: ${titleDesc != null ? "${titleDesc.length}자" : "null"}',
+        );
         if (titleDesc != null && titleDesc.isNotEmpty) {
-          detail = (detail ?? BookDetailInfo.fromLocal(widget.book))
-              .copyWith(description: titleDesc);
+          detail = (detail ?? BookDetailInfo.fromLocal(widget.book)).copyWith(
+            description: titleDesc,
+          );
         }
       }
 
       detail ??= BookDetailInfo.fromLocal(widget.book);
 
+      if (googleDetail != null) {
+        detail = detail.copyWith(
+          publisher: detail.publisher ?? googleDetail.publisher,
+          isbn: detail.isbn ?? googleDetail.isbn,
+          categories: detail.categories ?? googleDetail.categories,
+          publishedDate: detail.publishedDate ?? googleDetail.publishedDate,
+          language: detail.language ?? googleDetail.language,
+          pageCount: detail.pageCount ?? googleDetail.pageCount,
+        );
+      }
+
       debugPrint(
-          '📚 [BookInfo] 최종: description=${detail.description != null ? "${detail.description!.length}자" : "null"}');
+        '📚 [BookInfo] 최종: description=${detail.description != null ? "${detail.description!.length}자" : "null"}',
+      );
 
       if (mounted) {
         setState(() {
@@ -137,7 +177,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return DraggableScrollableSheet(
       initialChildSize: 0.95,
@@ -263,16 +303,13 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
             Tab(text: l10n.bookInfoTabDetail),
           ],
         ),
-        SizedBox(
-          height: 320,
-          child: TabBarView(
-            controller: _tabController,
-            physics: const NeverScrollableScrollPhysics(),
-            children: [
-              _buildDescriptionTab(isDark, l10n),
-              _buildDetailTab(isDark, l10n),
-            ],
-          ),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          alignment: Alignment.topCenter,
+          child: _tabController.index == 0
+              ? _buildDescriptionTab(isDark, l10n)
+              : _buildDetailTab(isDark, l10n),
         ),
       ],
     );
@@ -409,46 +446,67 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
     final book = widget.book;
     final detail = _bookDetailInfo;
 
+    final rows = <MapEntry<String, String>>[];
+
+    final publisher = detail?.publisher ?? book.publisher;
+    if (publisher != null && publisher.isNotEmpty) {
+      rows.add(MapEntry(l10n.bookInfoPublisher, publisher));
+    }
+
+    final isbn = detail?.isbn ?? book.isbn;
+    if (isbn != null && isbn.isNotEmpty) {
+      rows.add(MapEntry(l10n.bookInfoIsbn, isbn));
+    }
+
+    final pageCount =
+        detail?.pageCount ?? (book.totalPages > 0 ? book.totalPages : null);
+    if (pageCount != null) {
+      rows.add(MapEntry(l10n.bookInfoPageCount, pageCount.toString()));
+    }
+
+    final genre = detail?.categories?.join(', ') ?? book.genre;
+    if (genre != null && genre.isNotEmpty) {
+      rows.add(MapEntry(l10n.bookInfoGenre, genre));
+    }
+
+    if (detail?.publishedDate != null) {
+      rows.add(MapEntry('출판일', detail!.publishedDate!));
+    }
+
+    if (detail?.language != null) {
+      rows.add(MapEntry('언어', detail!.language!.toUpperCase()));
+    }
+
+    if (rows.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            Icon(
+              CupertinoIcons.info_circle,
+              size: 40,
+              color: isDark ? Colors.grey[700] : Colors.grey[300],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              l10n.bookInfoNoDetail,
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.grey[500] : Colors.grey[400],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
-        children: [
-          _buildInfoRow(
-            isDark,
-            l10n.bookInfoPublisher,
-            detail?.publisher ?? book.publisher ?? '-',
-          ),
-          _buildInfoRow(
-            isDark,
-            l10n.bookInfoIsbn,
-            detail?.isbn ?? book.isbn ?? '-',
-          ),
-          _buildInfoRow(
-            isDark,
-            l10n.bookInfoPageCount,
-            (detail?.pageCount ??
-                        (book.totalPages > 0 ? book.totalPages : null))
-                    ?.toString() ??
-                '-',
-          ),
-          _buildInfoRow(
-            isDark,
-            l10n.bookInfoGenre,
-            detail?.categories?.join(', ') ?? book.genre ?? '-',
-          ),
-          if (detail?.publishedDate != null)
-            _buildInfoRow(
-              isDark,
-              '출판일',
-              detail!.publishedDate!,
-            ),
-          if (detail?.language != null)
-            _buildInfoRow(
-              isDark,
-              '언어',
-              detail!.language!.toUpperCase(),
-            ),
-        ],
+        children: rows
+            .map((entry) => _buildInfoRow(isDark, entry.key, entry.value))
+            .toList(),
       ),
     );
   }
