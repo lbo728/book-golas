@@ -66,27 +66,37 @@ class CompactBookHeader extends StatelessWidget {
                 const SizedBox(height: 4),
                 _buildAuthorAndStatus(context, isDark),
                 if (onBookInfoTap != null) ...[
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   GestureDetector(
                     onTap: onBookInfoTap,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          CupertinoIcons.info_circle,
-                          size: 14,
-                          color: AppColors.primary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          AppLocalizations.of(context)!.bookInfoViewButton,
-                          style: TextStyle(
-                            fontSize: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            CupertinoIcons.info_circle,
+                            size: 14,
                             color: AppColors.primary,
-                            fontWeight: FontWeight.w500,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 5),
+                          Text(
+                            AppLocalizations.of(context)!.bookInfoViewButton,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

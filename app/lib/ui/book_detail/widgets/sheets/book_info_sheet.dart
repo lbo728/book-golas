@@ -598,7 +598,6 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
         child: GestureDetector(
           onTap: () {
-            Navigator.pop(context);
             showBookstoreSelectSheet(
               context: context,
               title: widget.book.title,
