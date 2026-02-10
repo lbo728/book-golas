@@ -6137,6 +6137,12 @@ abstract class AppLocalizations {
   /// **'줄거리 정보가 없습니다'**
   String get bookInfoNoDescription;
 
+  /// No description provided for @bookInfoNoDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본 정보가 없습니다'**
+  String get bookInfoNoDetail;
+
   /// No description provided for @bookInfoNoIsbn.
   ///
   /// In ko, this message translates to:
