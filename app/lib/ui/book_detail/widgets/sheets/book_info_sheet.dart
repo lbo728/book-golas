@@ -165,17 +165,35 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
               widget.book.aladinUrl == null);
 
       if (needsBackfill) {
-        debugPrint('📚 [BookInfo] 메타데이터 보정 시작');
+        debugPrint(
+          '📚 [BookInfo] 메타데이터 보정 시작: '
+          'publisher=${widget.book.publisher}, isbn=${widget.book.isbn}, '
+          'genre=${widget.book.genre}, aladinUrl=${widget.book.aladinUrl}',
+        );
         BookSearchResult? aladinResult;
 
-        if (hasIsbn) {
-          aladinResult = await AladinApiService.lookupByISBN(widget.book.isbn!);
-        }
+        try {
+          if (hasIsbn) {
+            aladinResult =
+                await AladinApiService.lookupByISBN(widget.book.isbn!);
+            debugPrint(
+              '📚 [BookInfo] 알라딘 ISBN 조회 결과: '
+              'publisher=${aladinResult?.publisher}, isbn=${aladinResult?.isbn}',
+            );
+          }
 
-        aladinResult ??= await AladinApiService.searchByTitle(
-          widget.book.title,
-          widget.book.author,
-        );
+          aladinResult ??= await AladinApiService.searchByTitle(
+            widget.book.title,
+            widget.book.author,
+          );
+          debugPrint(
+            '📚 [BookInfo] 알라딘 최종 결과: '
+            'publisher=${aladinResult?.publisher}, isbn=${aladinResult?.isbn}, '
+            'genre=${aladinResult?.genre}, aladinUrl=${aladinResult?.aladinUrl != null}',
+          );
+        } catch (e) {
+          debugPrint('📚 [BookInfo] 알라딘 조회 실패: $e');
+        }
 
         if (aladinResult != null) {
           final backfillPublisher =
@@ -187,17 +205,23 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
           final backfillAladinUrl =
               widget.book.aladinUrl == null ? aladinResult.aladinUrl : null;
 
+          detail = detail.copyWith(
+            publisher: detail.publisher ?? aladinResult.publisher,
+            isbn: detail.isbn ?? aladinResult.isbn,
+            categories: detail.categories ??
+                (aladinResult.genre != null ? [aladinResult.genre!] : null),
+          );
+
+          debugPrint(
+            '📚 [BookInfo] detail 보정 후: '
+            'publisher=${detail.publisher}, isbn=${detail.isbn}, '
+            'categories=${detail.categories}',
+          );
+
           if (backfillPublisher != null ||
               backfillIsbn != null ||
               backfillGenre != null ||
               backfillAladinUrl != null) {
-            detail = detail.copyWith(
-              publisher: detail.publisher ?? aladinResult.publisher,
-              isbn: detail.isbn ?? aladinResult.isbn,
-              categories: detail.categories ??
-                  (aladinResult.genre != null ? [aladinResult.genre!] : null),
-            );
-
             BookService().updateBookMetadata(
               widget.book.id!,
               publisher: backfillPublisher,
@@ -207,7 +231,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
             );
 
             debugPrint(
-              '📚 [BookInfo] 메타데이터 보정 요청: '
+              '📚 [BookInfo] DB 보정 요청: '
               'publisher=$backfillPublisher, isbn=$backfillIsbn, '
               'genre=$backfillGenre, aladinUrl=${backfillAladinUrl != null}',
             );
