@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:book_golas/data/services/aladin_api_service.dart';
+import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/data/services/google_books_api_service.dart';
 import 'package:book_golas/data/services/naver_books_api_service.dart';
 import 'package:book_golas/domain/models/book.dart';
@@ -156,6 +157,87 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
       debugPrint(
         '📚 [BookInfo] 최종: description=${detail.description != null ? "${detail.description!.length}자" : "null"}',
       );
+
+      final needsBackfill = widget.book.id != null &&
+          (widget.book.publisher == null ||
+              widget.book.isbn == null ||
+              widget.book.genre == null ||
+              widget.book.aladinUrl == null);
+
+      if (needsBackfill) {
+        debugPrint(
+          '📚 [BookInfo] 메타데이터 보정 시작: '
+          'publisher=${widget.book.publisher}, isbn=${widget.book.isbn}, '
+          'genre=${widget.book.genre}, aladinUrl=${widget.book.aladinUrl}',
+        );
+        BookSearchResult? aladinResult;
+
+        try {
+          if (hasIsbn) {
+            aladinResult =
+                await AladinApiService.lookupByISBN(widget.book.isbn!);
+            debugPrint(
+              '📚 [BookInfo] 알라딘 ISBN 조회 결과: '
+              'publisher=${aladinResult?.publisher}, isbn=${aladinResult?.isbn}',
+            );
+          }
+
+          aladinResult ??= await AladinApiService.searchByTitle(
+            widget.book.title,
+            widget.book.author,
+          );
+          debugPrint(
+            '📚 [BookInfo] 알라딘 최종 결과: '
+            'publisher=${aladinResult?.publisher}, isbn=${aladinResult?.isbn}, '
+            'genre=${aladinResult?.genre}, aladinUrl=${aladinResult?.aladinUrl != null}',
+          );
+        } catch (e) {
+          debugPrint('📚 [BookInfo] 알라딘 조회 실패: $e');
+        }
+
+        if (aladinResult != null) {
+          final backfillPublisher =
+              widget.book.publisher == null ? aladinResult.publisher : null;
+          final backfillIsbn =
+              widget.book.isbn == null ? aladinResult.isbn : null;
+          final backfillGenre =
+              widget.book.genre == null ? aladinResult.genre : null;
+          final backfillAladinUrl =
+              widget.book.aladinUrl == null ? aladinResult.aladinUrl : null;
+
+          detail = detail.copyWith(
+            publisher: detail.publisher ?? aladinResult.publisher,
+            isbn: detail.isbn ?? aladinResult.isbn,
+            categories: detail.categories ??
+                (aladinResult.genre != null ? [aladinResult.genre!] : null),
+          );
+
+          debugPrint(
+            '📚 [BookInfo] detail 보정 후: '
+            'publisher=${detail.publisher}, isbn=${detail.isbn}, '
+            'categories=${detail.categories}',
+          );
+
+          if (backfillPublisher != null ||
+              backfillIsbn != null ||
+              backfillGenre != null ||
+              backfillAladinUrl != null) {
+            BookService().updateBookMetadata(
+              widget.book.id!,
+              publisher: backfillPublisher,
+              isbn: backfillIsbn,
+              genre: backfillGenre,
+              aladinUrl: backfillAladinUrl,
+            );
+
+            debugPrint(
+              '📚 [BookInfo] DB 보정 요청: '
+              'publisher=$backfillPublisher, isbn=$backfillIsbn, '
+              'genre=$backfillGenre, aladinUrl=${backfillAladinUrl != null}',
+            );
+          }
+        }
+      }
 
       if (mounted) {
         setState(() {
@@ -446,28 +528,18 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
     final book = widget.book;
     final detail = _bookDetailInfo;
 
-    final rows = <MapEntry<String, String>>[];
-
-    final publisher = detail?.publisher ?? book.publisher;
-    if (publisher != null && publisher.isNotEmpty) {
-      rows.add(MapEntry(l10n.bookInfoPublisher, publisher));
-    }
-
-    final isbn = detail?.isbn ?? book.isbn;
-    if (isbn != null && isbn.isNotEmpty) {
-      rows.add(MapEntry(l10n.bookInfoIsbn, isbn));
-    }
-
+    final publisher = detail?.publisher ?? book.publisher ?? '-';
+    final isbn = detail?.isbn ?? book.isbn ?? '-';
     final pageCount =
         detail?.pageCount ?? (book.totalPages > 0 ? book.totalPages : null);
-    if (pageCount != null) {
-      rows.add(MapEntry(l10n.bookInfoPageCount, pageCount.toString()));
-    }
+    final genre = detail?.categories?.join(', ') ?? book.genre ?? '-';
 
-    final genre = detail?.categories?.join(', ') ?? book.genre;
-    if (genre != null && genre.isNotEmpty) {
-      rows.add(MapEntry(l10n.bookInfoGenre, genre));
-    }
+    final rows = <MapEntry<String, String>>[
+      MapEntry(l10n.bookInfoPublisher, publisher),
+      MapEntry(l10n.bookInfoIsbn, isbn),
+      MapEntry(l10n.bookInfoPageCount, pageCount?.toString() ?? '-'),
+      MapEntry(l10n.bookInfoGenre, genre),
+    ];
 
     if (detail?.publishedDate != null) {
       rows.add(MapEntry('출판일', detail!.publishedDate!));
@@ -475,30 +547,6 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
 
     if (detail?.language != null) {
       rows.add(MapEntry('언어', detail!.language!.toUpperCase()));
-    }
-
-    if (rows.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            Icon(
-              CupertinoIcons.info_circle,
-              size: 40,
-              color: isDark ? Colors.grey[700] : Colors.grey[300],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              l10n.bookInfoNoDetail,
-              style: TextStyle(
-                fontSize: 14,
-                color: isDark ? Colors.grey[500] : Colors.grey[400],
-              ),
-            ),
-          ],
-        ),
-      );
     }
 
     return Padding(
