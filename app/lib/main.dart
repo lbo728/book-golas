@@ -60,6 +60,7 @@ import 'ui/core/widgets/floating_timer_bar.dart';
 
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -327,6 +328,7 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             title: 'Bookgolas',
             debugShowCheckedModeBanner: false,
+            navigatorKey: navigatorKey,
             themeMode: themeViewModel.themeMode,
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,
@@ -464,7 +466,7 @@ class _MainScreenState extends State<MainScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       context.read<BookListViewModel>().initialize();
 
-      DeepLinkService.init(context);
+      DeepLinkService.init(context, navigatorKey: navigatorKey);
 
       // RevenueCat 초기화 (인증 후)
       try {

@@ -27,6 +27,7 @@ class DeepLinkService {
   static final AppLinks _appLinks = AppLinks();
   static StreamSubscription<Uri>? _linkSubscription;
   static StreamSubscription<Uri?>? _widgetClickSubscription;
+  static GlobalKey<NavigatorState>? _navigatorKey;
 
   static DeepLinkResult? parseUri(Uri uri) {
     if (uri.scheme != 'bookgolas') return null;
@@ -73,18 +74,24 @@ class DeepLinkService {
     return null;
   }
 
-  static Future<void> init(BuildContext context) async {
-    await _initWidgetClickHandler(context);
-    await _initAppLinks(context);
+  static Future<void> init(
+    BuildContext context, {
+    GlobalKey<NavigatorState>? navigatorKey,
+  }) async {
+    _navigatorKey = navigatorKey;
+    await _initWidgetClickHandler();
+    await _initAppLinks();
   }
 
-  static Future<void> _initWidgetClickHandler(BuildContext context) async {
+  static NavigatorState? get _navigator => _navigatorKey?.currentState;
+
+  static Future<void> _initWidgetClickHandler() async {
     try {
       final initialWidgetUri =
           await HomeWidget.initiallyLaunchedFromHomeWidget();
-      if (initialWidgetUri != null && context.mounted) {
+      if (initialWidgetUri != null) {
         debugPrint('📱 위젯 콜드스타트 딥링크: $initialWidgetUri');
-        await _handleDeepLink(initialWidgetUri, context);
+        await _handleDeepLink(initialWidgetUri);
       }
     } catch (e) {
       debugPrint('📱 위젯 초기 링크 처리 실패: $e');
@@ -93,9 +100,9 @@ class DeepLinkService {
     _widgetClickSubscription?.cancel();
     _widgetClickSubscription = HomeWidget.widgetClicked.listen(
       (Uri? uri) {
-        if (uri != null && context.mounted) {
+        if (uri != null) {
           debugPrint('📱 위젯 클릭 딥링크: $uri');
-          _handleDeepLink(uri, context);
+          _handleDeepLink(uri);
         }
       },
       onError: (e) {
@@ -104,11 +111,11 @@ class DeepLinkService {
     );
   }
 
-  static Future<void> _initAppLinks(BuildContext context) async {
+  static Future<void> _initAppLinks() async {
     try {
       final initialUri = await _appLinks.getInitialLink();
-      if (initialUri != null && context.mounted) {
-        await _handleDeepLink(initialUri, context);
+      if (initialUri != null) {
+        await _handleDeepLink(initialUri);
       }
     } catch (e) {
       debugPrint('🔗 딥링크 초기 링크 처리 실패: $e');
@@ -117,9 +124,7 @@ class DeepLinkService {
     _linkSubscription?.cancel();
     _linkSubscription = _appLinks.uriLinkStream.listen(
       (Uri uri) {
-        if (context.mounted) {
-          _handleDeepLink(uri, context);
-        }
+        _handleDeepLink(uri);
       },
       onError: (e) {
         debugPrint('🔗 딥링크 스트림 에러: $e');
@@ -127,8 +132,14 @@ class DeepLinkService {
     );
   }
 
-  static Future<void> _handleDeepLink(Uri uri, BuildContext context) async {
+  static Future<void> _handleDeepLink(Uri uri) async {
     debugPrint('🔗 딥링크 수신: $uri');
+
+    final navigator = _navigator;
+    if (navigator == null) {
+      debugPrint('🔗 Navigator 없음 — 딥링크 무시');
+      return;
+    }
 
     final result = parseUri(uri);
     if (result == null) {
@@ -138,14 +149,11 @@ class DeepLinkService {
 
     switch (result.action) {
       case DeepLinkAction.search:
-        if (context.mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const ReadingStartScreen(),
-            ),
-          );
-        }
+        navigator.push(
+          MaterialPageRoute(
+            builder: (context) => const ReadingStartScreen(),
+          ),
+        );
         break;
 
       case DeepLinkAction.bookDetail:
@@ -155,14 +163,11 @@ class DeepLinkService {
           debugPrint('🔗 책을 찾을 수 없음: ${result.bookId}');
           return;
         }
-        if (context.mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => BookDetailScreen(book: book),
-            ),
-          );
-        }
+        navigator.push(
+          MaterialPageRoute(
+            builder: (context) => BookDetailScreen(book: book),
+          ),
+        );
         break;
 
       case DeepLinkAction.bookRecord:
@@ -172,17 +177,14 @@ class DeepLinkService {
           debugPrint('🔗 책을 찾을 수 없음: ${result.bookId}');
           return;
         }
-        if (context.mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => BookDetailScreen(
-                book: recordBook,
-                initialTabIndex: 1,
-              ),
+        navigator.push(
+          MaterialPageRoute(
+            builder: (context) => BookDetailScreen(
+              book: recordBook,
+              initialTabIndex: 1,
             ),
-          );
-        }
+          ),
+        );
         break;
 
       case DeepLinkAction.bookScan:
@@ -192,17 +194,14 @@ class DeepLinkService {
           debugPrint('🔗 책을 찾을 수 없음: ${result.bookId}');
           return;
         }
-        if (context.mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => BookDetailScreen(
-                book: scanBook,
-                autoOpenScan: true,
-              ),
+        navigator.push(
+          MaterialPageRoute(
+            builder: (context) => BookDetailScreen(
+              book: scanBook,
+              autoOpenScan: true,
             ),
-          );
-        }
+          ),
+        );
         break;
     }
   }
@@ -222,5 +221,6 @@ class DeepLinkService {
     _linkSubscription = null;
     _widgetClickSubscription?.cancel();
     _widgetClickSubscription = null;
+    _navigatorKey = null;
   }
 }
