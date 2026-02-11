@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -16,7 +17,44 @@ class WidgetDataService {
   static const List<String> _widgetKinds = [
     'BookgolasSmallWidget',
     'BookgolasMediumWidget',
+    'BookgolasQuickActionWidget',
   ];
+
+  Future<void> syncReadingBooks(List<Book> readingBooks) async {
+    try {
+      final List<Map<String, dynamic>> bookListData = [];
+      for (int i = 0; i < readingBooks.length; i++) {
+        final book = readingBooks[i];
+        final localImagePath =
+            await _cacheBookCoverToAppGroup(book.imageUrl, index: i);
+        bookListData.add({
+          'id': book.id ?? '',
+          'title': book.title,
+          'author': book.author ?? '',
+          'currentPage': book.currentPage,
+          'totalPages': book.totalPages,
+          'imagePath': localImagePath ?? '',
+          'status': book.status ?? '',
+        });
+      }
+
+      await HomeWidget.saveWidgetData<String>(
+          'reading_books_json', jsonEncode(bookListData));
+      await HomeWidget.saveWidgetData<int>(
+          'reading_books_count', readingBooks.length);
+
+      if (readingBooks.isNotEmpty) {
+        await syncCurrentBook(readingBooks.first);
+      }
+
+      await refreshWidget();
+
+      debugPrint(
+          '📱 [WidgetDataService] 읽고 있는 책 ${readingBooks.length}권 동기화 완료');
+    } catch (e) {
+      debugPrint('📱 [WidgetDataService] 읽고 있는 책 동기화 실패: $e');
+    }
+  }
 
   Future<void> syncCurrentBook(Book book) async {
     try {
@@ -32,8 +70,6 @@ class WidgetDataService {
       await HomeWidget.saveWidgetData<String>('book_status', book.status ?? '');
       await HomeWidget.saveWidgetData<String>(
           'last_updated', DateTime.now().toIso8601String());
-
-      await refreshWidget();
 
       debugPrint('📱 [WidgetDataService] 위젯 데이터 동기화 완료: ${book.title}');
     } catch (e) {
@@ -52,6 +88,8 @@ class WidgetDataService {
       await HomeWidget.saveWidgetData<String>('book_status', '');
       await HomeWidget.saveWidgetData<String>('last_updated', '');
       await HomeWidget.saveWidgetData<bool>('needs_sync', false);
+      await HomeWidget.saveWidgetData<String>('reading_books_json', '[]');
+      await HomeWidget.saveWidgetData<int>('reading_books_count', 0);
 
       await refreshWidget();
 
@@ -89,6 +127,11 @@ class WidgetDataService {
   }
 
   Future<String?> cacheBookCoverToAppGroup(String? networkUrl) async {
+    return _cacheBookCoverToAppGroup(networkUrl, index: 0);
+  }
+
+  Future<String?> _cacheBookCoverToAppGroup(String? networkUrl,
+      {required int index}) async {
     if (networkUrl == null || networkUrl.isEmpty) return null;
 
     try {
@@ -103,11 +146,12 @@ class WidgetDataService {
       }
 
       final ext = file.path.split('.').last;
-      final localPath = '${widgetImageDir.path}/book_cover.$ext';
+      final fileName = index == 0 ? 'book_cover' : 'book_cover_$index';
+      final localPath = '${widgetImageDir.path}/$fileName.$ext';
       await file.copy(localPath);
 
       debugPrint('📱 [WidgetDataService] 커버 이미지 App Group 저장 완료: $localPath');
-      return 'widget_images/book_cover.$ext';
+      return 'widget_images/$fileName.$ext';
     } catch (e) {
       debugPrint('📱 [WidgetDataService] 커버 이미지 캐시 실패: $e');
       return null;

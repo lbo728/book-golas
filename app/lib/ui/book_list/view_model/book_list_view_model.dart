@@ -189,7 +189,7 @@ class BookListViewModel extends BaseViewModel {
             !(b.currentPage >= b.totalPages && b.totalPages > 0))
         .toList();
     if (reading.isNotEmpty) {
-      WidgetDataService().syncCurrentBook(reading.first);
+      WidgetDataService().syncReadingBooks(reading);
     } else {
       WidgetDataService().clearWidgetData();
     }

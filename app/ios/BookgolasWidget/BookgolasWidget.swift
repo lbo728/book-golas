@@ -1,9 +1,14 @@
 import WidgetKit
 import SwiftUI
+import AppIntents
 
 #if canImport(UIKit)
 import UIKit
 #endif
+
+// MARK: - Shared Constants
+
+private let appGroupId = "group.com.bookgolas.app"
 
 // MARK: - Data Model
 
@@ -21,6 +26,16 @@ struct BookWidgetEntry: TimelineEntry {
     var progress: Double {
         guard totalPages > 0 else { return 0 }
         return Double(currentPage) / Double(totalPages)
+    }
+
+    var displayTitle: String {
+        if let dashRange = bookTitle.range(of: " - ") {
+            return String(bookTitle[bookTitle.startIndex..<dashRange.lowerBound])
+        }
+        if let dashRange = bookTitle.range(of: " : ") {
+            return String(bookTitle[bookTitle.startIndex..<dashRange.lowerBound])
+        }
+        return bookTitle
     }
 
     static let placeholder = BookWidgetEntry(
@@ -48,42 +63,151 @@ struct BookWidgetEntry: TimelineEntry {
     )
 }
 
-// MARK: - Timeline Provider
+// MARK: - Book Entity for AppIntent Configuration
 
-struct BookgolasWidgetProvider: TimelineProvider {
-    private let appGroupId = "group.com.bookgolas.app"
+@available(iOS 17.0, macOS 14.0, watchOS 10.0, *)
+struct BookEntity: AppEntity {
+    static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Book")
+    static var defaultQuery = BookEntityQuery()
 
+    var id: String
+    var title: String
+    var author: String
+
+    var displayRepresentation: DisplayRepresentation {
+        DisplayRepresentation(title: "\(title)", subtitle: "\(author)")
+    }
+}
+
+@available(iOS 17.0, macOS 14.0, watchOS 10.0, *)
+struct BookEntityQuery: EntityQuery {
+    func entities(for identifiers: [String]) async throws -> [BookEntity] {
+        let allBooks = loadBookEntities()
+        return allBooks.filter { identifiers.contains($0.id) }
+    }
+
+    func suggestedEntities() async throws -> [BookEntity] {
+        return loadBookEntities()
+    }
+
+    func defaultResult() async -> BookEntity? {
+        return loadBookEntities().first
+    }
+
+    private func loadBookEntities() -> [BookEntity] {
+        guard let defaults = UserDefaults(suiteName: appGroupId),
+              let jsonStr = defaults.string(forKey: "reading_books_json"),
+              let data = jsonStr.data(using: .utf8),
+              let books = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]]
+        else { return [] }
+
+        return books.compactMap { dict in
+            guard let id = dict["id"] as? String, !id.isEmpty,
+                  let title = dict["title"] as? String
+            else { return nil }
+            return BookEntity(
+                id: id,
+                title: title,
+                author: dict["author"] as? String ?? ""
+            )
+        }
+    }
+}
+
+@available(iOS 17.0, macOS 14.0, watchOS 10.0, *)
+struct SelectBookIntent: WidgetConfigurationIntent {
+    static var title: LocalizedStringResource = "Select Book"
+    static var description: IntentDescription = "Choose which book to display"
+
+    @Parameter(title: "Book")
+    var book: BookEntity?
+}
+
+// MARK: - Configurable Timeline Provider (iOS 17+)
+
+@available(iOS 17.0, *)
+struct BookgolasConfigurableProvider: AppIntentTimelineProvider {
+    func placeholder(in context: Context) -> BookWidgetEntry {
+        BookWidgetEntry.placeholder
+    }
+
+    func snapshot(for configuration: SelectBookIntent, in context: Context) async -> BookWidgetEntry {
+        return readEntry(for: configuration.book?.id)
+    }
+
+    func timeline(for configuration: SelectBookIntent, in context: Context) async -> Timeline<BookWidgetEntry> {
+        let entry = readEntry(for: configuration.book?.id)
+        let nextUpdate = Calendar.current.date(byAdding: .hour, value: 1, to: Date()) ?? Date()
+        return Timeline(entries: [entry], policy: .after(nextUpdate))
+    }
+
+    private func readEntry(for selectedBookId: String?) -> BookWidgetEntry {
+        guard let defaults = UserDefaults(suiteName: appGroupId) else {
+            return BookWidgetEntry.empty
+        }
+
+        if let bookId = selectedBookId,
+           let jsonStr = defaults.string(forKey: "reading_books_json"),
+           let data = jsonStr.data(using: .utf8),
+           let books = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]],
+           let bookDict = books.first(where: { ($0["id"] as? String) == bookId }) {
+            return BookWidgetEntry(
+                date: Date(),
+                bookId: bookDict["id"] as? String ?? "",
+                bookTitle: bookDict["title"] as? String ?? "",
+                bookAuthor: bookDict["author"] as? String ?? "",
+                currentPage: bookDict["currentPage"] as? Int ?? 0,
+                totalPages: bookDict["totalPages"] as? Int ?? 0,
+                imagePath: bookDict["imagePath"] as? String ?? "",
+                bookStatus: bookDict["status"] as? String ?? "reading",
+                isEmpty: false
+            )
+        }
+
+        let bookTitle = defaults.string(forKey: "book_title") ?? ""
+        if bookTitle.isEmpty { return BookWidgetEntry.empty }
+
+        return BookWidgetEntry(
+            date: Date(),
+            bookId: defaults.string(forKey: "book_id") ?? "",
+            bookTitle: bookTitle,
+            bookAuthor: defaults.string(forKey: "book_author") ?? "",
+            currentPage: defaults.integer(forKey: "current_page"),
+            totalPages: defaults.integer(forKey: "total_pages"),
+            imagePath: defaults.string(forKey: "image_path") ?? "",
+            bookStatus: defaults.string(forKey: "book_status") ?? "reading",
+            isEmpty: false
+        )
+    }
+}
+
+// MARK: - Static Timeline Provider (Fallback)
+
+struct BookgolasStaticProvider: TimelineProvider {
     func placeholder(in context: Context) -> BookWidgetEntry {
         BookWidgetEntry.placeholder
     }
 
     func getSnapshot(in context: Context, completion: @escaping (BookWidgetEntry) -> Void) {
-        let entry = readEntry()
-        completion(entry)
+        completion(readEntry())
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<BookWidgetEntry>) -> Void) {
         let entry = readEntry()
         let nextUpdate = Calendar.current.date(byAdding: .hour, value: 1, to: Date()) ?? Date()
-        let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
-        completion(timeline)
+        completion(Timeline(entries: [entry], policy: .after(nextUpdate)))
     }
 
     private func readEntry() -> BookWidgetEntry {
         guard let defaults = UserDefaults(suiteName: appGroupId) else {
             return BookWidgetEntry.empty
         }
-
-        let bookId = defaults.string(forKey: "book_id") ?? ""
         let bookTitle = defaults.string(forKey: "book_title") ?? ""
-
-        if bookTitle.isEmpty {
-            return BookWidgetEntry.empty
-        }
+        if bookTitle.isEmpty { return BookWidgetEntry.empty }
 
         return BookWidgetEntry(
             date: Date(),
-            bookId: bookId,
+            bookId: defaults.string(forKey: "book_id") ?? "",
             bookTitle: bookTitle,
             bookAuthor: defaults.string(forKey: "book_author") ?? "",
             currentPage: defaults.integer(forKey: "current_page"),
@@ -125,7 +249,7 @@ struct CoverImageView: View {
         guard !imagePath.isEmpty else { return nil }
 
         if let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.bookgolas.app"
+            forSecurityApplicationGroupIdentifier: appGroupId
         ) {
             let fileURL = containerURL.appendingPathComponent(imagePath)
             if let data = try? Data(contentsOf: fileURL) {
@@ -143,27 +267,23 @@ struct CoverImageView: View {
     }
 }
 
-// MARK: - Circular Progress View
+// MARK: - Linear Progress Bar
 
-struct CircularProgressView: View {
+struct LinearProgressBar: View {
     let progress: Double
-    let lineWidth: CGFloat
 
     var body: some View {
-        ZStack {
-            Circle()
-                .stroke(Color.gray.opacity(0.2), lineWidth: lineWidth)
-            Circle()
-                .trim(from: 0, to: CGFloat(min(progress, 1.0)))
-                .stroke(
-                    Color.accentColor,
-                    style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
-                )
-                .rotationEffect(.degrees(-90))
-            Text("\(Int(progress * 100))%")
-                .font(.system(size: 11, weight: .semibold, design: .rounded))
-                .foregroundColor(.primary)
+        GeometryReader { geometry in
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 3)
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(height: 6)
+                RoundedRectangle(cornerRadius: 3)
+                    .fill(Color.accentColor)
+                    .frame(width: geometry.size.width * CGFloat(min(progress, 1.0)), height: 6)
+            }
         }
+        .frame(height: 6)
     }
 }
 
@@ -185,7 +305,7 @@ struct EmptyStateView: View {
     }
 }
 
-// MARK: - Small Widget
+// MARK: - Small Widget (Book Progress)
 
 struct BookgolasSmallWidgetView: View {
     var entry: BookWidgetEntry
@@ -196,53 +316,100 @@ struct BookgolasSmallWidgetView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .widgetURL(URL(string: "bookgolas://book/search"))
         } else {
-            VStack(spacing: 8) {
-                CoverImageView(
-                    imagePath: entry.imagePath,
-                    size: CGSize(width: 50, height: 70)
-                )
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(spacing: 10) {
+                    CoverImageView(
+                        imagePath: entry.imagePath,
+                        size: CGSize(width: 44, height: 62)
+                    )
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(entry.displayTitle)
+                            .font(.system(size: 13, weight: .semibold))
+                            .lineLimit(2)
+                            .truncationMode(.tail)
+                            .foregroundColor(.primary)
+                        Text(entry.bookAuthor)
+                            .font(.system(size: 10))
+                            .lineLimit(1)
+                            .foregroundColor(.secondary)
+                    }
+                }
 
-                Text(entry.bookTitle)
-                    .font(.system(size: 12, weight: .semibold))
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                    .foregroundColor(.primary)
+                Spacer(minLength: 4)
 
-                CircularProgressView(progress: entry.progress, lineWidth: 4)
-                    .frame(width: 36, height: 36)
+                Text("p.\(entry.currentPage) / \(entry.totalPages)")
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .foregroundColor(.secondary)
+
+                LinearProgressBar(progress: entry.progress)
+                    .padding(.top, 4)
             }
-            .padding(12)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(14)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .widgetURL(URL(string: "bookgolas://book/detail/\(entry.bookId)"))
         }
     }
 }
 
-// MARK: - Quick Action Button
+// MARK: - Quick Action Small Widget
 
-struct QuickActionButton: View {
-    let systemImage: String
-    let label: String
-    let url: URL?
+struct QuickActionSmallWidgetView: View {
+    let actionType: String
+    var entry: BookWidgetEntry
 
     var body: some View {
-        if let url = url {
+        let config = actionConfig
+        if let url = config.url {
             Link(destination: url) {
-                VStack(spacing: 2) {
-                    Image(systemName: systemImage)
-                        .font(.system(size: 16))
+                VStack(spacing: 8) {
+                    Image(systemName: config.icon)
+                        .font(.system(size: 28, weight: .medium))
                         .foregroundColor(.accentColor)
-                    Text(label)
-                        .font(.system(size: 9, weight: .medium))
-                        .foregroundColor(.secondary)
+                    Text(config.label)
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.primary)
+                    if !config.subtitle.isEmpty {
+                        Text(config.subtitle)
+                            .font(.system(size: 10))
+                            .lineLimit(1)
+                            .foregroundColor(.secondary)
+                    }
                 }
-                .frame(maxWidth: .infinity, minHeight: 36)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
+        }
+    }
+
+    private var actionConfig: (icon: String, label: String, subtitle: String, url: URL?) {
+        switch actionType {
+        case "book":
+            return (
+                "book.fill",
+                NSLocalizedString("widget_action_open_book", tableName: nil, bundle: .main, value: "Continue Reading", comment: ""),
+                entry.isEmpty ? "" : entry.displayTitle,
+                entry.isEmpty ? nil : URL(string: "bookgolas://book/detail/\(entry.bookId)")
+            )
+        case "scan":
+            return (
+                "doc.viewfinder",
+                NSLocalizedString("widget_action_scan_page", tableName: nil, bundle: .main, value: "Scan Page", comment: ""),
+                entry.isEmpty ? "" : entry.displayTitle,
+                entry.isEmpty ? nil : URL(string: "bookgolas://book/scan/\(entry.bookId)")
+            )
+        case "add":
+            return (
+                "plus.circle",
+                NSLocalizedString("widget_action_add_book", tableName: nil, bundle: .main, value: "Add Book", comment: ""),
+                "",
+                URL(string: "bookgolas://book/search")
+            )
+        default:
+            return ("book.fill", "Book", "", nil)
         }
     }
 }
 
-// MARK: - Medium Widget
+// MARK: - Medium Widget (Redesigned: Info + Linear Progress)
 
 struct BookgolasMediumWidgetView: View {
     var entry: BookWidgetEntry
@@ -259,9 +426,9 @@ struct BookgolasMediumWidgetView: View {
                     size: CGSize(width: 60, height: 84)
                 )
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(entry.bookTitle)
-                        .font(.system(size: 14, weight: .semibold))
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(entry.displayTitle)
+                        .font(.system(size: 15, weight: .semibold))
                         .lineLimit(2)
                         .truncationMode(.tail)
                         .foregroundColor(.primary)
@@ -270,16 +437,22 @@ struct BookgolasMediumWidgetView: View {
                         .font(.system(size: 11))
                         .lineLimit(1)
                         .foregroundColor(.secondary)
+                        .padding(.top, 2)
 
-                    Spacer(minLength: 2)
+                    Spacer(minLength: 4)
 
-                    HStack(spacing: 4) {
-                        CircularProgressView(progress: entry.progress, lineWidth: 3)
-                            .frame(width: 28, height: 28)
+                    HStack {
                         Text("p.\(entry.currentPage) / \(entry.totalPages)")
-                            .font(.system(size: 11, design: .rounded))
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundColor(.secondary)
+                        Spacer()
+                        Text("\(Int(entry.progress * 100))%")
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .foregroundColor(.accentColor)
                     }
+
+                    LinearProgressBar(progress: entry.progress)
+                        .padding(.top, 4)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -310,6 +483,30 @@ struct BookgolasMediumWidgetView: View {
     }
 }
 
+// MARK: - Quick Action Button
+
+struct QuickActionButton: View {
+    let systemImage: String
+    let label: String
+    let url: URL?
+
+    var body: some View {
+        if let url = url {
+            Link(destination: url) {
+                VStack(spacing: 2) {
+                    Image(systemName: systemImage)
+                        .font(.system(size: 16))
+                        .foregroundColor(.accentColor)
+                    Text(label)
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity, minHeight: 36)
+            }
+        }
+    }
+}
+
 // MARK: - Widget Entry Views with Container Background
 
 struct BookgolasSmallEntryView: View {
@@ -330,31 +527,57 @@ struct BookgolasMediumEntryView: View {
     }
 }
 
+struct QuickActionSmallEntryView: View {
+    let actionType: String
+    var entry: BookWidgetEntry
+
+    var body: some View {
+        QuickActionSmallWidgetView(actionType: actionType, entry: entry)
+            .containerBackground(.fill.tertiary, for: .widget)
+    }
+}
+
 // MARK: - Widget Definitions
 
+@available(iOS 17.0, *)
 struct BookgolasSmallWidget: Widget {
     let kind: String = "BookgolasSmallWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: BookgolasWidgetProvider()) { entry in
+        AppIntentConfiguration(kind: kind, intent: SelectBookIntent.self, provider: BookgolasConfigurableProvider()) { entry in
             BookgolasSmallEntryView(entry: entry)
         }
         .configurationDisplayName("Bookgolas")
-        .description("Reading progress at a glance")
+        .description(NSLocalizedString("widget_desc_small", tableName: nil, bundle: .main, value: "Reading progress at a glance", comment: ""))
         .supportedFamilies([.systemSmall])
     }
 }
 
+@available(iOS 17.0, *)
 struct BookgolasMediumWidget: Widget {
     let kind: String = "BookgolasMediumWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: BookgolasWidgetProvider()) { entry in
+        AppIntentConfiguration(kind: kind, intent: SelectBookIntent.self, provider: BookgolasConfigurableProvider()) { entry in
             BookgolasMediumEntryView(entry: entry)
         }
         .configurationDisplayName("Bookgolas")
-        .description("Book info with quick actions")
+        .description(NSLocalizedString("widget_desc_medium", tableName: nil, bundle: .main, value: "Book info with quick actions", comment: ""))
         .supportedFamilies([.systemMedium])
+    }
+}
+
+@available(iOS 17.0, *)
+struct BookgolasQuickActionWidget: Widget {
+    let kind: String = "BookgolasQuickActionWidget"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: BookgolasStaticProvider()) { entry in
+            QuickActionSmallEntryView(actionType: "add", entry: entry)
+        }
+        .configurationDisplayName(NSLocalizedString("widget_quick_action_title", tableName: nil, bundle: .main, value: "Quick Action", comment: ""))
+        .description(NSLocalizedString("widget_quick_action_desc", tableName: nil, bundle: .main, value: "Quick access to book actions", comment: ""))
+        .supportedFamilies([.systemSmall])
     }
 }
 
@@ -392,7 +615,7 @@ struct BookgolasLockScreenRectangularView: View {
     var body: some View {
         if !entry.isEmpty {
             VStack(alignment: .leading, spacing: 2) {
-                Text(entry.bookTitle)
+                Text(entry.displayTitle)
                     .font(.system(size: 12, weight: .semibold))
                     .lineLimit(1)
                 HStack(spacing: 4) {
@@ -426,9 +649,9 @@ struct BookgolasLockScreenInlineView: View {
 
     var body: some View {
         if !entry.isEmpty {
-            let title = entry.bookTitle.count > 10
-                ? String(entry.bookTitle.prefix(10)) + "..."
-                : entry.bookTitle
+            let title = entry.displayTitle.count > 10
+                ? String(entry.displayTitle.prefix(10)) + "..."
+                : entry.displayTitle
             ViewThatFits {
                 Label("\u{1F4D6} \(title) p.\(entry.currentPage)/\(entry.totalPages)", systemImage: "")
                 Label("p.\(entry.currentPage)/\(entry.totalPages)", systemImage: "book.fill")
@@ -445,7 +668,7 @@ struct BookgolasLockScreenCircularWidget: Widget {
     let kind: String = "BookgolasLockScreenCircular"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: BookgolasWidgetProvider()) { entry in
+        StaticConfiguration(kind: kind, provider: BookgolasStaticProvider()) { entry in
             BookgolasLockScreenCircularView(entry: entry)
         }
         .configurationDisplayName("Reading Progress")
@@ -459,7 +682,7 @@ struct BookgolasLockScreenRectangularWidget: Widget {
     let kind: String = "BookgolasLockScreenRectangular"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: BookgolasWidgetProvider()) { entry in
+        StaticConfiguration(kind: kind, provider: BookgolasStaticProvider()) { entry in
             BookgolasLockScreenRectangularView(entry: entry)
         }
         .configurationDisplayName("Reading Details")
@@ -473,7 +696,7 @@ struct BookgolasLockScreenInlineWidget: Widget {
     let kind: String = "BookgolasLockScreenInline"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: BookgolasWidgetProvider()) { entry in
+        StaticConfiguration(kind: kind, provider: BookgolasStaticProvider()) { entry in
             BookgolasLockScreenInlineView(entry: entry)
         }
         .configurationDisplayName("Reading Inline")
