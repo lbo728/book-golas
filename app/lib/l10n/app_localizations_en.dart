@@ -3363,6 +3363,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookInfoNoDescription => 'No synopsis available';
 
   @override
+  String get bookInfoNoDetail => 'No details available';
+
+  @override
   String get bookInfoNoIsbn => 'Cannot load details without ISBN';
 
   @override

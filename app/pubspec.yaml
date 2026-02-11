@@ -50,6 +50,8 @@ dependencies:
   timezone: ^0.9.2
   purchases_flutter: ^9.10.7
   purchases_ui_flutter: ^9.10.7
+  home_widget: ^0.9.0
+  app_links: ^6.4.1
 
 dev_dependencies:
   flutter_test:

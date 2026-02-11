@@ -66,7 +66,7 @@ class CompactBookHeader extends StatelessWidget {
                 const SizedBox(height: 4),
                 _buildAuthorAndStatus(context, isDark),
                 if (onBookInfoTap != null) ...[
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   GestureDetector(
                     onTap: onBookInfoTap,
                     child: Row(

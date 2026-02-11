@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/data/services/widget_data_service.dart';
 import 'package:book_golas/utils/subscription_utils.dart';
 import 'package:book_golas/exceptions/subscription_exceptions.dart';
 
@@ -86,6 +87,46 @@ class BookService {
       return newBook;
     } catch (e) {
       debugPrint('책 추가 실패: $e');
+      return null;
+    }
+  }
+
+  Future<Book?> updateBookMetadata(
+    String bookId, {
+    String? publisher,
+    String? isbn,
+    String? genre,
+    String? aladinUrl,
+  }) async {
+    try {
+      final updateData = <String, dynamic>{
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+      if (publisher != null) updateData['publisher'] = publisher;
+      if (isbn != null) updateData['isbn'] = isbn;
+      if (genre != null) updateData['genre'] = genre;
+      if (aladinUrl != null) updateData['aladin_url'] = aladinUrl;
+
+      if (updateData.length <= 1) return null;
+
+      final response = await _supabase
+          .from(_tableName)
+          .update(updateData)
+          .eq('id', bookId)
+          .select()
+          .single();
+
+      final updatedBook = Book.fromJson(response);
+
+      final index = _books.indexWhere((b) => b.id == bookId);
+      if (index != -1) {
+        _books[index] = updatedBook;
+      }
+
+      debugPrint('📚 [BookService] 메타데이터 보정 완료: bookId=$bookId');
+      return updatedBook;
+    } catch (e) {
+      debugPrint('📚 [BookService] 메타데이터 보정 실패: $e');
       return null;
     }
   }
@@ -190,6 +231,12 @@ class BookService {
         } catch (historyError) {
           debugPrint('📖 [BookService] 히스토리 기록 실패 (무시됨): $historyError');
         }
+      }
+
+      try {
+        await WidgetDataService().syncCurrentBook(updatedBook);
+      } catch (widgetError) {
+        debugPrint('📖 [BookService] 위젯 동기화 실패 (무시됨): $widgetError');
       }
 
       return updatedBook;

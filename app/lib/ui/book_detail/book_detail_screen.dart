@@ -58,6 +58,7 @@ class BookDetailScreen extends StatelessWidget {
   final bool showCelebration;
   final bool isEmbedded;
   final int? initialTabIndex;
+  final bool autoOpenScan;
   final void Function(VoidCallback updatePage, VoidCallback addMemorable)?
       onCallbacksReady;
 
@@ -67,6 +68,7 @@ class BookDetailScreen extends StatelessWidget {
     this.showCelebration = false,
     this.isEmbedded = false,
     this.initialTabIndex,
+    this.autoOpenScan = false,
     this.onCallbacksReady,
   });
 
@@ -99,6 +101,7 @@ class BookDetailScreen extends StatelessWidget {
         showCelebration: showCelebration,
         isEmbedded: isEmbedded,
         initialTabIndex: initialTabIndex,
+        autoOpenScan: autoOpenScan,
         onCallbacksReady: onCallbacksReady,
       ),
     );
@@ -109,6 +112,7 @@ class _BookDetailContent extends StatefulWidget {
   final bool showCelebration;
   final bool isEmbedded;
   final int? initialTabIndex;
+  final bool autoOpenScan;
   final void Function(VoidCallback updatePage, VoidCallback addMemorable)?
       onCallbacksReady;
 
@@ -116,6 +120,7 @@ class _BookDetailContent extends StatefulWidget {
     this.showCelebration = false,
     this.isEmbedded = false,
     this.initialTabIndex,
+    this.autoOpenScan = false,
     this.onCallbacksReady,
   });
 
@@ -216,6 +221,14 @@ class _BookDetailContentState extends State<_BookDetailContent>
           () => _showUpdatePageDialog(bookVm),
           _showAddMemorablePageModal,
         );
+      }
+
+      if (widget.autoOpenScan && mounted) {
+        _tabController?.animateTo(1);
+        await Future.delayed(const Duration(milliseconds: 400));
+        if (mounted) {
+          _showAddMemorablePageModal();
+        }
       }
     });
   }

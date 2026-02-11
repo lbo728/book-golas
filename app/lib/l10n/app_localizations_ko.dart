@@ -3289,6 +3289,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bookInfoNoDescription => '줄거리 정보가 없습니다';
 
   @override
+  String get bookInfoNoDetail => '기본 정보가 없습니다';
+
+  @override
   String get bookInfoNoIsbn => 'ISBN 정보가 없어 상세 정보를 불러올 수 없습니다';
 
   @override
