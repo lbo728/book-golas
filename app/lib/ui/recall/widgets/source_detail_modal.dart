@@ -48,7 +48,7 @@ class _SourceDetailModalState extends State<SourceDetailModal> {
     CustomSnackbar.show(
       context,
       message: AppLocalizations.of(context)!.recallTextCopied,
-      type: SnackbarType.success,
+      type: BLabSnackbarType.success,
       bottomOffset: 32,
     );
   }
@@ -90,7 +90,7 @@ class _SourceDetailModalState extends State<SourceDetailModal> {
             maxChildSize: 0.9,
             builder: (_, scrollController) => Container(
               decoration: BoxDecoration(
-                color: isDark ? AppColors.surfaceDark : Colors.white,
+                color: isDark ? BLabColors.surfaceDark : Colors.white,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(20)),
               ),

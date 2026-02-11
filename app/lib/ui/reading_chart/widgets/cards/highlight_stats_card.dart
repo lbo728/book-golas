@@ -30,7 +30,7 @@ class HighlightStatsCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -64,13 +64,13 @@ class HighlightStatsCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
+            color: BLabColors.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(
             Icons.highlight_outlined,
             size: 24,
-            color: AppColors.primary,
+            color: BLabColors.primary,
           ),
         ),
         const SizedBox(width: 12),
@@ -203,7 +203,7 @@ class HighlightStatsCard extends StatelessWidget {
                       backgroundColor:
                           isDark ? Colors.grey[800] : Colors.grey[200],
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        AppColors.primary,
+                        BLabColors.primary,
                       ),
                     ),
                   ),
@@ -232,7 +232,7 @@ class HighlightStatsCard extends StatelessWidget {
   Widget _buildEmptyState(BuildContext context, bool isDark) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(

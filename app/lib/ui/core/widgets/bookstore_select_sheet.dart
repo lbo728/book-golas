@@ -23,7 +23,7 @@ void showBookstoreSelectSheet({
     backgroundColor: Colors.transparent,
     builder: (sheetContext) => Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SafeArea(
@@ -168,7 +168,7 @@ class BookstoreButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.subtleDark : Colors.grey[50],
+          color: isDark ? BLabColors.subtleDark : Colors.grey[50],
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isDark ? Colors.grey[700]! : Colors.grey[200]!,

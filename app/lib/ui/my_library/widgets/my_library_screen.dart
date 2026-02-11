@@ -163,7 +163,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
 
     return Scaffold(
       backgroundColor:
-          isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+          isDark ? BLabColors.scaffoldDark : BLabColors.scaffoldLight,
       appBar: AppBar(
         elevation: 0,
         surfaceTintColor: Colors.transparent,
@@ -508,12 +508,12 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.15),
+                        color: BLabColors.primary.withValues(alpha: 0.15),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.auto_awesome,
-                        color: AppColors.primary,
+                        color: BLabColors.primary,
                         size: 16,
                       ),
                     ),

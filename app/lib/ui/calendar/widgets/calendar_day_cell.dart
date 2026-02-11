@@ -31,7 +31,7 @@ class CalendarDayCell extends StatelessWidget {
         margin: const EdgeInsets.all(2),
         decoration: BoxDecoration(
           color: isToday
-              ? AppColors.primary.withValues(alpha: 0.1)
+              ? BLabColors.primary.withValues(alpha: 0.1)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),

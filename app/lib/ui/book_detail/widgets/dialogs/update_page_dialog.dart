@@ -55,7 +55,7 @@ class UpdatePageDialog {
           builder: (context, setModalState) {
             return Container(
               decoration: BoxDecoration(
-                color: isDark ? AppColors.surfaceDark : Colors.white,
+                color: isDark ? BLabColors.surfaceDark : Colors.white,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -86,7 +86,7 @@ class UpdatePageDialog {
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
+                          color: BLabColors.primary,
                         ),
                       ),
                       Text(
@@ -122,7 +122,7 @@ class UpdatePageDialog {
                         borderSide: BorderSide(
                           color: errorText != null
                               ? Colors.red
-                              : AppColors.primary,
+                              : BLabColors.primary,
                           width: 2,
                         ),
                       ),
@@ -167,7 +167,7 @@ class UpdatePageDialog {
                                 }
                               : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: BLabColors.primary,
                             disabledBackgroundColor:
                                 isDark ? Colors.grey[700] : Colors.grey[300],
                             padding: const EdgeInsets.symmetric(vertical: 16),

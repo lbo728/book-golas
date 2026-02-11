@@ -27,7 +27,7 @@ class CalendarDayDetailSheet extends StatelessWidget {
     return Container(
       constraints: BoxConstraints(maxHeight: screenHeight * 0.6),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -106,7 +106,7 @@ class CalendarDayDetailSheet extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.elevatedDark : AppColors.scaffoldLight,
+          color: isDark ? BLabColors.elevatedDark : BLabColors.scaffoldLight,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -156,7 +156,7 @@ class CalendarDayDetailSheet extends StatelessWidget {
                         .calendarPagesRead(bookInfo.pagesReadOnThisDay),
                     style: const TextStyle(
                       fontSize: 12,
-                      color: AppColors.primary,
+                      color: BLabColors.primary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -178,7 +178,7 @@ class CalendarDayDetailSheet extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: AppColors.successAlt.withValues(alpha: 0.15),
+        color: BLabColors.successAlt.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
@@ -187,7 +187,7 @@ class CalendarDayDetailSheet extends StatelessWidget {
           const Icon(
             CupertinoIcons.checkmark,
             size: 12,
-            color: AppColors.successAlt,
+            color: BLabColors.successAlt,
           ),
           const SizedBox(width: 4),
           Text(
@@ -195,7 +195,7 @@ class CalendarDayDetailSheet extends StatelessWidget {
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: AppColors.successAlt,
+              color: BLabColors.successAlt,
             ),
           ),
         ],

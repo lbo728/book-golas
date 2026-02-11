@@ -15,9 +15,14 @@ class NaverBooksApiService {
   }
 
   static Future<String?> fetchDescriptionByTitle(
-      String title, String? author) async {
+    String title,
+    String? author,
+  ) async {
     final shortTitle = _extractMainTitle(title);
     final cleanAuthor = _cleanAuthorName(author);
+    debugPrint(
+      '📗 [Naver] shortTitle="$shortTitle", cleanAuthor="$cleanAuthor"',
+    );
 
     final query = cleanAuthor != null ? '$shortTitle $cleanAuthor' : shortTitle;
     final result = await _fetchDescriptionByQuery(query);
@@ -33,30 +38,50 @@ class NaverBooksApiService {
   }
 
   static String _extractMainTitle(String title) {
-    var main = title;
+    var main = _normalizeUnicode(title);
 
-    final dashIdx = main.indexOf(' - ');
-    if (dashIdx > 0) main = main.substring(0, dashIdx);
+    final dashRegex = RegExp(
+      r'\s+[\-\u2010\u2011\u2012\u2013\u2014\u2015\uFF0D]\s+',
+    );
+    final dashMatch = dashRegex.firstMatch(main);
+    if (dashMatch != null && dashMatch.start > 0) {
+      main = main.substring(0, dashMatch.start);
+    }
 
-    final colonIdx = main.indexOf(' : ');
-    if (colonIdx > 0) main = main.substring(0, colonIdx);
+    final colonRegex = RegExp(r'\s+[\:\uFF1A]\s+');
+    final colonMatch = colonRegex.firstMatch(main);
+    if (colonMatch != null && colonMatch.start > 0) {
+      main = main.substring(0, colonMatch.start);
+    }
 
-    final parenIdx = main.indexOf(' (');
-    if (parenIdx > 0) main = main.substring(0, parenIdx);
+    final parenRegex = RegExp(r'\s+[\(\uFF08]');
+    final parenMatch = parenRegex.firstMatch(main);
+    if (parenMatch != null && parenMatch.start > 0) {
+      main = main.substring(0, parenMatch.start);
+    }
 
     return main.trim();
   }
 
+  static String _normalizeUnicode(String text) {
+    return text
+        .replaceAll('\u00A0', ' ')
+        .replaceAll('\u2009', ' ')
+        .replaceAll('\u200B', '')
+        .replaceAll('\u3000', ' ')
+        .replaceAll('\uFEFF', '');
+  }
+
   static String? _cleanAuthorName(String? author) {
     if (author == null || author.isEmpty) return null;
-    var clean = author
-        .replaceAll(RegExp(r'\s*\(지은이\)'), '')
-        .replaceAll(RegExp(r'\s*\(저\)'), '')
-        .replaceAll(RegExp(r'\s*\(옮긴이\)'), '')
-        .replaceAll(RegExp(r'\s*\(글\)'), '')
-        .replaceAll(RegExp(r'\s*\(그림\)'), '')
-        .replaceAll(RegExp(r'\s*\(엮은이\)'), '')
-        .replaceAll(RegExp(r'\s*\(편\)'), '')
+    var clean = _normalizeUnicode(author)
+        .replaceAll(RegExp(r'\s*[\(\uFF08]지은이[\)\uFF09]'), '')
+        .replaceAll(RegExp(r'\s*[\(\uFF08]저[\)\uFF09]'), '')
+        .replaceAll(RegExp(r'\s*[\(\uFF08]옮긴이[\)\uFF09]'), '')
+        .replaceAll(RegExp(r'\s*[\(\uFF08]글[\)\uFF09]'), '')
+        .replaceAll(RegExp(r'\s*[\(\uFF08]그림[\)\uFF09]'), '')
+        .replaceAll(RegExp(r'\s*[\(\uFF08]엮은이[\)\uFF09]'), '')
+        .replaceAll(RegExp(r'\s*[\(\uFF08]편[\)\uFF09]'), '')
         .trim();
     return clean.isNotEmpty ? clean : null;
   }
@@ -64,7 +89,8 @@ class NaverBooksApiService {
   static Future<String?> _fetchDescriptionByQuery(String query) async {
     debugPrint('📗 [Naver] query="$query"');
     debugPrint(
-        '📗 [Naver] clientId=${AppConfig.naverClientId.isNotEmpty ? "${AppConfig.naverClientId.substring(0, 4)}..." : "EMPTY"}');
+      '📗 [Naver] clientId=${AppConfig.naverClientId.isNotEmpty ? "${AppConfig.naverClientId.substring(0, 4)}..." : "EMPTY"}',
+    );
     if (AppConfig.naverClientId.isEmpty ||
         AppConfig.naverClientSecret.isEmpty) {
       debugPrint('📗 [Naver] API 키 없음 → null 반환');
@@ -72,38 +98,51 @@ class NaverBooksApiService {
     }
 
     try {
-      final uri = Uri.parse(_baseUrl).replace(queryParameters: {
-        'query': query,
-      });
+      final uri = Uri.parse(
+        _baseUrl,
+      ).replace(queryParameters: {'query': query});
       debugPrint('📗 [Naver] URL: $uri');
 
-      final response = await http.get(
-        uri,
-        headers: {
-          'X-Naver-Client-Id': AppConfig.naverClientId,
-          'X-Naver-Client-Secret': AppConfig.naverClientSecret,
-        },
-      ).timeout(const Duration(seconds: 5));
+      final response = await http
+          .get(
+            uri,
+            headers: {
+              'X-Naver-Client-Id': AppConfig.naverClientId,
+              'X-Naver-Client-Secret': AppConfig.naverClientSecret,
+            },
+          )
+          .timeout(const Duration(seconds: 5));
 
       debugPrint('📗 [Naver] status=${response.statusCode}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+
+        if (data['errorCode'] != null) {
+          debugPrint(
+            '📗 [Naver] API ERROR: code=${data['errorCode']}, msg=${data['errorMessage']}',
+          );
+          return null;
+        }
+
         final items = data['items'] as List?;
         debugPrint(
-            '📗 [Naver] total=${data['total']}, items=${items?.length ?? 0}');
+          '📗 [Naver] total=${data['total']}, items=${items?.length ?? 0}',
+        );
 
         if (items != null && items.isNotEmpty) {
           final description = items[0]['description'] as String?;
           debugPrint(
-              '📗 [Naver] desc=${description != null ? "${description.length}자" : "null"}');
+            '📗 [Naver] desc=${description != null ? "${description.length}자" : "null"}',
+          );
           if (description != null && description.isNotEmpty) {
             return stripAndDecodeHtml(description);
           }
         }
       } else {
         debugPrint(
-            '📗 [Naver] ERROR status=${response.statusCode}, body=${response.body.substring(0, 200)}');
+          '📗 [Naver] ERROR status=${response.statusCode}, body=${response.body.substring(0, 200)}',
+        );
       }
 
       return null;

@@ -24,7 +24,7 @@ class GenreAnalysisCard extends StatefulWidget {
 class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
   int touchedIndex = -1;
 
-  static const List<Color> _chartColors = AppColors.chartColors;
+  static const List<Color> _chartColors = BLabColors.chartColors;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -59,13 +59,13 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: BLabColors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
                     Icons.pie_chart_rounded,
                     size: 24,
-                    color: AppColors.primary,
+                    color: BLabColors.primary,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -85,8 +85,8 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppColors.primary.withOpacity(0.1),
-                    AppColors.primary.withOpacity(0.05),
+                    BLabColors.primary.withOpacity(0.1),
+                    BLabColors.primary.withOpacity(0.05),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
@@ -286,7 +286,7 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(

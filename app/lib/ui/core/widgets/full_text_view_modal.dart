@@ -137,7 +137,7 @@ class _FullTextViewModalState extends State<FullTextViewModal> {
               height: availableHeight,
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               decoration: BoxDecoration(
-                color: widget.isDark ? AppColors.surfaceDark : Colors.white,
+                color: widget.isDark ? BLabColors.surfaceDark : Colors.white,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -222,7 +222,7 @@ class _FullTextViewModalState extends State<FullTextViewModal> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: AppColors.primary,
+                color: BLabColors.primary,
               ),
             ),
           )
@@ -296,7 +296,7 @@ class _FullTextViewModalState extends State<FullTextViewModal> {
                   Icon(
                     CupertinoIcons.pencil,
                     size: 14,
-                    color: AppColors.primary,
+                    color: BLabColors.primary,
                   ),
                   const SizedBox(width: 4),
                   Text(
@@ -304,7 +304,7 @@ class _FullTextViewModalState extends State<FullTextViewModal> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.primary,
+                      color: BLabColors.primary,
                     ),
                   ),
                 ],

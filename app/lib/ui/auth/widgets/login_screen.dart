@@ -193,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
               CustomSnackbar.show(
                 context,
                 message: _getAuthErrorMessage(error, l10n),
-                type: SnackbarType.error,
+                type: BLabSnackbarType.error,
                 bottomOffset: 32,
                 aboveKeyboard: true,
               );
@@ -205,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
             CustomSnackbar.show(
               context,
               message: l10n.loginSignupSuccess,
-              type: SnackbarType.success,
+              type: BLabSnackbarType.success,
               bottomOffset: 32,
               aboveKeyboard: true,
             );
@@ -220,7 +220,7 @@ class _LoginScreenState extends State<LoginScreen> {
             CustomSnackbar.show(
               context,
               message: l10n.loginResetPasswordSuccess,
-              type: SnackbarType.success,
+              type: BLabSnackbarType.success,
               bottomOffset: 32,
               aboveKeyboard: true,
             );
@@ -239,7 +239,7 @@ class _LoginScreenState extends State<LoginScreen> {
         CustomSnackbar.show(
           context,
           message: _getAuthErrorMessage(e.message, l10n),
-          type: SnackbarType.error,
+          type: BLabSnackbarType.error,
           bottomOffset: 32,
           aboveKeyboard: true,
         );
@@ -250,7 +250,7 @@ class _LoginScreenState extends State<LoginScreen> {
         CustomSnackbar.show(
           context,
           message: l10n.loginUnexpectedError,
-          type: SnackbarType.error,
+          type: BLabSnackbarType.error,
           bottomOffset: 32,
           aboveKeyboard: true,
         );
@@ -292,7 +292,7 @@ class _LoginScreenState extends State<LoginScreen> {
         CustomSnackbar.show(
           context,
           message: l10n.loginResendVerificationSuccess,
-          type: SnackbarType.success,
+          type: BLabSnackbarType.success,
           bottomOffset: 32,
           aboveKeyboard: true,
         );
@@ -310,7 +310,7 @@ class _LoginScreenState extends State<LoginScreen> {
         CustomSnackbar.show(
           context,
           message: l10n.loginUnexpectedError,
-          type: SnackbarType.error,
+          type: BLabSnackbarType.error,
           bottomOffset: 32,
           aboveKeyboard: true,
         );
@@ -420,7 +420,7 @@ class _LoginScreenState extends State<LoginScreen> {
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w700,
-            color: isDark ? Colors.white : AppColors.textPrimaryLight,
+            color: isDark ? Colors.white : BLabColors.textPrimaryLight,
             letterSpacing: -0.5,
           ),
         ),
@@ -796,11 +796,11 @@ class _LoginScreenState extends State<LoginScreen> {
               borderRadius: BorderRadius.circular(6),
               border: Border.all(
                 color: _saveEmail
-                    ? AppColors.primary
+                    ? BLabColors.primary
                     : (isDark ? Colors.grey[600]! : Colors.grey[400]!),
                 width: 1.5,
               ),
-              color: _saveEmail ? AppColors.primary : Colors.transparent,
+              color: _saveEmail ? BLabColors.primary : Colors.transparent,
             ),
             child: _saveEmail
                 ? const Icon(
@@ -839,14 +839,14 @@ class _LoginScreenState extends State<LoginScreen> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppColors.primaryLight,
-                AppColors.primary,
+                BLabColors.primaryLight,
+                BLabColors.primary,
               ],
             ),
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.4),
+                color: BLabColors.primary.withValues(alpha: 0.4),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -869,7 +869,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        foregroundColor: AppColors.primary,
+        foregroundColor: BLabColors.primary,
         padding: const EdgeInsets.symmetric(vertical: 8),
       ),
       child: Text(
@@ -879,7 +879,7 @@ class _LoginScreenState extends State<LoginScreen> {
           fontWeight: FontWeight.w500,
           color: onPressed == null
               ? (isDark ? Colors.grey[600] : Colors.grey[400])
-              : (isDark ? Colors.grey[300] : AppColors.primary),
+              : (isDark ? Colors.grey[300] : BLabColors.primary),
         ),
       ),
     );
@@ -984,7 +984,7 @@ class _GlassTextFieldContainerState extends State<_GlassTextFieldContainer> {
                   color: widget.isDark
                       ? Colors.white.withValues(alpha: _isFocused ? 0.30 : 0.1)
                       : (_isFocused
-                          ? AppColors.primary.withValues(alpha: 0.5)
+                          ? BLabColors.primary.withValues(alpha: 0.5)
                           : Colors.grey.withValues(alpha: 0.15)),
                   width: _isFocused ? 1.5 : 1,
                 ),

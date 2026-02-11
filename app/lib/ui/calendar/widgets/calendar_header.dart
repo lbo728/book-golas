@@ -31,7 +31,7 @@ class CalendarHeader extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+          color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
@@ -79,7 +79,7 @@ class CalendarHeader extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
+                        color: BLabColors.primary,
                       ),
                     ),
                   ),

@@ -208,8 +208,8 @@ class _BookListScreenState extends State<BookListScreen>
 
     return RefreshIndicator(
       onRefresh: () => _onRefresh(vm),
-      color: AppColors.primary,
-      backgroundColor: isDark ? AppColors.elevatedDark : Colors.white,
+      color: BLabColors.primary,
+      backgroundColor: isDark ? BLabColors.elevatedDark : Colors.white,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
@@ -233,8 +233,8 @@ class _BookListScreenState extends State<BookListScreen>
 
     return RefreshIndicator(
       onRefresh: () => _onRefresh(vm),
-      color: AppColors.primary,
-      backgroundColor: isDark ? AppColors.elevatedDark : Colors.white,
+      color: BLabColors.primary,
+      backgroundColor: isDark ? BLabColors.elevatedDark : Colors.white,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
@@ -281,8 +281,8 @@ class _BookListScreenState extends State<BookListScreen>
 
     return RefreshIndicator(
       onRefresh: () => _onRefresh(vm),
-      color: AppColors.primary,
-      backgroundColor: isDark ? AppColors.elevatedDark : Colors.white,
+      color: BLabColors.primary,
+      backgroundColor: isDark ? BLabColors.elevatedDark : Colors.white,
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
@@ -482,8 +482,8 @@ class _BookListScreenState extends State<BookListScreen>
 
     return RefreshIndicator(
       onRefresh: () => _onRefresh(vm),
-      color: AppColors.primary,
-      backgroundColor: isDark ? AppColors.elevatedDark : Colors.white,
+      color: BLabColors.primary,
+      backgroundColor: isDark ? BLabColors.elevatedDark : Colors.white,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
@@ -507,8 +507,8 @@ class _BookListScreenState extends State<BookListScreen>
 
     return RefreshIndicator(
       onRefresh: () => _onRefresh(vm),
-      color: AppColors.primary,
-      backgroundColor: isDark ? AppColors.elevatedDark : Colors.white,
+      color: BLabColors.primary,
+      backgroundColor: isDark ? BLabColors.elevatedDark : Colors.white,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
@@ -576,7 +576,7 @@ class _FilterBadgeHeaderDelegate extends SliverPersistentHeaderDelegate {
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     final l10n = AppLocalizations.of(context)!;
     return Container(
-      color: isDark ? AppColors.scaffoldDark : Colors.white,
+      color: isDark ? BLabColors.scaffoldDark : Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,

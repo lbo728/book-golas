@@ -29,7 +29,7 @@ Future<ImageSourceType?> showImageSourceSheet({
     builder: (sheetContext) {
       return Container(
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: SafeArea(
@@ -50,12 +50,12 @@ Future<ImageSourceType?> showImageSourceSheet({
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.success.withAlpha(25),
+                    color: BLabColors.success.withAlpha(25),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     CupertinoIcons.doc_text_viewfinder,
-                    color: AppColors.success,
+                    color: BLabColors.success,
                   ),
                 ),
                 title: Text(
@@ -80,7 +80,7 @@ Future<ImageSourceType?> showImageSourceSheet({
                         CustomSnackbar.show(
                           context,
                           message: '시뮬레이터에서는 카메라를 사용할 수 없습니다',
-                          type: SnackbarType.warning,
+                          type: BLabSnackbarType.warning,
                         );
                       },
               ),
@@ -88,12 +88,12 @@ Future<ImageSourceType?> showImageSourceSheet({
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(25),
+                    color: BLabColors.primary.withAlpha(25),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     CupertinoIcons.camera_fill,
-                    color: AppColors.primary,
+                    color: BLabColors.primary,
                   ),
                 ),
                 title: Text(
@@ -117,7 +117,7 @@ Future<ImageSourceType?> showImageSourceSheet({
                         CustomSnackbar.show(
                           context,
                           message: '시뮬레이터에서는 카메라를 사용할 수 없습니다',
-                          type: SnackbarType.warning,
+                          type: BLabSnackbarType.warning,
                         );
                       },
               ),
@@ -125,12 +125,12 @@ Future<ImageSourceType?> showImageSourceSheet({
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(25),
+                    color: BLabColors.primary.withAlpha(25),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     CupertinoIcons.photo_fill,
-                    color: AppColors.primary,
+                    color: BLabColors.primary,
                   ),
                 ),
                 title: Text(
@@ -166,7 +166,7 @@ Future<ImageSource?> showImageReplaceOptionsSheet({
 
   return showModalBottomSheet<ImageSource>(
     context: context,
-    backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+    backgroundColor: isDark ? BLabColors.surfaceDark : Colors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -198,12 +198,12 @@ Future<ImageSource?> showImageReplaceOptionsSheet({
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  color: BLabColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
                   CupertinoIcons.camera,
-                  color: AppColors.primary,
+                  color: BLabColors.primary,
                 ),
               ),
               title: Text(AppLocalizations.of(sheetContext)!.dialogTakePhoto),
@@ -213,12 +213,12 @@ Future<ImageSource?> showImageReplaceOptionsSheet({
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.1),
+                  color: BLabColors.success.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
                   CupertinoIcons.photo,
-                  color: AppColors.success,
+                  color: BLabColors.success,
                 ),
               ),
               title: Text(AppLocalizations.of(sheetContext)!.dialogSelect),
@@ -238,7 +238,7 @@ Future<bool?> showReplaceImageConfirmationSheet({
 
   return showModalBottomSheet<bool>(
     context: context,
-    backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+    backgroundColor: isDark ? BLabColors.surfaceDark : Colors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -252,7 +252,7 @@ Future<bool?> showReplaceImageConfirmationSheet({
             Container(
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
-                color: AppColors.amber,
+                color: BLabColors.amber,
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -309,7 +309,7 @@ Future<bool?> showReplaceImageConfirmationSheet({
                     onPressed: () => Navigator.pop(sheetContext, true),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      backgroundColor: AppColors.primary,
+                      backgroundColor: BLabColors.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

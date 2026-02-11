@@ -314,7 +314,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
             CustomSnackbar.show(
               context,
               message: l10n.pageUpdateSuccess(newPage),
-              type: SnackbarType.success,
+              type: BLabSnackbarType.success,
               rootOverlay: true,
               bottomOffset: 100,
             );
@@ -457,7 +457,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                     // Book icon
                     Icon(
                       CupertinoIcons.book_fill,
-                      color: AppColors.primary,
+                      color: BLabColors.primary,
                       size: 22,
                     ),
                     const SizedBox(width: 12),

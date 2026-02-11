@@ -29,7 +29,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -52,13 +52,13 @@ class ReadingStreakHeatmap extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppColors.destructive.withOpacity(0.1),
+                        color: BLabColors.destructive.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
                         Icons.local_fire_department_rounded,
                         size: 24,
-                        color: AppColors.destructive,
+                        color: BLabColors.destructive,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -80,7 +80,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.destructive.withOpacity(0.1),
+                      color: BLabColors.destructive.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -97,7 +97,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.destructive,
+                            color: BLabColors.destructive,
                           ),
                         ),
                       ],
@@ -291,15 +291,15 @@ class ReadingStreakHeatmap extends StatelessWidget {
       return isDark ? Colors.grey[850]! : Colors.grey[200]!;
     }
     if (pages <= 10) {
-      return AppColors.info.withOpacity(0.3);
+      return BLabColors.info.withOpacity(0.3);
     }
     if (pages <= 30) {
-      return AppColors.info.withOpacity(0.5);
+      return BLabColors.info.withOpacity(0.5);
     }
     if (pages <= 50) {
-      return AppColors.info.withOpacity(0.7);
+      return BLabColors.info.withOpacity(0.7);
     }
-    return AppColors.info;
+    return BLabColors.info;
   }
 
   Widget _buildLegend(BuildContext context, bool isDark) {

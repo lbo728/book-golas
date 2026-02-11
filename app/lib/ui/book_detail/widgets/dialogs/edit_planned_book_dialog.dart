@@ -62,7 +62,7 @@ class _EditPlannedBookDialogState extends State<EditPlannedBookDialog> {
     return Container(
       margin: EdgeInsets.only(bottom: bottomPadding),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: SafeArea(
@@ -116,7 +116,7 @@ class _EditPlannedBookDialogState extends State<EditPlannedBookDialog> {
                   height: 150,
                   decoration: BoxDecoration(
                     color:
-                        isDark ? AppColors.subtleDark : AppColors.grey50Light,
+                        isDark ? BLabColors.subtleDark : BLabColors.grey50Light,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: KoreanDatePicker(
@@ -161,7 +161,7 @@ class _EditPlannedBookDialogState extends State<EditPlannedBookDialog> {
                         onPressed: _isLoading ? null : _onSave,
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          backgroundColor: AppColors.primary,
+                          backgroundColor: BLabColors.primary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),

@@ -237,7 +237,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
 
     // Consumer 범위 최소화: TextField가 리빌드되지 않도록 Scaffold는 밖에 위치
     return Scaffold(
-      backgroundColor: isDark ? AppColors.scaffoldDark : Colors.white,
+      backgroundColor: isDark ? BLabColors.scaffoldDark : Colors.white,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         bottom: false,
@@ -460,7 +460,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                 children: [
                   Icon(
                     Icons.auto_awesome,
-                    color: AppColors.primary,
+                    color: BLabColors.primary,
                     size: 18,
                   ),
                   const SizedBox(width: 8),
@@ -506,7 +506,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.subtleDark : Colors.white,
+          color: isDark ? BLabColors.subtleDark : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isDark
@@ -538,7 +538,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                         width: 48,
                         height: 64,
                         color:
-                            isDark ? AppColors.elevatedDark : Colors.grey[200],
+                            isDark ? BLabColors.elevatedDark : Colors.grey[200],
                         child: Icon(
                           Icons.menu_book_rounded,
                           color: isDark ? Colors.white38 : Colors.grey[400],
@@ -549,7 +549,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                   : Container(
                       width: 48,
                       height: 64,
-                      color: isDark ? AppColors.elevatedDark : Colors.grey[200],
+                      color: isDark ? BLabColors.elevatedDark : Colors.grey[200],
                       child: Icon(
                         Icons.menu_book_rounded,
                         color: isDark ? Colors.white38 : Colors.grey[400],
@@ -607,14 +607,14 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                                 ),
                                 decoration: BoxDecoration(
                                   color:
-                                      AppColors.primary.withValues(alpha: 0.12),
+                                      BLabColors.primary.withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
                                   keyword,
                                   style: const TextStyle(
                                     fontSize: 11,
-                                    color: AppColors.primary,
+                                    color: BLabColors.primary,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -646,11 +646,11 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           // 다크 배경 (#343434)
-          color: AppColors.elevatedDark,
+          color: BLabColors.elevatedDark,
           borderRadius: BorderRadius.circular(16),
           // 이너 보더: 항상 2px로 유지 (레이아웃 시프트 방지)
           border: Border.all(
-            color: isSelected ? AppColors.primary : Colors.transparent,
+            color: isSelected ? BLabColors.primary : Colors.transparent,
             width: 2,
           ),
         ),
@@ -741,7 +741,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.primary : Colors.transparent,
+                  color: isSelected ? BLabColors.primary : Colors.transparent,
                   shape: BoxShape.circle,
                 ),
                 child: isSelected
@@ -1122,7 +1122,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
           builder: (context, setModalState) {
             return Container(
               decoration: BoxDecoration(
-                color: isDark ? AppColors.surfaceDark : Colors.white,
+                color: isDark ? BLabColors.surfaceDark : Colors.white,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -1144,7 +1144,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: isDark ? AppColors.subtleDark : Colors.grey[100],
+                      color: isDark ? BLabColors.subtleDark : Colors.grey[100],
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Center(
@@ -1165,7 +1165,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                   Container(
                     height: 180,
                     decoration: BoxDecoration(
-                      color: isDark ? AppColors.subtleDark : Colors.grey[100],
+                      color: isDark ? BLabColors.subtleDark : Colors.grey[100],
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: KoreanDatePicker(
@@ -1191,7 +1191,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
+                        backgroundColor: BLabColors.primary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -1352,8 +1352,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                     ),
                     decoration: BoxDecoration(
                       color: isDark
-                          ? AppColors.subtleDark
-                          : AppColors.elevatedLight,
+                          ? BLabColors.subtleDark
+                          : BLabColors.elevatedLight,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -1383,14 +1383,14 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.success.withValues(alpha: 0.1),
+                    color: BLabColors.success.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
                     children: [
                       const Icon(
                         Icons.check_circle_outline,
-                        color: AppColors.success,
+                        color: BLabColors.success,
                         size: 18,
                       ),
                       const SizedBox(width: 8),
@@ -1398,7 +1398,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                         AppLocalizations.of(context)!.readingStartToday,
                         style: const TextStyle(
                           fontSize: 14,
-                          color: AppColors.success,
+                          color: BLabColors.success,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -1432,7 +1432,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                   ),
                   decoration: BoxDecoration(
                     color:
-                        isDark ? AppColors.subtleDark : AppColors.elevatedLight,
+                        isDark ? BLabColors.subtleDark : BLabColors.elevatedLight,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -1535,7 +1535,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: BLabColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),

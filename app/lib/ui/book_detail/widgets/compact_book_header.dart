@@ -43,7 +43,7 @@ class CompactBookHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -69,34 +69,24 @@ class CompactBookHeader extends StatelessWidget {
                   const SizedBox(height: 8),
                   GestureDetector(
                     onTap: onBookInfoTap,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            CupertinoIcons.info_circle,
-                            size: 14,
-                            color: AppColors.primary,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          CupertinoIcons.info_circle,
+                          size: 14,
+                          color: BLabColors.primary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          AppLocalizations.of(context)!.bookInfoViewButton,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: BLabColors.primary,
+                            fontWeight: FontWeight.w500,
                           ),
-                          const SizedBox(width: 5),
-                          Text(
-                            AppLocalizations.of(context)!.bookInfoViewButton,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -228,17 +218,17 @@ class CompactBookHeader extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     if (isCompleted) {
-      return (label: l10n.statusCompleted, color: AppColors.success);
+      return (label: l10n.statusCompleted, color: BLabColors.success);
     }
 
     switch (status) {
       case 'planned':
-        return (label: l10n.statusPlanned, color: AppColors.purple);
+        return (label: l10n.statusPlanned, color: BLabColors.purple);
       case 'will_retry':
-        return (label: l10n.statusReread, color: AppColors.warning);
+        return (label: l10n.statusReread, color: BLabColors.warning);
       case 'reading':
       default:
-        return (label: l10n.statusReading, color: AppColors.primary);
+        return (label: l10n.statusReading, color: BLabColors.primary);
     }
   }
 }

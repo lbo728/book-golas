@@ -34,7 +34,7 @@ class ReadingGoalSheet {
           builder: (context, setModalState) {
             return Container(
               decoration: BoxDecoration(
-                color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+                color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -106,14 +106,14 @@ class ReadingGoalSheet {
                               ),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? AppColors.primary
+                                    ? BLabColors.primary
                                     : (isDark
                                         ? Colors.grey[800]
                                         : Colors.grey[100]),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
                                   color: isSelected
-                                      ? AppColors.primary
+                                      ? BLabColors.primary
                                       : (isDark
                                           ? Colors.grey[700]!
                                           : Colors.grey[300]!),
@@ -202,7 +202,7 @@ class ReadingGoalSheet {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(
-                          color: AppColors.primary,
+                          color: BLabColors.primary,
                           width: 2,
                         ),
                       ),
@@ -213,8 +213,8 @@ class ReadingGoalSheet {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: isDark
-                          ? AppColors.subtleDark
-                          : AppColors.subtleBlueLight,
+                          ? BLabColors.subtleDark
+                          : BLabColors.subtleBlueLight,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -222,7 +222,7 @@ class ReadingGoalSheet {
                         Icon(
                           Icons.lightbulb_outline_rounded,
                           size: 20,
-                          color: AppColors.primary,
+                          color: BLabColors.primary,
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -265,7 +265,7 @@ class ReadingGoalSheet {
                               ? () => Navigator.pop(context, selectedGoal)
                               : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: BLabColors.primary,
                             disabledBackgroundColor:
                                 isDark ? Colors.grey[700] : Colors.grey[300],
                             padding: const EdgeInsets.symmetric(vertical: 16),

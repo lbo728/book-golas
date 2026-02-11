@@ -152,7 +152,7 @@ class ScheduleChangeModal {
                     builder: (context, scrollController) {
                       return Container(
                         decoration: BoxDecoration(
-                          color: isDark ? AppColors.surfaceDark : Colors.white,
+                          color: isDark ? BLabColors.surfaceDark : Colors.white,
                           borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(24)),
                         ),
@@ -318,12 +318,12 @@ class ScheduleChangeModal {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.1),
+            color: BLabColors.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(
             CupertinoIcons.book,
-            color: AppColors.primary,
+            color: BLabColors.primary,
             size: 24,
           ),
         ),
@@ -378,7 +378,7 @@ class ScheduleChangeModal {
     return Container(
       height: 120,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.subtleDark : Colors.grey[100],
+        color: isDark ? BLabColors.subtleDark : Colors.grey[100],
         borderRadius: BorderRadius.circular(16),
       ),
       child: Stack(
@@ -388,7 +388,7 @@ class ScheduleChangeModal {
               width: 100,
               height: 90,
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.12),
+                color: BLabColors.primary.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
@@ -431,7 +431,7 @@ class ScheduleChangeModal {
                                     ? FontWeight.w700
                                     : FontWeight.w400,
                                 color: isSelected
-                                    ? AppColors.primary
+                                    ? BLabColors.primary
                                     : (isDark
                                         ? Colors.grey[500]
                                         : Colors.grey[400]),
@@ -493,7 +493,7 @@ class ScheduleChangeModal {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: AppColors.primary),
+              borderSide: const BorderSide(color: BLabColors.primary),
             ),
             suffixText: 'p',
             suffixStyle: TextStyle(
@@ -534,8 +534,8 @@ class ScheduleChangeModal {
       ),
       decoration: BoxDecoration(
         color: isToday
-            ? AppColors.primary.withValues(alpha: 0.1)
-            : (isDark ? AppColors.subtleDark : Colors.grey[50]),
+            ? BLabColors.primary.withValues(alpha: 0.1)
+            : (isDark ? BLabColors.subtleDark : Colors.grey[50]),
         borderRadius: index == 0
             ? const BorderRadius.vertical(top: Radius.circular(12))
             : (index == totalCount - 1
@@ -552,7 +552,7 @@ class ScheduleChangeModal {
                 fontSize: 14,
                 fontWeight: isToday ? FontWeight.bold : FontWeight.w400,
                 color: isToday
-                    ? AppColors.primary
+                    ? BLabColors.primary
                     : (isDark ? Colors.grey[300] : Colors.grey[700]),
               ),
             ),
@@ -570,7 +570,7 @@ class ScheduleChangeModal {
                 widthFactor: pages / maxPages,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: AppColors.primary,
+                    color: BLabColors.primary,
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ),
@@ -622,7 +622,7 @@ class ScheduleChangeModal {
                 Navigator.pop(context, newDailyTarget);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
+                backgroundColor: BLabColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

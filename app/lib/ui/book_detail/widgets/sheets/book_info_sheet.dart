@@ -72,9 +72,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
       BookDetailInfo? googleDetail;
 
       if (hasIsbn) {
-        debugPrint(
-          '📚 [BookInfo] Step1: 네이버 ISBN 검색 (${widget.book.isbn})',
-        );
+        debugPrint('📚 [BookInfo] Step1: 네이버 ISBN 검색 (${widget.book.isbn})');
         final naverDesc = await NaverBooksApiService.fetchDescription(
           widget.book.isbn!,
         );
@@ -88,9 +86,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
         }
 
         if (detail?.description == null || detail!.description!.isEmpty) {
-          debugPrint(
-            '📚 [BookInfo] Step2: 알라딘 ISBN 검색 (${widget.book.isbn})',
-          );
+          debugPrint('📚 [BookInfo] Step2: 알라딘 ISBN 검색 (${widget.book.isbn})');
           final aladinDesc = await AladinApiService.fetchDescription(
             widget.book.isbn!,
           );
@@ -124,9 +120,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
       if (detail == null ||
           detail.description == null ||
           detail.description!.isEmpty) {
-        debugPrint(
-          '📚 [BookInfo] Step4: 네이버 제목 검색 ("${widget.book.title}")',
-        );
+        debugPrint('📚 [BookInfo] Step4: 네이버 제목 검색 ("${widget.book.title}")');
         final titleDesc = await NaverBooksApiService.fetchDescriptionByTitle(
           widget.book.title,
           widget.book.author,
@@ -137,6 +131,23 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
         if (titleDesc != null && titleDesc.isNotEmpty) {
           detail = (detail ?? BookDetailInfo.fromLocal(widget.book)).copyWith(
             description: titleDesc,
+          );
+        }
+      }
+
+      if (detail == null ||
+          detail.description == null ||
+          detail.description!.isEmpty) {
+        debugPrint('📚 [BookInfo] Step5: 알라딘 제목 검색 ("${widget.book.title}")');
+        final aladinTitleDesc = await AladinApiService.fetchDescriptionByTitle(
+          widget.book.title,
+        );
+        debugPrint(
+          '📚 [BookInfo] Step5 결과: ${aladinTitleDesc != null ? "${aladinTitleDesc.length}자" : "null"}',
+        );
+        if (aladinTitleDesc != null && aladinTitleDesc.isNotEmpty) {
+          detail = (detail ?? BookDetailInfo.fromLocal(widget.book)).copyWith(
+            description: aladinTitleDesc,
           );
         }
       }
@@ -267,7 +278,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
       maxChildSize: 0.95,
       builder: (context, scrollController) => Container(
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
@@ -367,7 +378,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
       children: [
         TabBar(
           controller: _tabController,
-          labelColor: AppColors.primary,
+          labelColor: BLabColors.primary,
           unselectedLabelColor: isDark ? Colors.grey[500] : Colors.grey[400],
           labelStyle: const TextStyle(
             fontSize: 15,
@@ -377,7 +388,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
             fontSize: 15,
             fontWeight: FontWeight.w500,
           ),
-          indicatorColor: AppColors.primary,
+          indicatorColor: BLabColors.primary,
           indicatorWeight: 2.5,
           dividerColor: isDark ? Colors.grey[800] : Colors.grey[200],
           tabs: [
@@ -449,13 +460,14 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
             const SizedBox(height: 8),
             GestureDetector(
               onTap: () => setState(
-                  () => _isDescriptionExpanded = !_isDescriptionExpanded),
+                () => _isDescriptionExpanded = !_isDescriptionExpanded,
+              ),
               child: Text(
                 _isDescriptionExpanded ? '접기' : '더보기',
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: BLabColors.primary,
                 ),
               ),
             ),
@@ -606,7 +618,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 16),
             decoration: BoxDecoration(
-              color: AppColors.primary,
+              color: BLabColors.primary,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(

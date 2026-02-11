@@ -36,7 +36,7 @@ class AiInsightCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -81,13 +81,13 @@ class AiInsightCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
+            color: BLabColors.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(
             Icons.auto_awesome,
             size: 24,
-            color: AppColors.primary,
+            color: BLabColors.primary,
           ),
         ),
         const SizedBox(width: 12),
@@ -202,7 +202,7 @@ class AiInsightCard extends StatelessWidget {
             ElevatedButton(
               onPressed: onRetry,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
+                backgroundColor: BLabColors.primary,
                 foregroundColor: Colors.white,
               ),
               child: Text(AppLocalizations.of(context)!.chartAiInsightRetry),
@@ -287,7 +287,7 @@ class AiInsightCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.15),
+            color: BLabColors.primary.withOpacity(0.15),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
@@ -295,7 +295,7 @@ class AiInsightCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: AppColors.primary,
+              color: BLabColors.primary,
             ),
           ),
         ),
@@ -308,8 +308,8 @@ class AiInsightCard extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppColors.primary.withOpacity(0.1),
-                    AppColors.primary.withOpacity(0.05),
+                    BLabColors.primary.withOpacity(0.1),
+                    BLabColors.primary.withOpacity(0.05),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
@@ -362,8 +362,8 @@ class AiInsightCard extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppColors.primary.withOpacity(0.1),
-                  AppColors.primary.withOpacity(0.05),
+                  BLabColors.primary.withOpacity(0.1),
+                  BLabColors.primary.withOpacity(0.05),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
@@ -413,7 +413,7 @@ class AiInsightCard extends StatelessWidget {
                               : Colors.white.withOpacity(0.8),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: AppColors.primary.withOpacity(0.3),
+                            color: BLabColors.primary.withOpacity(0.3),
                             width: 1,
                           ),
                         ),
@@ -462,7 +462,7 @@ class AiInsightCard extends StatelessWidget {
         child: ElevatedButton(
           onPressed: onGenerate,
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
+            backgroundColor: BLabColors.primary,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 14),
             shape: RoundedRectangleBorder(
@@ -500,7 +500,7 @@ class AiInsightCard extends StatelessWidget {
 
   Icon _getCategoryIcon(String category, bool isDark) {
     final color =
-        isDark ? AppColors.primary.withOpacity(0.8) : AppColors.primary;
+        isDark ? BLabColors.primary.withOpacity(0.8) : BLabColors.primary;
 
     switch (category) {
       case 'pattern':

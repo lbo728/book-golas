@@ -80,7 +80,7 @@ class _MyPageContentState extends State<_MyPageContent> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+          backgroundColor: isDark ? BLabColors.surfaceDark : Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -115,7 +115,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                 await _deleteAccount();
               },
               style: TextButton.styleFrom(
-                foregroundColor: AppColors.error,
+                foregroundColor: BLabColors.error,
               ),
               child: Text(AppLocalizations.of(context)!.commonDelete),
             ),
@@ -134,7 +134,7 @@ class _MyPageContentState extends State<_MyPageContent> {
         CustomSnackbar.show(
           context,
           message: AppLocalizations.of(context)!.myPageDeleteAccountSuccess,
-          type: SnackbarType.success,
+          type: BLabSnackbarType.success,
           bottomOffset: 32,
         );
 
@@ -146,7 +146,7 @@ class _MyPageContentState extends State<_MyPageContent> {
         CustomSnackbar.show(
           context,
           message: AppLocalizations.of(context)!.myPageDeleteAccountFailed,
-          type: SnackbarType.error,
+          type: BLabSnackbarType.error,
           bottomOffset: 32,
         );
       }
@@ -156,7 +156,7 @@ class _MyPageContentState extends State<_MyPageContent> {
           context,
           message: AppLocalizations.of(context)!
               .myPageDeleteAccountError(e.toString()),
-          type: SnackbarType.error,
+          type: BLabSnackbarType.error,
           bottomOffset: 32,
         );
       }
@@ -178,7 +178,7 @@ class _MyPageContentState extends State<_MyPageContent> {
         return Container(
           height: 350,
           decoration: BoxDecoration(
-            color: isDark ? AppColors.surfaceDark : Colors.white,
+            color: isDark ? BLabColors.surfaceDark : Colors.white,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(20),
               topRight: Radius.circular(20),
@@ -207,7 +207,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                       child: Text(
                         AppLocalizations.of(context)!.commonCancel,
                         style: const TextStyle(
-                          color: AppColors.error,
+                          color: BLabColors.error,
                           fontSize: 17,
                           fontWeight: FontWeight.w500,
                         ),
@@ -230,7 +230,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                       child: Text(
                         AppLocalizations.of(context)!.commonConfirm,
                         style: const TextStyle(
-                          color: AppColors.primary,
+                          color: BLabColors.primary,
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
                         ),
@@ -272,7 +272,7 @@ class _MyPageContentState extends State<_MyPageContent> {
           context,
           message: AppLocalizations.of(context)!
               .myPageNotificationTime(settingsViewModel.getFormattedTime()),
-          type: SnackbarType.success,
+          type: BLabSnackbarType.success,
           bottomOffset: 32,
         );
       }
@@ -281,7 +281,7 @@ class _MyPageContentState extends State<_MyPageContent> {
         context,
         message: settingsViewModel.errorMessage ??
             AppLocalizations.of(context)!.myPageNotificationChangeFailed,
-        type: SnackbarType.error,
+        type: BLabSnackbarType.error,
         bottomOffset: 32,
       );
     }
@@ -318,7 +318,7 @@ class _MyPageContentState extends State<_MyPageContent> {
 
     final textColor = isDark ? Colors.white : Colors.black;
 
-    return LiquidGlassCard(
+    return BLabCard(
       child: Column(
         children: [
           GestureDetector(
@@ -398,10 +398,10 @@ class _MyPageContentState extends State<_MyPageContent> {
                       width: 28,
                       height: 28,
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
+                        color: BLabColors.primary,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: isDark ? AppColors.surfaceDark : Colors.white,
+                          color: isDark ? BLabColors.surfaceDark : Colors.white,
                           width: 2,
                         ),
                       ),
@@ -420,9 +420,9 @@ class _MyPageContentState extends State<_MyPageContent> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                LiquidGlassButton(
+                BLabButton(
                   text: _isUploadingAvatar ? '' : '변경',
-                  variant: LiquidGlassButtonVariant.primary,
+                  variant: BLabButtonVariant.primary,
                   onPressed: _isUploadingAvatar
                       ? null
                       : () async {
@@ -438,7 +438,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                                   context,
                                   message: AppLocalizations.of(context)!
                                       .myPageAvatarChanged,
-                                  type: SnackbarType.success,
+                                  type: BLabSnackbarType.success,
                                   bottomOffset: 32,
                                 );
                               }
@@ -450,7 +450,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                                   context,
                                   message: AppLocalizations.of(context)!
                                       .myPageAvatarChangeFailed(e.toString()),
-                                  type: SnackbarType.error,
+                                  type: BLabSnackbarType.error,
                                   bottomOffset: 32,
                                 );
                               }
@@ -473,9 +473,9 @@ class _MyPageContentState extends State<_MyPageContent> {
                       : null,
                 ),
                 const SizedBox(width: 8),
-                LiquidGlassButton(
+                BLabButton(
                   text: '취소',
-                  variant: LiquidGlassButtonVariant.secondary,
+                  variant: BLabButtonVariant.secondary,
                   onPressed: _isUploadingAvatar
                       ? null
                       : () {
@@ -527,7 +527,7 @@ class _MyPageContentState extends State<_MyPageContent> {
             Row(
               children: [
                 Expanded(
-                  child: LiquidGlassTextField(
+                  child: BLabTextField(
                     controller: _nicknameController,
                     hintText: AppLocalizations.of(context)!.myPageNicknameHint,
                   ),
@@ -543,7 +543,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                   child: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: AppColors.success,
+                      color: BLabColors.success,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
@@ -596,7 +596,7 @@ class _MyPageContentState extends State<_MyPageContent> {
       width: 80,
       height: 80,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.subtleDark : Colors.blue[50],
+        color: isDark ? BLabColors.subtleDark : Colors.blue[50],
         shape: BoxShape.circle,
       ),
       child: Icon(
@@ -611,7 +611,7 @@ class _MyPageContentState extends State<_MyPageContent> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black;
 
-    return LiquidGlassCard(
+    return BLabCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -638,7 +638,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                     HapticFeedback.selectionClick();
                     themeViewModel.toggleTheme();
                   },
-                  activeTrackColor: AppColors.primary,
+                  activeTrackColor: BLabColors.primary,
                 ),
               );
             },
@@ -694,7 +694,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                           builder: (context) => Container(
                             decoration: BoxDecoration(
                               color:
-                                  isDark ? AppColors.surfaceDark : Colors.white,
+                                  isDark ? BLabColors.surfaceDark : Colors.white,
                               borderRadius: const BorderRadius.vertical(
                                   top: Radius.circular(24)),
                             ),
@@ -773,7 +773,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                                         style: ElevatedButton.styleFrom(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 14),
-                                          backgroundColor: AppColors.primary,
+                                          backgroundColor: BLabColors.primary,
                                           foregroundColor: Colors.white,
                                           elevation: 0,
                                           shape: RoundedRectangleBorder(
@@ -862,8 +862,8 @@ class _MyPageContentState extends State<_MyPageContent> {
                                         : AppLocalizations.of(context)!
                                             .myPageNotificationDisabled,
                                     type: value
-                                        ? SnackbarType.success
-                                        : SnackbarType.info,
+                                        ? BLabSnackbarType.success
+                                        : BLabSnackbarType.info,
                                     bottomOffset: 32,
                                   );
                                 }
@@ -872,21 +872,21 @@ class _MyPageContentState extends State<_MyPageContent> {
                                   context,
                                   message: settingsViewModel.errorMessage ??
                                       '알림 설정 변경에 실패했습니다',
-                                  type: SnackbarType.error,
+                                  type: BLabSnackbarType.error,
                                   bottomOffset: 32,
                                 );
                               }
                             },
-                            activeTrackColor: AppColors.primary,
+                            activeTrackColor: BLabColors.primary,
                           ),
                   ),
                   if (settings.notificationEnabled) ...[
                     const SizedBox(height: 16),
-                    LiquidGlassButton(
+                    BLabButton(
                       text: _formatTime(
                           settings.preferredHour, settings.preferredMinute),
                       icon: Icons.access_time,
-                      variant: LiquidGlassButtonVariant.secondary,
+                      variant: BLabButtonVariant.secondary,
                       isFullWidth: true,
                       onPressed: isLoading
                           ? null
@@ -903,12 +903,12 @@ class _MyPageContentState extends State<_MyPageContent> {
           const SizedBox(height: 16),
           Consumer<SubscriptionViewModel>(
             builder: (context, subscriptionVm, child) {
-              return LiquidGlassButton(
+              return BLabButton(
                 text: subscriptionVm.isProUser
                     ? AppLocalizations.of(context)!.myPageSubscriptionManage
                     : AppLocalizations.of(context)!.myPageSubscriptionUpgrade,
                 icon: subscriptionVm.isProUser ? Icons.star : Icons.star_border,
-                variant: LiquidGlassButtonVariant.secondary,
+                variant: BLabButtonVariant.secondary,
                 isFullWidth: true,
                 onPressed: () {
                   Navigator.push(
@@ -925,10 +925,10 @@ class _MyPageContentState extends State<_MyPageContent> {
           ),
           if (kDebugMode) ...[
             const SizedBox(height: 20),
-            LiquidGlassButton(
+            BLabButton(
               text: AppLocalizations.of(context)!.myPageTestNotification,
               icon: Icons.notifications_active,
-              variant: LiquidGlassButtonVariant.secondary,
+              variant: BLabButtonVariant.secondary,
               isFullWidth: true,
               onPressed: () async {
                 await FCMService().scheduleTestNotification(seconds: 30);
@@ -938,7 +938,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                     context,
                     message: AppLocalizations.of(context)!
                         .myPageTestNotificationSent,
-                    type: SnackbarType.success,
+                    type: BLabSnackbarType.success,
                     bottomOffset: 32,
                     duration: const Duration(seconds: 3),
                   );
@@ -1009,13 +1009,13 @@ class _MyPageContentState extends State<_MyPageContent> {
   }
 
   Widget _buildDangerZoneCard(BuildContext context) {
-    return LiquidGlassCard(
+    return BLabCard(
       child: Column(
         children: [
-          LiquidGlassButton(
+          BLabButton(
             text: AppLocalizations.of(context)!.myPageLogout,
             icon: Icons.logout,
-            variant: LiquidGlassButtonVariant.destructive,
+            variant: BLabButtonVariant.destructive,
             isFullWidth: true,
             onPressed: () async {
               await context.read<AuthViewModel>().signOut();
@@ -1031,7 +1031,7 @@ class _MyPageContentState extends State<_MyPageContent> {
           TextButton(
             onPressed: () => _showDeleteAccountDialog(context),
             style: TextButton.styleFrom(
-              foregroundColor: AppColors.error,
+              foregroundColor: BLabColors.error,
             ),
             child: Text(
               AppLocalizations.of(context)!.myPageDeleteAccount,

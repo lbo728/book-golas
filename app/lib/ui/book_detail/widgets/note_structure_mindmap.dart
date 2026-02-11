@@ -50,7 +50,7 @@ class NoteStructureMindmap extends StatelessWidget {
           color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
         ),
         borderRadius: BorderRadius.circular(16),
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,7 +183,7 @@ class NoteStructureMindmap extends StatelessWidget {
         maxChildSize: 0.85,
         builder: (_, scrollController) => Container(
           decoration: BoxDecoration(
-            color: isDark ? AppColors.surfaceDark : Colors.white,
+            color: isDark ? BLabColors.surfaceDark : Colors.white,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(

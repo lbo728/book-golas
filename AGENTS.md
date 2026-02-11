@@ -494,3 +494,34 @@ ALTER TABLE books DROP COLUMN IF EXISTS new_column;
 ```
 
 **주의**: Supabase는 자동 롤백을 지원하지 않음. 문제 발생 시 수동으로 롤백 SQL 실행 필요.
+
+## BLab Design System Usage (MANDATORY)
+
+### 규칙
+- 모든 Material 3 UI는 BLab 컴포넌트 사용
+- 색상: BLabColors.* 사용 (AppColors 금지)
+- 테마: BLabTheme.light/dark 사용 (AppTheme 금지)
+- 타이포그래피: BLabTypography.* 사용 (AppTypography 금지)
+- 버튼: BLabButton 사용 (ElevatedButton, TextButton 금지)
+- 카드: BLabCard 사용 (Card 금지)
+- 입력: BLabTextField 사용 (TextField 금지)
+- 스낵바: BLabSnackbar.show() 사용 (ScaffoldMessenger 금지)
+
+### 예외
+- 플랫폼 네이티브 위젯 (AppBar, Scaffold 등)은 BLab 색상/테마 적용
+- 써드파티 라이브러리 위젯은 BLab 색상으로 커스터마이징
+
+### 새 컴포넌트 추가 프로세스
+1. BLab에 추가할 가치 평가
+2. YES → blab_design_system 리포에 PR
+3. 머지 후 이 프로젝트에서 사용
+
+### Import 방식
+```dart
+import 'package:blab_design_system/blab_design_system.dart';
+
+// 사용 예시
+BLabButton(text: 'Submit', onPressed: () {})
+BLabCard(child: Text('Content'))
+BLabSnackbar.show(context, message: 'Success', type: BLabSnackbarType.success)
+```

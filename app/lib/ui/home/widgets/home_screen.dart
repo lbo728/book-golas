@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
       CustomSnackbar.show(
         context,
         message: AppLocalizations.of(context).homeNoReadingBooks,
-        type: SnackbarType.info,
+        type: BLabSnackbarType.info,
         bottomOffset: 100,
       );
       return;
@@ -102,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
       CustomSnackbar.show(
         context,
         message: AppLocalizations.of(context).homeNoReadingBooksShort,
-        type: SnackbarType.info,
+        type: BLabSnackbarType.info,
         bottomOffset: 100,
       );
       vm.setDisplayMode(HomeDisplayMode.allBooks);
@@ -137,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
     CustomSnackbar.show(
       context,
       message: message,
-      type: SnackbarType.success,
+      type: BLabSnackbarType.success,
       bottomOffset: 100,
     );
   }
@@ -167,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (!vm.isPreferencesLoaded) {
           return Scaffold(
             backgroundColor:
-                isDark ? AppColors.scaffoldDark : AppColors.elevatedLight,
+                isDark ? BLabColors.scaffoldDark : BLabColors.elevatedLight,
             body: const SizedBox.shrink(),
           );
         }
@@ -183,7 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
             bookListVm.isLoading) {
           return Scaffold(
             backgroundColor:
-                isDark ? AppColors.scaffoldDark : AppColors.elevatedLight,
+                isDark ? BLabColors.scaffoldDark : BLabColors.elevatedLight,
             body: const SizedBox.shrink(),
           );
         }
@@ -207,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         return Scaffold(
           backgroundColor:
-              isDark ? AppColors.scaffoldDark : AppColors.elevatedLight,
+              isDark ? BLabColors.scaffoldDark : BLabColors.elevatedLight,
           appBar: _buildAppBar(vm, isDark),
           body: Column(
             children: [

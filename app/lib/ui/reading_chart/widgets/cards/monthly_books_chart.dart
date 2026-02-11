@@ -41,7 +41,7 @@ class MonthlyBooksChart extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -61,13 +61,13 @@ class MonthlyBooksChart extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppColors.info.withOpacity(0.1),
+                    color: BLabColors.info.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
                     Icons.bar_chart_rounded,
                     size: 24,
-                    color: AppColors.info,
+                    color: BLabColors.info,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -149,7 +149,7 @@ class MonthlyBooksChart extends StatelessWidget {
                                     ? FontWeight.bold
                                     : FontWeight.normal,
                                 color: isCurrentMonth
-                                    ? AppColors.primary
+                                    ? BLabColors.primary
                                     : (isDark
                                         ? Colors.grey[500]
                                         : Colors.grey[600]),
@@ -217,8 +217,8 @@ class MonthlyBooksChart extends StatelessWidget {
           BarChartRodData(
             toY: count.toDouble(),
             color: isCurrentMonth
-                ? AppColors.primary
-                : (isDark ? AppColors.info.withOpacity(0.7) : AppColors.info),
+                ? BLabColors.primary
+                : (isDark ? BLabColors.info.withOpacity(0.7) : BLabColors.info),
             width: 16,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
             backDrawRodData: BackgroundBarChartRodData(

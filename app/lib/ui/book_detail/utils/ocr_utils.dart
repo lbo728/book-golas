@@ -174,7 +174,7 @@ Future<void> extractTextFromLocalImage(
         ),
         AndroidUiSettings(
           toolbarTitle: '텍스트 추출 영역 선택',
-          toolbarColor: AppColors.primary,
+          toolbarColor: BLabColors.primary,
           toolbarWidgetColor: Colors.white,
           initAspectRatio: CropAspectRatioPreset.original,
           lockAspectRatio: false,
@@ -204,14 +204,14 @@ Future<void> extractTextFromLocalImage(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: Theme.of(dialogContext).brightness == Brightness.dark
-                  ? AppColors.subtleDark
+                  ? BLabColors.subtleDark
                   : Colors.white,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const CircularProgressIndicator(color: AppColors.primary),
+                const CircularProgressIndicator(color: BLabColors.primary),
                 const SizedBox(height: 16),
                 Text(
                   AppLocalizations.of(dialogContext)!.extractingText,
@@ -293,7 +293,7 @@ Future<void> pickImageAndExtractText(
       builder: (bottomSheetContext) => Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
@@ -351,7 +351,7 @@ Future<void> pickImageAndExtractText(
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
+                        color: BLabColors.primary,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Center(
@@ -408,7 +408,7 @@ Future<void> pickImageAndExtractText(
           AndroidUiSettings(
             toolbarTitle:
                 AppLocalizations.of(parentContext)!.ocrAreaSelectTitle,
-            toolbarColor: AppColors.primary,
+            toolbarColor: BLabColors.primary,
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.original,
             lockAspectRatio: false,
@@ -437,13 +437,13 @@ Future<void> pickImageAndExtractText(
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: isDark ? AppColors.subtleDark : Colors.white,
+                color: isDark ? BLabColors.subtleDark : Colors.white,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const CircularProgressIndicator(color: AppColors.primary),
+                  const CircularProgressIndicator(color: BLabColors.primary),
                   const SizedBox(height: 16),
                   Text(
                     AppLocalizations.of(dialogContext)!.extractingText,
@@ -518,7 +518,7 @@ Future<void> reExtractTextFromImage(
     builder: (bottomSheetContext) => Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -586,7 +586,7 @@ Future<void> reExtractTextFromImage(
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
+                      color: BLabColors.primary,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Center(
@@ -624,14 +624,14 @@ Future<void> reExtractTextFromImage(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: Theme.of(dialogContext).brightness == Brightness.dark
-                  ? AppColors.subtleDark
+                  ? BLabColors.subtleDark
                   : Colors.white,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const CircularProgressIndicator(color: AppColors.primary),
+                const CircularProgressIndicator(color: BLabColors.primary),
                 const SizedBox(height: 16),
                 Text(
                   AppLocalizations.of(dialogContext)!.loadingImage,
@@ -675,7 +675,7 @@ Future<void> reExtractTextFromImage(
         ),
         AndroidUiSettings(
           toolbarTitle: AppLocalizations.of(context)!.ocrAreaSelectTitle,
-          toolbarColor: AppColors.primary,
+          toolbarColor: BLabColors.primary,
           toolbarWidgetColor: Colors.white,
           initAspectRatio: CropAspectRatioPreset.original,
           lockAspectRatio: false,
@@ -698,14 +698,14 @@ Future<void> reExtractTextFromImage(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: Theme.of(dialogContext).brightness == Brightness.dark
-                  ? AppColors.subtleDark
+                  ? BLabColors.subtleDark
                   : Colors.white,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const CircularProgressIndicator(color: AppColors.primary),
+                const CircularProgressIndicator(color: BLabColors.primary),
                 const SizedBox(height: 16),
                 Text(
                   AppLocalizations.of(dialogContext)!.extractingText,
@@ -764,7 +764,7 @@ Future<void> scanDocumentAndExtractText(
       builder: (bottomSheetContext) => Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
@@ -822,7 +822,7 @@ Future<void> scanDocumentAndExtractText(
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
+                        color: BLabColors.primary,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Center(
@@ -862,13 +862,13 @@ Future<void> scanDocumentAndExtractText(
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: isDark ? AppColors.subtleDark : Colors.white,
+              color: isDark ? BLabColors.subtleDark : Colors.white,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const CircularProgressIndicator(color: AppColors.primary),
+                const CircularProgressIndicator(color: BLabColors.primary),
                 const SizedBox(height: 16),
                 Text(
                   AppLocalizations.of(dialogContext)!.extractingText,

@@ -19,7 +19,7 @@ void showFullTitleSheet({
     backgroundColor: Colors.transparent,
     builder: (sheetContext) => Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SafeArea(
@@ -74,7 +74,7 @@ void showFullTitleSheet({
                         CustomSnackbar.show(
                           context,
                           message: '제목이 복사되었습니다',
-                          type: SnackbarType.success,
+                          type: BLabSnackbarType.success,
                           bottomOffset: 40,
                         );
                       },
@@ -82,7 +82,7 @@ void showFullTitleSheet({
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
                           color: isDark
-                              ? AppColors.subtleDark
+                              ? BLabColors.subtleDark
                               : Colors.grey[100],
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -123,7 +123,7 @@ void showFullTitleSheet({
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
-                          color: AppColors.primary,
+                          color: BLabColors.primary,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Row(

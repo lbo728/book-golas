@@ -37,7 +37,7 @@ class DashboardProgressWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -67,8 +67,8 @@ class DashboardProgressWidget extends StatelessWidget {
                             strokeWidth: 10,
                             backgroundColor: isDark
                                 ? Colors.white.withValues(alpha: 0.1)
-                                : AppColors.subtleBlueLight,
-                            progressColor: AppColors.primary,
+                                : BLabColors.subtleBlueLight,
+                            progressColor: BLabColors.primary,
                           ),
                         ),
                       ),
@@ -115,8 +115,8 @@ class DashboardProgressWidget extends StatelessWidget {
                     fontSize: 32,
                     fontWeight: FontWeight.w800,
                     color: isOverdue || daysLeft <= 3
-                        ? AppColors.errorAlt
-                        : AppColors.primary,
+                        ? BLabColors.errorAlt
+                        : BLabColors.primary,
                     letterSpacing: -1,
                   ),
                 ),
@@ -152,7 +152,7 @@ class DashboardProgressWidget extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.success.withValues(alpha: 0.1),
+              color: BLabColors.success.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
@@ -165,7 +165,7 @@ class DashboardProgressWidget extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.success,
+                      color: BLabColors.success,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -174,7 +174,7 @@ class DashboardProgressWidget extends StatelessWidget {
                 const Icon(
                   CupertinoIcons.pencil,
                   size: 13,
-                  color: AppColors.success,
+                  color: BLabColors.success,
                 ),
               ],
             ),
@@ -185,7 +185,7 @@ class DashboardProgressWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: AppColors.gold.withValues(alpha: 0.15),
+              color: BLabColors.gold.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Row(
@@ -194,7 +194,7 @@ class DashboardProgressWidget extends StatelessWidget {
                 const Icon(
                   CupertinoIcons.checkmark_seal_fill,
                   size: 12,
-                  color: AppColors.gold,
+                  color: BLabColors.gold,
                 ),
                 const SizedBox(width: 4),
                 Text(
@@ -202,7 +202,7 @@ class DashboardProgressWidget extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.gold,
+                    color: BLabColors.gold,
                   ),
                 ),
               ],
