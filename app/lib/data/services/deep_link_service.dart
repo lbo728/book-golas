@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:home_widget/home_widget.dart';
 
 import 'package:book_golas/data/services/book_service.dart';
@@ -28,6 +29,7 @@ class DeepLinkService {
   static StreamSubscription<Uri>? _linkSubscription;
   static StreamSubscription<Uri?>? _widgetClickSubscription;
   static GlobalKey<NavigatorState>? _navigatorKey;
+  static const _deepLinkChannel = MethodChannel('com.bookgolas.app/deep_link');
 
   static DeepLinkResult? parseUri(Uri uri) {
     if (uri.scheme != 'bookgolas') return null;
@@ -79,8 +81,20 @@ class DeepLinkService {
     GlobalKey<NavigatorState>? navigatorKey,
   }) async {
     _navigatorKey = navigatorKey;
+    _setupNativeDeepLinkChannel();
     await _initWidgetClickHandler();
     await _initAppLinks();
+  }
+
+  static void _setupNativeDeepLinkChannel() {
+    _deepLinkChannel.setMethodCallHandler((call) async {
+      if (call.method == 'onDeepLink') {
+        final urlString = call.arguments as String;
+        final uri = Uri.parse(urlString);
+        debugPrint('📱 네이티브 딥링크 수신: $uri');
+        await _handleDeepLink(uri);
+      }
+    });
   }
 
   static NavigatorState? get _navigator => _navigatorKey?.currentState;
