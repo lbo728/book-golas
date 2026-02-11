@@ -34,17 +34,17 @@ class DeepLinkService {
   static DeepLinkResult? parseUri(Uri uri) {
     if (uri.scheme != 'bookgolas') return null;
 
-    final pathSegments = uri.pathSegments;
-    if (pathSegments.isEmpty) return null;
+    final segments = _extractSegments(uri);
+    if (segments.isEmpty) return null;
 
-    if (pathSegments.first != 'book') return null;
+    if (segments.first != 'book') return null;
 
-    if (pathSegments.length == 2 && pathSegments[1] == 'search') {
+    if (segments.length == 2 && segments[1] == 'search') {
       return const DeepLinkResult(action: DeepLinkAction.search);
     }
 
-    if (pathSegments.length == 3 && pathSegments[1] == 'detail') {
-      final bookId = pathSegments[2];
+    if (segments.length == 3 && segments[1] == 'detail') {
+      final bookId = segments[2];
       if (bookId.isNotEmpty) {
         return DeepLinkResult(
           action: DeepLinkAction.bookDetail,
@@ -53,8 +53,8 @@ class DeepLinkService {
       }
     }
 
-    if (pathSegments.length == 3 && pathSegments[1] == 'record') {
-      final bookId = pathSegments[2];
+    if (segments.length == 3 && segments[1] == 'record') {
+      final bookId = segments[2];
       if (bookId.isNotEmpty) {
         return DeepLinkResult(
           action: DeepLinkAction.bookRecord,
@@ -63,8 +63,8 @@ class DeepLinkService {
       }
     }
 
-    if (pathSegments.length == 3 && pathSegments[1] == 'scan') {
-      final bookId = pathSegments[2];
+    if (segments.length == 3 && segments[1] == 'scan') {
+      final bookId = segments[2];
       if (bookId.isNotEmpty) {
         return DeepLinkResult(
           action: DeepLinkAction.bookScan,
@@ -74,6 +74,13 @@ class DeepLinkService {
     }
 
     return null;
+  }
+
+  static List<String> _extractSegments(Uri uri) {
+    if (uri.host.isNotEmpty) {
+      return [uri.host, ...uri.pathSegments];
+    }
+    return uri.pathSegments;
   }
 
   static Future<void> init(
