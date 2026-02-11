@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:home_widget/home_widget.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/domain/models/book.dart';
@@ -75,24 +75,39 @@ class WidgetDataService {
     }
   }
 
+  static const _appGroupChannel = MethodChannel('com.bookgolas.app/app_group');
+
+  Future<String?> _getAppGroupDirectory() async {
+    try {
+      final path =
+          await _appGroupChannel.invokeMethod<String>('getAppGroupDirectory');
+      return path;
+    } catch (e) {
+      debugPrint('📱 [WidgetDataService] App Group 경로 조회 실패: $e');
+      return null;
+    }
+  }
+
   Future<String?> cacheBookCoverToAppGroup(String? networkUrl) async {
     if (networkUrl == null || networkUrl.isEmpty) return null;
 
     try {
-      final file = await DefaultCacheManager().getSingleFile(networkUrl);
-      final appDir = await getApplicationSupportDirectory();
-      final widgetImageDir = Directory('${appDir.path}/widget_images');
+      final groupDir = await _getAppGroupDirectory();
+      if (groupDir == null) return null;
 
+      final file = await DefaultCacheManager().getSingleFile(networkUrl);
+
+      final widgetImageDir = Directory('$groupDir/widget_images');
       if (!widgetImageDir.existsSync()) {
         widgetImageDir.createSync(recursive: true);
       }
 
-      final extension = file.path.split('.').last;
-      final localPath = '${widgetImageDir.path}/book_cover.$extension';
-      final localFile = await file.copy(localPath);
+      final ext = file.path.split('.').last;
+      final localPath = '${widgetImageDir.path}/book_cover.$ext';
+      await file.copy(localPath);
 
-      debugPrint('📱 [WidgetDataService] 커버 이미지 캐시 완료: ${localFile.path}');
-      return localFile.path;
+      debugPrint('📱 [WidgetDataService] 커버 이미지 App Group 저장 완료: $localPath');
+      return 'widget_images/book_cover.$ext';
     } catch (e) {
       debugPrint('📱 [WidgetDataService] 커버 이미지 캐시 실패: $e');
       return null;
