@@ -79,4 +79,22 @@ import home_widget
     }
     return super.application(app, open: url, options: options)
   }
+
+  override func application(
+    _ application: UIApplication,
+    performActionFor shortcutItem: UIApplicationShortcutItem,
+    completionHandler: @escaping (Bool) -> Void
+  ) {
+    switch shortcutItem.type {
+    case "com.bookgolas.continue-reading":
+      deepLinkChannel?.invokeMethod("onDeepLink", arguments: "bookgolas://book/detail/current")
+    case "com.bookgolas.scan-page":
+      deepLinkChannel?.invokeMethod("onDeepLink", arguments: "bookgolas://book/scan/current")
+    case "com.bookgolas.add-book":
+      deepLinkChannel?.invokeMethod("onDeepLink", arguments: "bookgolas://book/search")
+    default:
+      break
+    }
+    completionHandler(true)
+  }
 }

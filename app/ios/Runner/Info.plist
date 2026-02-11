@@ -82,5 +82,32 @@
 		<array>
 			<string>remote-notification</string>
 		</array>
+		<key>UIApplicationShortcutItems</key>
+		<array>
+			<dict>
+				<key>UIApplicationShortcutItemType</key>
+				<string>com.bookgolas.continue-reading</string>
+				<key>UIApplicationShortcutItemTitle</key>
+				<string>이어서 읽기</string>
+				<key>UIApplicationShortcutItemIconType</key>
+				<string>UIApplicationShortcutIconTypeBookmark</string>
+			</dict>
+			<dict>
+				<key>UIApplicationShortcutItemType</key>
+				<string>com.bookgolas.scan-page</string>
+				<key>UIApplicationShortcutItemTitle</key>
+				<string>페이지 스캔</string>
+				<key>UIApplicationShortcutItemIconType</key>
+				<string>UIApplicationShortcutIconTypeCapturePhoto</string>
+			</dict>
+			<dict>
+				<key>UIApplicationShortcutItemType</key>
+				<string>com.bookgolas.add-book</string>
+				<key>UIApplicationShortcutItemTitle</key>
+				<string>책 추가</string>
+				<key>UIApplicationShortcutItemIconType</key>
+				<string>UIApplicationShortcutIconTypeAdd</string>
+			</dict>
+		</array>
 	</dict>
 </plist>

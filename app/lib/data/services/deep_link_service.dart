@@ -4,6 +4,7 @@ import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:home_widget/home_widget.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/domain/models/book.dart';
@@ -153,6 +154,39 @@ class DeepLinkService {
     );
   }
 
+  static Future<String?> _resolveBookId(String? bookId) async {
+    if (bookId == null) return null;
+    if (bookId != 'current') return bookId;
+
+    try {
+      final storedId = await HomeWidget.getWidgetData<String>('book_id');
+      if (storedId != null && storedId.isNotEmpty) {
+        debugPrint('🔗 "current" → 위젯 저장 책 ID: $storedId');
+        return storedId;
+      }
+
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId != null) {
+        final response = await Supabase.instance.client
+            .from('books')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('status', 'reading')
+            .isFilter('deleted_at', null)
+            .order('updated_at', ascending: false)
+            .limit(1);
+        if ((response as List).isNotEmpty) {
+          final id = response.first['id'] as String;
+          debugPrint('🔗 "current" → DB 첫 reading 책 ID: $id');
+          return id;
+        }
+      }
+    } catch (e) {
+      debugPrint('🔗 "current" bookId 해석 실패: $e');
+    }
+    return null;
+  }
+
   static Future<void> _handleDeepLink(Uri uri) async {
     debugPrint('🔗 딥링크 수신: $uri');
 
@@ -178,10 +212,11 @@ class DeepLinkService {
         break;
 
       case DeepLinkAction.bookDetail:
-        if (result.bookId == null) return;
-        final book = await _fetchBook(result.bookId!);
+        final resolvedId = await _resolveBookId(result.bookId);
+        if (resolvedId == null) return;
+        final book = await _fetchBook(resolvedId);
         if (book == null) {
-          debugPrint('🔗 책을 찾을 수 없음: ${result.bookId}');
+          debugPrint('🔗 책을 찾을 수 없음: $resolvedId');
           return;
         }
         navigator.push(
@@ -192,10 +227,11 @@ class DeepLinkService {
         break;
 
       case DeepLinkAction.bookRecord:
-        if (result.bookId == null) return;
-        final recordBook = await _fetchBook(result.bookId!);
+        final resolvedRecordId = await _resolveBookId(result.bookId);
+        if (resolvedRecordId == null) return;
+        final recordBook = await _fetchBook(resolvedRecordId);
         if (recordBook == null) {
-          debugPrint('🔗 책을 찾을 수 없음: ${result.bookId}');
+          debugPrint('🔗 책을 찾을 수 없음: $resolvedRecordId');
           return;
         }
         navigator.push(
@@ -209,10 +245,11 @@ class DeepLinkService {
         break;
 
       case DeepLinkAction.bookScan:
-        if (result.bookId == null) return;
-        final scanBook = await _fetchBook(result.bookId!);
+        final resolvedScanId = await _resolveBookId(result.bookId);
+        if (resolvedScanId == null) return;
+        final scanBook = await _fetchBook(resolvedScanId);
         if (scanBook == null) {
-          debugPrint('🔗 책을 찾을 수 없음: ${result.bookId}');
+          debugPrint('🔗 책을 찾을 수 없음: $resolvedScanId');
           return;
         }
         navigator.push(
