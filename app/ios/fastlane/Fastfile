@@ -19,6 +19,16 @@ platform :ios do
       profile_name: ENV["PROVISIONING_PROFILE_NAME"] || "Bookgolas Dev - Distribution"
     )
 
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "Runner.xcodeproj",
+      team_id: "7PFH55UQ86",
+      bundle_identifier: "com.bookgolas.app.dev.BookgolasWidget",
+      code_sign_identity: "Apple Distribution",
+      profile_name: ENV["WIDGET_PROFILE_NAME"] || "Bookgolas Dev Widget - Distribution",
+      targets: ["BookgolasWidgetExtension"]
+    )
+
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "dev",
@@ -26,7 +36,8 @@ platform :ios do
       export_method: "app-store",
       export_options: {
         provisioningProfiles: {
-          "com.bookgolas.app.dev" => ENV["PROVISIONING_PROFILE_NAME"] || "Bookgolas Dev - Distribution"
+          "com.bookgolas.app.dev" => ENV["PROVISIONING_PROFILE_NAME"] || "Bookgolas Dev - Distribution",
+          "com.bookgolas.app.dev.BookgolasWidget" => ENV["WIDGET_PROFILE_NAME"] || "Bookgolas Dev Widget - Distribution"
         }
       },
       output_directory: "./build",
