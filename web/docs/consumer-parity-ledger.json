@@ -307,7 +307,7 @@
         "canonical_url": "/{locale}/announcements",
         "current": [],
         "target": [
-          "web/src/app/[locale]/announcements/page.tsx"
+        "Planned Web route implementation"
         ],
         "disposition": "browser-equivalent",
         "status": "planned",
@@ -345,7 +345,7 @@
         "canonical_url": "/{locale}/onboarding",
         "current": [],
         "target": [
-          "web/src/app/[locale]/onboarding/page.tsx",
+        "Planned Web route implementation",
           "BLDS React/Next onboarding primitives"
         ],
         "disposition": "route",
@@ -445,7 +445,7 @@
         "canonical_url": "/{locale}/library",
         "current": [],
         "target": [
-          "web/src/app/[locale]/library/page.tsx",
+        "Planned Web route implementation",
           "BLDS React/Next tabs, cards and search primitives"
         ],
         "disposition": "route",
@@ -528,7 +528,7 @@
         "canonical_url": "/{locale}/stats",
         "current": [],
         "target": [
-          "web/src/app/[locale]/stats/page.tsx",
+        "Planned Web route implementation",
           "BLDS React/Next chart, goal and share primitives"
         ],
         "disposition": "route",
@@ -627,7 +627,7 @@
         "canonical_url": "/{locale}/calendar",
         "current": [],
         "target": [
-          "web/src/app/[locale]/calendar/page.tsx",
+        "Planned Web route implementation",
           "BLDS React/Next calendar and sheet primitives"
         ],
         "disposition": "route",
@@ -673,7 +673,7 @@
         "canonical_url": "/{locale}/account",
         "current": [],
         "target": [
-          "web/src/app/[locale]/account/page.tsx",
+        "Planned Web route implementation",
           "BLDS React/Next settings, form and dialog primitives"
         ],
         "disposition": "route",
@@ -747,7 +747,7 @@
         "canonical_url": "/{locale}/book-list",
         "current": [],
         "target": [
-          "web/src/app/[locale]/book-list/page.tsx"
+        "Planned Web route implementation"
         ],
         "disposition": "route",
         "status": "planned",
@@ -793,7 +793,7 @@
         "canonical_url": "/{locale}/books/new",
         "current": [],
         "target": [
-          "web/src/app/[locale]/books/new/page.tsx",
+        "Planned Web route implementation",
           "BLDS React/Next search, select, date-picker and form primitives"
         ],
         "disposition": "route",
@@ -1022,7 +1022,7 @@
         "canonical_url": "/{locale}/books/{bookId}/review",
         "current": [],
         "target": [
-          "web/src/app/[locale]/books/[bookId]/review/page.tsx",
+        "Planned Web route implementation",
           "BLDS React/Next editor, confirmation and feedback primitives"
         ],
         "disposition": "route",
@@ -1073,7 +1073,7 @@
         "canonical_url": "/{locale}/books/{bookId}/mind-map",
         "current": [],
         "target": [
-          "web/src/app/[locale]/books/[bookId]/mind-map/page.tsx",
+        "Planned Web route implementation",
           "BLDS React/Next graph, loading and retry primitives"
         ],
         "disposition": "route",
@@ -1118,7 +1118,7 @@
         "canonical_url": "/{locale}/books/scan",
         "current": [],
         "target": [
-          "web/src/app/[locale]/books/scan/page.tsx",
+        "Planned Web route implementation",
           "Browser camera permission and file-upload fallback"
         ],
         "disposition": "browser-equivalent",
@@ -1234,7 +1234,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/search-mode-menu.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1269,7 +1269,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/global-recall-search.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1304,7 +1304,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/recall-search.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1344,7 +1344,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/record-detail.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1378,7 +1378,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/source-detail.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1413,7 +1413,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/calendar-day-detail.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1448,7 +1448,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/reading-goal.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1482,7 +1482,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/date-range-picker.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1516,7 +1516,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/bookstore-select.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1550,7 +1550,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/recommendation-action.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1584,7 +1584,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/reading-books-selection.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1618,7 +1618,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/reading-management.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1658,7 +1658,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/pause-reading-confirmation.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1692,7 +1692,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/delete-confirmation.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1726,7 +1726,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/batch-delete-confirmation.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1760,7 +1760,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/book-info.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1794,7 +1794,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/full-title.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1822,7 +1822,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/image-source.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "browser-equivalent",
         "status": "planned",
@@ -1862,7 +1862,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/image-replace-options.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "browser-equivalent",
         "status": "planned",
@@ -1896,7 +1896,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/replace-image-confirmation.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1931,7 +1931,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/add-memorable-page.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1971,7 +1971,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/existing-image.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2012,7 +2012,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/extracted-text.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2052,7 +2052,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/full-text-view.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2089,7 +2089,7 @@
           "web/src/components/consumer/progress-updater.tsx"
         ],
         "target": [
-          "web/src/components/consumer/overlays/page-update.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "partial",
@@ -2131,8 +2131,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/reading-timer.tsx",
-          "web/src/components/consumer/floating-timer-bar.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2172,7 +2171,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/today-goal.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2206,7 +2205,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/daily-target.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2240,7 +2239,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/daily-target-confirmation.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2274,7 +2273,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/update-target-date.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2308,7 +2307,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/edit-planned-book.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2343,7 +2342,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/book-completion.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2377,7 +2376,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/book-review-prompt.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2412,7 +2411,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/memorable-page-sort-menu.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2460,7 +2459,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/confirmation.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2495,7 +2494,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/confirmation.tsx"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2530,7 +2529,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/review-save-complete.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2564,7 +2563,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/password-change.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2598,7 +2597,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/delete-account-confirmation.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2634,7 +2633,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/language-change-confirmation.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2670,7 +2669,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/notification-time-picker.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2705,7 +2704,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/ocr-limit.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2767,7 +2766,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/floating-timer-bar.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2802,7 +2801,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/schedule-change.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2844,7 +2843,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/calendar-month-picker.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2884,7 +2883,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/clear-ai-memory-confirmation.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2919,7 +2918,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/mind-map-leaf-detail.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2953,7 +2952,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/mind-map-cluster-detail.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2987,7 +2986,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/review-link-editor.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -3104,7 +3103,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-          "web/src/components/consumer/overlays/full-screen-image.tsx"
+        "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -3162,11 +3161,11 @@
       "native_source": [
         "app/lib/data/services/deep_link_service.dart"
       ],
-      "canonical_web_url": "/{locale}/books/{bookId}?tab=record",
+      "canonical_web_url": "/{locale}/books/{bookId}?tab=history",
       "disposition": "browser-equivalent",
       "status": "planned",
       "owner": "#427",
-      "notes": "The Web destination opens the owned book detail with the record tab selected, matching the native initialTabIndex."
+      "notes": "The Web destination opens the owned book detail with the history tab selected, matching the native record-link handler's initialTabIndex: 1 destination."
     },
     {
       "id": "book-scan-deep-link",
@@ -3272,8 +3271,7 @@
         "canonical_url": "/{locale}/account/notifications",
         "current": [],
         "target": [
-          "web/src/app/[locale]/account/notifications/page.tsx",
-          "Browser Push API permission and settings"
+        "Browser Push API permission and settings"
         ],
         "disposition": "browser-equivalent",
         "status": "planned",
@@ -3317,8 +3315,7 @@
         "canonical_url": "/{locale}/books/scan",
         "current": [],
         "target": [
-          "Browser camera permission, input capture and file-upload fallback",
-          "web/src/components/consumer/overlays/add-memorable-page.tsx"
+          "Browser camera permission, input capture and file-upload fallback"
         ],
         "disposition": "browser-equivalent",
         "status": "planned",

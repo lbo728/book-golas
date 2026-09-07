@@ -10,7 +10,7 @@ This document freezes the native-to-Web contract for the authenticated Bookgolas
 
 The machine-checkable source of truth is consumer-parity-ledger.json. Every route, overlay and capability entry has a native source, one Web disposition, a current or planned Web target, all required state dispositions, user-facing actions and an owning issue. The independent native expected-surface inventory in native-consumer-surface-inventory.json makes omitted native routes, overlays and actions fail validation. The inventory declares two evidence tiers: every native action is structurally pinned by the independent requiredNativeActionIds baseline, while source-content assertions intentionally cover the critical representative actions listed by requiredNativeActionAssertions. The checker does not claim source-content provenance for every action in this initial freeze; adding an action to that claim requires an explicit native source assertion.
 
-The ledger records the current repository state, not a claim that planned routes already work. A complete status requires independent data and browser evidence; no entry is marked complete in this initial freeze. Deep-link mappings are machine-checked in the ledger as well as summarized below.
+The ledger records the current repository state, not a claim that planned routes already work. Planned Web targets use explicit descriptors until a tracked implementation file exists; a repository-looking target must resolve to a tracked path. A complete status requires independent data and browser evidence, with browser artifacts restricted to tracked browser-result locations; no entry is marked complete in this initial freeze. Deep-link mappings are machine-checked in the ledger as well as summarized below.
 
 ## Delivery dependencies
 
@@ -132,7 +132,7 @@ The exact profile text is in the ledger. A missing profile key is a validation f
 | --- | --- |
 | bookgolas://book/search | /{locale}/books/new |
 | bookgolas://book/detail/{bookId} | /{locale}/books/{bookId} |
-| bookgolas://book/record/{bookId} | /{locale}/books/{bookId}?tab=record |
+| bookgolas://book/record/{bookId} | /{locale}/books/{bookId}?tab=history |
 | bookgolas://book/scan/{bookId} | /{locale}/books/{bookId}?scan=1 |
 
 The auth callback `next` value is a Web-owned return-path security contract covered by #427 and `getSafeNextPath`; it is intentionally not listed as a native deep-link mapping because the Flutter source does not implement a native `next` route contract.
@@ -164,6 +164,7 @@ npm run test:parity-matrix -- --fixture complete-with-aliased-evidence
 npm run test:parity-matrix -- --fixture unsafe-source-reference
 npm run test:parity-matrix -- --fixture invalid-native-source
 npm run test:parity-matrix -- --fixture invalid-native-source-role
+npm run test:parity-matrix -- --fixture invalid-directory-reference
 npm run test:parity-matrix -- --fixture invalid-action-assertion
 npm run test:parity-matrix -- --fixture unsafe-evidence-source
 npm run test:parity-matrix -- --fixture missing-required-native-surface
@@ -171,7 +172,9 @@ npm run test:parity-matrix -- --fixture missing-required-native-action
 npm run test:parity-matrix -- --fixture invalid-web-current-role
 npm run test:parity-matrix -- --fixture invalid-web-target-role
 npm run test:parity-matrix -- --fixture complete-with-self-authored-evidence
+npm run test:parity-matrix -- --fixture complete-with-unit-test-browser-evidence
 npm run test:parity-matrix -- --fixture invalid-web-target
+npm run test:parity-matrix -- --fixture invalid-web-target-missing-path
 npm run test:parity-matrix -- --fixture invalid-web-target-scheme
 npm run test:parity-matrix -- --fixture invalid-web-target-data
 npm run test:parity-matrix -- --fixture invalid-web-target-mailto
@@ -180,6 +183,8 @@ npm run test:parity-matrix -- --fixture invalid-web-target-encoded-scheme
 npm run test:parity-matrix -- --fixture invalid-web-target-encoded-network-path
 npm run test:parity-matrix -- --fixture invalid-web-target-backslash
 npm run test:parity-matrix -- --fixture invalid-source-inventory
+npm run test:parity-matrix -- --fixture extra-native-surface
+npm run test:parity-matrix -- --fixture extra-native-action
 npm run test:parity-matrix -- --fixture invalid-canonical-path
 npm run test:parity-matrix -- --fixture invalid-canonical-path-double-encoded
 npm run test:parity-matrix -- --fixture invalid-canonical-path-encoded-duplicate
@@ -189,7 +194,7 @@ npm run test:parity-matrix -- --fixture complete-with-cross-role-alias
 npm run test:parity-matrix -- --fixture missing-action-assertion
 ~~~
 
-The first command must exit 0. Every fixture command must fail, proving the checker rejects missing dispositions, duplicate canonical URLs including encoded-equivalent paths, missing error-state entries, complete status without independent data/browser evidence, fabricated or alias-based evidence, unsafe or cross-role source paths, URI-scheme, protocol-relative, encoded or unsafe Web targets, invalid native-only boundaries, wrong or unallowlisted deep links, untrusted deep-link assertion sources, omitted native surfaces/actions, invalid evidence-tier policy and accidental Web billing activation. Complete evidence is bound to the exact current Git commit, tracked runtime files and independent repository-contained source and artifact paths. The checker pins all required route, overlay, capability and action IDs, plus 4 native deep-link IDs, independently of the JSON inventory, then checks native source anchors for the critical representative actions and links. Structural action completeness and source-content assertion coverage are separate explicit policy tiers in the inventory. Deep-link assertions additionally require an `app/` source declared by their matching ledger link. `npm test` runs both the positive checker and the complete negative-fixture suite so the ledger cannot bypass the Web quality gate. The checker further rejects missing actions, missing evidence owners, missing deep links and incomplete native-only capability coverage.
+The first command must exit 0. Every fixture command must fail, proving the checker rejects missing dispositions, duplicate canonical URLs including encoded-equivalent paths, missing error-state entries, complete status without independent data/browser evidence, fabricated or alias-based evidence, unsafe or cross-role source paths, directory references where files are required, URI-scheme, protocol-relative, encoded or unsafe Web targets, missing Web target files, invalid native-only boundaries, wrong or unallowlisted deep links, untrusted deep-link assertion sources, omitted or extra native surfaces/actions, invalid evidence-tier policy and accidental Web billing activation. Complete evidence is bound to the exact current Git commit, tracked runtime files and independent repository-contained source and artifact paths. The checker pins all required route, overlay, capability and action IDs, plus 4 native deep-link IDs, independently of the JSON inventory, then checks native source anchors for the critical representative actions and links. Structural action completeness and source-content assertion coverage are separate explicit policy tiers in the inventory. Deep-link assertions additionally require an `app/` source declared by their matching ledger link. `npm test` runs both the positive checker and the complete negative-fixture suite so the ledger cannot bypass the Web quality gate. The checker further rejects missing actions, missing evidence owners, missing deep links and incomplete native-only capability coverage.
 
 ## Evidence sources
 

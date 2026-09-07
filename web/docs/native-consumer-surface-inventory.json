@@ -159,7 +159,8 @@
       {"source": "app/lib/data/services/deep_link_service.dart", "contains": "segments[1] == 'detail'"}
     ],
     "book-record-deep-link": [
-      {"source": "app/lib/data/services/deep_link_service.dart", "contains": "segments[1] == 'record'"}
+      {"source": "app/lib/data/services/deep_link_service.dart", "contains": "segments[1] == 'record'"},
+      {"source": "app/lib/data/services/deep_link_service.dart", "contains": "initialTabIndex: 1"}
     ],
     "book-scan-deep-link": [
       {"source": "app/lib/data/services/deep_link_service.dart", "contains": "segments[1] == 'scan'"}

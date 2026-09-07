@@ -56,7 +56,7 @@ const allowedEvidenceKinds = new Set(["data", "browser"]);
 const requiredDeepLinkMappings = new Map([
   ["bookgolas://book/search", "/{locale}/books/new"],
   ["bookgolas://book/detail/{bookId}", "/{locale}/books/{bookId}"],
-  ["bookgolas://book/record/{bookId}", "/{locale}/books/{bookId}?tab=record"],
+  ["bookgolas://book/record/{bookId}", "/{locale}/books/{bookId}?tab=history"],
   ["bookgolas://book/scan/{bookId}", "/{locale}/books/{bookId}?scan=1"],
 ]);
 const allowedDeepLinkKinds = new Set(["native-custom-scheme", "auth-return"]);
@@ -309,17 +309,22 @@ const negativeFixtureNames = [
   "invalid-native-source",
   "invalid-native-source-role",
   "invalid-untracked-reference",
+  "invalid-directory-reference",
   "invalid-action-assertion",
   "invalid-native-assertion-source",
   "invalid-native-assertion-policy",
   "unsafe-evidence-source",
   "missing-required-native-surface",
   "missing-required-native-action",
+  "extra-native-surface",
+  "extra-native-action",
   "invalid-web-current-role",
   "invalid-web-target-role",
   "complete-with-self-authored-evidence",
   "complete-with-self-authored-runtime-artifact",
+  "complete-with-unit-test-browser-evidence",
   "invalid-web-target",
+  "invalid-web-target-missing-path",
   "invalid-web-target-scheme",
   "invalid-web-target-data",
   "invalid-web-target-mailto",
@@ -366,11 +371,15 @@ const negativeFixtureExpectations = {
   "unsafe-evidence-source": "source does not exist in the repository",
   "missing-required-native-surface": "required routes surface is missing from ledger",
   "missing-required-native-action": "required native action is missing from ledger",
+  "extra-native-surface": "surface IDs must match exact baseline",
+  "extra-native-action": "actions must match exact baseline",
   "invalid-web-current-role": "web.current references an invalid role path",
   "invalid-web-target-role": "Web target references an invalid role path",
   "complete-with-self-authored-evidence": "evidence 1 source has an invalid role or is not tracked",
   "complete-with-self-authored-runtime-artifact": "evidence 1 artifact has an invalid role or is not tracked",
+  "complete-with-unit-test-browser-evidence": "evidence 2 artifact has an invalid role or is not tracked",
   "invalid-web-target": "Web target must not be an external URL",
+  "invalid-web-target-missing-path": "Web target references a missing or unsafe path",
   "invalid-web-target-scheme": "Web target must not be an external URL",
   "invalid-web-target-data": "Web target must not be an external URL",
   "invalid-web-target-mailto": "Web target must not be an external URL",
@@ -380,6 +389,7 @@ const negativeFixtureExpectations = {
   "invalid-web-target-backslash": "Web target contains unsafe characters",
   "invalid-web-target-traversal": "Web target must be a repository path or an allowlisted descriptor",
   "invalid-source-inventory": "source_inventory paths references a missing or unsafe path",
+  "invalid-directory-reference": "must reference a tracked file",
   "invalid-canonical-path": "canonical_url must be a locale-relative path",
   "invalid-canonical-path-double-encoded": "canonical_url must be a locale-relative path",
   "invalid-canonical-path-encoded-duplicate": "duplicate canonical_url",
@@ -409,6 +419,8 @@ const allowedWebTargetDescriptors = new Set([
   "BLDS React/Next settings, form and dialog primitives",
   "BLDS React/Next tabs, cards and search primitives",
   "BLDS React/Next tabs, cards, progress and overlay primitives",
+  "Planned Web route implementation",
+  "Planned Web overlay implementation",
   "Browser Push API permission and settings",
   "Browser camera permission and file-upload fallback",
   "Browser camera permission, input capture and file-upload fallback",
@@ -576,6 +588,10 @@ if (fixtureName === "invalid-untracked-reference") {
   ledger.routes[0].web.current = [fixturePath];
 }
 
+if (fixtureName === "invalid-directory-reference") {
+  ledger.routes[0].native_source = ["app/"];
+}
+
 if (fixtureName === "invalid-action-assertion") {
   nativeInventory.native_action_assertions.native_only_capabilities["siri-app-shortcuts"]["continue-reading-shortcut"][0].contains = "missing shortcut implementation";
 }
@@ -626,6 +642,21 @@ if (fixtureName === "missing-required-native-action") {
   nativeInventory.routes["reading-stats"] = nativeInventory.routes["reading-stats"].filter(
     (actionId) => actionId !== "stats-share",
   );
+}
+
+if (fixtureName === "extra-native-surface") {
+  const extraRoute = structuredClone(ledger.routes[0]);
+  extraRoute.id = "extra-route";
+  extraRoute.web = { ...extraRoute.web, canonical_url: "/{locale}/extra-route" };
+  ledger.routes.push(extraRoute);
+  nativeInventory.routes[extraRoute.id] = [...nativeInventory.routes["auth-login"]];
+}
+
+if (fixtureName === "extra-native-action") {
+  const readingStats = ledger.routes.find((entry) => entry.id === "reading-stats");
+  const extraAction = { ...readingStats.actions[0], id: "extra-action" };
+  readingStats.actions.push(extraAction);
+  nativeInventory.routes["reading-stats"].push(extraAction.id);
 }
 
 if (fixtureName === "invalid-web-current-role") {
@@ -684,8 +715,36 @@ if (fixtureName === "complete-with-self-authored-runtime-artifact") {
   ];
 }
 
+if (fixtureName === "complete-with-unit-test-browser-evidence") {
+  ledger.routes[0].web.status = "complete";
+  ledger.routes[0].evidence = [
+    {
+      kind: "data",
+      source: "web/src/proxy.ts",
+      artifact: "web/src/proxy.test.ts",
+      source_contains: "export async function proxy",
+      artifact_contains: "describe(\"consumer locale proxy\"",
+      observation: "Data contract observation",
+      commit: currentCommit,
+    },
+    {
+      kind: "browser",
+      source: "web/src/lib/consumer/paths.ts",
+      artifact: "web/src/lib/consumer/paths.test.ts",
+      source_contains: "export function getSafeNextPath",
+      artifact_contains: "describe(\"consumer next paths\"",
+      observation: "Browser contract observation",
+      commit: currentCommit,
+    },
+  ];
+}
+
 if (fixtureName === "invalid-web-target") {
   ledger.routes[0].web.target = ["https://evil.example/claimed-parity"];
+}
+
+if (fixtureName === "invalid-web-target-missing-path") {
+  ledger.routes[0].web.target = ["web/src/does-not-exist.ts"];
 }
 
 if (fixtureName === "invalid-web-target-scheme") {
@@ -937,10 +996,17 @@ function hasPathRoot(value, roots) {
   return roots.some((root) => value.startsWith(root));
 }
 
-function isApprovedEvidenceReference(value, role) {
+function isApprovedEvidenceReference(value, role, kind) {
   if (!isTrackedFile(value) || !isBoundToCurrentCommit(value)) return false;
   if (role === "source") return hasPathRoot(value, ["app/", "web/src/"]);
   if (!value.startsWith("web/") || value.startsWith("web/docs/") || value.startsWith("web/scripts/")) return false;
+  if (kind === "browser") {
+    return (
+      value.startsWith("web/e2e/results/") ||
+      value.startsWith("web/tests/e2e/results/") ||
+      value.startsWith("web/qa/")
+    );
+  }
   return (
     value.startsWith("web/tests/") ||
     value.startsWith("web/e2e/") ||
@@ -965,14 +1031,17 @@ function resolveSafeRepositoryPath(value) {
   }
 }
 
-function checkExistingReferences(entry, fieldName, values, expectedRoot) {
+function checkExistingReferences(entry, fieldName, values, expectedRoot, requireFile = false) {
   for (const value of values ?? []) {
-    if (!isNonEmptyString(value) || !resolveSafeRepositoryPath(value)) {
+    const resolvedPath = isNonEmptyString(value) ? resolveSafeRepositoryPath(value) : null;
+    if (!resolvedPath) {
       fail(entry.id + " " + fieldName + " references a missing or unsafe path " + value);
     } else if (!isTrackedRepositoryReference(value)) {
       fail(entry.id + " " + fieldName + " references an untracked path " + value);
     } else if (expectedRoot && !value.startsWith(expectedRoot)) {
       fail(entry.id + " " + fieldName + " references an invalid role path " + value);
+    } else if (requireFile && !fs.statSync(resolvedPath).isFile()) {
+      fail(entry.id + " " + fieldName + " must reference a tracked file " + value);
     }
   }
 }
@@ -1077,7 +1146,9 @@ function checkWebTargets(entry, web) {
         fail(entry.id + " Web target references a missing or unsafe path " + target);
       } else {
         const targetPath = resolveSafeRepositoryPath(target);
-        if (targetPath && !isTrackedRepositoryReference(target)) {
+        if (!targetPath) {
+          fail(entry.id + " Web target references a missing or unsafe path " + target);
+        } else if (!isTrackedRepositoryReference(target)) {
           fail(entry.id + " Web target references an untracked path " + target);
         }
       }
@@ -1095,7 +1166,7 @@ function checkEntry(entry, groupName) {
   if (!isNonEmptyArray(entry?.native_source)) {
     fail((entry?.id ?? groupName) + " is missing native_source");
   } else {
-    checkExistingReferences(entry, "native_source", entry.native_source, "app/");
+    checkExistingReferences(entry, "native_source", entry.native_source, "app/", true);
   }
 
   if (!isNonEmptyString(entry?.native_entry) && groupName === "routes") {
@@ -1168,7 +1239,7 @@ function checkEntry(entry, groupName) {
   if (!isNonEmptyArray(web.current) && web.status === "partial") {
     fail(entry.id + " is partial but has no current Web evidence");
   } else {
-    checkExistingReferences(entry, "web.current", web.current, "web/");
+    checkExistingReferences(entry, "web.current", web.current, "web/", true);
   }
 
   if (web.status === "complete") {
@@ -1189,7 +1260,7 @@ function checkEntry(entry, groupName) {
           sourcePath = resolveSafeRepositoryPath(evidence.source);
           if (!sourcePath) {
             fail(entry.id + " evidence " + (index + 1) + " source does not exist in the repository");
-          } else if (!isApprovedEvidenceReference(evidence.source, "source")) {
+          } else if (!isApprovedEvidenceReference(evidence.source, "source", evidence.kind)) {
             fail(entry.id + " evidence " + (index + 1) + " source has an invalid role or is not tracked");
           } else if (evidenceReferences.has(sourcePath)) {
             fail(entry.id + " evidence sources and artifacts must be independent");
@@ -1219,7 +1290,7 @@ function checkEntry(entry, groupName) {
           const artifactPath = resolveSafeRepositoryPath(evidence.artifact);
           if (!artifactPath) {
             fail(entry.id + " evidence " + (index + 1) + " artifact is missing or unsafe");
-          } else if (!isApprovedEvidenceReference(evidence.artifact, "artifact")) {
+          } else if (!isApprovedEvidenceReference(evidence.artifact, "artifact", evidence.kind)) {
             fail(entry.id + " evidence " + (index + 1) + " artifact has an invalid role or is not tracked");
           }
           if (artifactPath && evidenceReferences.has(artifactPath)) {
@@ -1292,7 +1363,7 @@ function checkDeepLinks() {
     if (!isNonEmptyArray(link?.native_source)) {
       fail((link?.id ?? "deep link") + " is missing native_source");
     } else {
-      checkExistingReferences(link, "native_source", link.native_source, "app/");
+      checkExistingReferences(link, "native_source", link.native_source, "app/", true);
     }
     if (!isCanonicalLocalePath(link?.canonical_web_url)) {
       fail((link?.id ?? "deep link") + " canonical_web_url must be a locale-relative path");
@@ -1344,6 +1415,14 @@ function checkNativeInventory() {
 
     const ledgerById = new Map((ledgerEntries ?? []).map((entry) => [entry.id, entry]));
     const requiredIds = requiredNativeSurfaceIds[groupName] ?? [];
+    const actualLedgerIds = (ledgerEntries ?? []).map((entry) => entry.id);
+    const actualInventoryIds = Object.keys(expectedEntries);
+    if (!hasSameValues(actualLedgerIds, requiredIds)) {
+      fail(groupName + " surface IDs must match exact baseline");
+    }
+    if (!hasSameValues(actualInventoryIds, requiredIds)) {
+      fail(groupName + " surface IDs must match exact baseline");
+    }
     for (const requiredId of requiredIds) {
       if (!ledgerById.has(requiredId)) {
         fail("required " + groupName + " surface is missing from ledger: " + requiredId);
@@ -1361,9 +1440,15 @@ function checkNativeInventory() {
       }
       const expectedActions = expectedEntries[expectedId];
       const actualActions = (entry.actions ?? []).map((action) => action.id);
+      const requiredActions = (requiredNativeActionIds[groupName]?.[expectedId] ?? "")
+        .split("|")
+        .filter(Boolean);
       if (!isNonEmptyArray(expectedActions)) {
         fail("native inventory " + groupName + "." + expectedId + " must list actions");
         continue;
+      }
+      if (!hasSameValues(actualActions, requiredActions) || !hasSameValues(expectedActions, requiredActions)) {
+        fail(groupName + " " + expectedId + " actions must match exact baseline");
       }
       for (const actionId of expectedActions) {
         if (!actualActions.includes(actionId)) {
