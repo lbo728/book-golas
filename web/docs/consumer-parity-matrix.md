@@ -143,6 +143,7 @@ From web/:
 
 ~~~bash
 npm run test:parity-matrix
+npm run test:parity-matrix -- --assert-fixtures
 npm run test:parity-matrix -- --fixture missing-disposition
 npm run test:parity-matrix -- --fixture duplicate-canonical-url
 npm run test:parity-matrix -- --fixture missing-error-state
