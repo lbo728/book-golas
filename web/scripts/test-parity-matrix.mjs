@@ -162,6 +162,91 @@ const requiredNativeSurfaceIds = {
     "deep-links",
   ],
 };
+const requiredNativeActionIds = {
+  routes: {
+    "auth-login": "email-sign-in|google-sign-in|apple-sign-in|open-sign-up|open-password-recovery|resend-verification",
+    "auth-sign-up": "create-account|confirm-password|open-sign-in|verification-outcome",
+    "auth-password-recovery": "request-reset|set-new-password|return-to-sign-in",
+    "legal-terms": "read-terms|return-to-account",
+    onboarding: "advance-onboarding|complete-onboarding",
+    home: "switch-reading-status-tab|toggle-all-books|open-book-detail|refresh-books|open-search-mode",
+    library: "library-reading-tab|library-review-tab|library-record-tab|library-global-recall",
+    "reading-stats": "stats-overview|stats-analysis|stats-activity|stats-set-goal|stats-share",
+    calendar: "change-calendar-month|filter-calendar|open-calendar-day",
+    account: "edit-profile|change-language-theme|manage-notifications|change-password|open-legal|sign-out|delete-account",
+    "legacy-book-list": "filter-book-list|refresh-book-list|open-list-book-detail",
+    "book-search-add": "search-book|isbn-search|scan-isbn|select-reading-status|set-schedule-priority|save-book",
+    "book-detail": "switch-detail-tabs|update-progress|manage-reading|set-reading-target|add-memorable-page|open-recall|open-reading-timer|open-review|open-aladin-book-link|open-existing-review-link|open-review-link-editor|resume-reading|start-planned-reading",
+    "reading-progress": "update-page|record-history|start-timer|return-to-book",
+    "book-review": "edit-review|generate-ai-draft|save-review|discard-review",
+    "mind-map": "view-mind-map|regenerate-mind-map|retry-mind-map",
+    "barcode-scanner": "request-camera|capture-isbn|use-manual-isbn",
+    subscription: "show-disabled-subscription",
+    privacy: "read-privacy|manage-consent",
+  },
+  overlays: {
+    "search-mode-menu": "choose-book-search|choose-ai-record-search",
+    "global-recall-search": "search-global-records|open-global-record",
+    "recall-search": "search-book-records|load-recent-recall|clear-recall-history",
+    "record-detail": "view-record|open-source",
+    "source-detail": "view-source|close-source",
+    "calendar-day-detail": "view-day-activity|open-day-book",
+    "reading-goal": "set-yearly-goal|save-goal",
+    "date-range-picker": "choose-date-range|cancel-date-range",
+    "bookstore-select": "choose-new-bookstore|choose-used-bookstore",
+    "recommendation-action": "open-recommendation|add-recommendation",
+    "reading-books-selection": "select-reading-book|open-selected-book",
+    "reading-management": "pause-reading|delete-book|cancel-reading-management",
+    "pause-reading-confirmation": "confirm-pause|cancel-pause",
+    "delete-confirmation": "confirm-delete|cancel-delete",
+    "batch-delete-confirmation": "confirm-batch-delete|cancel-batch-delete",
+    "book-info": "view-book-info|open-cover",
+    "full-title": "read-full-title",
+    "image-source": "choose-camera|choose-gallery|choose-ocr",
+    "image-replace-options": "replace-with-camera|replace-with-file",
+    "replace-image-confirmation": "confirm-replace-image|cancel-replace-image",
+    "add-memorable-page": "capture-memorable-page|run-ocr|save-memorable-page",
+    "existing-image": "view-image|replace-image|delete-image",
+    "extracted-text": "review-extracted-text|copy-extracted-text|save-extracted-text",
+    "full-text-view": "read-full-text|copy-full-text",
+    "page-update": "save-page-update|mark-not-read|cancel-page-update",
+    "reading-timer": "start-reading-session|pause-reading-session|finish-reading-session",
+    "today-goal": "view-today-goal|open-goal-settings",
+    "daily-target": "edit-daily-target|save-daily-target",
+    "daily-target-confirm": "confirm-daily-target|cancel-daily-target",
+    "update-target-date": "edit-target-date|save-target-date",
+    "edit-planned-book": "edit-planned-book|save-planned-book",
+    "book-completion": "acknowledge-completion|open-review-prompt",
+    "book-review-prompt": "write-review|dismiss-review-prompt",
+    "review-exit-confirmation": "discard-review-changes|keep-review-changes",
+    "review-save-complete": "acknowledge-review-save|open-review-book",
+    "password-change": "change-password|cancel-password-change",
+    "delete-account-confirmation": "confirm-account-deletion|cancel-account-deletion",
+    "notification-time-picker": "set-daily-reminder-time|set-goal-alarm-time",
+    "ocr-limit": "show-ocr-quota|continue-without-ocr",
+    "pro-features": "explain-web-billing-disabled",
+    "floating-timer": "open-running-timer|stop-running-timer",
+    "schedule-change": "adjust-daily-target|preview-reading-schedule|confirm-schedule-change",
+    "calendar-month-picker": "choose-calendar-month|confirm-calendar-month|cancel-calendar-month",
+    "clear-ai-memory-confirmation": "cancel-ai-memory-clear|confirm-ai-memory-clear",
+    "mind-map-leaf-detail": "open-mind-map-leaf|close-mind-map-leaf",
+    "mind-map-cluster-detail": "open-mind-map-cluster|close-mind-map-cluster",
+    "review-link-editor": "edit-review-link|save-review-link|delete-review-link|cancel-review-link",
+    "context-menu": "choose-context-action|dismiss-context-menu",
+    "search-overlay": "search-with-keyboard|dismiss-search-overlay",
+    "full-screen-image": "view-full-screen-image|close-full-screen-image",
+  },
+  native_only_capabilities: {
+    "ios-home-widget": "open-widget-book",
+    "siri-app-shortcuts": "continue-reading-shortcut|scan-page-shortcut|add-book-shortcut|record-shortcut-boundary",
+    "native-push": "request-web-push|manage-notification-categories|open-notification-deep-link",
+    "camera-and-ocr": "capture-or-upload|extract-ocr|manual-text-fallback",
+    "share-sheet": "share-book|download-share-card",
+    subscriptions: "show-billing-disabled",
+    "offline-boundary": "show-network-status|preserve-proven-draft|retry-online-write",
+    "deep-links": "open-book-deep-link|open-record-deep-link|recover-auth-deep-link",
+  },
+};
 const requiredDeepLinkIds = [
   "book-search-deep-link",
   "book-detail-deep-link",
@@ -207,6 +292,7 @@ const negativeFixtureNames = [
   "invalid-action-assertion",
   "unsafe-evidence-source",
   "missing-required-native-surface",
+  "missing-required-native-action",
   "invalid-web-target",
   "invalid-source-inventory",
   "invalid-canonical-path",
@@ -236,6 +322,7 @@ const negativeFixtureExpectations = {
   "invalid-action-assertion": "is not present",
   "unsafe-evidence-source": "source does not exist in the repository",
   "missing-required-native-surface": "required routes surface is missing from ledger",
+  "missing-required-native-action": "required native action is missing from ledger",
   "invalid-web-target": "Web target must not be an external URL",
   "invalid-source-inventory": "source_inventory paths references a missing or unsafe path",
   "invalid-canonical-path": "canonical_url must be a locale-relative path",
@@ -415,6 +502,15 @@ if (fixtureName === "unsafe-evidence-source") {
 if (fixtureName === "missing-required-native-surface") {
   ledger.routes = ledger.routes.filter((entry) => entry.id !== "auth-login");
   delete nativeInventory.routes["auth-login"];
+}
+
+if (fixtureName === "missing-required-native-action") {
+  ledger.routes.find((entry) => entry.id === "reading-stats").actions = ledger.routes
+    .find((entry) => entry.id === "reading-stats")
+    .actions.filter((action) => action.id !== "stats-share");
+  nativeInventory.routes["reading-stats"] = nativeInventory.routes["reading-stats"].filter(
+    (actionId) => actionId !== "stats-share",
+  );
 }
 
 if (fixtureName === "invalid-web-target") {
@@ -907,6 +1003,19 @@ function checkNativeInventory() {
     for (const entry of ledgerEntries ?? []) {
       if (!Object.prototype.hasOwnProperty.call(expectedEntries, entry.id)) {
         fail(groupName + " has untracked native surface " + entry.id);
+      }
+    }
+
+    for (const [requiredId, actionList] of Object.entries(requiredNativeActionIds[groupName] ?? {})) {
+      const entry = ledgerById.get(requiredId);
+      const inventoryActions = expectedEntries[requiredId];
+      for (const actionId of actionList.split("|")) {
+        if (!entry || !(entry.actions ?? []).some((action) => action.id === actionId)) {
+          fail("required native action is missing from ledger: " + groupName + "." + requiredId + "." + actionId);
+        }
+        if (!Array.isArray(inventoryActions) || !inventoryActions.includes(actionId)) {
+          fail("required native action is missing from native inventory: " + groupName + "." + requiredId + "." + actionId);
+        }
       }
     }
   }

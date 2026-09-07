@@ -80,14 +80,19 @@ export async function fetchOwnedBooks(): Promise<{
 export async function fetchOwnedBook(bookId: string): Promise<{
   book: ConsumerBook | null;
   code: ConsumerQueryCode;
+  authenticated: boolean;
 }> {
-  if (!isBookId(bookId)) return { book: null, code: "not_found" };
+  if (!isBookId(bookId)) {
+    return { book: null, code: "not_found", authenticated: false };
+  }
 
   const context = await getAuthContext();
   if (context.unavailable || !context.supabase) {
-    return { book: null, code: "unavailable" };
+    return { book: null, code: "unavailable", authenticated: false };
   }
-  if (!context.user) return { book: null, code: "unauthenticated" };
+  if (!context.user) {
+    return { book: null, code: "unauthenticated", authenticated: false };
+  }
 
   try {
     const { data, error } = await context.supabase
@@ -98,12 +103,16 @@ export async function fetchOwnedBook(bookId: string): Promise<{
       .is("deleted_at", null)
       .maybeSingle();
 
-    if (error) return { book: null, code: "unavailable" };
-    if (!data || typeof data !== "object") return { book: null, code: "not_found" };
+    if (error) return { book: null, code: "unavailable", authenticated: true };
+    if (!data || typeof data !== "object") {
+      return { book: null, code: "not_found", authenticated: true };
+    }
 
     const book = parseConsumerBook(data as Record<string, unknown>);
-    return book ? { book, code: "ok" } : { book: null, code: "not_found" };
+    return book
+      ? { book, code: "ok", authenticated: true }
+      : { book: null, code: "not_found", authenticated: true };
   } catch {
-    return { book: null, code: "unavailable" };
+    return { book: null, code: "unavailable", authenticated: true };
   }
 }

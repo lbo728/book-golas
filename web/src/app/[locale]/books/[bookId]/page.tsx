@@ -32,7 +32,7 @@ export default async function BookDetailPage({
       <div className="min-h-screen bg-[#0d0f1a] text-white">
         <ConsumerHeader
           locale={locale}
-          authenticated={result.code === "ok" || result.code === "not_found"}
+          authenticated={result.authenticated}
         />
         <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:py-12">
           <ConsumerNotice
