@@ -9,6 +9,7 @@ describe("consumer next paths", () => {
   it.each([
     "/ko/../../admin",
     "/ko/%2e%2e/%2e%2e/admin",
+    "/ko/%252e%252e/admin",
     "/ko/home%3F/../../admin",
     "/ko/home?/../../admin",
     "/ko//admin",

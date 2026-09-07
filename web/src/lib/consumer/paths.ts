@@ -18,18 +18,29 @@ function hasUnsafePathSegments(value: string): boolean {
   if (value.includes("\\")) return true;
 
   try {
-    const rawPath = value.split(/[?#]/, 1)[0];
-    const decodedPath = decodeURIComponent(rawPath);
-    const decodedCandidate = decodeURIComponent(value);
-    const pathHasUnsafeSegments = decodedPath
-      .split("/")
-      .slice(2)
-      .some((segment) => segment.length === 0 || segment === "." || segment === "..");
-    const candidateHasTraversalSegments = decodedCandidate
-      .split("/")
-      .slice(2)
-      .some((segment) => segment === "." || segment === "..");
-    return pathHasUnsafeSegments || candidateHasTraversalSegments;
+    let currentPath = value.split(/[?#]/, 1)[0];
+    let currentCandidate = value;
+
+    for (let depth = 0; depth < 8; depth += 1) {
+      const decodedPath = decodeURIComponent(currentPath);
+      const decodedCandidate = decodeURIComponent(currentCandidate);
+
+      const pathHasUnsafeSegments = decodedPath
+        .split("/")
+        .slice(2)
+        .some((segment) => segment.length === 0 || segment === "." || segment === "..");
+      const candidateHasTraversalSegments = decodedCandidate
+        .split("/")
+        .slice(2)
+        .some((segment) => segment === "." || segment === "..");
+
+      if (pathHasUnsafeSegments || candidateHasTraversalSegments) return true;
+      if (decodedPath === currentPath && decodedCandidate === currentCandidate) return false;
+      currentPath = decodedPath;
+      currentCandidate = decodedCandidate;
+    }
+
+    return true;
   } catch {
     return true;
   }
