@@ -160,13 +160,16 @@ npm run test:parity-matrix -- --fixture unsafe-evidence-source
 npm run test:parity-matrix -- --fixture missing-required-native-surface
 npm run test:parity-matrix -- --fixture missing-required-native-action
 npm run test:parity-matrix -- --fixture invalid-web-target
+npm run test:parity-matrix -- --fixture invalid-web-target-scheme
+npm run test:parity-matrix -- --fixture invalid-web-target-data
+npm run test:parity-matrix -- --fixture invalid-web-target-mailto
 npm run test:parity-matrix -- --fixture invalid-source-inventory
 npm run test:parity-matrix -- --fixture invalid-canonical-path
 npm run test:parity-matrix -- --fixture complete-with-cross-role-alias
 npm run test:parity-matrix -- --fixture missing-action-assertion
 ~~~
 
-The first command must exit 0. Every fixture command must fail, proving the checker rejects missing dispositions, duplicate canonical URLs, missing error-state entries, complete status without independent data/browser evidence, fabricated or alias-based evidence, unsafe source paths, invalid native-only boundaries, wrong or unallowlisted deep links, omitted native surfaces/actions and accidental Web billing activation. Complete evidence is bound to the exact current Git commit and must use independent, repository-contained source and artifact paths. The checker pins all required route, overlay, capability and action IDs, plus 5 deep-link IDs, independently of the JSON inventory, then checks native source anchors for the critical actions and links. `npm test` runs both the positive checker and the complete negative-fixture suite so the ledger cannot bypass the Web quality gate. The checker further rejects missing actions, missing evidence owners, missing deep links and incomplete native-only capability coverage.
+The first command must exit 0. Every fixture command must fail, proving the checker rejects missing dispositions, duplicate canonical URLs, missing error-state entries, complete status without independent data/browser evidence, fabricated or alias-based evidence, unsafe source paths, URI-scheme or protocol-relative Web targets, invalid native-only boundaries, wrong or unallowlisted deep links, omitted native surfaces/actions and accidental Web billing activation. Complete evidence is bound to the exact current Git commit and must use independent, repository-contained source and artifact paths. The checker pins all required route, overlay, capability and action IDs, plus 5 deep-link IDs, independently of the JSON inventory, then checks native source anchors for the critical actions and links. `npm test` runs both the positive checker and the complete negative-fixture suite so the ledger cannot bypass the Web quality gate. The checker further rejects missing actions, missing evidence owners, missing deep links and incomplete native-only capability coverage.
 
 ## Evidence sources
 

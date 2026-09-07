@@ -294,6 +294,9 @@ const negativeFixtureNames = [
   "missing-required-native-surface",
   "missing-required-native-action",
   "invalid-web-target",
+  "invalid-web-target-scheme",
+  "invalid-web-target-data",
+  "invalid-web-target-mailto",
   "invalid-source-inventory",
   "invalid-canonical-path",
   "complete-with-cross-role-alias",
@@ -324,6 +327,9 @@ const negativeFixtureExpectations = {
   "missing-required-native-surface": "required routes surface is missing from ledger",
   "missing-required-native-action": "required native action is missing from ledger",
   "invalid-web-target": "Web target must not be an external URL",
+  "invalid-web-target-scheme": "Web target must not be an external URL",
+  "invalid-web-target-data": "Web target must not be an external URL",
+  "invalid-web-target-mailto": "Web target must not be an external URL",
   "invalid-source-inventory": "source_inventory paths references a missing or unsafe path",
   "invalid-canonical-path": "canonical_url must be a locale-relative path",
   "complete-with-cross-role-alias": "evidence sources and artifacts must be independent",
@@ -517,6 +523,18 @@ if (fixtureName === "invalid-web-target") {
   ledger.routes[0].web.target = ["https://evil.example/claimed-parity"];
 }
 
+if (fixtureName === "invalid-web-target-scheme") {
+  ledger.routes[0].web.target = ["javascript:alert(1)"];
+}
+
+if (fixtureName === "invalid-web-target-data") {
+  ledger.routes[0].web.target = ["data:text/html,claimed-parity"];
+}
+
+if (fixtureName === "invalid-web-target-mailto") {
+  ledger.routes[0].web.target = ["mailto:claimed@example.com"];
+}
+
 if (fixtureName === "invalid-source-inventory") {
   ledger.source_inventory.push("https://evil.example/native-audit");
 }
@@ -707,7 +725,7 @@ function checkWebTargets(entry, web) {
       fail(entry.id + " Web target must contain non-empty strings");
       continue;
     }
-    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(target) || target.startsWith("//")) {
+    if (/^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith("//")) {
       fail(entry.id + " Web target must not be an external URL");
     }
     if (isRepositoryReference(target) && !isSafeRepositoryReference(target)) {
