@@ -305,6 +305,9 @@ const negativeFixtureNames = [
   "invalid-billing-overlay",
   "invalid-billing-claim",
   "invalid-disabled-current",
+  "invalid-disabled-current-type",
+  "invalid-disabled-target-type",
+  "invalid-disabled-evidence-type",
   "complete-with-aliased-evidence",
   "unsafe-source-reference",
   "invalid-native-source",
@@ -363,6 +366,9 @@ const negativeFixtureExpectations = {
   "invalid-billing-overlay": "pro-features must use disposition disabled",
   "invalid-billing-claim": "contains a billing claim",
   "invalid-disabled-current": "must not define Web current evidence",
+  "invalid-disabled-current-type": "Web current must be an array",
+  "invalid-disabled-target-type": "Web target must be an array",
+  "invalid-disabled-evidence-type": "complete Web evidence must be an array",
   "complete-with-aliased-evidence": "evidence sources and artifacts must be independent",
   "unsafe-source-reference": "references a missing or unsafe path",
   "invalid-native-source": "references a missing or unsafe path",
@@ -555,6 +561,24 @@ if (fixtureName === "invalid-disabled-current") {
   ledger.native_only_capabilities.find((entry) => entry.id === "subscriptions").web.current = [
     "web/src/app/[locale]/page.tsx",
   ];
+}
+
+if (fixtureName === "invalid-disabled-current-type") {
+  ledger.native_only_capabilities.find((entry) => entry.id === "subscriptions").web.current = {
+    path: "web/src/app/[locale]/page.tsx",
+  };
+}
+
+if (fixtureName === "invalid-disabled-target-type") {
+  ledger.native_only_capabilities.find((entry) => entry.id === "subscriptions").web.target = {
+    path: "web/src/app/[locale]/page.tsx",
+  };
+}
+
+if (fixtureName === "invalid-disabled-evidence-type") {
+  ledger.native_only_capabilities.find((entry) => entry.id === "subscriptions").evidence = {
+    kind: "data",
+  };
 }
 
 if (fixtureName === "complete-with-aliased-evidence") {
@@ -1229,6 +1253,10 @@ function checkEntry(entry, groupName) {
 
   checkWebTargets(entry, web);
 
+  if (web.current !== undefined && !Array.isArray(web.current)) {
+    fail(entry.id + " Web current must be an array");
+  }
+
   const disabledRule = disabledConsumerWebRules[entry.id];
   if (disabledRule) {
     if (web.disposition !== disabledRule.disposition) {
@@ -1243,7 +1271,9 @@ function checkEntry(entry, groupName) {
     if (isNonEmptyArray(web.current)) {
       fail(entry.id + " must not define Web current evidence");
     }
-    if (isNonEmptyArray(entry.evidence)) {
+    if (entry.evidence !== undefined && !Array.isArray(entry.evidence)) {
+      fail(entry.id + " complete Web evidence must be an array");
+    } else if (isNonEmptyArray(entry.evidence)) {
       fail(entry.id + " must not define complete Web evidence");
     }
   }
@@ -1259,10 +1289,12 @@ function checkEntry(entry, groupName) {
     fail(entry.id + " is missing a Web target");
   }
 
-  if (!isNonEmptyArray(web.current) && web.status === "partial") {
-    fail(entry.id + " is partial but has no current Web evidence");
-  } else {
-    checkExistingReferences(entry, "web.current", web.current, "web/", true);
+  if (Array.isArray(web.current)) {
+    if (!isNonEmptyArray(web.current) && web.status === "partial") {
+      fail(entry.id + " is partial but has no current Web evidence");
+    } else {
+      checkExistingReferences(entry, "web.current", web.current, "web/", true);
+    }
   }
 
   if (web.status === "complete") {

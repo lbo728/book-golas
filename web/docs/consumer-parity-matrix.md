@@ -161,6 +161,9 @@ npm run test:parity-matrix -- --fixture invalid-billing-route
 npm run test:parity-matrix -- --fixture invalid-billing-overlay
 npm run test:parity-matrix -- --fixture invalid-billing-claim
 npm run test:parity-matrix -- --fixture invalid-disabled-current
+npm run test:parity-matrix -- --fixture invalid-disabled-current-type
+npm run test:parity-matrix -- --fixture invalid-disabled-target-type
+npm run test:parity-matrix -- --fixture invalid-disabled-evidence-type
 npm run test:parity-matrix -- --fixture complete-with-aliased-evidence
 npm run test:parity-matrix -- --fixture unsafe-source-reference
 npm run test:parity-matrix -- --fixture invalid-native-source
