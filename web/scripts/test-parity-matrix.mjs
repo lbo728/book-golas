@@ -300,6 +300,7 @@ const negativeFixtureNames = [
   "invalid-web-target-mailto",
   "invalid-source-inventory",
   "invalid-canonical-path",
+  "invalid-canonical-path-double-encoded",
   "complete-with-cross-role-alias",
   "missing-action-assertion",
 ];
@@ -334,6 +335,7 @@ const negativeFixtureExpectations = {
   "invalid-web-target-mailto": "Web target must not be an external URL",
   "invalid-source-inventory": "source_inventory paths references a missing or unsafe path",
   "invalid-canonical-path": "canonical_url must be a locale-relative path",
+  "invalid-canonical-path-double-encoded": "canonical_url must be a locale-relative path",
   "complete-with-cross-role-alias": "evidence sources and artifacts must be independent",
   "missing-action-assertion": "required native action assertion is missing",
 };
@@ -551,6 +553,10 @@ if (fixtureName === "invalid-canonical-path") {
   ledger.routes[0].web.canonical_url = "/{locale}/%2e%2e/%2e%2e/evil";
 }
 
+if (fixtureName === "invalid-canonical-path-double-encoded") {
+  ledger.routes[0].web.canonical_url = "/{locale}/%252e%252e/evil";
+}
+
 if (fixtureName === "complete-with-cross-role-alias") {
   ledger.routes[0].web.status = "complete";
   ledger.routes[0].evidence = [
@@ -604,9 +610,19 @@ function isCanonicalLocalePath(value) {
     return false;
   }
   try {
-    const decodedPath = decodeURIComponent(value.split("?")[0]);
-    const segments = decodedPath.split("/").slice(2);
-    return segments.every((segment) => segment.length > 0 && segment !== "." && segment !== "..");
+    let currentPath = value.split(/[?#]/, 1)[0];
+
+    for (let depth = 0; depth < 8; depth += 1) {
+      const decodedPath = decodeURIComponent(currentPath);
+      const segments = decodedPath.split("/").slice(2);
+      if (!segments.every((segment) => segment.length > 0 && segment !== "." && segment !== "..")) {
+        return false;
+      }
+      if (decodedPath === currentPath) return true;
+      currentPath = decodedPath;
+    }
+
+    return false;
   } catch {
     return false;
   }
