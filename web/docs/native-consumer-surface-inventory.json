@@ -15,8 +15,8 @@
     "announcements": ["read-announcements", "return-to-account"],
     "onboarding": ["advance-onboarding", "complete-onboarding"],
     "home": ["switch-reading-status-tab", "toggle-all-books", "open-book-detail", "refresh-books", "open-search-mode"],
-    "library": ["library-reading-tab", "library-review-tab", "library-record-tab", "library-global-recall"],
-    "reading-stats": ["stats-overview", "stats-analysis", "stats-activity", "stats-set-goal", "stats-share"],
+    "library": ["library-reading-tab", "library-review-tab", "library-record-tab", "library-global-recall", "search-reading", "search-review", "filter-library-year", "toggle-record-group", "filter-record-type"],
+    "reading-stats": ["stats-overview", "stats-analysis", "stats-activity", "stats-set-goal", "stats-share", "select-stats-period", "navigate-stats-period", "open-stats-custom-range", "clear-stats-custom-range", "navigate-stats-analysis-section"],
     "calendar": ["change-calendar-month", "filter-calendar", "open-calendar-day"],
     "account": ["edit-profile", "change-language-theme", "manage-notifications", "change-password", "open-legal", "open-announcements", "sign-out", "delete-account"],
     "legacy-book-list": ["filter-book-list", "refresh-book-list", "open-list-book-detail"],
@@ -67,6 +67,7 @@
     "review-save-complete": ["acknowledge-review-save", "open-review-book"],
     "password-change": ["change-password", "cancel-password-change"],
     "delete-account-confirmation": ["confirm-account-deletion", "cancel-account-deletion"],
+    "language-change-confirmation": ["confirm-language-change", "cancel-language-change"],
     "notification-time-picker": ["set-daily-reminder-time", "set-goal-alarm-time"],
     "ocr-limit": ["show-ocr-quota", "continue-without-ocr"],
     "pro-features": ["explain-web-billing-disabled"],
@@ -89,14 +90,13 @@
     "share-sheet": ["share-book", "download-share-card"],
     "subscriptions": ["show-billing-disabled"],
     "offline-boundary": ["show-network-status", "preserve-proven-draft", "retry-online-write"],
-    "deep-links": ["open-book-deep-link", "open-record-deep-link", "recover-auth-deep-link"]
+    "deep-links": ["open-book-deep-link", "open-record-deep-link", "complete-auth-callback"]
   },
   "deep_links": [
     {"id": "book-search-deep-link", "source": "bookgolas://book/search"},
     {"id": "book-detail-deep-link", "source": "bookgolas://book/detail/{bookId}"},
     {"id": "book-record-deep-link", "source": "bookgolas://book/record/{bookId}"},
-    {"id": "book-scan-deep-link", "source": "bookgolas://book/scan/{bookId}"},
-    {"id": "auth-next-return", "source": "Auth callback with next"}
+    {"id": "book-scan-deep-link", "source": "bookgolas://book/scan/{bookId}"}
   ],
   "native_action_assertions": {
     "routes": {
@@ -118,6 +118,17 @@
       "announcements": {
         "read-announcements": [
           {"source": "app/lib/ui/auth/utils/legal_content.dart", "contains": "static String announcements"}
+        ]
+      }
+    },
+    "overlays": {
+      "language-change-confirmation": {
+        "confirm-language-change": [
+          {"source": "app/lib/ui/auth/widgets/my_page_screen.dart", "contains": "languageChangeConfirmTitle"},
+          {"source": "app/lib/ui/auth/widgets/my_page_screen.dart", "contains": "commonConfirm"}
+        ],
+        "cancel-language-change": [
+          {"source": "app/lib/ui/auth/widgets/my_page_screen.dart", "contains": "commonCancel"}
         ]
       }
     },
@@ -150,10 +161,6 @@
     ],
     "book-scan-deep-link": [
       {"source": "app/lib/data/services/deep_link_service.dart", "contains": "segments[1] == 'scan'"}
-    ],
-    "auth-next-return": [
-      {"source": "app/lib/data/services/auth_service.dart", "contains": "bookgolas://login-callback"},
-      {"source": "app/lib/ui/auth/widgets/login_screen.dart", "contains": "bookgolas://reset-callback"}
     ]
   }
 }

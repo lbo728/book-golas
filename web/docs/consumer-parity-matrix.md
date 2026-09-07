@@ -25,7 +25,7 @@ For every supported feature, Web must match the app in:
 
 - visual language, BLab tokens, typography, spacing, surfaces and component anatomy;
 - information hierarchy, localized copy and navigation semantics;
-- actions, validation, state transitions, loading, empty, error, retry, consent and quota outcomes;
+- actions, validation, state transitions, loading, empty, error, retry, consent and quota outcomes where the native surface exposes them;
 - keyboard, screen-reader, focus, reduced-motion and pointer behavior;
 - user ownership, persistence, deep-link recovery and safe unauthorized handling.
 
@@ -68,14 +68,15 @@ The native MainScreen has five persistent tabs: Home, My Library, Reading Statis
 | --- | --- | --- |
 | Five-tab navigation | Preserve tab order, selected state, keyboard order and deep-linkable destination | #425 |
 | Home status cycle | Preserve reading, planned, completed and paused state surfaces | #429 |
-| Statistics section cycle | Preserve overview, analysis and activity sections plus annual, monthly, weekly and custom filters | #440 |
+| Statistics section cycle | Preserve overview, analysis and activity sections plus annual, monthly, weekly, custom-range selection, period navigation and analysis-section navigation | #440 |
 | Book status model | Preserve planned, reading, completed and will_retry semantics | #429/#431 |
+| My Library discovery | Preserve reading/review search, year filtering, grouped-record expansion and record-type filtering | #430/#441 |
 | Search mode menu | Preserve book search and AI record search as separate actions | #428/#441 |
 | Announcements | Preserve the localized My Page document and empty state with a return path to account | #444 |
 | Locale | Every consumer state and action has Korean and English copy | #422 |
-| Auth recovery | Preserve locale and validate the next path before returning | #427 |
+| Auth recovery | Web-owned return-path security contract preserves locale and validates the next path before returning; it is not claimed as a native deep link | #427 |
 
-The ledger contains the action-level contract for each screen and overlay, including destructive confirmation, cancel, retry, permission, consent and quota outcomes.
+The ledger contains the action-level contract for each screen and overlay, including destructive confirmation, cancel, retry, permission, consent and quota outcomes where applicable. It does not invent a consent step for native surfaces that do not expose one.
 
 ## Overlay and sheet inventory
 
@@ -84,11 +85,11 @@ The native app uses sheets, dialogs, context menus and full-screen overlays heav
 The complete inventory is in the ledger. It includes:
 
 - navigation and discovery: search mode menu, Global Recall, book Recall, record detail, source detail, bookstore selection, recommendation actions and reading-book selection;
-- statistics and calendar: day detail, reading goal and custom date range;
+- statistics and calendar: day detail, reading goal, period navigation and custom date range;
 - book and reading flows: reading management, pause/delete confirmations, book info, full title, page update, reading timer, daily goal, daily target, target date, planned-book editor, completion and review prompt;
 - book detail metadata: external review-link editor, mind-map leaf detail and mind-map cluster detail;
 - private media and OCR: image source, image replacement, memorable-page capture, existing image, extracted text, full text, OCR quota and full-screen image viewer;
-- account and feedback: review exit/save confirmations, password change, account deletion, notification time picker, disabled Pro state and floating timer;
+- account and feedback: language-change confirmation, review exit/save confirmations, password change, account deletion, notification time picker, disabled Pro state and floating timer;
 - shared BLDS primitives: context menu and search overlay.
 
 Every listed overlay has an action owner and one of the state profiles in the ledger. There are no anonymous modal or sheet entries.
@@ -130,7 +131,8 @@ The exact profile text is in the ledger. A missing profile key is a validation f
 | bookgolas://book/detail/{bookId} | /{locale}/books/{bookId} |
 | bookgolas://book/record/{bookId} | /{locale}/books/{bookId}?tab=record |
 | bookgolas://book/scan/{bookId} | /{locale}/books/{bookId}?scan=1 |
-| Auth callback with next | Validated /{locale}/... consumer path, otherwise /{locale}/home |
+
+The auth callback `next` value is a Web-owned return-path security contract covered by #427 and `getSafeNextPath`; it is intentionally not listed as a native deep-link mapping because the Flutter source does not implement a native `next` route contract.
 
 ## Validation
 
@@ -158,10 +160,14 @@ npm run test:parity-matrix -- --fixture invalid-billing-claim
 npm run test:parity-matrix -- --fixture complete-with-aliased-evidence
 npm run test:parity-matrix -- --fixture unsafe-source-reference
 npm run test:parity-matrix -- --fixture invalid-native-source
+npm run test:parity-matrix -- --fixture invalid-native-source-role
 npm run test:parity-matrix -- --fixture invalid-action-assertion
 npm run test:parity-matrix -- --fixture unsafe-evidence-source
 npm run test:parity-matrix -- --fixture missing-required-native-surface
 npm run test:parity-matrix -- --fixture missing-required-native-action
+npm run test:parity-matrix -- --fixture invalid-web-current-role
+npm run test:parity-matrix -- --fixture invalid-web-target-role
+npm run test:parity-matrix -- --fixture complete-with-self-authored-evidence
 npm run test:parity-matrix -- --fixture invalid-web-target
 npm run test:parity-matrix -- --fixture invalid-web-target-scheme
 npm run test:parity-matrix -- --fixture invalid-web-target-data
@@ -180,7 +186,7 @@ npm run test:parity-matrix -- --fixture complete-with-cross-role-alias
 npm run test:parity-matrix -- --fixture missing-action-assertion
 ~~~
 
-The first command must exit 0. Every fixture command must fail, proving the checker rejects missing dispositions, duplicate canonical URLs including encoded-equivalent paths, missing error-state entries, complete status without independent data/browser evidence, fabricated or alias-based evidence, unsafe source paths, URI-scheme, protocol-relative, encoded or unsafe Web targets, invalid native-only boundaries, wrong or unallowlisted deep links, untrusted deep-link assertion sources, omitted native surfaces/actions, invalid evidence-tier policy and accidental Web billing activation. Complete evidence is bound to the exact current Git commit and must use independent, repository-contained source and artifact paths. The checker pins all required route, overlay, capability and action IDs, plus 5 deep-link IDs, independently of the JSON inventory, then checks native source anchors for the critical representative actions and links. Structural action completeness and source-content assertion coverage are separate explicit policy tiers in the inventory. Deep-link assertions additionally require an `app/` source declared by their matching ledger link. `npm test` runs both the positive checker and the complete negative-fixture suite so the ledger cannot bypass the Web quality gate. The checker further rejects missing actions, missing evidence owners, missing deep links and incomplete native-only capability coverage.
+The first command must exit 0. Every fixture command must fail, proving the checker rejects missing dispositions, duplicate canonical URLs including encoded-equivalent paths, missing error-state entries, complete status without independent data/browser evidence, fabricated or alias-based evidence, unsafe or cross-role source paths, URI-scheme, protocol-relative, encoded or unsafe Web targets, invalid native-only boundaries, wrong or unallowlisted deep links, untrusted deep-link assertion sources, omitted native surfaces/actions, invalid evidence-tier policy and accidental Web billing activation. Complete evidence is bound to the exact current Git commit, tracked runtime files and independent repository-contained source and artifact paths. The checker pins all required route, overlay, capability and action IDs, plus 4 native deep-link IDs, independently of the JSON inventory, then checks native source anchors for the critical representative actions and links. Structural action completeness and source-content assertion coverage are separate explicit policy tiers in the inventory. Deep-link assertions additionally require an `app/` source declared by their matching ledger link. `npm test` runs both the positive checker and the complete negative-fixture suite so the ledger cannot bypass the Web quality gate. The checker further rejects missing actions, missing evidence owners, missing deep links and incomplete native-only capability coverage.
 
 ## Evidence sources
 

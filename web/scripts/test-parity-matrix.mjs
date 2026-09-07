@@ -58,7 +58,6 @@ const requiredDeepLinkMappings = new Map([
   ["bookgolas://book/detail/{bookId}", "/{locale}/books/{bookId}"],
   ["bookgolas://book/record/{bookId}", "/{locale}/books/{bookId}?tab=record"],
   ["bookgolas://book/scan/{bookId}", "/{locale}/books/{bookId}?scan=1"],
-  ["Auth callback with next", "/{locale}/auth/sign-in?next={validatedPath}"],
 ]);
 const allowedDeepLinkKinds = new Set(["native-custom-scheme", "auth-return"]);
 const nativeCapabilityRules = {
@@ -138,6 +137,7 @@ const requiredNativeSurfaceIds = {
     "review-save-complete",
     "password-change",
     "delete-account-confirmation",
+    "language-change-confirmation",
     "notification-time-picker",
     "ocr-limit",
     "pro-features",
@@ -172,8 +172,8 @@ const requiredNativeActionIds = {
     announcements: "read-announcements|return-to-account",
     onboarding: "advance-onboarding|complete-onboarding",
     home: "switch-reading-status-tab|toggle-all-books|open-book-detail|refresh-books|open-search-mode",
-    library: "library-reading-tab|library-review-tab|library-record-tab|library-global-recall",
-    "reading-stats": "stats-overview|stats-analysis|stats-activity|stats-set-goal|stats-share",
+    library: "library-reading-tab|library-review-tab|library-record-tab|library-global-recall|search-reading|search-review|filter-library-year|toggle-record-group|filter-record-type",
+    "reading-stats": "stats-overview|stats-analysis|stats-activity|stats-set-goal|stats-share|select-stats-period|navigate-stats-period|open-stats-custom-range|clear-stats-custom-range|navigate-stats-analysis-section",
     calendar: "change-calendar-month|filter-calendar|open-calendar-day",
     account: "edit-profile|change-language-theme|manage-notifications|change-password|open-legal|open-announcements|sign-out|delete-account",
     "legacy-book-list": "filter-book-list|refresh-book-list|open-list-book-detail",
@@ -224,6 +224,7 @@ const requiredNativeActionIds = {
     "review-save-complete": "acknowledge-review-save|open-review-book",
     "password-change": "change-password|cancel-password-change",
     "delete-account-confirmation": "confirm-account-deletion|cancel-account-deletion",
+    "language-change-confirmation": "confirm-language-change|cancel-language-change",
     "notification-time-picker": "set-daily-reminder-time|set-goal-alarm-time",
     "ocr-limit": "show-ocr-quota|continue-without-ocr",
     "pro-features": "explain-web-billing-disabled",
@@ -246,7 +247,7 @@ const requiredNativeActionIds = {
     "share-sheet": "share-book|download-share-card",
     subscriptions: "show-billing-disabled",
     "offline-boundary": "show-network-status|preserve-proven-draft|retry-online-write",
-    "deep-links": "open-book-deep-link|open-record-deep-link|recover-auth-deep-link",
+    "deep-links": "open-book-deep-link|open-record-deep-link|complete-auth-callback",
   },
 };
 const requiredDeepLinkIds = [
@@ -254,13 +255,15 @@ const requiredDeepLinkIds = [
   "book-detail-deep-link",
   "book-record-deep-link",
   "book-scan-deep-link",
-  "auth-next-return",
 ];
 const requiredNativeActionAssertions = {
   routes: {
     account: ["open-announcements"],
     "book-detail": ["resume-reading", "start-planned-reading"],
     announcements: ["read-announcements"],
+  },
+  overlays: {
+    "language-change-confirmation": ["confirm-language-change", "cancel-language-change"],
   },
   native_only_capabilities: {
     "siri-app-shortcuts": ["continue-reading-shortcut", "scan-page-shortcut", "add-book-shortcut"],
@@ -300,12 +303,16 @@ const negativeFixtureNames = [
   "complete-with-aliased-evidence",
   "unsafe-source-reference",
   "invalid-native-source",
+  "invalid-native-source-role",
   "invalid-action-assertion",
   "invalid-native-assertion-source",
   "invalid-native-assertion-policy",
   "unsafe-evidence-source",
   "missing-required-native-surface",
   "missing-required-native-action",
+  "invalid-web-current-role",
+  "invalid-web-target-role",
+  "complete-with-self-authored-evidence",
   "invalid-web-target",
   "invalid-web-target-scheme",
   "invalid-web-target-data",
@@ -343,12 +350,16 @@ const negativeFixtureExpectations = {
   "complete-with-aliased-evidence": "evidence sources and artifacts must be independent",
   "unsafe-source-reference": "references a missing or unsafe path",
   "invalid-native-source": "references a missing or unsafe path",
+  "invalid-native-source-role": "references an invalid role path",
   "invalid-action-assertion": "is not present",
   "invalid-native-assertion-source": "native action assertion source must be listed",
   "invalid-native-assertion-policy": "native action assertion policy is invalid",
   "unsafe-evidence-source": "source does not exist in the repository",
   "missing-required-native-surface": "required routes surface is missing from ledger",
   "missing-required-native-action": "required native action is missing from ledger",
+  "invalid-web-current-role": "web.current references an invalid role path",
+  "invalid-web-target-role": "Web target references an invalid role path",
+  "complete-with-self-authored-evidence": "evidence 1 source has an invalid role or is not tracked",
   "invalid-web-target": "Web target must not be an external URL",
   "invalid-web-target-scheme": "Web target must not be an external URL",
   "invalid-web-target-data": "Web target must not be an external URL",
@@ -486,19 +497,19 @@ if (fixtureName === "complete-with-aliased-evidence") {
   ledger.routes[0].evidence = [
     {
       kind: "data",
-      source: "web/docs/consumer-parity-matrix.md",
-      artifact: "web/docs/consumer-parity-ledger.json",
-      source_contains: "Canonical consumer routes",
-      artifact_contains: "\"routes\": [",
+      source: "web/src/proxy.ts",
+      artifact: "web/src/proxy.test.ts",
+      source_contains: "export async function proxy",
+      artifact_contains: "describe(\"consumer locale proxy\"",
       observation: "Data contract observation",
       commit: currentCommit,
     },
     {
       kind: "browser",
-      source: "web/docs/./consumer-parity-matrix.md",
-      artifact: "web/docs/native-consumer-surface-inventory.json",
-      source_contains: "Validation",
-      artifact_contains: "native_action_assertions",
+      source: "web/src/./proxy.ts",
+      artifact: "web/src/lib/consumer/paths.ts",
+      source_contains: "export async function proxy",
+      artifact_contains: "getSafeNextPath",
       observation: "Browser contract observation",
       commit: currentCommit,
     },
@@ -511,6 +522,10 @@ if (fixtureName === "unsafe-source-reference") {
 
 if (fixtureName === "invalid-native-source") {
   ledger.routes[0].native_source.push("fabricated native source");
+}
+
+if (fixtureName === "invalid-native-source-role") {
+  ledger.routes[0].native_source = ["web/src/lib/consumer/paths.ts"];
 }
 
 if (fixtureName === "invalid-action-assertion") {
@@ -563,6 +578,38 @@ if (fixtureName === "missing-required-native-action") {
   nativeInventory.routes["reading-stats"] = nativeInventory.routes["reading-stats"].filter(
     (actionId) => actionId !== "stats-share",
   );
+}
+
+if (fixtureName === "invalid-web-current-role") {
+  ledger.routes[0].web.current = ["app/lib/main.dart"];
+}
+
+if (fixtureName === "invalid-web-target-role") {
+  ledger.routes[0].web.target = ["app/lib/main.dart"];
+}
+
+if (fixtureName === "complete-with-self-authored-evidence") {
+  ledger.routes[0].web.status = "complete";
+  ledger.routes[0].evidence = [
+    {
+      kind: "data",
+      source: "web/scripts/test-parity-matrix.mjs",
+      artifact: "web/docs/consumer-parity-ledger.json",
+      source_contains: "function checkRoutes()",
+      artifact_contains: "\"routes\": [",
+      observation: "Self-authored parity evidence",
+      commit: currentCommit,
+    },
+    {
+      kind: "browser",
+      source: "web/docs/consumer-parity-matrix.md",
+      artifact: "web/docs/native-consumer-surface-inventory.json",
+      source_contains: "## Validation",
+      artifact_contains: "native_action_assertions",
+      observation: "Self-authored parity browser evidence",
+      commit: currentCommit,
+    },
+  ];
 }
 
 if (fixtureName === "invalid-web-target") {
@@ -622,19 +669,19 @@ if (fixtureName === "complete-with-cross-role-alias") {
   ledger.routes[0].evidence = [
     {
       kind: "data",
-      source: "web/docs/consumer-parity-ledger.json",
-      artifact: "web/docs/consumer-parity-matrix.md",
-      source_contains: "routes",
-      artifact_contains: "Canonical consumer routes",
+      source: "web/src/proxy.ts",
+      artifact: "web/src/proxy.test.ts",
+      source_contains: "export async function proxy",
+      artifact_contains: "describe(\"consumer locale proxy\"",
       observation: "Data contract observation",
       commit: currentCommit,
     },
     {
       kind: "browser",
-      source: "web/docs/consumer-parity-matrix.md",
-      artifact: "web/docs/native-consumer-surface-inventory.json",
-      source_contains: "Validation",
-      artifact_contains: "native_action_assertions",
+      source: "web/src/./proxy.ts",
+      artifact: "web/src/lib/consumer/paths.ts",
+      source_contains: "export async function proxy",
+      artifact_contains: "getSafeNextPath",
       observation: "Browser contract observation",
       commit: currentCommit,
     },
@@ -752,6 +799,30 @@ function isSafeRepositoryReference(value) {
   return !(relativeCandidate.startsWith("..") || path.isAbsolute(relativeCandidate));
 }
 
+function isTrackedFile(value) {
+  const candidate = resolveSafeRepositoryPath(value);
+  if (!candidate || !fs.statSync(candidate).isFile()) return false;
+  try {
+    return execFileSync("git", ["ls-files", "--error-unmatch", "--", value], {
+      cwd: repositoryRoot,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim().length > 0;
+  } catch {
+    return false;
+  }
+}
+
+function hasPathRoot(value, roots) {
+  return roots.some((root) => value.startsWith(root));
+}
+
+function isApprovedEvidenceReference(value, role) {
+  if (!isTrackedFile(value)) return false;
+  if (role === "source") return hasPathRoot(value, ["app/", "web/src/"]);
+  return value.startsWith("web/") && !value.startsWith("web/docs/") && !value.startsWith("web/scripts/");
+}
+
 function resolveSafeRepositoryPath(value) {
   if (!isSafeRepositoryReference(value)) return null;
   const candidate = path.resolve(repositoryRoot, value);
@@ -769,10 +840,12 @@ function resolveSafeRepositoryPath(value) {
   }
 }
 
-function checkExistingReferences(entry, fieldName, values) {
+function checkExistingReferences(entry, fieldName, values, expectedRoot) {
   for (const value of values ?? []) {
     if (!isNonEmptyString(value) || !resolveSafeRepositoryPath(value)) {
       fail(entry.id + " " + fieldName + " references a missing or unsafe path " + value);
+    } else if (expectedRoot && !value.startsWith(expectedRoot)) {
+      fail(entry.id + " " + fieldName + " references an invalid role path " + value);
     }
   }
 }
@@ -870,7 +943,9 @@ function checkWebTargets(entry, web) {
     } else if (targetSafety === "external") {
       fail(entry.id + " Web target must not be an external URL");
     }
-    if (isRepositoryReference(target) && !isSafeRepositoryReference(target)) {
+    if (isRepositoryReference(target) && !target.startsWith("web/")) {
+      fail(entry.id + " Web target references an invalid role path " + target);
+    } else if (isRepositoryReference(target) && !isSafeRepositoryReference(target)) {
       fail(entry.id + " Web target references a missing or unsafe path " + target);
     }
   }
@@ -884,7 +959,7 @@ function checkEntry(entry, groupName) {
   if (!isNonEmptyArray(entry?.native_source)) {
     fail((entry?.id ?? groupName) + " is missing native_source");
   } else {
-    checkExistingReferences(entry, "native_source", entry.native_source);
+    checkExistingReferences(entry, "native_source", entry.native_source, "app/");
   }
 
   if (!isNonEmptyString(entry?.native_entry) && groupName === "routes") {
@@ -957,7 +1032,7 @@ function checkEntry(entry, groupName) {
   if (!isNonEmptyArray(web.current) && web.status === "partial") {
     fail(entry.id + " is partial but has no current Web evidence");
   } else {
-    checkExistingReferences(entry, "web.current", web.current);
+    checkExistingReferences(entry, "web.current", web.current, "web/");
   }
 
   if (web.status === "complete") {
@@ -978,6 +1053,8 @@ function checkEntry(entry, groupName) {
           sourcePath = resolveSafeRepositoryPath(evidence.source);
           if (!sourcePath) {
             fail(entry.id + " evidence " + (index + 1) + " source does not exist in the repository");
+          } else if (!isApprovedEvidenceReference(evidence.source, "source")) {
+            fail(entry.id + " evidence " + (index + 1) + " source has an invalid role or is not tracked");
           } else if (evidenceReferences.has(sourcePath)) {
             fail(entry.id + " evidence sources and artifacts must be independent");
           } else {
@@ -1006,6 +1083,8 @@ function checkEntry(entry, groupName) {
           const artifactPath = resolveSafeRepositoryPath(evidence.artifact);
           if (!artifactPath) {
             fail(entry.id + " evidence " + (index + 1) + " artifact is missing or unsafe");
+          } else if (!isApprovedEvidenceReference(evidence.artifact, "artifact")) {
+            fail(entry.id + " evidence " + (index + 1) + " artifact has an invalid role or is not tracked");
           }
           if (artifactPath && evidenceReferences.has(artifactPath)) {
             fail(entry.id + " evidence sources and artifacts must be independent");
@@ -1077,7 +1156,7 @@ function checkDeepLinks() {
     if (!isNonEmptyArray(link?.native_source)) {
       fail((link?.id ?? "deep link") + " is missing native_source");
     } else {
-      checkExistingReferences(link, "native_source", link.native_source);
+      checkExistingReferences(link, "native_source", link.native_source, "app/");
     }
     if (!isCanonicalLocalePath(link?.canonical_web_url)) {
       fail((link?.id ?? "deep link") + " canonical_web_url must be a locale-relative path");

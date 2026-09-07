@@ -44,7 +44,7 @@
         "empty": "Render the empty form state with required labels and localized guidance.",
         "error": "Render field or form authentication errors with resend and recovery actions where applicable.",
         "unauthorized": "Keep the user on the auth route and render no consumer data.",
-        "consent": "Show terms/privacy and email-verification requirements before account completion.",
+        "consent": "No native terms/privacy consent action is present; model email verification as the separate verification-outcome action.",
         "quota": "Not applicable; do not invent a quota or subscription gate.",
         "offline": "Keep entered values, explain network failure, and allow a safe retry."
       },
@@ -53,7 +53,7 @@
         "empty": "Not applicable; onboarding always has an explicit page or completion state.",
         "error": "Show persistence failure and allow retry without marking onboarding complete.",
         "unauthorized": "Return to locale-preserving sign-in before persisting user-scoped policy.",
-        "consent": "Collect age-policy or product consent explicitly before completion.",
+        "consent": "Not applicable; native onboarding pages do not collect age-policy or product consent.",
         "quota": "Not applicable.",
         "offline": "Do not claim completion until the required user-scoped persistence succeeds."
       },
@@ -477,6 +477,36 @@
           "label": "Open global AI Recall search",
           "owner": "#441",
           "status": "planned"
+        },
+        {
+          "id": "search-reading",
+          "label": "Search reading books",
+          "owner": "#430",
+          "status": "planned"
+        },
+        {
+          "id": "search-review",
+          "label": "Search reviewed books",
+          "owner": "#430",
+          "status": "planned"
+        },
+        {
+          "id": "filter-library-year",
+          "label": "Filter library content by year",
+          "owner": "#430",
+          "status": "planned"
+        },
+        {
+          "id": "toggle-record-group",
+          "label": "Expand or collapse grouped reading records",
+          "owner": "#430",
+          "status": "planned"
+        },
+        {
+          "id": "filter-record-type",
+          "label": "Filter records by record type",
+          "owner": "#441",
+          "status": "planned"
         }
       ],
       "evidence_owner": "#416",
@@ -533,6 +563,36 @@
         {
           "id": "stats-share",
           "label": "Share reading statistics through browser equivalents",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "select-stats-period",
+          "label": "Select daily, weekly or monthly statistics period",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "navigate-stats-period",
+          "label": "Navigate to the previous or next statistics period",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "open-stats-custom-range",
+          "label": "Open custom statistics date range selection",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "clear-stats-custom-range",
+          "label": "Clear the active custom statistics range",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "navigate-stats-analysis-section",
+          "label": "Navigate between statistics analysis sections",
           "owner": "#440",
           "status": "planned"
         }
@@ -2465,6 +2525,42 @@
       "evidence_owner": "#416"
     },
     {
+      "id": "language-change-confirmation",
+      "surface_type": "overlay",
+      "native_surface": "Language change confirmation sheet",
+      "native_source": [
+        "app/lib/ui/auth/widgets/my_page_screen.dart",
+        "app/lib/l10n/app_ko.arb",
+        "app/lib/l10n/app_en.arb"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+          "web/src/components/consumer/overlays/language-change-confirmation.tsx"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#444"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "confirm-language-change",
+          "label": "Confirm the localized language change",
+          "owner": "#444",
+          "status": "planned"
+        },
+        {
+          "id": "cancel-language-change",
+          "label": "Cancel the language change",
+          "owner": "#444",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
       "id": "notification-time-picker",
       "surface_type": "overlay",
       "native_surface": "Notification time picker",
@@ -2987,22 +3083,6 @@
       "status": "planned",
       "owner": "#427",
       "notes": "The Web destination opens the owned book detail with scan mode selected and applies browser permission or upload fallback."
-    },
-    {
-      "id": "auth-next-return",
-      "source": "Auth callback with next",
-      "source_kind": "auth-return",
-      "native_source": [
-        "app/lib/main.dart",
-        "app/lib/data/services/deep_link_service.dart",
-        "app/lib/data/services/auth_service.dart",
-        "app/lib/ui/auth/widgets/login_screen.dart"
-      ],
-      "canonical_web_url": "/{locale}/auth/sign-in?next={validatedPath}",
-      "disposition": "browser-equivalent",
-      "status": "partial",
-      "owner": "#427",
-      "notes": "Only locale-preserving consumer paths are accepted; external or cross-locale next paths are rejected."
     }
   ],
   "native_only_capabilities": [
@@ -3321,14 +3401,14 @@
           "status": "planned"
         },
         {
-          "id": "recover-auth-deep-link",
-          "label": "Return to the requested route after authentication",
+          "id": "complete-auth-callback",
+          "label": "Complete the native authentication callback",
           "owner": "#427",
           "status": "partial"
         }
       ],
       "evidence_owner": "#416",
-      "notes": "The native custom scheme bookgolas:// is represented by canonical HTTPS Web routes; unsafe cross-locale next paths are rejected."
+      "notes": "The native custom scheme bookgolas:// is represented by canonical HTTPS Web routes. Web-owned next-path validation is documented separately and is not presented as a native deep-link contract."
     }
   ],
   "source_inventory": [
