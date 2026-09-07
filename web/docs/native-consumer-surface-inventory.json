@@ -12,12 +12,13 @@
     "auth-sign-up": ["create-account", "confirm-password", "open-sign-in", "verification-outcome"],
     "auth-password-recovery": ["request-reset", "set-new-password", "return-to-sign-in"],
     "legal-terms": ["read-terms", "return-to-account"],
+    "announcements": ["read-announcements", "return-to-account"],
     "onboarding": ["advance-onboarding", "complete-onboarding"],
     "home": ["switch-reading-status-tab", "toggle-all-books", "open-book-detail", "refresh-books", "open-search-mode"],
     "library": ["library-reading-tab", "library-review-tab", "library-record-tab", "library-global-recall"],
     "reading-stats": ["stats-overview", "stats-analysis", "stats-activity", "stats-set-goal", "stats-share"],
     "calendar": ["change-calendar-month", "filter-calendar", "open-calendar-day"],
-    "account": ["edit-profile", "change-language-theme", "manage-notifications", "change-password", "open-legal", "sign-out", "delete-account"],
+    "account": ["edit-profile", "change-language-theme", "manage-notifications", "change-password", "open-legal", "open-announcements", "sign-out", "delete-account"],
     "legacy-book-list": ["filter-book-list", "refresh-book-list", "open-list-book-detail"],
     "book-search-add": ["search-book", "isbn-search", "scan-isbn", "select-reading-status", "set-schedule-priority", "save-book"],
     "book-detail": ["switch-detail-tabs", "update-progress", "manage-reading", "set-reading-target", "add-memorable-page", "open-recall", "open-reading-timer", "open-review", "open-aladin-book-link", "open-existing-review-link", "open-review-link-editor", "resume-reading", "start-planned-reading"],
@@ -99,6 +100,11 @@
   ],
   "native_action_assertions": {
     "routes": {
+      "account": {
+        "open-announcements": [
+          {"source": "app/lib/ui/auth/widgets/my_page_screen.dart", "contains": "myPageAnnouncements"}
+        ]
+      },
       "book-detail": {
         "resume-reading": [
           {"source": "app/lib/ui/book_detail/book_detail_screen.dart", "contains": "_buildResumeReadingButton"},
@@ -107,6 +113,11 @@
         "start-planned-reading": [
           {"source": "app/lib/ui/book_detail/book_detail_screen.dart", "contains": "_buildStartNowButton"},
           {"source": "app/lib/ui/book_detail/book_detail_screen.dart", "contains": "startPlannedReading("}
+        ]
+      },
+      "announcements": {
+        "read-announcements": [
+          {"source": "app/lib/ui/auth/utils/legal_content.dart", "contains": "static String announcements"}
         ]
       }
     },

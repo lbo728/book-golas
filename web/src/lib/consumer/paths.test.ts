@@ -14,6 +14,9 @@ describe("consumer next paths", () => {
     "/ko/home?/../../admin",
     "/ko//admin",
     "/ko\\admin",
+    "/ko/home%5c..%5cadmin",
+    "/ko/%255c..%255cadmin",
+    "/ko/%25255c..%25255cadmin",
   ])(
     "rejects unsafe path segments: %s",
     (candidate) => {

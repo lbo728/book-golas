@@ -293,6 +293,45 @@
       "notes": "Web must keep legal content localized and route-stable."
     },
     {
+      "id": "announcements",
+      "surface_type": "screen",
+      "native_surface": "Announcements WebView from My Page",
+      "native_source": [
+        "app/lib/ui/auth/widgets/my_page_screen.dart",
+        "app/lib/ui/auth/utils/legal_content.dart",
+        "app/lib/l10n/app_ko.arb",
+        "app/lib/l10n/app_en.arb"
+      ],
+      "native_entry": "MyPageScreen opens TermsWebViewScreen with localized LegalContent.announcements(locale, isDark).",
+      "web": {
+        "canonical_url": "/{locale}/announcements",
+        "current": [],
+        "target": [
+          "web/src/app/[locale]/announcements/page.tsx"
+        ],
+        "disposition": "browser-equivalent",
+        "status": "planned",
+        "owner": "#444"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "read-announcements",
+          "label": "Read localized announcements",
+          "owner": "#444",
+          "status": "planned"
+        },
+        {
+          "id": "return-to-account",
+          "label": "Return to account settings",
+          "owner": "#444",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "The native empty announcement state is localized in Korean and English; Web must preserve the browser-equivalent document state and account return path."
+    },
+    {
       "id": "onboarding",
       "surface_type": "screen",
       "native_surface": "Onboarding pages",
@@ -599,6 +638,12 @@
           "label": "Open terms, privacy and consent settings",
           "owner": "#444",
           "status": "partial"
+        },
+        {
+          "id": "open-announcements",
+          "label": "Open localized announcements",
+          "owner": "#444",
+          "status": "planned"
         },
         {
           "id": "sign-out",

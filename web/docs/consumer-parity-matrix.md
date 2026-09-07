@@ -43,6 +43,7 @@ All consumer routes support the ko and en locale contract. Existing Web files ar
 | Account creation | /{locale}/auth/sign-up | web/src/app/[locale]/auth/sign-up/page.tsx | partial | #423 |
 | Password recovery | /{locale}/auth/reset-password | web/src/app/[locale]/auth/reset-password/page.tsx | partial | #423 |
 | Terms WebView | /{locale}/terms | web/src/app/[locale]/terms/page.tsx | partial | #444 |
+| Announcements WebView | /{locale}/announcements | not implemented | planned | #444 |
 | Onboarding | /{locale}/onboarding | not implemented | planned | #426 |
 | Home and reading status | /{locale}/home | web/src/app/[locale]/home/page.tsx | partial | #429 |
 | My Library | /{locale}/library | not implemented | planned | #430 |
@@ -70,6 +71,7 @@ The native MainScreen has five persistent tabs: Home, My Library, Reading Statis
 | Statistics section cycle | Preserve overview, analysis and activity sections plus annual, monthly, weekly and custom filters | #440 |
 | Book status model | Preserve planned, reading, completed and will_retry semantics | #429/#431 |
 | Search mode menu | Preserve book search and AI record search as separate actions | #428/#441 |
+| Announcements | Preserve the localized My Page document and empty state with a return path to account | #444 |
 | Locale | Every consumer state and action has Korean and English copy | #422 |
 | Auth recovery | Preserve locale and validate the next path before returning | #427 |
 
@@ -164,15 +166,21 @@ npm run test:parity-matrix -- --fixture invalid-web-target
 npm run test:parity-matrix -- --fixture invalid-web-target-scheme
 npm run test:parity-matrix -- --fixture invalid-web-target-data
 npm run test:parity-matrix -- --fixture invalid-web-target-mailto
+npm run test:parity-matrix -- --fixture invalid-web-target-whitespace
+npm run test:parity-matrix -- --fixture invalid-web-target-encoded-scheme
+npm run test:parity-matrix -- --fixture invalid-web-target-encoded-network-path
+npm run test:parity-matrix -- --fixture invalid-web-target-backslash
 npm run test:parity-matrix -- --fixture invalid-source-inventory
 npm run test:parity-matrix -- --fixture invalid-canonical-path
 npm run test:parity-matrix -- --fixture invalid-canonical-path-double-encoded
+npm run test:parity-matrix -- --fixture invalid-canonical-path-encoded-duplicate
+npm run test:parity-matrix -- --fixture invalid-canonical-path-double-encoded-duplicate
 npm run test:parity-matrix -- --fixture invalid-native-assertion-policy
 npm run test:parity-matrix -- --fixture complete-with-cross-role-alias
 npm run test:parity-matrix -- --fixture missing-action-assertion
 ~~~
 
-The first command must exit 0. Every fixture command must fail, proving the checker rejects missing dispositions, duplicate canonical URLs, missing error-state entries, complete status without independent data/browser evidence, fabricated or alias-based evidence, unsafe source paths, URI-scheme or protocol-relative Web targets, invalid native-only boundaries, wrong or unallowlisted deep links, untrusted deep-link assertion sources, omitted native surfaces/actions, invalid evidence-tier policy and accidental Web billing activation. Complete evidence is bound to the exact current Git commit and must use independent, repository-contained source and artifact paths. The checker pins all required route, overlay, capability and action IDs, plus 5 deep-link IDs, independently of the JSON inventory, then checks native source anchors for the critical representative actions and links. Structural action completeness and source-content assertion coverage are separate explicit policy tiers in the inventory. Deep-link assertions additionally require an `app/` source declared by their matching ledger link. `npm test` runs both the positive checker and the complete negative-fixture suite so the ledger cannot bypass the Web quality gate. The checker further rejects missing actions, missing evidence owners, missing deep links and incomplete native-only capability coverage.
+The first command must exit 0. Every fixture command must fail, proving the checker rejects missing dispositions, duplicate canonical URLs including encoded-equivalent paths, missing error-state entries, complete status without independent data/browser evidence, fabricated or alias-based evidence, unsafe source paths, URI-scheme, protocol-relative, encoded or unsafe Web targets, invalid native-only boundaries, wrong or unallowlisted deep links, untrusted deep-link assertion sources, omitted native surfaces/actions, invalid evidence-tier policy and accidental Web billing activation. Complete evidence is bound to the exact current Git commit and must use independent, repository-contained source and artifact paths. The checker pins all required route, overlay, capability and action IDs, plus 5 deep-link IDs, independently of the JSON inventory, then checks native source anchors for the critical representative actions and links. Structural action completeness and source-content assertion coverage are separate explicit policy tiers in the inventory. Deep-link assertions additionally require an `app/` source declared by their matching ledger link. `npm test` runs both the positive checker and the complete negative-fixture suite so the ledger cannot bypass the Web quality gate. The checker further rejects missing actions, missing evidence owners, missing deep links and incomplete native-only capability coverage.
 
 ## Evidence sources
 

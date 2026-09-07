@@ -83,6 +83,7 @@ const requiredNativeSurfaceIds = {
     "auth-sign-up",
     "auth-password-recovery",
     "legal-terms",
+    "announcements",
     "onboarding",
     "home",
     "library",
@@ -168,12 +169,13 @@ const requiredNativeActionIds = {
     "auth-sign-up": "create-account|confirm-password|open-sign-in|verification-outcome",
     "auth-password-recovery": "request-reset|set-new-password|return-to-sign-in",
     "legal-terms": "read-terms|return-to-account",
+    announcements: "read-announcements|return-to-account",
     onboarding: "advance-onboarding|complete-onboarding",
     home: "switch-reading-status-tab|toggle-all-books|open-book-detail|refresh-books|open-search-mode",
     library: "library-reading-tab|library-review-tab|library-record-tab|library-global-recall",
     "reading-stats": "stats-overview|stats-analysis|stats-activity|stats-set-goal|stats-share",
     calendar: "change-calendar-month|filter-calendar|open-calendar-day",
-    account: "edit-profile|change-language-theme|manage-notifications|change-password|open-legal|sign-out|delete-account",
+    account: "edit-profile|change-language-theme|manage-notifications|change-password|open-legal|open-announcements|sign-out|delete-account",
     "legacy-book-list": "filter-book-list|refresh-book-list|open-list-book-detail",
     "book-search-add": "search-book|isbn-search|scan-isbn|select-reading-status|set-schedule-priority|save-book",
     "book-detail": "switch-detail-tabs|update-progress|manage-reading|set-reading-target|add-memorable-page|open-recall|open-reading-timer|open-review|open-aladin-book-link|open-existing-review-link|open-review-link-editor|resume-reading|start-planned-reading",
@@ -256,7 +258,9 @@ const requiredDeepLinkIds = [
 ];
 const requiredNativeActionAssertions = {
   routes: {
+    account: ["open-announcements"],
     "book-detail": ["resume-reading", "start-planned-reading"],
+    announcements: ["read-announcements"],
   },
   native_only_capabilities: {
     "siri-app-shortcuts": ["continue-reading-shortcut", "scan-page-shortcut", "add-book-shortcut"],
@@ -306,9 +310,15 @@ const negativeFixtureNames = [
   "invalid-web-target-scheme",
   "invalid-web-target-data",
   "invalid-web-target-mailto",
+  "invalid-web-target-whitespace",
+  "invalid-web-target-encoded-scheme",
+  "invalid-web-target-encoded-network-path",
+  "invalid-web-target-backslash",
   "invalid-source-inventory",
   "invalid-canonical-path",
   "invalid-canonical-path-double-encoded",
+  "invalid-canonical-path-encoded-duplicate",
+  "invalid-canonical-path-double-encoded-duplicate",
   "complete-with-cross-role-alias",
   "missing-action-assertion",
 ];
@@ -343,9 +353,15 @@ const negativeFixtureExpectations = {
   "invalid-web-target-scheme": "Web target must not be an external URL",
   "invalid-web-target-data": "Web target must not be an external URL",
   "invalid-web-target-mailto": "Web target must not be an external URL",
+  "invalid-web-target-whitespace": "Web target contains unsafe characters",
+  "invalid-web-target-encoded-scheme": "Web target must not be an external URL",
+  "invalid-web-target-encoded-network-path": "Web target must not be an external URL",
+  "invalid-web-target-backslash": "Web target contains unsafe characters",
   "invalid-source-inventory": "source_inventory paths references a missing or unsafe path",
   "invalid-canonical-path": "canonical_url must be a locale-relative path",
   "invalid-canonical-path-double-encoded": "canonical_url must be a locale-relative path",
+  "invalid-canonical-path-encoded-duplicate": "duplicate canonical_url",
+  "invalid-canonical-path-double-encoded-duplicate": "duplicate canonical_url",
   "complete-with-cross-role-alias": "evidence sources and artifacts must be independent",
   "missing-action-assertion": "required native action assertion is missing",
 };
@@ -565,6 +581,22 @@ if (fixtureName === "invalid-web-target-mailto") {
   ledger.routes[0].web.target = ["mailto:claimed@example.com"];
 }
 
+if (fixtureName === "invalid-web-target-whitespace") {
+  ledger.routes[0].web.target = [" https://evil.example/claimed-parity"];
+}
+
+if (fixtureName === "invalid-web-target-encoded-scheme") {
+  ledger.routes[0].web.target = ["javascript%3Aalert(1)"];
+}
+
+if (fixtureName === "invalid-web-target-encoded-network-path") {
+  ledger.routes[0].web.target = ["%2F%2Fevil.example/claimed-parity"];
+}
+
+if (fixtureName === "invalid-web-target-backslash") {
+  ledger.routes[0].web.target = ["\\\\evil.example\\path"];
+}
+
 if (fixtureName === "invalid-source-inventory") {
   ledger.source_inventory.push("https://evil.example/native-audit");
 }
@@ -575,6 +607,14 @@ if (fixtureName === "invalid-canonical-path") {
 
 if (fixtureName === "invalid-canonical-path-double-encoded") {
   ledger.routes[0].web.canonical_url = "/{locale}/%252e%252e/evil";
+}
+
+if (fixtureName === "invalid-canonical-path-encoded-duplicate") {
+  ledger.routes[1].web.canonical_url = "/{locale}/%68ome";
+}
+
+if (fixtureName === "invalid-canonical-path-double-encoded-duplicate") {
+  ledger.routes[1].web.canonical_url = "/{locale}/%2568ome";
 }
 
 if (fixtureName === "complete-with-cross-role-alias") {
@@ -625,27 +665,82 @@ function isRepositoryReference(value) {
   return typeof value === "string" && /^(app|web|docs|supabase|\.github|\.byungskerlab|\.omo)\//.test(value);
 }
 
-function isCanonicalLocalePath(value) {
-  if (typeof value !== "string" || !/^\/\{locale\}(?:\/|$)/.test(value) || value.includes("://") || value.includes("\\")) {
-    return false;
-  }
-  try {
-    let currentPath = value.split(/[?#]/, 1)[0];
+const maxDecodeDepth = 8;
 
-    for (let depth = 0; depth < 8; depth += 1) {
-      const decodedPath = decodeURIComponent(currentPath);
-      const segments = decodedPath.split("/").slice(2);
-      if (!segments.every((segment) => segment.length > 0 && segment !== "." && segment !== "..")) {
-        return false;
-      }
-      if (decodedPath === currentPath) return true;
-      currentPath = decodedPath;
+function hasUnsafeTargetCharacters(value) {
+  return /[\u0000-\u001f\u007f\\]/.test(value) || /^[ \t-\r\f]|[ \t-\r\f]$/.test(value);
+}
+
+function inspectWebTarget(value) {
+  if (hasUnsafeTargetCharacters(value)) return "unsafe";
+
+  let current = value;
+  for (let depth = 0; depth < maxDecodeDepth; depth += 1) {
+    if (hasUnsafeTargetCharacters(current)) return "unsafe";
+    if (/^[a-z][a-z0-9+.-]*:/i.test(current) || current.startsWith("//")) return "external";
+
+    let decoded;
+    try {
+      decoded = decodeURIComponent(current);
+    } catch {
+      return "unsafe";
+    }
+    if (decoded === current) return "safe";
+    current = decoded;
+  }
+
+  return "unsafe";
+}
+
+function hasUnsafeCanonicalCharacters(value) {
+  return /[\u0000-\u0020\u007f\\]/.test(value);
+}
+
+function normalizeCanonicalLocalePath(value) {
+  if (
+    typeof value !== "string" ||
+    hasUnsafeCanonicalCharacters(value) ||
+    !/^\/\{locale\}(?:\/|$)/.test(value) ||
+    value.includes("://")
+  ) {
+    return null;
+  }
+
+  let currentPath = value.split(/[?#]/, 1)[0];
+  for (let depth = 0; depth < maxDecodeDepth; depth += 1) {
+    if (hasUnsafeCanonicalCharacters(currentPath) || currentPath.includes("?") || currentPath.includes("#")) {
+      return null;
     }
 
-    return false;
-  } catch {
-    return false;
+    let decodedPath;
+    try {
+      decodedPath = decodeURIComponent(currentPath);
+    } catch {
+      return null;
+    }
+
+    if (
+      hasUnsafeCanonicalCharacters(decodedPath) ||
+      decodedPath.includes("?") ||
+      decodedPath.includes("#") ||
+      !/^\/\{locale\}(?:\/|$)/.test(decodedPath)
+    ) {
+      return null;
+    }
+
+    const segments = decodedPath.split("/").slice(2);
+    if (!segments.every((segment) => segment.length > 0 && segment !== "." && segment !== "..")) {
+      return null;
+    }
+    if (decodedPath === currentPath) return decodedPath;
+    currentPath = decodedPath;
   }
+
+  return null;
+}
+
+function isCanonicalLocalePath(value) {
+  return normalizeCanonicalLocalePath(value) !== null;
 }
 
 function isSafeRepositoryReference(value) {
@@ -769,7 +864,10 @@ function checkWebTargets(entry, web) {
       fail(entry.id + " Web target must contain non-empty strings");
       continue;
     }
-    if (/^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith("//")) {
+    const targetSafety = inspectWebTarget(target);
+    if (targetSafety === "unsafe") {
+      fail(entry.id + " Web target contains unsafe characters");
+    } else if (targetSafety === "external") {
       fail(entry.id + " Web target must not be an external URL");
     }
     if (isRepositoryReference(target) && !isSafeRepositoryReference(target)) {
@@ -938,13 +1036,14 @@ function checkRoutes() {
     if (!isNonEmptyString(canonicalUrl)) {
       fail((route?.id ?? "route") + " is missing canonical_url");
     } else {
-      if (!isCanonicalLocalePath(canonicalUrl)) {
+      const normalizedCanonicalUrl = normalizeCanonicalLocalePath(canonicalUrl);
+      if (normalizedCanonicalUrl === null) {
         fail(route.id + " canonical_url must be a locale-relative path");
       }
-      if (canonicalUrls.has(canonicalUrl)) {
-        fail("duplicate canonical_url " + canonicalUrl);
+      if (normalizedCanonicalUrl !== null && canonicalUrls.has(normalizedCanonicalUrl)) {
+        fail("duplicate canonical_url " + normalizedCanonicalUrl);
       }
-      canonicalUrls.add(canonicalUrl);
+      if (normalizedCanonicalUrl !== null) canonicalUrls.add(normalizedCanonicalUrl);
     }
   }
 }
