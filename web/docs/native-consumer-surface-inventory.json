@@ -1,6 +1,12 @@
 {
   "schema_version": 1,
   "source": "Native Flutter consumer surface audit",
+  "native_action_assertion_policy": {
+    "structural_action_scope": "all-native-actions",
+    "source_content_scope": "critical-actions-only",
+    "structural_baseline": "requiredNativeActionIds",
+    "source_assertion_baseline": "requiredNativeActionAssertions"
+  },
   "routes": {
     "auth-login": ["email-sign-in", "google-sign-in", "apple-sign-in", "open-sign-up", "open-password-recovery", "resend-verification"],
     "auth-sign-up": ["create-account", "confirm-password", "open-sign-in", "verification-outcome"],

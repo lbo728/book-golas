@@ -262,6 +262,12 @@ const requiredNativeActionAssertions = {
     "siri-app-shortcuts": ["continue-reading-shortcut", "scan-page-shortcut", "add-book-shortcut"],
   },
 };
+const expectedNativeActionAssertionPolicy = {
+  structural_action_scope: "all-native-actions",
+  source_content_scope: "critical-actions-only",
+  structural_baseline: "requiredNativeActionIds",
+  source_assertion_baseline: "requiredNativeActionAssertions",
+};
 const nativeCapabilityRequiredSources = {
   "siri-app-shortcuts": [
     "app/ios/Runner/BookgolasShortcuts.swift",
@@ -291,6 +297,7 @@ const negativeFixtureNames = [
   "invalid-native-source",
   "invalid-action-assertion",
   "invalid-native-assertion-source",
+  "invalid-native-assertion-policy",
   "unsafe-evidence-source",
   "missing-required-native-surface",
   "missing-required-native-action",
@@ -326,6 +333,7 @@ const negativeFixtureExpectations = {
   "invalid-native-source": "references a missing or unsafe path",
   "invalid-action-assertion": "is not present",
   "invalid-native-assertion-source": "native action assertion source must be listed",
+  "invalid-native-assertion-policy": "native action assertion policy is invalid",
   "unsafe-evidence-source": "source does not exist in the repository",
   "missing-required-native-surface": "required routes surface is missing from ledger",
   "missing-required-native-action": "required native action is missing from ledger",
@@ -489,6 +497,10 @@ if (fixtureName === "invalid-native-assertion-source") {
   const assertion = nativeInventory.native_action_assertions.routes["book-detail"]["resume-reading"][0];
   assertion.source = "web/scripts/test-parity-matrix.mjs";
   assertion.contains = "function checkNativeActionAssertions()";
+}
+
+if (fixtureName === "invalid-native-assertion-policy") {
+  nativeInventory.native_action_assertion_policy.source_content_scope = "all-actions";
 }
 
 if (fixtureName === "unsafe-evidence-source") {
@@ -1210,6 +1222,19 @@ function checkNativeActionAssertions() {
   }
 }
 
+function checkNativeActionAssertionPolicy() {
+  const policy = nativeInventory.native_action_assertion_policy;
+  if (!policy || typeof policy !== "object" || Array.isArray(policy)) {
+    fail("native action assertion policy is invalid");
+    return;
+  }
+  for (const [field, expected] of Object.entries(expectedNativeActionAssertionPolicy)) {
+    if (policy[field] !== expected) {
+      fail("native action assertion policy is invalid: " + field);
+    }
+  }
+}
+
 function checkDeepLinkAssertions() {
   const assertionsById = nativeInventory.deep_link_assertions;
   if (!assertionsById || typeof assertionsById !== "object" || Array.isArray(assertionsById)) {
@@ -1283,6 +1308,7 @@ checkRoutes();
 checkDeepLinks();
 checkSourceInventory();
 checkNativeInventory();
+checkNativeActionAssertionPolicy();
 checkNativeActionAssertions();
 checkDeepLinkAssertions();
 for (const overlay of ledger.overlays ?? []) {
