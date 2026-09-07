@@ -287,6 +287,7 @@ const negativeFixtureNames = [
   "missing-deep-link",
   "invalid-deep-link-target",
   "invalid-deep-link-source",
+  "invalid-deep-link-assertion-source",
   "missing-native-overlay",
   "missing-native-action",
   "invalid-billing-route",
@@ -323,6 +324,7 @@ const negativeFixtureExpectations = {
   "missing-deep-link": "missing required deep link",
   "invalid-deep-link-target": "must map to",
   "invalid-deep-link-source": "missing required deep link",
+  "invalid-deep-link-assertion-source": "deep link assertion source must be listed",
   "missing-native-overlay": "required overlays surface is missing from ledger",
   "missing-native-action": "is missing native action google-sign-in",
   "invalid-billing-route": "subscription must use disposition disabled",
@@ -419,6 +421,12 @@ if (fixtureName === "invalid-deep-link-target") {
 
 if (fixtureName === "invalid-deep-link-source") {
   ledger.deep_links[0].source = "bookgolas://unknown/action";
+}
+
+if (fixtureName === "invalid-deep-link-assertion-source") {
+  const assertion = nativeInventory.deep_link_assertions["book-search-deep-link"][0];
+  assertion.source = "web/scripts/test-parity-matrix.mjs";
+  assertion.contains = "function checkDeepLinkAssertions()";
 }
 
 if (fixtureName === "missing-native-overlay") {
@@ -1255,6 +1263,7 @@ function checkDeepLinkAssertions() {
       fail("deep link assertions reference missing link " + deepLinkId);
       continue;
     }
+    const nativeSources = new Set(link.native_source ?? []);
     if (!isNonEmptyArray(assertions)) {
       fail("deep link assertions for " + deepLinkId + " must not be empty");
       continue;
@@ -1262,6 +1271,15 @@ function checkDeepLinkAssertions() {
     for (const assertion of assertions) {
       if (!isNonEmptyString(assertion?.source) || !isNonEmptyString(assertion?.contains)) {
         fail("deep link assertion for " + deepLinkId + " is incomplete");
+        continue;
+      }
+      if (!assertion.source.startsWith("app/") || !nativeSources.has(assertion.source)) {
+        fail(
+          "deep link assertion source must be listed in " +
+            deepLinkId +
+            ".native_source: " +
+            assertion.source,
+        );
         continue;
       }
       const sourcePath = resolveSafeRepositoryPath(assertion.source);

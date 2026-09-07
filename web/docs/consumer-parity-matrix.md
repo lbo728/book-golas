@@ -146,6 +146,7 @@ npm run test:parity-matrix -- --fixture invalid-native-boundary
 npm run test:parity-matrix -- --fixture missing-deep-link
 npm run test:parity-matrix -- --fixture invalid-deep-link-target
 npm run test:parity-matrix -- --fixture invalid-deep-link-source
+npm run test:parity-matrix -- --fixture invalid-deep-link-assertion-source
 npm run test:parity-matrix -- --fixture missing-native-overlay
 npm run test:parity-matrix -- --fixture missing-native-action
 npm run test:parity-matrix -- --fixture complete-with-fabricated-evidence
@@ -171,7 +172,7 @@ npm run test:parity-matrix -- --fixture complete-with-cross-role-alias
 npm run test:parity-matrix -- --fixture missing-action-assertion
 ~~~
 
-The first command must exit 0. Every fixture command must fail, proving the checker rejects missing dispositions, duplicate canonical URLs, missing error-state entries, complete status without independent data/browser evidence, fabricated or alias-based evidence, unsafe source paths, URI-scheme or protocol-relative Web targets, invalid native-only boundaries, wrong or unallowlisted deep links, omitted native surfaces/actions, invalid evidence-tier policy and accidental Web billing activation. Complete evidence is bound to the exact current Git commit and must use independent, repository-contained source and artifact paths. The checker pins all required route, overlay, capability and action IDs, plus 5 deep-link IDs, independently of the JSON inventory, then checks native source anchors for the critical representative actions and links. Structural action completeness and source-content assertion coverage are separate explicit policy tiers in the inventory. `npm test` runs both the positive checker and the complete negative-fixture suite so the ledger cannot bypass the Web quality gate. The checker further rejects missing actions, missing evidence owners, missing deep links and incomplete native-only capability coverage.
+The first command must exit 0. Every fixture command must fail, proving the checker rejects missing dispositions, duplicate canonical URLs, missing error-state entries, complete status without independent data/browser evidence, fabricated or alias-based evidence, unsafe source paths, URI-scheme or protocol-relative Web targets, invalid native-only boundaries, wrong or unallowlisted deep links, untrusted deep-link assertion sources, omitted native surfaces/actions, invalid evidence-tier policy and accidental Web billing activation. Complete evidence is bound to the exact current Git commit and must use independent, repository-contained source and artifact paths. The checker pins all required route, overlay, capability and action IDs, plus 5 deep-link IDs, independently of the JSON inventory, then checks native source anchors for the critical representative actions and links. Structural action completeness and source-content assertion coverage are separate explicit policy tiers in the inventory. Deep-link assertions additionally require an `app/` source declared by their matching ledger link. `npm test` runs both the positive checker and the complete negative-fixture suite so the ledger cannot bypass the Web quality gate. The checker further rejects missing actions, missing evidence owners, missing deep links and incomplete native-only capability coverage.
 
 ## Evidence sources
 
