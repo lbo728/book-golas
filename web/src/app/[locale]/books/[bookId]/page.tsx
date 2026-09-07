@@ -30,7 +30,10 @@ export default async function BookDetailPage({
   if (result.code !== "ok" || !result.book) {
     return (
       <div className="min-h-screen bg-[#0d0f1a] text-white">
-        <ConsumerHeader locale={locale} />
+        <ConsumerHeader
+          locale={locale}
+          authenticated={result.code === "ok" || result.code === "not_found"}
+        />
         <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:py-12">
           <ConsumerNotice
             title={
@@ -71,7 +74,7 @@ export default async function BookDetailPage({
 
   return (
     <div className="min-h-screen bg-[#0d0f1a] text-white">
-      <ConsumerHeader locale={locale} />
+      <ConsumerHeader locale={locale} authenticated />
       <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:py-12">
         <Link
           href={getConsumerPath(locale, "/home")}

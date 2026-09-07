@@ -14,13 +14,27 @@ export function getConsumerPath(
   return `/${locale}${normalizedPath}`;
 }
 
+function hasUnsafePathSegments(value: string): boolean {
+  if (value.includes("\\")) return true;
+
+  try {
+    const decodedPath = decodeURIComponent(value).split("?")[0];
+    return decodedPath
+      .split("/")
+      .slice(2)
+      .some((segment) => segment.length === 0 || segment === "." || segment === "..");
+  } catch {
+    return true;
+  }
+}
+
 export function getSafeNextPath(
   locale: ConsumerLocale | string,
   candidate: string | undefined,
 ): string {
   const fallback = getConsumerPath(locale, "/home");
 
-  if (!candidate || candidate.startsWith("//")) return fallback;
+  if (!candidate || candidate.startsWith("//") || hasUnsafePathSegments(candidate)) return fallback;
   if (!candidate.startsWith(`/${locale}/`)) return fallback;
 
   return candidate;

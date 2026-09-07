@@ -2947,7 +2947,9 @@
       "source_kind": "auth-return",
       "native_source": [
         "app/lib/main.dart",
-        "app/lib/data/services/deep_link_service.dart"
+        "app/lib/data/services/deep_link_service.dart",
+        "app/lib/data/services/auth_service.dart",
+        "app/lib/ui/auth/widgets/login_screen.dart"
       ],
       "canonical_web_url": "/{locale}/auth/sign-in?next={validatedPath}",
       "disposition": "browser-equivalent",

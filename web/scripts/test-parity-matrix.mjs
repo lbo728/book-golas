@@ -77,6 +77,98 @@ const requiredDeliveryDependencies = {
   shared_web_primitives: "#421",
   blds_package: "blab_design_system#12",
 };
+const requiredNativeSurfaceIds = {
+  routes: [
+    "auth-login",
+    "auth-sign-up",
+    "auth-password-recovery",
+    "legal-terms",
+    "onboarding",
+    "home",
+    "library",
+    "reading-stats",
+    "calendar",
+    "account",
+    "legacy-book-list",
+    "book-search-add",
+    "book-detail",
+    "reading-progress",
+    "book-review",
+    "mind-map",
+    "barcode-scanner",
+    "subscription",
+    "privacy",
+  ],
+  overlays: [
+    "search-mode-menu",
+    "global-recall-search",
+    "recall-search",
+    "record-detail",
+    "source-detail",
+    "calendar-day-detail",
+    "reading-goal",
+    "date-range-picker",
+    "bookstore-select",
+    "recommendation-action",
+    "reading-books-selection",
+    "reading-management",
+    "pause-reading-confirmation",
+    "delete-confirmation",
+    "batch-delete-confirmation",
+    "book-info",
+    "full-title",
+    "image-source",
+    "image-replace-options",
+    "replace-image-confirmation",
+    "add-memorable-page",
+    "existing-image",
+    "extracted-text",
+    "full-text-view",
+    "page-update",
+    "reading-timer",
+    "today-goal",
+    "daily-target",
+    "daily-target-confirm",
+    "update-target-date",
+    "edit-planned-book",
+    "book-completion",
+    "book-review-prompt",
+    "review-exit-confirmation",
+    "review-save-complete",
+    "password-change",
+    "delete-account-confirmation",
+    "notification-time-picker",
+    "ocr-limit",
+    "pro-features",
+    "floating-timer",
+    "schedule-change",
+    "calendar-month-picker",
+    "clear-ai-memory-confirmation",
+    "mind-map-leaf-detail",
+    "mind-map-cluster-detail",
+    "review-link-editor",
+    "context-menu",
+    "search-overlay",
+    "full-screen-image",
+  ],
+  native_only_capabilities: [
+    "ios-home-widget",
+    "siri-app-shortcuts",
+    "native-push",
+    "camera-and-ocr",
+    "share-sheet",
+    "subscriptions",
+    "offline-boundary",
+    "deep-links",
+  ],
+};
+const requiredDeepLinkIds = [
+  "book-search-deep-link",
+  "book-detail-deep-link",
+  "book-record-deep-link",
+  "book-scan-deep-link",
+  "auth-next-return",
+];
 const nativeCapabilityRequiredSources = {
   "siri-app-shortcuts": [
     "app/ios/Runner/BookgolasShortcuts.swift",
@@ -106,7 +198,40 @@ const negativeFixtureNames = [
   "invalid-native-source",
   "invalid-action-assertion",
   "unsafe-evidence-source",
+  "missing-required-native-surface",
+  "invalid-web-target",
+  "invalid-source-inventory",
+  "invalid-canonical-path",
+  "complete-with-cross-role-alias",
 ];
+const negativeFixtureExpectations = {
+  "missing-disposition": "has invalid web disposition",
+  "duplicate-canonical-url": "duplicate canonical_url",
+  "missing-error-state": "state profile default is missing error",
+  "missing-required-state": "state_contract.required must include",
+  "complete-without-evidence": "cannot be complete without evidence",
+  "complete-with-invalid-evidence": "evidence 1 must be an object",
+  "complete-with-fabricated-evidence": "source does not exist in the repository",
+  "invalid-native-boundary": "subscriptions must use disposition disabled",
+  "missing-deep-link": "missing required deep link",
+  "invalid-deep-link-target": "must map to",
+  "invalid-deep-link-source": "missing required deep link",
+  "missing-native-overlay": "required overlays surface is missing from ledger",
+  "missing-native-action": "is missing native action google-sign-in",
+  "invalid-billing-route": "subscription must use disposition disabled",
+  "invalid-billing-overlay": "pro-features must use disposition disabled",
+  "invalid-billing-claim": "contains a billing claim",
+  "complete-with-aliased-evidence": "evidence sources and artifacts must be independent",
+  "unsafe-source-reference": "references a missing or unsafe path",
+  "invalid-native-source": "references a missing or unsafe path",
+  "invalid-action-assertion": "is not present",
+  "unsafe-evidence-source": "source does not exist in the repository",
+  "missing-required-native-surface": "required routes surface is missing from ledger",
+  "invalid-web-target": "Web target must not be an external URL",
+  "invalid-source-inventory": "source_inventory paths references a missing or unsafe path",
+  "invalid-canonical-path": "canonical_url must be a locale-relative path",
+  "complete-with-cross-role-alias": "evidence sources and artifacts must be independent",
+};
 const disabledConsumerWebRules = {
   subscription: { disposition: "disabled", status: "disabled" },
   "pro-features": { disposition: "disabled", status: "disabled" },
@@ -224,6 +349,8 @@ if (fixtureName === "complete-with-aliased-evidence") {
       kind: "data",
       source: "web/docs/consumer-parity-matrix.md",
       artifact: "web/docs/consumer-parity-ledger.json",
+      source_contains: "Canonical consumer routes",
+      artifact_contains: "\"routes\": [",
       observation: "Data contract observation",
       commit: currentCommit,
     },
@@ -231,6 +358,8 @@ if (fixtureName === "complete-with-aliased-evidence") {
       kind: "browser",
       source: "web/docs/./consumer-parity-matrix.md",
       artifact: "web/docs/native-consumer-surface-inventory.json",
+      source_contains: "Validation",
+      artifact_contains: "native_action_assertions",
       observation: "Browser contract observation",
       commit: currentCommit,
     },
@@ -256,6 +385,8 @@ if (fixtureName === "unsafe-evidence-source") {
       kind: "data",
       source: "web/../../../etc/passwd",
       artifact: "web/docs/consumer-parity-ledger.json",
+      source_contains: "routes",
+      artifact_contains: "Canonical consumer routes",
       observation: "Data contract observation",
       commit: currentCommit,
     },
@@ -263,6 +394,49 @@ if (fixtureName === "unsafe-evidence-source") {
       kind: "browser",
       source: "web/docs/consumer-parity-matrix.md",
       artifact: "web/docs/native-consumer-surface-inventory.json",
+      source_contains: "Validation",
+      artifact_contains: "native_action_assertions",
+      observation: "Browser contract observation",
+      commit: currentCommit,
+    },
+  ];
+}
+
+if (fixtureName === "missing-required-native-surface") {
+  ledger.routes = ledger.routes.filter((entry) => entry.id !== "auth-login");
+  delete nativeInventory.routes["auth-login"];
+}
+
+if (fixtureName === "invalid-web-target") {
+  ledger.routes[0].web.target = ["https://evil.example/claimed-parity"];
+}
+
+if (fixtureName === "invalid-source-inventory") {
+  ledger.source_inventory.push("https://evil.example/native-audit");
+}
+
+if (fixtureName === "invalid-canonical-path") {
+  ledger.routes[0].web.canonical_url = "/{locale}/%2e%2e/%2e%2e/evil";
+}
+
+if (fixtureName === "complete-with-cross-role-alias") {
+  ledger.routes[0].web.status = "complete";
+  ledger.routes[0].evidence = [
+    {
+      kind: "data",
+      source: "web/docs/consumer-parity-ledger.json",
+      artifact: "web/docs/consumer-parity-matrix.md",
+      source_contains: "routes",
+      artifact_contains: "Canonical consumer routes",
+      observation: "Data contract observation",
+      commit: currentCommit,
+    },
+    {
+      kind: "browser",
+      source: "web/docs/consumer-parity-matrix.md",
+      artifact: "web/docs/native-consumer-surface-inventory.json",
+      source_contains: "Validation",
+      artifact_contains: "native_action_assertions",
       observation: "Browser contract observation",
       commit: currentCommit,
     },
@@ -290,18 +464,31 @@ function isRepositoryReference(value) {
 }
 
 function isCanonicalLocalePath(value) {
-  return typeof value === "string" && /^\/\{locale\}(?:\/|$)/.test(value) && !value.includes("://");
+  if (typeof value !== "string" || !/^\/\{locale\}(?:\/|$)/.test(value) || value.includes("://") || value.includes("\\")) {
+    return false;
+  }
+  try {
+    const decodedPath = decodeURIComponent(value.split("?")[0]);
+    const segments = decodedPath.split("/").slice(2);
+    return segments.every((segment) => segment.length > 0 && segment !== "." && segment !== "..");
+  } catch {
+    return false;
+  }
 }
 
-function resolveSafeRepositoryPath(value) {
+function isSafeRepositoryReference(value) {
   if (!isRepositoryReference(value) || path.isAbsolute(value) || value.split(/[\\/]/).includes("..")) {
     return null;
   }
   const candidate = path.resolve(repositoryRoot, value);
   const relativeCandidate = path.relative(repositoryRoot, candidate);
-  if (relativeCandidate.startsWith("..") || path.isAbsolute(relativeCandidate) || !fs.existsSync(candidate)) {
-    return null;
-  }
+  return !(relativeCandidate.startsWith("..") || path.isAbsolute(relativeCandidate));
+}
+
+function resolveSafeRepositoryPath(value) {
+  if (!isSafeRepositoryReference(value)) return null;
+  const candidate = path.resolve(repositoryRoot, value);
+  if (!fs.existsSync(candidate)) return null;
   try {
     const realRoot = fs.realpathSync(repositoryRoot);
     const realCandidate = fs.realpathSync(candidate);
@@ -399,6 +586,26 @@ function checkAction(entry, action, index) {
   }
 }
 
+function checkWebTargets(entry, web) {
+  if (web.target === undefined) return;
+  if (!Array.isArray(web.target)) {
+    fail(entry.id + " Web target must be an array");
+    return;
+  }
+  for (const target of web.target) {
+    if (!isNonEmptyString(target)) {
+      fail(entry.id + " Web target must contain non-empty strings");
+      continue;
+    }
+    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(target) || target.startsWith("//")) {
+      fail(entry.id + " Web target must not be an external URL");
+    }
+    if (isRepositoryReference(target) && !isSafeRepositoryReference(target)) {
+      fail(entry.id + " Web target references a missing or unsafe path " + target);
+    }
+  }
+}
+
 function checkEntry(entry, groupName) {
   if (!isNonEmptyString(entry?.id)) {
     fail(groupName + " entry is missing id");
@@ -451,6 +658,8 @@ function checkEntry(entry, groupName) {
     fail((entry?.id ?? groupName) + " has invalid web status");
   }
 
+  checkWebTargets(entry, web);
+
   const disabledRule = disabledConsumerWebRules[entry.id];
   if (disabledRule) {
     if (web.disposition !== disabledRule.disposition) {
@@ -486,24 +695,29 @@ function checkEntry(entry, groupName) {
       fail(entry.id + " cannot be complete without evidence");
     } else {
       const evidenceKinds = new Set();
-      const evidenceSources = new Set();
-      const evidenceArtifacts = new Set();
+      const evidenceReferences = new Set();
       entry.evidence.forEach((evidence, index) => {
         if (!evidence || typeof evidence !== "object" || Array.isArray(evidence)) {
           fail(entry.id + " evidence " + (index + 1) + " must be an object");
           return;
         }
+        let sourcePath = null;
         if (!isNonEmptyString(evidence.source)) {
           fail(entry.id + " evidence " + (index + 1) + " is missing source");
         } else {
-          const sourcePath = resolveSafeRepositoryPath(evidence.source);
+          sourcePath = resolveSafeRepositoryPath(evidence.source);
           if (!sourcePath) {
             fail(entry.id + " evidence " + (index + 1) + " source does not exist in the repository");
-          } else if (evidenceSources.has(sourcePath)) {
-            fail(entry.id + " evidence sources must be independent");
+          } else if (evidenceReferences.has(sourcePath)) {
+            fail(entry.id + " evidence sources and artifacts must be independent");
           } else {
-            evidenceSources.add(sourcePath);
+            evidenceReferences.add(sourcePath);
           }
+        }
+        if (!isNonEmptyString(evidence.source_contains)) {
+          fail(entry.id + " evidence " + (index + 1) + " is missing source_contains");
+        } else if (sourcePath && !fs.readFileSync(sourcePath, "utf8").includes(evidence.source_contains)) {
+          fail(entry.id + " evidence " + (index + 1) + " source_contains is not present");
         }
         if (!allowedEvidenceKinds.has(evidence.kind)) {
           fail(entry.id + " evidence " + (index + 1) + " has invalid kind");
@@ -523,10 +737,15 @@ function checkEntry(entry, groupName) {
           if (!artifactPath) {
             fail(entry.id + " evidence " + (index + 1) + " artifact is missing or unsafe");
           }
-          if (artifactPath && evidenceArtifacts.has(artifactPath)) {
-            fail(entry.id + " evidence artifacts must be independent");
+          if (artifactPath && evidenceReferences.has(artifactPath)) {
+            fail(entry.id + " evidence sources and artifacts must be independent");
           } else if (artifactPath) {
-            evidenceArtifacts.add(artifactPath);
+            evidenceReferences.add(artifactPath);
+          }
+          if (!isNonEmptyString(evidence.artifact_contains)) {
+            fail(entry.id + " evidence " + (index + 1) + " is missing artifact_contains");
+          } else if (artifactPath && !fs.readFileSync(artifactPath, "utf8").includes(evidence.artifact_contains)) {
+            fail(entry.id + " evidence " + (index + 1) + " artifact_contains is not present");
           }
         }
       });
@@ -638,6 +857,15 @@ function checkNativeInventory() {
     }
 
     const ledgerById = new Map((ledgerEntries ?? []).map((entry) => [entry.id, entry]));
+    const requiredIds = requiredNativeSurfaceIds[groupName] ?? [];
+    for (const requiredId of requiredIds) {
+      if (!ledgerById.has(requiredId)) {
+        fail("required " + groupName + " surface is missing from ledger: " + requiredId);
+      }
+      if (!Object.prototype.hasOwnProperty.call(expectedEntries, requiredId)) {
+        fail("required " + groupName + " surface is missing from native inventory: " + requiredId);
+      }
+    }
     const expectedIds = Object.keys(expectedEntries);
     for (const expectedId of expectedIds) {
       const entry = ledgerById.get(expectedId);
@@ -675,6 +903,14 @@ function checkNativeInventory() {
   } else {
     const actualDeepLinks = new Map((ledger.deep_links ?? []).map((link) => [link.id, link.source]));
     const expectedDeepLinkIds = new Map(expectedDeepLinks.map((link) => [link.id, link.source]));
+    for (const requiredId of requiredDeepLinkIds) {
+      if (!actualDeepLinks.has(requiredId)) {
+        fail("required deep link is missing from ledger: " + requiredId);
+      }
+      if (!expectedDeepLinkIds.has(requiredId)) {
+        fail("required deep link is missing from native inventory: " + requiredId);
+      }
+    }
     for (const [id, source] of expectedDeepLinkIds) {
       if (actualDeepLinks.get(id) !== source) {
         fail("deep link inventory mismatch for " + id);
@@ -686,6 +922,14 @@ function checkNativeInventory() {
       }
     }
   }
+}
+
+function checkSourceInventory() {
+  if (!isNonEmptyArray(ledger.source_inventory)) {
+    fail("source_inventory must not be empty");
+    return;
+  }
+  checkExistingReferences({ id: "source_inventory" }, "paths", ledger.source_inventory);
 }
 
 function checkNativeOnlyCapabilities() {
@@ -778,6 +1022,48 @@ function checkNativeActionAssertions() {
   }
 }
 
+function checkDeepLinkAssertions() {
+  const assertionsById = nativeInventory.deep_link_assertions;
+  if (!assertionsById || typeof assertionsById !== "object" || Array.isArray(assertionsById)) {
+    fail("native inventory deep_link_assertions are missing");
+    return;
+  }
+
+  const ledgerDeepLinks = new Map((ledger.deep_links ?? []).map((link) => [link.id, link]));
+  for (const requiredId of requiredDeepLinkIds) {
+    if (!Object.prototype.hasOwnProperty.call(assertionsById, requiredId)) {
+      fail("required deep link assertion is missing from native inventory: " + requiredId);
+    }
+  }
+
+  for (const [deepLinkId, assertions] of Object.entries(assertionsById)) {
+    const link = ledgerDeepLinks.get(deepLinkId);
+    if (!link) {
+      fail("deep link assertions reference missing link " + deepLinkId);
+      continue;
+    }
+    if (!isNonEmptyArray(assertions)) {
+      fail("deep link assertions for " + deepLinkId + " must not be empty");
+      continue;
+    }
+    for (const assertion of assertions) {
+      if (!isNonEmptyString(assertion?.source) || !isNonEmptyString(assertion?.contains)) {
+        fail("deep link assertion for " + deepLinkId + " is incomplete");
+        continue;
+      }
+      const sourcePath = resolveSafeRepositoryPath(assertion.source);
+      if (!sourcePath) {
+        fail("deep link assertion references missing or unsafe path " + assertion.source);
+        continue;
+      }
+      const sourceText = fs.readFileSync(sourcePath, "utf8");
+      if (!sourceText.includes(assertion.contains)) {
+        fail("deep link assertion " + deepLinkId + " is not present in " + assertion.source);
+      }
+    }
+  }
+}
+
 checkStateProfiles();
 
 const allEntries = [
@@ -807,8 +1093,10 @@ if (!isNonEmptyArray(ledger.native_only_capabilities)) {
 
 checkRoutes();
 checkDeepLinks();
+checkSourceInventory();
 checkNativeInventory();
 checkNativeActionAssertions();
+checkDeepLinkAssertions();
 for (const overlay of ledger.overlays ?? []) {
   checkEntry(overlay, "overlays");
   if (overlay?.web?.canonical_url !== null) {
@@ -828,7 +1116,8 @@ if (process.argv.includes("--assert-fixtures")) {
       });
       unexpectedPasses.push(fixture);
     } catch (error) {
-      if (error.status !== 1) {
+      const output = String(error.stdout ?? "") + String(error.stderr ?? "");
+      if (error.status !== 1 || !output.includes(negativeFixtureExpectations[fixture])) {
         unexpectedPasses.push(fixture + " (unexpected exit " + (error.status ?? "signal") + ")");
       }
     }
