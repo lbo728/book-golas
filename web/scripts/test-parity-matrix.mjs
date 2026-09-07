@@ -7,7 +7,24 @@ const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const ledgerPath = path.resolve(scriptDirectory, "../docs/consumer-parity-ledger.json");
 const ledger = JSON.parse(fs.readFileSync(ledgerPath, "utf8"));
 const failures = [];
-const requiredStates = new Set(ledger.state_contract.required);
+const expectedStates = [
+  "loading",
+  "empty",
+  "error",
+  "unauthorized",
+  "consent",
+  "quota",
+  "offline",
+];
+const requiredStates = new Set(expectedStates);
+const expectedStateProfiles = [
+  "default",
+  "auth",
+  "onboarding",
+  "browser-equivalent",
+  "native-only",
+  "disabled",
+];
 const allowedWebDispositions = new Set([
   "route",
   "component",
@@ -22,6 +39,25 @@ const allowedStatuses = new Set([
   "disabled",
   "complete",
 ]);
+const allowedEvidenceKinds = new Set(["data", "browser"]);
+const requiredDeepLinkSources = [
+  "bookgolas://book/search",
+  "bookgolas://book/detail/{bookId}",
+  "bookgolas://book/record/{bookId}",
+  "bookgolas://book/scan/{bookId}",
+  "Auth callback with next",
+];
+const allowedDeepLinkKinds = new Set(["native-custom-scheme", "auth-return"]);
+const nativeCapabilityRules = {
+  "ios-home-widget": { disposition: "explicit-unavailability", status: "unavailable" },
+  "siri-app-shortcuts": { disposition: "explicit-unavailability", status: "unavailable" },
+  "native-push": { disposition: "browser-equivalent", status: "planned" },
+  "camera-and-ocr": { disposition: "browser-equivalent", status: "planned" },
+  "share-sheet": { disposition: "browser-equivalent", status: "planned" },
+  subscriptions: { disposition: "disabled", status: "disabled" },
+  "offline-boundary": { disposition: "browser-equivalent", status: "partial" },
+  "deep-links": { disposition: "browser-equivalent", status: "partial" },
+};
 
 const fixtureIndex = process.argv.indexOf("--fixture");
 const fixtureName = fixtureIndex >= 0 ? process.argv[fixtureIndex + 1] : null;
@@ -38,9 +74,30 @@ if (fixtureName === "missing-error-state") {
   ledger.state_contract.profiles.default.error = "";
 }
 
+if (fixtureName === "missing-required-state") {
+  ledger.state_contract.required = expectedStates.filter((state) => state !== "error");
+}
+
 if (fixtureName === "complete-without-evidence") {
   ledger.routes[0].web.status = "complete";
   delete ledger.routes[0].evidence;
+}
+
+if (fixtureName === "complete-with-invalid-evidence") {
+  ledger.routes[0].web.status = "complete";
+  ledger.routes[0].evidence = ["invented evidence"];
+}
+
+if (fixtureName === "invalid-native-boundary") {
+  ledger.native_only_capabilities.find((entry) => entry.id === "subscriptions").web = {
+    ...ledger.native_only_capabilities.find((entry) => entry.id === "subscriptions").web,
+    disposition: "browser-equivalent",
+    status: "planned",
+  };
+}
+
+if (fixtureName === "missing-deep-link") {
+  ledger.deep_links.shift();
 }
 
 function fail(message) {
@@ -53,6 +110,10 @@ function isNonEmptyString(value) {
 
 function isNonEmptyArray(value) {
   return Array.isArray(value) && value.length > 0;
+}
+
+function hasSameValues(left, right) {
+  return Array.isArray(left) && left.length === right.length && right.every((value) => left.includes(value));
 }
 
 function checkStateProfiles() {
@@ -82,6 +143,16 @@ function checkStateProfiles() {
 
   if (!isNonEmptyString(ledger.release?.reference_implementation)) {
     fail("reference_implementation is required");
+  }
+
+  if (!hasSameValues(ledger.state_contract?.required, expectedStates)) {
+    fail("state_contract.required must include exactly " + expectedStates.join(", "));
+  }
+
+  for (const profileName of expectedStateProfiles) {
+    if (!ledger.state_contract?.profiles?.[profileName]) {
+      fail("missing required state profile " + profileName);
+    }
   }
 
   for (const [profileName, profile] of Object.entries(ledger.state_contract?.profiles ?? {})) {
@@ -130,7 +201,7 @@ function checkEntry(entry, groupName) {
 
   if (!isNonEmptyString(entry?.state_profile)) {
     fail((entry?.id ?? groupName) + " is missing state_profile");
-  } else if (!ledger.state_contract.profiles[entry.state_profile]) {
+  } else if (!ledger.state_contract?.profiles?.[entry.state_profile]) {
     fail(entry.id + " references unknown state profile " + entry.state_profile);
   }
 
@@ -169,8 +240,34 @@ function checkEntry(entry, groupName) {
     fail(entry.id + " is partial but has no current Web evidence");
   }
 
-  if (web.status === "complete" && !isNonEmptyArray(entry.evidence)) {
-    fail(entry.id + " cannot be complete without evidence");
+  if (web.status === "complete") {
+    if (!isNonEmptyArray(entry.evidence)) {
+      fail(entry.id + " cannot be complete without evidence");
+    } else {
+      const evidenceKinds = new Set();
+      entry.evidence.forEach((evidence, index) => {
+        if (!evidence || typeof evidence !== "object" || Array.isArray(evidence)) {
+          fail(entry.id + " evidence " + (index + 1) + " must be an object");
+          return;
+        }
+        if (!isNonEmptyString(evidence.source)) {
+          fail(entry.id + " evidence " + (index + 1) + " is missing source");
+        }
+        if (!allowedEvidenceKinds.has(evidence.kind)) {
+          fail(entry.id + " evidence " + (index + 1) + " has invalid kind");
+        } else {
+          evidenceKinds.add(evidence.kind);
+        }
+        if (!isNonEmptyString(evidence.observation)) {
+          fail(entry.id + " evidence " + (index + 1) + " is missing observation");
+        }
+      });
+      for (const kind of allowedEvidenceKinds) {
+        if (!evidenceKinds.has(kind)) {
+          fail(entry.id + " complete evidence must include " + kind + " evidence");
+        }
+      }
+    }
   }
 }
 
@@ -193,18 +290,60 @@ function checkRoutes() {
   }
 }
 
+function checkDeepLinks() {
+  if (!isNonEmptyArray(ledger.deep_links)) {
+    fail("deep_links must not be empty");
+    return;
+  }
+
+  const sources = new Set();
+  const ids = new Set();
+  for (const link of ledger.deep_links) {
+    if (!isNonEmptyString(link?.id)) {
+      fail("deep link is missing id");
+    } else if (ids.has(link.id)) {
+      fail("duplicate deep link id " + link.id);
+    } else {
+      ids.add(link.id);
+    }
+    if (!isNonEmptyString(link?.source)) {
+      fail((link?.id ?? "deep link") + " is missing source");
+    } else if (sources.has(link.source)) {
+      fail("duplicate deep link source " + link.source);
+    } else {
+      sources.add(link.source);
+    }
+    if (!allowedDeepLinkKinds.has(link?.source_kind)) {
+      fail((link?.id ?? "deep link") + " has invalid source_kind");
+    }
+    if (!isNonEmptyArray(link?.native_source)) {
+      fail((link?.id ?? "deep link") + " is missing native_source");
+    }
+    if (!isNonEmptyString(link?.canonical_web_url) || !link.canonical_web_url.includes("{locale}")) {
+      fail((link?.id ?? "deep link") + " canonical_web_url must include {locale}");
+    }
+    if (link?.disposition !== "browser-equivalent") {
+      fail((link?.id ?? "deep link") + " must be browser-equivalent");
+    }
+    if (!allowedStatuses.has(link?.status)) {
+      fail((link?.id ?? "deep link") + " has invalid status");
+    }
+    if (!isNonEmptyString(link?.owner)) {
+      fail((link?.id ?? "deep link") + " is missing owner");
+    }
+  }
+
+  for (const source of requiredDeepLinkSources) {
+    if (!sources.has(source)) {
+      fail("missing required deep link " + source);
+    }
+  }
+}
+
 function checkNativeOnlyCapabilities() {
-  const requiredCapabilities = [
-    "ios-home-widget",
-    "siri-app-shortcuts",
-    "native-push",
-    "camera-and-ocr",
-    "share-sheet",
-    "subscriptions",
-  ];
   const capabilityIds = new Set((ledger.native_only_capabilities ?? []).map((entry) => entry.id));
 
-  for (const capabilityId of requiredCapabilities) {
+  for (const capabilityId of Object.keys(nativeCapabilityRules)) {
     if (!capabilityIds.has(capabilityId)) {
       fail("missing required capability " + capabilityId);
     }
@@ -215,8 +354,16 @@ function checkNativeOnlyCapabilities() {
     if (!isNonEmptyString(capability.native_presence)) {
       fail(capability.id + " is missing native_presence");
     }
-    if (!["browser-equivalent", "disabled", "explicit-unavailability"].includes(capability?.web?.disposition)) {
-      fail(capability.id + " must have an explicit native-only Web boundary");
+    const expectedRule = nativeCapabilityRules[capability.id];
+    if (!expectedRule) {
+      fail(capability.id + " is not in the native capability boundary contract");
+      continue;
+    }
+    if (capability?.web?.disposition !== expectedRule.disposition) {
+      fail(capability.id + " must use disposition " + expectedRule.disposition);
+    }
+    if (capability?.web?.status !== expectedRule.status) {
+      fail(capability.id + " must use status " + expectedRule.status);
     }
   }
 }
@@ -249,6 +396,7 @@ if (!isNonEmptyArray(ledger.native_only_capabilities)) {
 }
 
 checkRoutes();
+checkDeepLinks();
 for (const overlay of ledger.overlays ?? []) {
   checkEntry(overlay, "overlays");
   if (overlay?.web?.canonical_url !== null) {

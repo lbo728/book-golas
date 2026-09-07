@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run",
+    "test": "vitest run && npm run test:parity-matrix",
     "test:consumer": "vitest run src/lib/consumer/types.test.ts",
     "test:parity-matrix": "node scripts/test-parity-matrix.mjs"
   },

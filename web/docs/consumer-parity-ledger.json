@@ -2515,6 +2515,192 @@
       "evidence_owner": "#416"
     },
     {
+      "id": "schedule-change",
+      "surface_type": "overlay",
+      "native_surface": "Reading schedule change sheet",
+      "native_source": [
+        "app/lib/ui/reading_start/widgets/schedule_change_modal.dart",
+        "app/lib/ui/reading_start/widgets/reading_start_screen.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+          "web/src/components/consumer/overlays/schedule-change.tsx"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#434"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "adjust-daily-target",
+          "label": "Adjust the daily page target",
+          "owner": "#434",
+          "status": "planned"
+        },
+        {
+          "id": "preview-reading-schedule",
+          "label": "Preview the recalculated reading schedule",
+          "owner": "#434",
+          "status": "planned"
+        },
+        {
+          "id": "confirm-schedule-change",
+          "label": "Confirm or dismiss the schedule change",
+          "owner": "#434",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "The sheet recalculates pages by date and must keep keyboard, validation and cancel behavior equivalent on Web."
+    },
+    {
+      "id": "calendar-month-picker",
+      "surface_type": "overlay",
+      "native_surface": "Calendar year and month picker sheet",
+      "native_source": [
+        "app/lib/ui/calendar/widgets/calendar_header.dart",
+        "app/lib/ui/core/widgets/korean_year_month_picker.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+          "web/src/components/consumer/overlays/calendar-month-picker.tsx"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#439"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "choose-calendar-month",
+          "label": "Choose a calendar year and month",
+          "owner": "#439",
+          "status": "planned"
+        },
+        {
+          "id": "confirm-calendar-month",
+          "label": "Apply the selected month",
+          "owner": "#439",
+          "status": "planned"
+        },
+        {
+          "id": "cancel-calendar-month",
+          "label": "Cancel without changing the calendar",
+          "owner": "#439",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "clear-ai-memory-confirmation",
+      "surface_type": "overlay",
+      "native_surface": "AI insight memory deletion confirmation dialog",
+      "native_source": [
+        "app/lib/ui/reading_chart/widgets/cards/ai_insight_card.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+          "web/src/components/consumer/overlays/clear-ai-memory-confirmation.tsx"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#440"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "cancel-ai-memory-clear",
+          "label": "Cancel AI memory deletion",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "confirm-ai-memory-clear",
+          "label": "Confirm deletion of AI insight memory",
+          "owner": "#440",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "The destructive action requires explicit confirmation and must preserve the native consent and error outcomes."
+    },
+    {
+      "id": "mind-map-leaf-detail",
+      "surface_type": "overlay",
+      "native_surface": "Mind-map leaf detail sheet",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/note_structure_mindmap.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+          "web/src/components/consumer/overlays/mind-map-leaf-detail.tsx"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#442"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "open-mind-map-leaf",
+          "label": "Open the full content of a leaf note",
+          "owner": "#442",
+          "status": "planned"
+        },
+        {
+          "id": "close-mind-map-leaf",
+          "label": "Close the leaf detail sheet",
+          "owner": "#442",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "mind-map-cluster-detail",
+      "surface_type": "overlay",
+      "native_surface": "Mind-map cluster detail sheet",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/note_structure_mindmap.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+          "web/src/components/consumer/overlays/mind-map-cluster-detail.tsx"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#442"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "open-mind-map-cluster",
+          "label": "Open the summary of a cluster node",
+          "owner": "#442",
+          "status": "planned"
+        },
+        {
+          "id": "close-mind-map-cluster",
+          "label": "Close the cluster detail sheet",
+          "owner": "#442",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
       "id": "context-menu",
       "surface_type": "overlay",
       "native_surface": "Liquid glass context menu",
@@ -2617,6 +2803,74 @@
         }
       ],
       "evidence_owner": "#416"
+    }
+  ],
+  "deep_links": [
+    {
+      "id": "book-search-deep-link",
+      "source": "bookgolas://book/search",
+      "source_kind": "native-custom-scheme",
+      "native_source": [
+        "app/lib/data/services/deep_link_service.dart"
+      ],
+      "canonical_web_url": "/{locale}/books/new",
+      "disposition": "browser-equivalent",
+      "status": "partial",
+      "owner": "#427",
+      "notes": "The Web destination preserves locale and opens the search/add-book flow."
+    },
+    {
+      "id": "book-detail-deep-link",
+      "source": "bookgolas://book/detail/{bookId}",
+      "source_kind": "native-custom-scheme",
+      "native_source": [
+        "app/lib/data/services/deep_link_service.dart"
+      ],
+      "canonical_web_url": "/{locale}/books/{bookId}",
+      "disposition": "browser-equivalent",
+      "status": "partial",
+      "owner": "#427",
+      "notes": "The Web destination must enforce authenticated ownership before rendering book data."
+    },
+    {
+      "id": "book-record-deep-link",
+      "source": "bookgolas://book/record/{bookId}",
+      "source_kind": "native-custom-scheme",
+      "native_source": [
+        "app/lib/data/services/deep_link_service.dart"
+      ],
+      "canonical_web_url": "/{locale}/library?record={bookId}",
+      "disposition": "browser-equivalent",
+      "status": "planned",
+      "owner": "#427",
+      "notes": "The Web destination opens the owned record context in My Library."
+    },
+    {
+      "id": "book-scan-deep-link",
+      "source": "bookgolas://book/scan/{bookId}",
+      "source_kind": "native-custom-scheme",
+      "native_source": [
+        "app/lib/data/services/deep_link_service.dart"
+      ],
+      "canonical_web_url": "/{locale}/books/scan?bookId={bookId}",
+      "disposition": "browser-equivalent",
+      "status": "planned",
+      "owner": "#427",
+      "notes": "The Web destination preserves the scan context and applies browser permission or upload fallback."
+    },
+    {
+      "id": "auth-next-return",
+      "source": "Auth callback with next",
+      "source_kind": "auth-return",
+      "native_source": [
+        "app/lib/main.dart",
+        "app/lib/ui/core/view_model/auth_view_model.dart"
+      ],
+      "canonical_web_url": "/{locale}/auth/sign-in?next={validatedPath}",
+      "disposition": "browser-equivalent",
+      "status": "partial",
+      "owner": "#427",
+      "notes": "Only locale-preserving consumer paths are accepted; external or cross-locale next paths are rejected."
     }
   ],
   "native_only_capabilities": [

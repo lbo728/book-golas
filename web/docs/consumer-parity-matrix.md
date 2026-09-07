@@ -10,7 +10,7 @@ This document freezes the native-to-Web contract for the authenticated Bookgolas
 
 The machine-checkable source of truth is consumer-parity-ledger.json. Every route, overlay and capability entry has a native source, one Web disposition, a current or planned Web target, all required state dispositions, user-facing actions and an owning issue.
 
-The ledger records the current repository state, not a claim that planned routes already work. A complete status requires independent data and browser evidence; no entry is marked complete in this initial freeze.
+The ledger records the current repository state, not a claim that planned routes already work. A complete status requires independent data and browser evidence; no entry is marked complete in this initial freeze. Deep-link mappings are machine-checked in the ledger as well as summarized below.
 
 ## Parity rule
 
@@ -131,10 +131,14 @@ npm run test:parity-matrix
 npm run test:parity-matrix -- --fixture missing-disposition
 npm run test:parity-matrix -- --fixture duplicate-canonical-url
 npm run test:parity-matrix -- --fixture missing-error-state
+npm run test:parity-matrix -- --fixture missing-required-state
 npm run test:parity-matrix -- --fixture complete-without-evidence
+npm run test:parity-matrix -- --fixture complete-with-invalid-evidence
+npm run test:parity-matrix -- --fixture invalid-native-boundary
+npm run test:parity-matrix -- --fixture missing-deep-link
 ~~~
 
-The first command must exit 0. Every fixture command must fail, proving the checker rejects missing dispositions, duplicate canonical URLs, missing error-state entries and complete status without evidence. The checker also rejects missing actions, missing evidence owners and incomplete native-only capability coverage.
+The first command must exit 0. Every fixture command must fail, proving the checker rejects missing dispositions, duplicate canonical URLs, missing error-state entries, complete status without independent data/browser evidence and invalid native-only boundaries. The default `npm test` also runs the parity checker so the ledger cannot bypass the Web quality gate. The checker further rejects missing actions, missing evidence owners, missing deep links and incomplete native-only capability coverage.
 
 ## Evidence sources
 
