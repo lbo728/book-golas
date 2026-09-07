@@ -793,6 +793,24 @@
           "label": "Open or edit the review",
           "owner": "#437",
           "status": "planned"
+        },
+        {
+          "id": "open-aladin-book-link",
+          "label": "Open the book listing in Aladin",
+          "owner": "#433",
+          "status": "planned"
+        },
+        {
+          "id": "open-existing-review-link",
+          "label": "Open the saved external review link",
+          "owner": "#433",
+          "status": "planned"
+        },
+        {
+          "id": "open-review-link-editor",
+          "label": "Open the external review-link editor",
+          "owner": "#433",
+          "status": "planned"
         }
       ],
       "evidence_owner": "#416",
@@ -2953,9 +2971,11 @@
     {
       "id": "siri-app-shortcuts",
       "capability": "Siri and App Shortcuts",
-      "native_presence": "not-evidenced-in-current-repository",
+      "native_presence": "implemented",
       "native_source": [
-        "Repository-wide audit for Siri, Shortcut and App Intent implementations returned no current match."
+        "app/ios/Runner/BookgolasShortcuts.swift",
+        "app/ios/Runner/AppDelegate.swift",
+        "app/ios/Runner/Info.plist"
       ],
       "web": {
         "canonical_url": null,
@@ -2968,8 +2988,26 @@
       "state_profile": "native-only",
       "actions": [
         {
+          "id": "continue-reading-shortcut",
+          "label": "Continue reading from Siri or an iOS quick action",
+          "owner": "#416",
+          "status": "unavailable"
+        },
+        {
+          "id": "scan-page-shortcut",
+          "label": "Open page scanning from Siri or an iOS quick action",
+          "owner": "#416",
+          "status": "unavailable"
+        },
+        {
+          "id": "add-book-shortcut",
+          "label": "Open book search from Siri or an iOS quick action",
+          "owner": "#416",
+          "status": "unavailable"
+        },
+        {
           "id": "record-shortcut-boundary",
-          "label": "Keep Siri/App Shortcut support out of the Web promise until a native implementation is evidenced",
+          "label": "Keep iOS shortcut support out of the Web promise",
           "owner": "#416",
           "status": "unavailable"
         }
@@ -3235,6 +3273,10 @@
     "app/lib/config/feature_flags.dart",
     "app/lib/l10n/app_ko.arb",
     "app/lib/l10n/app_en.arb",
+    "app/ios/BookgolasWidget/BookgolasWidget.swift",
+    "app/ios/Runner/BookgolasShortcuts.swift",
+    "app/ios/Runner/AppDelegate.swift",
+    "app/ios/Runner/Info.plist",
     "web/src/app/",
     "web/src/components/consumer/",
     "web/src/lib/consumer/",

@@ -89,7 +89,7 @@ Every listed overlay has an action owner and one of the state profiles in the le
 | Capability | Native evidence | Web disposition | Status | Owner |
 | --- | --- | --- | --- | --- |
 | iOS home widgets | WidgetDataService, HomeWidget and widget deep links | No Web OS widget; ordinary HTTPS deep links remain supported | unavailable | #445 |
-| Siri and App Shortcuts | No current implementation found in repository audit | Do not promise Web support | unavailable | #416 |
+| Siri and App Shortcuts | BookgolasShortcuts.swift, AppDelegate.swift and Info.plist implement three native shortcuts | No Web OS shortcut; ordinary HTTPS destinations remain supported | unavailable | #416 |
 | FCM and local notifications | fcm_service.dart and notification settings | Browser Push API with permission and delivery differences | planned equivalent | #445 |
 | Camera, barcode, document scan and OCR | scanner, document scan and OCR utilities | Browser permission plus input/upload fallback | planned equivalent | #428/#435 |
 | Native share sheet | BookShareService and share cards | Web Share API plus clipboard/download fallback | planned equivalent | #443 |
@@ -138,14 +138,18 @@ npm run test:parity-matrix -- --fixture complete-with-invalid-evidence
 npm run test:parity-matrix -- --fixture invalid-native-boundary
 npm run test:parity-matrix -- --fixture missing-deep-link
 npm run test:parity-matrix -- --fixture invalid-deep-link-target
+npm run test:parity-matrix -- --fixture invalid-deep-link-source
 npm run test:parity-matrix -- --fixture missing-native-overlay
 npm run test:parity-matrix -- --fixture missing-native-action
 npm run test:parity-matrix -- --fixture complete-with-fabricated-evidence
 npm run test:parity-matrix -- --fixture invalid-billing-route
 npm run test:parity-matrix -- --fixture invalid-billing-overlay
+npm run test:parity-matrix -- --fixture invalid-billing-claim
+npm run test:parity-matrix -- --fixture complete-with-aliased-evidence
+npm run test:parity-matrix -- --fixture unsafe-source-reference
 ~~~
 
-The first command must exit 0. Every fixture command must fail, proving the checker rejects missing dispositions, duplicate canonical URLs, missing error-state entries, complete status without independent data/browser evidence, invalid native-only boundaries, wrong deep-link destinations, omitted native surfaces/actions and accidental Web billing activation. The default `npm test` also runs the parity checker so the ledger cannot bypass the Web quality gate. The checker further rejects missing actions, missing evidence owners, missing deep links and incomplete native-only capability coverage.
+The first command must exit 0. Every fixture command must fail, proving the checker rejects missing dispositions, duplicate canonical URLs, missing error-state entries, complete status without independent data/browser evidence, fabricated or alias-based evidence, unsafe source paths, invalid native-only boundaries, wrong or unallowlisted deep links, omitted native surfaces/actions and accidental Web billing activation. Complete evidence is bound to the exact current Git commit and must use independent, repository-contained source and artifact paths. `npm test` runs both the positive checker and the complete negative-fixture suite so the ledger cannot bypass the Web quality gate. The checker further rejects missing actions, missing evidence owners, missing deep links and incomplete native-only capability coverage.
 
 ## Evidence sources
 
@@ -154,6 +158,7 @@ The first command must exit 0. Every fixture command must fail, proving the chec
 - Native screens, tabs, sheets and dialogs: app/lib/ui/
 - Native models and status values: app/lib/domain/models/
 - Native provider, notification, widget and deep-link behavior: app/lib/data/services/
+- Native iOS widgets and App Shortcuts: app/ios/BookgolasWidget/BookgolasWidget.swift, app/ios/Runner/BookgolasShortcuts.swift, app/ios/Runner/AppDelegate.swift, app/ios/Runner/Info.plist
 - Native feature flags: app/lib/config/feature_flags.dart
 - Native localization contract: app/lib/l10n/app_ko.arb and app/lib/l10n/app_en.arb
 - Existing Web routes and states: web/src/app/

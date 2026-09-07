@@ -14,7 +14,7 @@
     "account": ["edit-profile", "change-language-theme", "manage-notifications", "change-password", "open-legal", "sign-out", "delete-account"],
     "legacy-book-list": ["filter-book-list", "refresh-book-list", "open-list-book-detail"],
     "book-search-add": ["search-book", "isbn-search", "scan-isbn", "select-reading-status", "set-schedule-priority", "save-book"],
-    "book-detail": ["switch-detail-tabs", "update-progress", "manage-reading", "set-reading-target", "add-memorable-page", "open-recall", "open-reading-timer", "open-review"],
+    "book-detail": ["switch-detail-tabs", "update-progress", "manage-reading", "set-reading-target", "add-memorable-page", "open-recall", "open-reading-timer", "open-review", "open-aladin-book-link", "open-existing-review-link", "open-review-link-editor"],
     "reading-progress": ["update-page", "record-history", "start-timer", "return-to-book"],
     "book-review": ["edit-review", "generate-ai-draft", "save-review", "discard-review"],
     "mind-map": ["view-mind-map", "regenerate-mind-map", "retry-mind-map"],
@@ -76,7 +76,7 @@
   },
   "native_only_capabilities": {
     "ios-home-widget": ["open-widget-book"],
-    "siri-app-shortcuts": ["record-shortcut-boundary"],
+    "siri-app-shortcuts": ["continue-reading-shortcut", "scan-page-shortcut", "add-book-shortcut", "record-shortcut-boundary"],
     "native-push": ["request-web-push", "manage-notification-categories", "open-notification-deep-link"],
     "camera-and-ocr": ["capture-or-upload", "extract-ocr", "manual-text-fallback"],
     "share-sheet": ["share-book", "download-share-card"],

@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
@@ -9,6 +10,15 @@ const inventoryPath = path.resolve(scriptDirectory, "../docs/native-consumer-sur
 const repositoryRoot = path.resolve(scriptDirectory, "../..");
 const ledger = JSON.parse(fs.readFileSync(ledgerPath, "utf8"));
 const nativeInventory = JSON.parse(fs.readFileSync(inventoryPath, "utf8"));
+let currentCommit = "";
+try {
+  currentCommit = execFileSync("git", ["rev-parse", "HEAD"], {
+    cwd: repositoryRoot,
+    encoding: "utf8",
+  }).trim();
+} catch {
+  currentCommit = "";
+}
 const failures = [];
 const expectedStates = [
   "loading",
@@ -61,10 +71,39 @@ const nativeCapabilityRules = {
   "offline-boundary": { disposition: "browser-equivalent", status: "partial" },
   "deep-links": { disposition: "browser-equivalent", status: "partial" },
 };
+const nativeCapabilityRequiredSources = {
+  "siri-app-shortcuts": [
+    "app/ios/Runner/BookgolasShortcuts.swift",
+    "app/ios/Runner/AppDelegate.swift",
+    "app/ios/Runner/Info.plist",
+  ],
+};
+const negativeFixtureNames = [
+  "missing-disposition",
+  "duplicate-canonical-url",
+  "missing-error-state",
+  "missing-required-state",
+  "complete-without-evidence",
+  "complete-with-invalid-evidence",
+  "complete-with-fabricated-evidence",
+  "invalid-native-boundary",
+  "missing-deep-link",
+  "invalid-deep-link-target",
+  "invalid-deep-link-source",
+  "missing-native-overlay",
+  "missing-native-action",
+  "invalid-billing-route",
+  "invalid-billing-overlay",
+  "invalid-billing-claim",
+  "complete-with-aliased-evidence",
+  "unsafe-source-reference",
+];
 const disabledConsumerWebRules = {
   subscription: { disposition: "disabled", status: "disabled" },
   "pro-features": { disposition: "disabled", status: "disabled" },
 };
+const billingClaimPattern = /\b(revenuecat|billing|purchase|restore|upgrade|customer center|paywall|pro feature|pro-features)\b/i;
+const subscriptionWebPathPattern = /\bsubscriptions?\b/i;
 
 const fixtureIndex = process.argv.indexOf("--fixture");
 const fixtureName = fixtureIndex >= 0 ? process.argv[fixtureIndex + 1] : null;
@@ -129,6 +168,10 @@ if (fixtureName === "invalid-deep-link-target") {
   ledger.deep_links.find((link) => link.source === "bookgolas://book/detail/{bookId}").canonical_web_url = "/{locale}/wrong/{bookId}";
 }
 
+if (fixtureName === "invalid-deep-link-source") {
+  ledger.deep_links[0].source = "bookgolas://unknown/action";
+}
+
 if (fixtureName === "missing-native-overlay") {
   ledger.overlays = ledger.overlays.filter((entry) => entry.id !== "schedule-change");
 }
@@ -155,6 +198,40 @@ if (fixtureName === "invalid-billing-overlay") {
   };
 }
 
+if (fixtureName === "invalid-billing-claim") {
+  ledger.routes[0].notes = "RevenueCat purchase and upgrade surface";
+  ledger.routes[0].web = {
+    ...ledger.routes[0].web,
+    target: ["web/src/app/[locale]/billing/page.tsx"],
+    disposition: "route",
+    status: "planned",
+  };
+}
+
+if (fixtureName === "complete-with-aliased-evidence") {
+  ledger.routes[0].web.status = "complete";
+  ledger.routes[0].evidence = [
+    {
+      kind: "data",
+      source: "web/docs/consumer-parity-matrix.md",
+      artifact: "web/docs/consumer-parity-ledger.json",
+      observation: "Data contract observation",
+      commit: currentCommit,
+    },
+    {
+      kind: "browser",
+      source: "web/docs/./consumer-parity-matrix.md",
+      artifact: "web/docs/native-consumer-surface-inventory.json",
+      observation: "Browser contract observation",
+      commit: currentCommit,
+    },
+  ];
+}
+
+if (fixtureName === "unsafe-source-reference") {
+  ledger.routes[0].native_source.push("web/../../../etc/passwd");
+}
+
 function fail(message) {
   failures.push(message);
 }
@@ -172,13 +249,39 @@ function hasSameValues(left, right) {
 }
 
 function isRepositoryReference(value) {
-  return typeof value === "string" && /^(app|web|docs|supabase|\.github|\.byungskerlab)\//.test(value);
+  return typeof value === "string" && /^(app|web|docs|supabase|\.github|\.byungskerlab|\.omo)\//.test(value);
+}
+
+function isCanonicalLocalePath(value) {
+  return typeof value === "string" && /^\/\{locale\}(?:\/|$)/.test(value) && !value.includes("://");
+}
+
+function resolveSafeRepositoryPath(value) {
+  if (!isRepositoryReference(value) || path.isAbsolute(value) || value.split(/[\\/]/).includes("..")) {
+    return null;
+  }
+  const candidate = path.resolve(repositoryRoot, value);
+  const relativeCandidate = path.relative(repositoryRoot, candidate);
+  if (relativeCandidate.startsWith("..") || path.isAbsolute(relativeCandidate) || !fs.existsSync(candidate)) {
+    return null;
+  }
+  try {
+    const realRoot = fs.realpathSync(repositoryRoot);
+    const realCandidate = fs.realpathSync(candidate);
+    const relativeRealCandidate = path.relative(realRoot, realCandidate);
+    if (relativeRealCandidate.startsWith("..") || path.isAbsolute(relativeRealCandidate)) {
+      return null;
+    }
+    return realCandidate;
+  } catch {
+    return null;
+  }
 }
 
 function checkExistingReferences(entry, fieldName, values) {
   for (const value of values ?? []) {
-    if (isRepositoryReference(value) && !fs.existsSync(path.resolve(repositoryRoot, value))) {
-      fail(entry.id + " " + fieldName + " references missing path " + value);
+    if (isRepositoryReference(value) && !resolveSafeRepositoryPath(value)) {
+      fail(entry.id + " " + fieldName + " references a missing or unsafe path " + value);
     }
   }
 }
@@ -210,6 +313,10 @@ function checkStateProfiles() {
 
   if (!isNonEmptyString(ledger.release?.reference_implementation)) {
     fail("reference_implementation is required");
+  }
+
+  if (!/^[0-9a-f]{40}$/.test(currentCommit)) {
+    fail("current Git commit is unavailable for evidence binding");
   }
 
   if (!hasSameValues(ledger.state_contract?.required, expectedStates)) {
@@ -314,6 +421,13 @@ function checkEntry(entry, groupName) {
     }
   }
 
+  const webBillingMaterial = JSON.stringify(web);
+  if (billingClaimPattern.test(webBillingMaterial) || subscriptionWebPathPattern.test(JSON.stringify(web))) {
+    if (web.disposition !== "disabled" || web.status !== "disabled" || isNonEmptyArray(web.target)) {
+      fail(entry.id + " contains a billing claim and must remain disabled on Web");
+    }
+  }
+
   if (!isNonEmptyArray(web.target) && web.disposition !== "disabled" && web.disposition !== "explicit-unavailability") {
     fail(entry.id + " is missing a Web target");
   }
@@ -338,10 +452,15 @@ function checkEntry(entry, groupName) {
         }
         if (!isNonEmptyString(evidence.source)) {
           fail(entry.id + " evidence " + (index + 1) + " is missing source");
-        } else if (evidenceSources.has(evidence.source)) {
-          fail(entry.id + " evidence sources must be independent");
         } else {
-          evidenceSources.add(evidence.source);
+          const sourcePath = resolveSafeRepositoryPath(evidence.source);
+          if (!sourcePath) {
+            fail(entry.id + " evidence " + (index + 1) + " source does not exist in the repository");
+          } else if (evidenceSources.has(sourcePath)) {
+            fail(entry.id + " evidence sources must be independent");
+          } else {
+            evidenceSources.add(sourcePath);
+          }
         }
         if (!allowedEvidenceKinds.has(evidence.kind)) {
           fail(entry.id + " evidence " + (index + 1) + " has invalid kind");
@@ -351,20 +470,20 @@ function checkEntry(entry, groupName) {
         if (!isNonEmptyString(evidence.observation)) {
           fail(entry.id + " evidence " + (index + 1) + " is missing observation");
         }
+        if (evidence.commit !== currentCommit) {
+          fail(entry.id + " evidence " + (index + 1) + " is not bound to the current commit");
+        }
         if (!isNonEmptyString(evidence.artifact)) {
           fail(entry.id + " evidence " + (index + 1) + " is missing artifact");
         } else {
-          const artifactPath = path.resolve(repositoryRoot, evidence.artifact);
-          const relativeArtifactPath = path.relative(repositoryRoot, artifactPath);
-          if (relativeArtifactPath.startsWith("..") || path.isAbsolute(relativeArtifactPath)) {
-            fail(entry.id + " evidence " + (index + 1) + " artifact is outside the repository");
-          } else if (!fs.existsSync(artifactPath)) {
-            fail(entry.id + " evidence " + (index + 1) + " artifact does not exist");
+          const artifactPath = resolveSafeRepositoryPath(evidence.artifact);
+          if (!artifactPath) {
+            fail(entry.id + " evidence " + (index + 1) + " artifact is missing or unsafe");
           }
-          if (evidenceArtifacts.has(evidence.artifact)) {
+          if (artifactPath && evidenceArtifacts.has(artifactPath)) {
             fail(entry.id + " evidence artifacts must be independent");
-          } else {
-            evidenceArtifacts.add(evidence.artifact);
+          } else if (artifactPath) {
+            evidenceArtifacts.add(artifactPath);
           }
         }
       });
@@ -385,8 +504,8 @@ function checkRoutes() {
     if (!isNonEmptyString(canonicalUrl)) {
       fail((route?.id ?? "route") + " is missing canonical_url");
     } else {
-      if (!canonicalUrl.includes("{locale}")) {
-        fail(route.id + " canonical_url must include {locale}");
+      if (!isCanonicalLocalePath(canonicalUrl)) {
+        fail(route.id + " canonical_url must be a locale-relative path");
       }
       if (canonicalUrls.has(canonicalUrl)) {
         fail("duplicate canonical_url " + canonicalUrl);
@@ -425,8 +544,8 @@ function checkDeepLinks() {
     if (!isNonEmptyArray(link?.native_source)) {
       fail((link?.id ?? "deep link") + " is missing native_source");
     }
-    if (!isNonEmptyString(link?.canonical_web_url) || !link.canonical_web_url.includes("{locale}")) {
-      fail((link?.id ?? "deep link") + " canonical_web_url must include {locale}");
+    if (!isCanonicalLocalePath(link?.canonical_web_url)) {
+      fail((link?.id ?? "deep link") + " canonical_web_url must be a locale-relative path");
     }
     if (link?.disposition !== "browser-equivalent") {
       fail((link?.id ?? "deep link") + " must be browser-equivalent");
@@ -446,6 +565,11 @@ function checkDeepLinks() {
     const link = ledger.deep_links.find((candidate) => candidate.source === source);
     if (link && link.canonical_web_url !== canonicalUrl) {
       fail(source + " must map to " + canonicalUrl);
+    }
+  }
+  for (const source of sources) {
+    if (!requiredDeepLinkMappings.has(source)) {
+      fail("unallowlisted deep link " + source);
     }
   }
 }
@@ -533,11 +657,10 @@ function checkNativeOnlyCapabilities() {
     if (!isNonEmptyString(capability.native_presence)) {
       fail(capability.id + " is missing native_presence");
     }
-    if (
-      capability.id === "siri-app-shortcuts" &&
-      !capability.native_source.some((source) => source.startsWith("Repository-wide audit for Siri"))
-    ) {
-      fail("siri-app-shortcuts must retain the repository-wide absence audit");
+    for (const source of nativeCapabilityRequiredSources[capability.id] ?? []) {
+      if (!capability.native_source.includes(source)) {
+        fail(capability.id + " is missing native source " + source);
+      }
     }
     const expectedRule = nativeCapabilityRules[capability.id];
     if (!expectedRule) {
@@ -591,6 +714,27 @@ for (const overlay of ledger.overlays ?? []) {
 }
 checkNativeOnlyCapabilities();
 
+if (process.argv.includes("--assert-fixtures")) {
+  const unexpectedPasses = [];
+  for (const fixture of negativeFixtureNames) {
+    try {
+      execFileSync(process.execPath, [fileURLToPath(import.meta.url), "--fixture", fixture], {
+        cwd: repositoryRoot,
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+      unexpectedPasses.push(fixture);
+    } catch (error) {
+      if (error.status !== 1) {
+        unexpectedPasses.push(fixture + " (unexpected exit " + (error.status ?? "signal") + ")");
+      }
+    }
+  }
+  for (const fixture of unexpectedPasses) {
+    fail("negative fixture unexpectedly passed: " + fixture);
+  }
+}
+
 if (failures.length > 0) {
   console.error("parity matrix failed with " + failures.length + " error(s)");
   for (const failure of failures) {
@@ -598,13 +742,17 @@ if (failures.length > 0) {
   }
   process.exitCode = 1;
 } else {
-  console.log(
-    "parity matrix passed: " +
-      ledger.routes.length +
-      " routes, " +
-      ledger.overlays.length +
-      " overlays, " +
-      ledger.native_only_capabilities.length +
-      " capabilities",
-  );
+  if (process.argv.includes("--assert-fixtures")) {
+    console.log("parity negative fixtures passed: " + negativeFixtureNames.length);
+  } else {
+    console.log(
+      "parity matrix passed: " +
+        ledger.routes.length +
+        " routes, " +
+        ledger.overlays.length +
+        " overlays, " +
+        ledger.native_only_capabilities.length +
+        " capabilities",
+    );
+  }
 }

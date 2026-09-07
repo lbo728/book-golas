@@ -7,9 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run && npm run test:parity-matrix",
+    "test": "vitest run && npm run test:parity-matrix && npm run test:parity-matrix:negative",
     "test:consumer": "vitest run src/lib/consumer/types.test.ts",
-    "test:parity-matrix": "node scripts/test-parity-matrix.mjs"
+    "test:parity-matrix": "node scripts/test-parity-matrix.mjs",
+    "test:parity-matrix:negative": "node scripts/test-parity-matrix.mjs --assert-fixtures"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
