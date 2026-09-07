@@ -82,11 +82,11 @@ export async function fetchOwnedBook(bookId: string): Promise<{
   code: ConsumerQueryCode;
   authenticated: boolean;
 }> {
+  const context = await getAuthContext();
   if (!isBookId(bookId)) {
-    return { book: null, code: "not_found", authenticated: false };
+    return { book: null, code: "not_found", authenticated: Boolean(context.user) };
   }
 
-  const context = await getAuthContext();
   if (context.unavailable || !context.supabase) {
     return { book: null, code: "unavailable", authenticated: false };
   }
