@@ -22,6 +22,12 @@ vi.mock("next-intl/middleware", () => ({
 import { proxy } from "./proxy";
 
 describe("consumer locale proxy", () => {
+  it("uses an always-prefixed middleware for the marketing locale surface", () => {
+    expect(middlewareCalls.mock.calls[0]?.[0]).toMatchObject({
+      localePrefix: "always",
+    });
+  });
+
   it("uses an always-prefixed middleware for consumer routes", () => {
     expect(middlewareCalls.mock.calls[1]?.[0]).toMatchObject({
       localePrefix: "always",

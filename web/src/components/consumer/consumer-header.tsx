@@ -4,7 +4,13 @@ import { getTranslations } from "next-intl/server";
 import { getConsumerPath, type ConsumerLocale } from "@/lib/consumer/paths";
 import { SignOutButton } from "@/components/consumer/sign-out-button";
 
-export async function ConsumerHeader({ locale }: { locale: ConsumerLocale }) {
+export async function ConsumerHeader({
+  locale,
+  authenticated,
+}: {
+  locale: ConsumerLocale;
+  authenticated: boolean;
+}) {
   const t = await getTranslations("consumer");
   const otherLocale = locale === "ko" ? "en" : "ko";
 
@@ -38,7 +44,16 @@ export async function ConsumerHeader({ locale }: { locale: ConsumerLocale }) {
           >
             {otherLocale.toUpperCase()}
           </Link>
-          <SignOutButton locale={locale} />
+          {authenticated ? (
+            <SignOutButton locale={locale} />
+          ) : (
+            <Link
+              href={getConsumerPath(locale, "/auth/sign-in")}
+              className="rounded-md px-3 py-2 text-sm text-white/60 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+            >
+              {t("auth.signIn")}
+            </Link>
+          )}
         </nav>
       </div>
     </header>

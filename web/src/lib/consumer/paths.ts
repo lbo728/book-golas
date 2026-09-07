@@ -14,13 +14,47 @@ export function getConsumerPath(
   return `/${locale}${normalizedPath}`;
 }
 
+function hasUnsafePathSegments(value: string): boolean {
+  if (value.includes("\\")) return true;
+
+  try {
+    let currentPath = value.split(/[?#]/, 1)[0];
+    let currentCandidate = value;
+
+    for (let depth = 0; depth < 8; depth += 1) {
+      const decodedPath = decodeURIComponent(currentPath);
+      const decodedCandidate = decodeURIComponent(currentCandidate);
+
+      const pathHasUnsafeContent = decodedPath.includes("\\");
+      const candidateHasUnsafeContent = decodedCandidate.includes("\\");
+      const pathHasUnsafeSegments = decodedPath
+        .split("/")
+        .slice(2)
+        .some((segment) => segment.length === 0 || segment === "." || segment === "..");
+      const candidateHasTraversalSegments = decodedCandidate
+        .split("/")
+        .slice(2)
+        .some((segment) => segment === "." || segment === "..");
+
+      if (pathHasUnsafeContent || candidateHasUnsafeContent || pathHasUnsafeSegments || candidateHasTraversalSegments) return true;
+      if (decodedPath === currentPath && decodedCandidate === currentCandidate) return false;
+      currentPath = decodedPath;
+      currentCandidate = decodedCandidate;
+    }
+
+    return true;
+  } catch {
+    return true;
+  }
+}
+
 export function getSafeNextPath(
   locale: ConsumerLocale | string,
   candidate: string | undefined,
 ): string {
   const fallback = getConsumerPath(locale, "/home");
 
-  if (!candidate || candidate.startsWith("//")) return fallback;
+  if (!candidate || candidate.startsWith("//") || hasUnsafePathSegments(candidate)) return fallback;
   if (!candidate.startsWith(`/${locale}/`)) return fallback;
 
   return candidate;
