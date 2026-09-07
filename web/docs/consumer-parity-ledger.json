@@ -264,7 +264,8 @@
       "web": {
         "canonical_url": "/{locale}/terms",
         "current": [
-          "web/src/app/terms/page.tsx"
+          "web/src/app/[locale]/terms/page.tsx",
+          "web/src/components/legal/legal-pages.tsx"
         ],
         "target": [
           "web/src/app/[locale]/terms/page.tsx"
@@ -1073,7 +1074,8 @@
       "web": {
         "canonical_url": "/{locale}/privacy",
         "current": [
-          "web/src/app/privacy/page.tsx"
+          "web/src/app/[locale]/privacy/page.tsx",
+          "web/src/components/legal/legal-pages.tsx"
         ],
         "target": [
           "web/src/app/[locale]/privacy/page.tsx"

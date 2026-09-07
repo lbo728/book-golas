@@ -42,7 +42,7 @@ All consumer routes support the ko and en locale contract. Existing Web files ar
 | Sign in | /{locale}/auth/sign-in | web/src/app/[locale]/auth/sign-in/page.tsx | partial | #423 |
 | Account creation | /{locale}/auth/sign-up | web/src/app/[locale]/auth/sign-up/page.tsx | partial | #423 |
 | Password recovery | /{locale}/auth/reset-password | web/src/app/[locale]/auth/reset-password/page.tsx | partial | #423 |
-| Terms WebView | /{locale}/terms | web/src/app/terms/page.tsx | partial | #444 |
+| Terms WebView | /{locale}/terms | web/src/app/[locale]/terms/page.tsx | partial | #444 |
 | Onboarding | /{locale}/onboarding | not implemented | planned | #426 |
 | Home and reading status | /{locale}/home | web/src/app/[locale]/home/page.tsx | partial | #429 |
 | My Library | /{locale}/library | not implemented | planned | #430 |
@@ -57,7 +57,7 @@ All consumer routes support the ko and en locale contract. Existing Web files ar
 | Note-structure mind map | /{locale}/books/{bookId}/mind-map | not implemented | planned | #442 |
 | Barcode scanner | /{locale}/books/scan | not implemented | planned browser equivalent | #428 |
 | Subscription entry | /{locale}/subscription | intentionally disabled | disabled | #444 |
-| Privacy and consent | /{locale}/privacy | web/src/app/privacy/page.tsx | partial | #444 |
+| Privacy and consent | /{locale}/privacy | web/src/app/[locale]/privacy/page.tsx | partial | #444 |
 
 ## Shared shell and action contract
 
