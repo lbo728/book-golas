@@ -18,11 +18,18 @@ function hasUnsafePathSegments(value: string): boolean {
   if (value.includes("\\")) return true;
 
   try {
-    const decodedPath = decodeURIComponent(value).split("?")[0];
-    return decodedPath
+    const rawPath = value.split(/[?#]/, 1)[0];
+    const decodedPath = decodeURIComponent(rawPath);
+    const decodedCandidate = decodeURIComponent(value);
+    const pathHasUnsafeSegments = decodedPath
       .split("/")
       .slice(2)
       .some((segment) => segment.length === 0 || segment === "." || segment === "..");
+    const candidateHasTraversalSegments = decodedCandidate
+      .split("/")
+      .slice(2)
+      .some((segment) => segment === "." || segment === "..");
+    return pathHasUnsafeSegments || candidateHasTraversalSegments;
   } catch {
     return true;
   }

@@ -290,6 +290,7 @@ const negativeFixtureNames = [
   "unsafe-source-reference",
   "invalid-native-source",
   "invalid-action-assertion",
+  "invalid-native-assertion-source",
   "unsafe-evidence-source",
   "missing-required-native-surface",
   "missing-required-native-action",
@@ -323,6 +324,7 @@ const negativeFixtureExpectations = {
   "unsafe-source-reference": "references a missing or unsafe path",
   "invalid-native-source": "references a missing or unsafe path",
   "invalid-action-assertion": "is not present",
+  "invalid-native-assertion-source": "native action assertion source must be listed",
   "unsafe-evidence-source": "source does not exist in the repository",
   "missing-required-native-surface": "required routes surface is missing from ledger",
   "missing-required-native-action": "required native action is missing from ledger",
@@ -479,6 +481,12 @@ if (fixtureName === "invalid-native-source") {
 
 if (fixtureName === "invalid-action-assertion") {
   nativeInventory.native_action_assertions.native_only_capabilities["siri-app-shortcuts"]["continue-reading-shortcut"][0].contains = "missing shortcut implementation";
+}
+
+if (fixtureName === "invalid-native-assertion-source") {
+  const assertion = nativeInventory.native_action_assertions.routes["book-detail"]["resume-reading"][0];
+  assertion.source = "web/scripts/test-parity-matrix.mjs";
+  assertion.contains = "function checkNativeActionAssertions()";
 }
 
 if (fixtureName === "unsafe-evidence-source") {
@@ -1137,6 +1145,7 @@ function checkNativeActionAssertions() {
         continue;
       }
       const actionIds = new Set((entry.actions ?? []).map((action) => action.id));
+      const nativeSources = new Set(entry.native_source ?? []);
       for (const [actionId, assertions] of Object.entries(actionAssertions ?? {})) {
         if (!actionIds.has(actionId)) {
           fail("native action assertions reference missing action " + groupName + "." + entryId + "." + actionId);
@@ -1148,6 +1157,17 @@ function checkNativeActionAssertions() {
         for (const assertion of assertions) {
           if (!isNonEmptyString(assertion?.source) || !isNonEmptyString(assertion?.contains)) {
             fail("native action assertion for " + groupName + "." + entryId + "." + actionId + " is incomplete");
+            continue;
+          }
+          if (!assertion.source.startsWith("app/") || !nativeSources.has(assertion.source)) {
+            fail(
+              "native action assertion source must be listed in " +
+                groupName +
+                "." +
+                entryId +
+                ".native_source: " +
+                assertion.source,
+            );
             continue;
           }
           const sourcePath = resolveSafeRepositoryPath(assertion.source);

@@ -6,7 +6,14 @@ describe("consumer next paths", () => {
     expect(getSafeNextPath("ko", "/ko/books/123")).toBe("/ko/books/123");
   });
 
-  it.each(["/ko/../../admin", "/ko/%2e%2e/%2e%2e/admin", "/ko//admin", "/ko\\admin"])(
+  it.each([
+    "/ko/../../admin",
+    "/ko/%2e%2e/%2e%2e/admin",
+    "/ko/home%3F/../../admin",
+    "/ko/home?/../../admin",
+    "/ko//admin",
+    "/ko\\admin",
+  ])(
     "rejects unsafe path segments: %s",
     (candidate) => {
       expect(getSafeNextPath("ko", candidate)).toBe("/ko/home");
