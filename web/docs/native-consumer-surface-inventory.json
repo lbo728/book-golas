@@ -14,7 +14,7 @@
     "account": ["edit-profile", "change-language-theme", "manage-notifications", "change-password", "open-legal", "sign-out", "delete-account"],
     "legacy-book-list": ["filter-book-list", "refresh-book-list", "open-list-book-detail"],
     "book-search-add": ["search-book", "isbn-search", "scan-isbn", "select-reading-status", "set-schedule-priority", "save-book"],
-    "book-detail": ["switch-detail-tabs", "update-progress", "manage-reading", "set-reading-target", "add-memorable-page", "open-recall", "open-reading-timer", "open-review", "open-aladin-book-link", "open-existing-review-link", "open-review-link-editor"],
+    "book-detail": ["switch-detail-tabs", "update-progress", "manage-reading", "set-reading-target", "add-memorable-page", "open-recall", "open-reading-timer", "open-review", "open-aladin-book-link", "open-existing-review-link", "open-review-link-editor", "resume-reading", "start-planned-reading"],
     "reading-progress": ["update-page", "record-history", "start-timer", "return-to-book"],
     "book-review": ["edit-review", "generate-ai-draft", "save-review", "discard-review"],
     "mind-map": ["view-mind-map", "regenerate-mind-map", "retry-mind-map"],
@@ -90,5 +90,35 @@
     {"id": "book-record-deep-link", "source": "bookgolas://book/record/{bookId}"},
     {"id": "book-scan-deep-link", "source": "bookgolas://book/scan/{bookId}"},
     {"id": "auth-next-return", "source": "Auth callback with next"}
-  ]
+  ],
+  "native_action_assertions": {
+    "routes": {
+      "book-detail": {
+        "resume-reading": [
+          {"source": "app/lib/ui/book_detail/book_detail_screen.dart", "contains": "_buildResumeReadingButton"},
+          {"source": "app/lib/ui/book_detail/book_detail_screen.dart", "contains": "resumeReading("}
+        ],
+        "start-planned-reading": [
+          {"source": "app/lib/ui/book_detail/book_detail_screen.dart", "contains": "_buildStartNowButton"},
+          {"source": "app/lib/ui/book_detail/book_detail_screen.dart", "contains": "startPlannedReading("}
+        ]
+      }
+    },
+    "native_only_capabilities": {
+      "siri-app-shortcuts": {
+        "continue-reading-shortcut": [
+          {"source": "app/ios/Runner/BookgolasShortcuts.swift", "contains": "ContinueReadingIntent"},
+          {"source": "app/ios/Runner/AppDelegate.swift", "contains": "com.bookgolas.continue-reading"}
+        ],
+        "scan-page-shortcut": [
+          {"source": "app/ios/Runner/BookgolasShortcuts.swift", "contains": "ScanPageIntent"},
+          {"source": "app/ios/Runner/AppDelegate.swift", "contains": "com.bookgolas.scan-page"}
+        ],
+        "add-book-shortcut": [
+          {"source": "app/ios/Runner/BookgolasShortcuts.swift", "contains": "AddBookIntent"},
+          {"source": "app/ios/Runner/AppDelegate.swift", "contains": "com.bookgolas.add-book"}
+        ]
+      }
+    }
+  }
 }

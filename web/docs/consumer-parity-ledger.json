@@ -6,6 +6,12 @@
     "target_version": "1.1.0",
     "delivery_profile": "web-release-train",
     "parity_policy": "online-core",
+    "delivery_dependencies": {
+      "parity_matrix": "#416",
+      "blds_react_next": "#453",
+      "shared_web_primitives": "#421",
+      "blds_package": "blab_design_system#12"
+    },
     "reference_implementation": "native Flutter app",
     "web_exception_rule": "Responsive geometry may adapt to viewport constraints, but product behavior, information hierarchy, copy, state transitions, interaction semantics, accessibility, localization and supported features must remain equivalent. Every intentional difference requires a parity-matrix exception."
   },
@@ -809,6 +815,18 @@
         {
           "id": "open-review-link-editor",
           "label": "Open the external review-link editor",
+          "owner": "#433",
+          "status": "planned"
+        },
+        {
+          "id": "resume-reading",
+          "label": "Resume a paused reading attempt with a target date",
+          "owner": "#433",
+          "status": "planned"
+        },
+        {
+          "id": "start-planned-reading",
+          "label": "Start a planned book with a target date",
           "owner": "#433",
           "status": "planned"
         }

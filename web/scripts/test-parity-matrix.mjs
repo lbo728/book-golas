@@ -71,6 +71,12 @@ const nativeCapabilityRules = {
   "offline-boundary": { disposition: "browser-equivalent", status: "partial" },
   "deep-links": { disposition: "browser-equivalent", status: "partial" },
 };
+const requiredDeliveryDependencies = {
+  parity_matrix: "#416",
+  blds_react_next: "#453",
+  shared_web_primitives: "#421",
+  blds_package: "blab_design_system#12",
+};
 const nativeCapabilityRequiredSources = {
   "siri-app-shortcuts": [
     "app/ios/Runner/BookgolasShortcuts.swift",
@@ -97,6 +103,9 @@ const negativeFixtureNames = [
   "invalid-billing-claim",
   "complete-with-aliased-evidence",
   "unsafe-source-reference",
+  "invalid-native-source",
+  "invalid-action-assertion",
+  "unsafe-evidence-source",
 ];
 const disabledConsumerWebRules = {
   subscription: { disposition: "disabled", status: "disabled" },
@@ -232,6 +241,34 @@ if (fixtureName === "unsafe-source-reference") {
   ledger.routes[0].native_source.push("web/../../../etc/passwd");
 }
 
+if (fixtureName === "invalid-native-source") {
+  ledger.routes[0].native_source.push("fabricated native source");
+}
+
+if (fixtureName === "invalid-action-assertion") {
+  nativeInventory.native_action_assertions.native_only_capabilities["siri-app-shortcuts"]["continue-reading-shortcut"][0].contains = "missing shortcut implementation";
+}
+
+if (fixtureName === "unsafe-evidence-source") {
+  ledger.routes[0].web.status = "complete";
+  ledger.routes[0].evidence = [
+    {
+      kind: "data",
+      source: "web/../../../etc/passwd",
+      artifact: "web/docs/consumer-parity-ledger.json",
+      observation: "Data contract observation",
+      commit: currentCommit,
+    },
+    {
+      kind: "browser",
+      source: "web/docs/consumer-parity-matrix.md",
+      artifact: "web/docs/native-consumer-surface-inventory.json",
+      observation: "Browser contract observation",
+      commit: currentCommit,
+    },
+  ];
+}
+
 function fail(message) {
   failures.push(message);
 }
@@ -280,7 +317,7 @@ function resolveSafeRepositoryPath(value) {
 
 function checkExistingReferences(entry, fieldName, values) {
   for (const value of values ?? []) {
-    if (isRepositoryReference(value) && !resolveSafeRepositoryPath(value)) {
+    if (!isNonEmptyString(value) || !resolveSafeRepositoryPath(value)) {
       fail(entry.id + " " + fieldName + " references a missing or unsafe path " + value);
     }
   }
@@ -309,6 +346,12 @@ function checkStateProfiles() {
 
   if (ledger.release?.parity_policy !== "online-core") {
     fail("release parity_policy must be online-core");
+  }
+
+  for (const [dependency, expected] of Object.entries(requiredDeliveryDependencies)) {
+    if (ledger.release?.delivery_dependencies?.[dependency] !== expected) {
+      fail("release delivery_dependencies." + dependency + " must be " + expected);
+    }
   }
 
   if (!isNonEmptyString(ledger.release?.reference_implementation)) {
@@ -543,6 +586,8 @@ function checkDeepLinks() {
     }
     if (!isNonEmptyArray(link?.native_source)) {
       fail((link?.id ?? "deep link") + " is missing native_source");
+    } else {
+      checkExistingReferences(link, "native_source", link.native_source);
     }
     if (!isCanonicalLocalePath(link?.canonical_web_url)) {
       fail((link?.id ?? "deep link") + " canonical_web_url must be a locale-relative path");
@@ -676,6 +721,63 @@ function checkNativeOnlyCapabilities() {
   }
 }
 
+function checkNativeActionAssertions() {
+  const assertionGroups = nativeInventory.native_action_assertions;
+  if (!assertionGroups || typeof assertionGroups !== "object" || Array.isArray(assertionGroups)) {
+    fail("native inventory native_action_assertions are missing");
+    return;
+  }
+
+  for (const [groupName, entryAssertions] of Object.entries(assertionGroups)) {
+    const ledgerEntries = ledger[groupName];
+    if (!Array.isArray(ledgerEntries)) {
+      fail("native action assertions reference unknown group " + groupName);
+      continue;
+    }
+    for (const [entryId, actionAssertions] of Object.entries(entryAssertions ?? {})) {
+      const entry = ledgerEntries.find((candidate) => candidate.id === entryId);
+      if (!entry) {
+        fail("native action assertions reference missing surface " + groupName + "." + entryId);
+        continue;
+      }
+      const actionIds = new Set((entry.actions ?? []).map((action) => action.id));
+      for (const [actionId, assertions] of Object.entries(actionAssertions ?? {})) {
+        if (!actionIds.has(actionId)) {
+          fail("native action assertions reference missing action " + groupName + "." + entryId + "." + actionId);
+        }
+        if (!isNonEmptyArray(assertions)) {
+          fail("native action assertions for " + groupName + "." + entryId + "." + actionId + " must not be empty");
+          continue;
+        }
+        for (const assertion of assertions) {
+          if (!isNonEmptyString(assertion?.source) || !isNonEmptyString(assertion?.contains)) {
+            fail("native action assertion for " + groupName + "." + entryId + "." + actionId + " is incomplete");
+            continue;
+          }
+          const sourcePath = resolveSafeRepositoryPath(assertion.source);
+          if (!sourcePath) {
+            fail("native action assertion references missing or unsafe path " + assertion.source);
+            continue;
+          }
+          const sourceText = fs.readFileSync(sourcePath, "utf8");
+          if (!sourceText.includes(assertion.contains)) {
+            fail(
+              "native action assertion " +
+                groupName +
+                "." +
+                entryId +
+                "." +
+                actionId +
+                " is not present in " +
+                assertion.source,
+            );
+          }
+        }
+      }
+    }
+  }
+}
+
 checkStateProfiles();
 
 const allEntries = [
@@ -706,6 +808,7 @@ if (!isNonEmptyArray(ledger.native_only_capabilities)) {
 checkRoutes();
 checkDeepLinks();
 checkNativeInventory();
+checkNativeActionAssertions();
 for (const overlay of ledger.overlays ?? []) {
   checkEntry(overlay, "overlays");
   if (overlay?.web?.canonical_url !== null) {

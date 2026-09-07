@@ -12,6 +12,13 @@ The machine-checkable source of truth is consumer-parity-ledger.json. Every rout
 
 The ledger records the current repository state, not a claim that planned routes already work. A complete status requires independent data and browser evidence; no entry is marked complete in this initial freeze. Deep-link mappings are machine-checked in the ledger as well as summarized below.
 
+## Delivery dependencies
+
+- #416 freezes this native-to-Web parity matrix and owns the evidence contract.
+- #453 extends BLab Design System to a public React/Next.js package and is required before shared Web primitives are implemented.
+- #421 owns Bookgolas Web shared UI primitives after the BLDS React/Next.js contract is available.
+- BLDS issue #12 is the cross-repository package implementation dependency.
+
 ## Parity rule
 
 For every supported feature, Web must match the app in:
@@ -147,6 +154,9 @@ npm run test:parity-matrix -- --fixture invalid-billing-overlay
 npm run test:parity-matrix -- --fixture invalid-billing-claim
 npm run test:parity-matrix -- --fixture complete-with-aliased-evidence
 npm run test:parity-matrix -- --fixture unsafe-source-reference
+npm run test:parity-matrix -- --fixture invalid-native-source
+npm run test:parity-matrix -- --fixture invalid-action-assertion
+npm run test:parity-matrix -- --fixture unsafe-evidence-source
 ~~~
 
 The first command must exit 0. Every fixture command must fail, proving the checker rejects missing dispositions, duplicate canonical URLs, missing error-state entries, complete status without independent data/browser evidence, fabricated or alias-based evidence, unsafe source paths, invalid native-only boundaries, wrong or unallowlisted deep links, omitted native surfaces/actions and accidental Web billing activation. Complete evidence is bound to the exact current Git commit and must use independent, repository-contained source and artifact paths. `npm test` runs both the positive checker and the complete negative-fixture suite so the ledger cannot bypass the Web quality gate. The checker further rejects missing actions, missing evidence owners, missing deep links and incomplete native-only capability coverage.
