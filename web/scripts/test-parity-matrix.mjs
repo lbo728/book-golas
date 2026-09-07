@@ -133,7 +133,9 @@ const requiredNativeSurfaceIds = {
     "edit-planned-book",
     "book-completion",
     "book-review-prompt",
+    "memorable-page-sort-menu",
     "review-exit-confirmation",
+    "review-ai-replacement-confirmation",
     "review-save-complete",
     "password-change",
     "delete-account-confirmation",
@@ -173,7 +175,7 @@ const requiredNativeActionIds = {
     onboarding: "advance-onboarding|complete-onboarding",
     home: "switch-reading-status-tab|toggle-all-books|open-book-detail|refresh-books|open-search-mode",
     library: "library-reading-tab|library-review-tab|library-record-tab|library-global-recall|search-reading|search-review|filter-library-year|toggle-record-group|filter-record-type",
-    "reading-stats": "stats-overview|stats-analysis|stats-activity|stats-set-goal|stats-share|select-stats-period|navigate-stats-period|open-stats-custom-range|clear-stats-custom-range|navigate-stats-analysis-section",
+    "reading-stats": "stats-overview|stats-analysis|stats-activity|stats-set-goal|stats-share|select-stats-period|navigate-stats-period|open-stats-custom-range|clear-stats-custom-range|navigate-stats-analysis-section|generate-stats-ai-insight|retry-stats-ai-insight",
     calendar: "change-calendar-month|filter-calendar|open-calendar-day",
     account: "edit-profile|change-language-theme|manage-notifications|change-password|open-legal|open-announcements|sign-out|delete-account",
     "legacy-book-list": "filter-book-list|refresh-book-list|open-list-book-detail",
@@ -220,7 +222,9 @@ const requiredNativeActionIds = {
     "edit-planned-book": "edit-planned-book|save-planned-book",
     "book-completion": "acknowledge-completion|open-review-prompt",
     "book-review-prompt": "write-review|dismiss-review-prompt",
+    "memorable-page-sort-menu": "sort-memorable-pages-by-page-desc|sort-memorable-pages-by-page-asc|sort-memorable-pages-by-date-desc|sort-memorable-pages-by-date-asc",
     "review-exit-confirmation": "discard-review-changes|keep-review-changes",
+    "review-ai-replacement-confirmation": "confirm-review-ai-replacement|cancel-review-ai-replacement",
     "review-save-complete": "acknowledge-review-save|open-review-book",
     "password-change": "change-password|cancel-password-change",
     "delete-account-confirmation": "confirm-account-deletion|cancel-account-deletion",
@@ -304,6 +308,7 @@ const negativeFixtureNames = [
   "unsafe-source-reference",
   "invalid-native-source",
   "invalid-native-source-role",
+  "invalid-untracked-reference",
   "invalid-action-assertion",
   "invalid-native-assertion-source",
   "invalid-native-assertion-policy",
@@ -313,6 +318,7 @@ const negativeFixtureNames = [
   "invalid-web-current-role",
   "invalid-web-target-role",
   "complete-with-self-authored-evidence",
+  "complete-with-self-authored-runtime-artifact",
   "invalid-web-target",
   "invalid-web-target-scheme",
   "invalid-web-target-data",
@@ -321,11 +327,13 @@ const negativeFixtureNames = [
   "invalid-web-target-encoded-scheme",
   "invalid-web-target-encoded-network-path",
   "invalid-web-target-backslash",
+  "invalid-web-target-traversal",
   "invalid-source-inventory",
   "invalid-canonical-path",
   "invalid-canonical-path-double-encoded",
   "invalid-canonical-path-encoded-duplicate",
   "invalid-canonical-path-double-encoded-duplicate",
+  "invalid-canonical-query",
   "complete-with-cross-role-alias",
   "missing-action-assertion",
 ];
@@ -351,6 +359,7 @@ const negativeFixtureExpectations = {
   "unsafe-source-reference": "references a missing or unsafe path",
   "invalid-native-source": "references a missing or unsafe path",
   "invalid-native-source-role": "references an invalid role path",
+  "invalid-untracked-reference": "references an untracked path",
   "invalid-action-assertion": "is not present",
   "invalid-native-assertion-source": "native action assertion source must be listed",
   "invalid-native-assertion-policy": "native action assertion policy is invalid",
@@ -360,6 +369,7 @@ const negativeFixtureExpectations = {
   "invalid-web-current-role": "web.current references an invalid role path",
   "invalid-web-target-role": "Web target references an invalid role path",
   "complete-with-self-authored-evidence": "evidence 1 source has an invalid role or is not tracked",
+  "complete-with-self-authored-runtime-artifact": "evidence 1 artifact has an invalid role or is not tracked",
   "invalid-web-target": "Web target must not be an external URL",
   "invalid-web-target-scheme": "Web target must not be an external URL",
   "invalid-web-target-data": "Web target must not be an external URL",
@@ -368,11 +378,13 @@ const negativeFixtureExpectations = {
   "invalid-web-target-encoded-scheme": "Web target must not be an external URL",
   "invalid-web-target-encoded-network-path": "Web target must not be an external URL",
   "invalid-web-target-backslash": "Web target contains unsafe characters",
+  "invalid-web-target-traversal": "Web target must be a repository path or an allowlisted descriptor",
   "invalid-source-inventory": "source_inventory paths references a missing or unsafe path",
   "invalid-canonical-path": "canonical_url must be a locale-relative path",
   "invalid-canonical-path-double-encoded": "canonical_url must be a locale-relative path",
   "invalid-canonical-path-encoded-duplicate": "duplicate canonical_url",
   "invalid-canonical-path-double-encoded-duplicate": "duplicate canonical_url",
+  "invalid-canonical-query": "canonical_url must be a locale-relative path",
   "complete-with-cross-role-alias": "evidence sources and artifacts must be independent",
   "missing-action-assertion": "required native action assertion is missing",
 };
@@ -382,9 +394,39 @@ const disabledConsumerWebRules = {
 };
 const billingClaimPattern = /\b(revenuecat|billing|purchase|restore|upgrade|customer center|paywall|pro feature|pro-features)\b/i;
 const subscriptionWebPathPattern = /\bsubscriptions?\b/i;
+const allowedWebTargetDescriptors = new Set([
+  "BLDS React/Next auth primitives",
+  "BLDS React/Next calendar and sheet primitives",
+  "BLDS React/Next chart, goal and share primitives",
+  "BLDS React/Next context menu primitive",
+  "BLDS React/Next editor, confirmation and feedback primitives",
+  "BLDS React/Next graph, loading and retry primitives",
+  "BLDS React/Next onboarding primitives",
+  "BLDS React/Next product shell and book primitives",
+  "BLDS React/Next reading controls and timer primitives",
+  "BLDS React/Next search overlay primitive",
+  "BLDS React/Next search, select, date-picker and form primitives",
+  "BLDS React/Next settings, form and dialog primitives",
+  "BLDS React/Next tabs, cards and search primitives",
+  "BLDS React/Next tabs, cards, progress and overlay primitives",
+  "Browser Push API permission and settings",
+  "Browser camera permission and file-upload fallback",
+  "Browser camera permission, input capture and file-upload fallback",
+  "Locale-preserving HTTPS routes with safe next-path validation",
+  "Online-core boundary with explicit offline state",
+  "Optional bounded local draft only where verified",
+  "Web Share API with clipboard and download fallback",
+]);
 
 const fixtureIndex = process.argv.indexOf("--fixture");
 const fixtureName = fixtureIndex >= 0 ? process.argv[fixtureIndex + 1] : null;
+const temporaryFixturePaths = [];
+
+function createTemporaryUntrackedFixture(relativePath) {
+  const absolutePath = path.resolve(repositoryRoot, relativePath);
+  fs.writeFileSync(absolutePath, "export const parityFixture = true;\n");
+  temporaryFixturePaths.push(absolutePath);
+}
 
 if (fixtureName === "missing-disposition") {
   ledger.routes[0].web.disposition = "";
@@ -528,6 +570,12 @@ if (fixtureName === "invalid-native-source-role") {
   ledger.routes[0].native_source = ["web/src/lib/consumer/paths.ts"];
 }
 
+if (fixtureName === "invalid-untracked-reference") {
+  const fixturePath = "web/src/.parity-untracked-fixture.ts";
+  createTemporaryUntrackedFixture(fixturePath);
+  ledger.routes[0].web.current = [fixturePath];
+}
+
 if (fixtureName === "invalid-action-assertion") {
   nativeInventory.native_action_assertions.native_only_capabilities["siri-app-shortcuts"]["continue-reading-shortcut"][0].contains = "missing shortcut implementation";
 }
@@ -612,6 +660,30 @@ if (fixtureName === "complete-with-self-authored-evidence") {
   ];
 }
 
+if (fixtureName === "complete-with-self-authored-runtime-artifact") {
+  ledger.routes[0].web.status = "complete";
+  ledger.routes[0].evidence = [
+    {
+      kind: "data",
+      source: "web/src/proxy.ts",
+      artifact: "web/src/lib/consumer/paths.ts",
+      source_contains: "export async function proxy",
+      artifact_contains: "export function getSafeNextPath",
+      observation: "Self-authored runtime artifact",
+      commit: currentCommit,
+    },
+    {
+      kind: "browser",
+      source: "web/src/proxy.test.ts",
+      artifact: "web/src/lib/consumer/paths.ts",
+      source_contains: "describe(\"consumer locale proxy\"",
+      artifact_contains: "export function getSafeNextPath",
+      observation: "Self-authored runtime artifact",
+      commit: currentCommit,
+    },
+  ];
+}
+
 if (fixtureName === "invalid-web-target") {
   ledger.routes[0].web.target = ["https://evil.example/claimed-parity"];
 }
@@ -644,6 +716,10 @@ if (fixtureName === "invalid-web-target-backslash") {
   ledger.routes[0].web.target = ["\\\\evil.example\\path"];
 }
 
+if (fixtureName === "invalid-web-target-traversal") {
+  ledger.routes[0].web.target = ["../outside"];
+}
+
 if (fixtureName === "invalid-source-inventory") {
   ledger.source_inventory.push("https://evil.example/native-audit");
 }
@@ -662,6 +738,10 @@ if (fixtureName === "invalid-canonical-path-encoded-duplicate") {
 
 if (fixtureName === "invalid-canonical-path-double-encoded-duplicate") {
   ledger.routes[1].web.canonical_url = "/{locale}/%2568ome";
+}
+
+if (fixtureName === "invalid-canonical-query") {
+  ledger.routes[0].web.canonical_url = "/{locale}/home?tab=reading";
 }
 
 if (fixtureName === "complete-with-cross-role-alias") {
@@ -713,6 +793,7 @@ function isRepositoryReference(value) {
 }
 
 const maxDecodeDepth = 8;
+let trackedRepositoryFiles;
 
 function hasUnsafeTargetCharacters(value) {
   return /[\u0000-\u001f\u007f\\]/.test(value) || /^[ \t-\r\f]|[ \t-\r\f]$/.test(value);
@@ -748,12 +829,14 @@ function normalizeCanonicalLocalePath(value) {
     typeof value !== "string" ||
     hasUnsafeCanonicalCharacters(value) ||
     !/^\/\{locale\}(?:\/|$)/.test(value) ||
-    value.includes("://")
+    value.includes("://") ||
+    value.includes("?") ||
+    value.includes("#")
   ) {
     return null;
   }
 
-  let currentPath = value.split(/[?#]/, 1)[0];
+  let currentPath = value;
   for (let depth = 0; depth < maxDecodeDepth; depth += 1) {
     if (hasUnsafeCanonicalCharacters(currentPath) || currentPath.includes("?") || currentPath.includes("#")) {
       return null;
@@ -787,11 +870,23 @@ function normalizeCanonicalLocalePath(value) {
 }
 
 function isCanonicalLocalePath(value) {
-  return normalizeCanonicalLocalePath(value) !== null;
+  if (typeof value !== "string") return false;
+  const queryIndex = value.indexOf("?");
+  const pathValue = queryIndex >= 0 ? value.slice(0, queryIndex) : value;
+  const queryValue = queryIndex >= 0 ? value.slice(queryIndex + 1) : "";
+  if (value.includes("#") || (queryIndex >= 0 && !queryValue) || /[\u0000-\u0020\u007f\\]/.test(queryValue)) {
+    return false;
+  }
+  return normalizeCanonicalLocalePath(pathValue) !== null;
 }
 
 function isSafeRepositoryReference(value) {
-  if (!isRepositoryReference(value) || path.isAbsolute(value) || value.split(/[\\/]/).includes("..")) {
+  if (
+    !isRepositoryReference(value) ||
+    path.isAbsolute(value) ||
+    /[\u0000-\u001f\u007f\\?#%]/.test(value) ||
+    value.split(/[\\/]/).includes("..")
+  ) {
     return null;
   }
   const candidate = path.resolve(repositoryRoot, value);
@@ -802,12 +897,37 @@ function isSafeRepositoryReference(value) {
 function isTrackedFile(value) {
   const candidate = resolveSafeRepositoryPath(value);
   if (!candidate || !fs.statSync(candidate).isFile()) return false;
+  return isTrackedRepositoryReference(value);
+}
+
+function isTrackedRepositoryReference(value) {
+  if (!resolveSafeRepositoryPath(value)) return false;
+  if (!trackedRepositoryFiles) {
+    trackedRepositoryFiles = new Set(
+      execFileSync("git", ["ls-files", "-z"], {
+        cwd: repositoryRoot,
+        encoding: "utf8",
+      })
+        .split("\0")
+        .filter(Boolean),
+    );
+  }
+  const normalizedValue = path.normalize(value).replaceAll(path.sep, "/").replace(/\/$/, "");
+  return (
+    trackedRepositoryFiles.has(normalizedValue) ||
+    [...trackedRepositoryFiles].some((trackedPath) => trackedPath.startsWith(normalizedValue + "/"))
+  );
+}
+
+function isBoundToCurrentCommit(value) {
+  if (!/^[0-9a-f]{40}$/.test(currentCommit)) return false;
+  const normalizedValue = path.normalize(value).replaceAll(path.sep, "/").replace(/\/$/, "");
   try {
-    return execFileSync("git", ["ls-files", "--error-unmatch", "--", value], {
+    execFileSync("git", ["diff", "--quiet", currentCommit, "--", normalizedValue], {
       cwd: repositoryRoot,
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-    }).trim().length > 0;
+      stdio: "ignore",
+    });
+    return true;
   } catch {
     return false;
   }
@@ -818,9 +938,14 @@ function hasPathRoot(value, roots) {
 }
 
 function isApprovedEvidenceReference(value, role) {
-  if (!isTrackedFile(value)) return false;
+  if (!isTrackedFile(value) || !isBoundToCurrentCommit(value)) return false;
   if (role === "source") return hasPathRoot(value, ["app/", "web/src/"]);
-  return value.startsWith("web/") && !value.startsWith("web/docs/") && !value.startsWith("web/scripts/");
+  if (!value.startsWith("web/") || value.startsWith("web/docs/") || value.startsWith("web/scripts/")) return false;
+  return (
+    value.startsWith("web/tests/") ||
+    value.startsWith("web/e2e/") ||
+    /(^|\/)[^/]+\.(?:test|spec)\.(?:[cm]?[jt]sx?|mjs|cjs)$/.test(value)
+  );
 }
 
 function resolveSafeRepositoryPath(value) {
@@ -844,6 +969,8 @@ function checkExistingReferences(entry, fieldName, values, expectedRoot) {
   for (const value of values ?? []) {
     if (!isNonEmptyString(value) || !resolveSafeRepositoryPath(value)) {
       fail(entry.id + " " + fieldName + " references a missing or unsafe path " + value);
+    } else if (!isTrackedRepositoryReference(value)) {
+      fail(entry.id + " " + fieldName + " references an untracked path " + value);
     } else if (expectedRoot && !value.startsWith(expectedRoot)) {
       fail(entry.id + " " + fieldName + " references an invalid role path " + value);
     }
@@ -943,10 +1070,19 @@ function checkWebTargets(entry, web) {
     } else if (targetSafety === "external") {
       fail(entry.id + " Web target must not be an external URL");
     }
-    if (isRepositoryReference(target) && !target.startsWith("web/")) {
-      fail(entry.id + " Web target references an invalid role path " + target);
-    } else if (isRepositoryReference(target) && !isSafeRepositoryReference(target)) {
-      fail(entry.id + " Web target references a missing or unsafe path " + target);
+    if (isRepositoryReference(target)) {
+      if (!target.startsWith("web/")) {
+        fail(entry.id + " Web target references an invalid role path " + target);
+      } else if (!isSafeRepositoryReference(target)) {
+        fail(entry.id + " Web target references a missing or unsafe path " + target);
+      } else {
+        const targetPath = resolveSafeRepositoryPath(target);
+        if (targetPath && !isTrackedRepositoryReference(target)) {
+          fail(entry.id + " Web target references an untracked path " + target);
+        }
+      }
+    } else if (!allowedWebTargetDescriptors.has(target)) {
+      fail(entry.id + " Web target must be a repository path or an allowlisted descriptor");
     }
   }
 }
@@ -1389,6 +1525,10 @@ function checkNativeActionAssertions() {
             fail("native action assertion references missing or unsafe path " + assertion.source);
             continue;
           }
+          if (!isTrackedFile(assertion.source) || !isBoundToCurrentCommit(assertion.source)) {
+            fail("native action assertion source is not bound to the current commit " + assertion.source);
+            continue;
+          }
           const sourceText = fs.readFileSync(sourcePath, "utf8");
           if (!sourceText.includes(assertion.contains)) {
             fail(
@@ -1465,6 +1605,10 @@ function checkDeepLinkAssertions() {
         fail("deep link assertion references missing or unsafe path " + assertion.source);
         continue;
       }
+      if (!isTrackedFile(assertion.source) || !isBoundToCurrentCommit(assertion.source)) {
+        fail("deep link assertion source is not bound to the current commit " + assertion.source);
+        continue;
+      }
       const sourceText = fs.readFileSync(sourcePath, "utf8");
       if (!sourceText.includes(assertion.contains)) {
         fail("deep link assertion " + deepLinkId + " is not present in " + assertion.source);
@@ -1535,6 +1679,10 @@ if (process.argv.includes("--assert-fixtures")) {
   for (const fixture of unexpectedPasses) {
     fail("negative fixture unexpectedly passed: " + fixture);
   }
+}
+
+for (const temporaryFixturePath of temporaryFixturePaths) {
+  fs.rmSync(temporaryFixturePath, { force: true });
 }
 
 if (failures.length > 0) {

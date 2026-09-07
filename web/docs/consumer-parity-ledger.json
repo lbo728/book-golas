@@ -519,6 +519,7 @@
       "native_source": [
         "app/lib/main.dart",
         "app/lib/ui/reading_chart/widgets/reading_chart_screen.dart",
+        "app/lib/ui/reading_chart/widgets/cards/ai_insight_card.dart",
         "app/lib/ui/reading_chart/view_model/reading_chart_view_model.dart",
         "app/lib/ui/reading_chart/view_model/reading_insights_view_model.dart"
       ],
@@ -595,10 +596,22 @@
           "label": "Navigate between statistics analysis sections",
           "owner": "#440",
           "status": "planned"
+        },
+        {
+          "id": "generate-stats-ai-insight",
+          "label": "Generate an AI reading insight when the native quota allows",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "retry-stats-ai-insight",
+          "label": "Retry a failed AI reading insight generation",
+          "owner": "#440",
+          "status": "planned"
         }
       ],
       "evidence_owner": "#416",
-      "notes": "The native tab cycles sections on repeated bottom-bar selection and supports annual, monthly, weekly and custom chart filters."
+      "notes": "The native tab cycles sections on repeated bottom-bar selection and supports annual, monthly, weekly and custom chart filters. AI insight generation is quota-gated and exposes generate and retry outcomes without a separate consent step."
     },
     {
       "id": "calendar",
@@ -1026,7 +1039,7 @@
         },
         {
           "id": "generate-ai-draft",
-          "label": "Generate an AI draft after explicit consent",
+          "label": "Generate an AI draft and confirm replacement when review text exists",
           "owner": "#437",
           "status": "planned"
         },
@@ -1044,7 +1057,7 @@
         }
       ],
       "evidence_owner": "#416",
-      "notes": "Draft persistence, AI consent, save completion and unsaved-exit confirmation are separate states."
+      "notes": "Draft persistence, replacement confirmation when existing text is present, save completion and unsaved-exit confirmation are separate states. The first AI generation does not expose a separate consent step."
     },
     {
       "id": "mind-map",
@@ -1077,7 +1090,7 @@
         },
         {
           "id": "regenerate-mind-map",
-          "label": "Regenerate insights with explicit AI consent",
+          "label": "Regenerate insights",
           "owner": "#442",
           "status": "planned"
         },
@@ -1089,7 +1102,7 @@
         }
       ],
       "evidence_owner": "#416",
-      "notes": "The native error state exposes retry; the Web must not render a permanently blank graph."
+      "notes": "The native refresh and error retry paths invoke regeneration directly without a separate consent step; the Web must not render a permanently blank graph."
     },
     {
       "id": "barcode-scanner",
@@ -2388,6 +2401,54 @@
       "evidence_owner": "#416"
     },
     {
+      "id": "memorable-page-sort-menu",
+      "surface_type": "overlay",
+      "native_surface": "Memorable-page sort menu",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/tabs/memorable_pages_tab.dart",
+        "app/lib/ui/book_detail/view_model/memorable_page_view_model.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+          "web/src/components/consumer/overlays/memorable-page-sort-menu.tsx"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#435"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "sort-memorable-pages-by-page-desc",
+          "label": "Sort memorable pages by descending page number",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "sort-memorable-pages-by-page-asc",
+          "label": "Sort memorable pages by ascending page number",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "sort-memorable-pages-by-date-desc",
+          "label": "Sort memorable pages by newest date",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "sort-memorable-pages-by-date-asc",
+          "label": "Sort memorable pages by oldest date",
+          "owner": "#435",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "The native menu exposes four selectable sort outcomes and updates the memorable-page view model."
+    },
+    {
       "id": "review-exit-confirmation",
       "surface_type": "overlay",
       "native_surface": "Review unsaved-exit confirmation",
@@ -2421,6 +2482,42 @@
         }
       ],
       "evidence_owner": "#416"
+    },
+    {
+      "id": "review-ai-replacement-confirmation",
+      "surface_type": "overlay",
+      "native_surface": "Review AI draft replacement confirmation",
+      "native_source": [
+        "app/lib/ui/book_review/book_review_screen.dart",
+        "app/lib/ui/core/widgets/confirmation_bottom_sheet.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+          "web/src/components/consumer/overlays/confirmation.tsx"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#437"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "confirm-review-ai-replacement",
+          "label": "Confirm replacing existing review text with the AI draft",
+          "owner": "#437",
+          "status": "planned"
+        },
+        {
+          "id": "cancel-review-ai-replacement",
+          "label": "Cancel AI draft replacement and keep the review text",
+          "owner": "#437",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "This confirmation appears only when existing review text would be overwritten; first-time generation has no separate consent prompt."
     },
     {
       "id": "review-save-complete",

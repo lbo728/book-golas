@@ -87,12 +87,15 @@ The complete inventory is in the ledger. It includes:
 - navigation and discovery: search mode menu, Global Recall, book Recall, record detail, source detail, bookstore selection, recommendation actions and reading-book selection;
 - statistics and calendar: day detail, reading goal, period navigation and custom date range;
 - book and reading flows: reading management, pause/delete confirmations, book info, full title, page update, reading timer, daily goal, daily target, target date, planned-book editor, completion and review prompt;
+- review and media outcomes: memorable-page sort menu and review AI-draft replacement confirmation;
 - book detail metadata: external review-link editor, mind-map leaf detail and mind-map cluster detail;
 - private media and OCR: image source, image replacement, memorable-page capture, existing image, extracted text, full text, OCR quota and full-screen image viewer;
 - account and feedback: language-change confirmation, review exit/save confirmations, password change, account deletion, notification time picker, disabled Pro state and floating timer;
 - shared BLDS primitives: context menu and search overlay.
 
 Every listed overlay has an action owner and one of the state profiles in the ledger. There are no anonymous modal or sheet entries.
+
+Reading Statistics also records the quota-gated AI insight generate and retry actions. Native review and mind-map flows do not expose a separate AI consent step; only the review replacement confirmation shown when existing text would be overwritten is preserved.
 
 ## Native-only and browser-equivalent capabilities
 
