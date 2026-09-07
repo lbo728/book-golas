@@ -2701,6 +2701,53 @@
       "evidence_owner": "#416"
     },
     {
+      "id": "review-link-editor",
+      "surface_type": "overlay",
+      "native_surface": "External review-link editor sheet",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/sections/review_link_section.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+          "web/src/components/consumer/overlays/review-link-editor.tsx"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#433"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "edit-review-link",
+          "label": "Edit and validate an external review URL",
+          "owner": "#433",
+          "status": "planned"
+        },
+        {
+          "id": "save-review-link",
+          "label": "Save the review link",
+          "owner": "#433",
+          "status": "planned"
+        },
+        {
+          "id": "delete-review-link",
+          "label": "Delete the existing review link",
+          "owner": "#433",
+          "status": "planned"
+        },
+        {
+          "id": "cancel-review-link",
+          "label": "Cancel without changing the review link",
+          "owner": "#433",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "The editor requires HTTP/HTTPS validation and preserves save, delete and cancel outcomes."
+    },
+    {
       "id": "context-menu",
       "surface_type": "overlay",
       "native_surface": "Liquid glass context menu",
@@ -2839,11 +2886,11 @@
       "native_source": [
         "app/lib/data/services/deep_link_service.dart"
       ],
-      "canonical_web_url": "/{locale}/library?record={bookId}",
+      "canonical_web_url": "/{locale}/books/{bookId}?tab=record",
       "disposition": "browser-equivalent",
       "status": "planned",
       "owner": "#427",
-      "notes": "The Web destination opens the owned record context in My Library."
+      "notes": "The Web destination opens the owned book detail with the record tab selected, matching the native initialTabIndex."
     },
     {
       "id": "book-scan-deep-link",
@@ -2852,11 +2899,11 @@
       "native_source": [
         "app/lib/data/services/deep_link_service.dart"
       ],
-      "canonical_web_url": "/{locale}/books/scan?bookId={bookId}",
+      "canonical_web_url": "/{locale}/books/{bookId}?scan=1",
       "disposition": "browser-equivalent",
       "status": "planned",
       "owner": "#427",
-      "notes": "The Web destination preserves the scan context and applies browser permission or upload fallback."
+      "notes": "The Web destination opens the owned book detail with scan mode selected and applies browser permission or upload fallback."
     },
     {
       "id": "auth-next-return",
@@ -2864,7 +2911,7 @@
       "source_kind": "auth-return",
       "native_source": [
         "app/lib/main.dart",
-        "app/lib/ui/core/view_model/auth_view_model.dart"
+        "app/lib/data/services/deep_link_service.dart"
       ],
       "canonical_web_url": "/{locale}/auth/sign-in?next={validatedPath}",
       "disposition": "browser-equivalent",

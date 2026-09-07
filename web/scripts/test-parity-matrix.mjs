@@ -5,7 +5,10 @@ import { fileURLToPath } from "node:url";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const ledgerPath = path.resolve(scriptDirectory, "../docs/consumer-parity-ledger.json");
+const inventoryPath = path.resolve(scriptDirectory, "../docs/native-consumer-surface-inventory.json");
+const repositoryRoot = path.resolve(scriptDirectory, "../..");
 const ledger = JSON.parse(fs.readFileSync(ledgerPath, "utf8"));
+const nativeInventory = JSON.parse(fs.readFileSync(inventoryPath, "utf8"));
 const failures = [];
 const expectedStates = [
   "loading",
@@ -40,13 +43,13 @@ const allowedStatuses = new Set([
   "complete",
 ]);
 const allowedEvidenceKinds = new Set(["data", "browser"]);
-const requiredDeepLinkSources = [
-  "bookgolas://book/search",
-  "bookgolas://book/detail/{bookId}",
-  "bookgolas://book/record/{bookId}",
-  "bookgolas://book/scan/{bookId}",
-  "Auth callback with next",
-];
+const requiredDeepLinkMappings = new Map([
+  ["bookgolas://book/search", "/{locale}/books/new"],
+  ["bookgolas://book/detail/{bookId}", "/{locale}/books/{bookId}"],
+  ["bookgolas://book/record/{bookId}", "/{locale}/books/{bookId}?tab=record"],
+  ["bookgolas://book/scan/{bookId}", "/{locale}/books/{bookId}?scan=1"],
+  ["Auth callback with next", "/{locale}/auth/sign-in?next={validatedPath}"],
+]);
 const allowedDeepLinkKinds = new Set(["native-custom-scheme", "auth-return"]);
 const nativeCapabilityRules = {
   "ios-home-widget": { disposition: "explicit-unavailability", status: "unavailable" },
@@ -57,6 +60,10 @@ const nativeCapabilityRules = {
   subscriptions: { disposition: "disabled", status: "disabled" },
   "offline-boundary": { disposition: "browser-equivalent", status: "partial" },
   "deep-links": { disposition: "browser-equivalent", status: "partial" },
+};
+const disabledConsumerWebRules = {
+  subscription: { disposition: "disabled", status: "disabled" },
+  "pro-features": { disposition: "disabled", status: "disabled" },
 };
 
 const fixtureIndex = process.argv.indexOf("--fixture");
@@ -88,6 +95,24 @@ if (fixtureName === "complete-with-invalid-evidence") {
   ledger.routes[0].evidence = ["invented evidence"];
 }
 
+if (fixtureName === "complete-with-fabricated-evidence") {
+  ledger.routes[0].web.status = "complete";
+  ledger.routes[0].evidence = [
+    {
+      kind: "data",
+      source: "/tmp/invented-evidence",
+      artifact: "/tmp/invented-evidence",
+      observation: "Invented data observation",
+    },
+    {
+      kind: "browser",
+      source: "/tmp/invented-evidence",
+      artifact: "/tmp/invented-evidence",
+      observation: "Invented browser observation",
+    },
+  ];
+}
+
 if (fixtureName === "invalid-native-boundary") {
   ledger.native_only_capabilities.find((entry) => entry.id === "subscriptions").web = {
     ...ledger.native_only_capabilities.find((entry) => entry.id === "subscriptions").web,
@@ -98,6 +123,36 @@ if (fixtureName === "invalid-native-boundary") {
 
 if (fixtureName === "missing-deep-link") {
   ledger.deep_links.shift();
+}
+
+if (fixtureName === "invalid-deep-link-target") {
+  ledger.deep_links.find((link) => link.source === "bookgolas://book/detail/{bookId}").canonical_web_url = "/{locale}/wrong/{bookId}";
+}
+
+if (fixtureName === "missing-native-overlay") {
+  ledger.overlays = ledger.overlays.filter((entry) => entry.id !== "schedule-change");
+}
+
+if (fixtureName === "missing-native-action") {
+  ledger.routes[0].actions = ledger.routes[0].actions.filter((action) => action.id !== "google-sign-in");
+}
+
+if (fixtureName === "invalid-billing-route") {
+  ledger.routes.find((entry) => entry.id === "subscription").web = {
+    ...ledger.routes.find((entry) => entry.id === "subscription").web,
+    target: ["web/src/app/[locale]/subscription/page.tsx"],
+    disposition: "route",
+    status: "planned",
+  };
+}
+
+if (fixtureName === "invalid-billing-overlay") {
+  ledger.overlays.find((entry) => entry.id === "pro-features").web = {
+    ...ledger.overlays.find((entry) => entry.id === "pro-features").web,
+    target: ["web/src/components/consumer/pro-features.tsx"],
+    disposition: "component",
+    status: "planned",
+  };
 }
 
 function fail(message) {
@@ -114,6 +169,18 @@ function isNonEmptyArray(value) {
 
 function hasSameValues(left, right) {
   return Array.isArray(left) && left.length === right.length && right.every((value) => left.includes(value));
+}
+
+function isRepositoryReference(value) {
+  return typeof value === "string" && /^(app|web|docs|supabase|\.github|\.byungskerlab)\//.test(value);
+}
+
+function checkExistingReferences(entry, fieldName, values) {
+  for (const value of values ?? []) {
+    if (isRepositoryReference(value) && !fs.existsSync(path.resolve(repositoryRoot, value))) {
+      fail(entry.id + " " + fieldName + " references missing path " + value);
+    }
+  }
 }
 
 function checkStateProfiles() {
@@ -189,6 +256,8 @@ function checkEntry(entry, groupName) {
 
   if (!isNonEmptyArray(entry?.native_source)) {
     fail((entry?.id ?? groupName) + " is missing native_source");
+  } else {
+    checkExistingReferences(entry, "native_source", entry.native_source);
   }
 
   if (!isNonEmptyString(entry?.native_entry) && groupName === "routes") {
@@ -232,12 +301,27 @@ function checkEntry(entry, groupName) {
     fail((entry?.id ?? groupName) + " has invalid web status");
   }
 
+  const disabledRule = disabledConsumerWebRules[entry.id];
+  if (disabledRule) {
+    if (web.disposition !== disabledRule.disposition) {
+      fail(entry.id + " must use disposition " + disabledRule.disposition);
+    }
+    if (web.status !== disabledRule.status) {
+      fail(entry.id + " must use status " + disabledRule.status);
+    }
+    if (isNonEmptyArray(web.target)) {
+      fail(entry.id + " must not define a Web target");
+    }
+  }
+
   if (!isNonEmptyArray(web.target) && web.disposition !== "disabled" && web.disposition !== "explicit-unavailability") {
     fail(entry.id + " is missing a Web target");
   }
 
   if (!isNonEmptyArray(web.current) && web.status === "partial") {
     fail(entry.id + " is partial but has no current Web evidence");
+  } else {
+    checkExistingReferences(entry, "web.current", web.current);
   }
 
   if (web.status === "complete") {
@@ -245,6 +329,8 @@ function checkEntry(entry, groupName) {
       fail(entry.id + " cannot be complete without evidence");
     } else {
       const evidenceKinds = new Set();
+      const evidenceSources = new Set();
+      const evidenceArtifacts = new Set();
       entry.evidence.forEach((evidence, index) => {
         if (!evidence || typeof evidence !== "object" || Array.isArray(evidence)) {
           fail(entry.id + " evidence " + (index + 1) + " must be an object");
@@ -252,6 +338,10 @@ function checkEntry(entry, groupName) {
         }
         if (!isNonEmptyString(evidence.source)) {
           fail(entry.id + " evidence " + (index + 1) + " is missing source");
+        } else if (evidenceSources.has(evidence.source)) {
+          fail(entry.id + " evidence sources must be independent");
+        } else {
+          evidenceSources.add(evidence.source);
         }
         if (!allowedEvidenceKinds.has(evidence.kind)) {
           fail(entry.id + " evidence " + (index + 1) + " has invalid kind");
@@ -260,6 +350,22 @@ function checkEntry(entry, groupName) {
         }
         if (!isNonEmptyString(evidence.observation)) {
           fail(entry.id + " evidence " + (index + 1) + " is missing observation");
+        }
+        if (!isNonEmptyString(evidence.artifact)) {
+          fail(entry.id + " evidence " + (index + 1) + " is missing artifact");
+        } else {
+          const artifactPath = path.resolve(repositoryRoot, evidence.artifact);
+          const relativeArtifactPath = path.relative(repositoryRoot, artifactPath);
+          if (relativeArtifactPath.startsWith("..") || path.isAbsolute(relativeArtifactPath)) {
+            fail(entry.id + " evidence " + (index + 1) + " artifact is outside the repository");
+          } else if (!fs.existsSync(artifactPath)) {
+            fail(entry.id + " evidence " + (index + 1) + " artifact does not exist");
+          }
+          if (evidenceArtifacts.has(evidence.artifact)) {
+            fail(entry.id + " evidence artifacts must be independent");
+          } else {
+            evidenceArtifacts.add(evidence.artifact);
+          }
         }
       });
       for (const kind of allowedEvidenceKinds) {
@@ -333,9 +439,82 @@ function checkDeepLinks() {
     }
   }
 
-  for (const source of requiredDeepLinkSources) {
+  for (const [source, canonicalUrl] of requiredDeepLinkMappings) {
     if (!sources.has(source)) {
       fail("missing required deep link " + source);
+    }
+    const link = ledger.deep_links.find((candidate) => candidate.source === source);
+    if (link && link.canonical_web_url !== canonicalUrl) {
+      fail(source + " must map to " + canonicalUrl);
+    }
+  }
+}
+
+function checkNativeInventory() {
+  if (nativeInventory.schema_version !== 1 || !isNonEmptyString(nativeInventory.source)) {
+    fail("native consumer surface inventory metadata is invalid");
+  }
+
+  const groups = [
+    ["routes", ledger.routes],
+    ["overlays", ledger.overlays],
+    ["native_only_capabilities", ledger.native_only_capabilities],
+  ];
+
+  for (const [groupName, ledgerEntries] of groups) {
+    const expectedEntries = nativeInventory[groupName];
+    if (!expectedEntries || typeof expectedEntries !== "object" || Array.isArray(expectedEntries)) {
+      fail("native inventory is missing group " + groupName);
+      continue;
+    }
+
+    const ledgerById = new Map((ledgerEntries ?? []).map((entry) => [entry.id, entry]));
+    const expectedIds = Object.keys(expectedEntries);
+    for (const expectedId of expectedIds) {
+      const entry = ledgerById.get(expectedId);
+      if (!entry) {
+        fail(groupName + " is missing native surface " + expectedId);
+        continue;
+      }
+      const expectedActions = expectedEntries[expectedId];
+      const actualActions = (entry.actions ?? []).map((action) => action.id);
+      if (!isNonEmptyArray(expectedActions)) {
+        fail("native inventory " + groupName + "." + expectedId + " must list actions");
+        continue;
+      }
+      for (const actionId of expectedActions) {
+        if (!actualActions.includes(actionId)) {
+          fail(groupName + " " + expectedId + " is missing native action " + actionId);
+        }
+      }
+      for (const actionId of actualActions) {
+        if (!expectedActions.includes(actionId)) {
+          fail(groupName + " " + expectedId + " has untracked action " + actionId);
+        }
+      }
+    }
+    for (const entry of ledgerEntries ?? []) {
+      if (!Object.prototype.hasOwnProperty.call(expectedEntries, entry.id)) {
+        fail(groupName + " has untracked native surface " + entry.id);
+      }
+    }
+  }
+
+  const expectedDeepLinks = nativeInventory.deep_links;
+  if (!isNonEmptyArray(expectedDeepLinks)) {
+    fail("native inventory deep_links must not be empty");
+  } else {
+    const actualDeepLinks = new Map((ledger.deep_links ?? []).map((link) => [link.id, link.source]));
+    const expectedDeepLinkIds = new Map(expectedDeepLinks.map((link) => [link.id, link.source]));
+    for (const [id, source] of expectedDeepLinkIds) {
+      if (actualDeepLinks.get(id) !== source) {
+        fail("deep link inventory mismatch for " + id);
+      }
+    }
+    for (const id of actualDeepLinks.keys()) {
+      if (!expectedDeepLinkIds.has(id)) {
+        fail("deep_links has untracked native source " + id);
+      }
     }
   }
 }
@@ -353,6 +532,12 @@ function checkNativeOnlyCapabilities() {
     checkEntry(capability, "native_only_capabilities");
     if (!isNonEmptyString(capability.native_presence)) {
       fail(capability.id + " is missing native_presence");
+    }
+    if (
+      capability.id === "siri-app-shortcuts" &&
+      !capability.native_source.some((source) => source.startsWith("Repository-wide audit for Siri"))
+    ) {
+      fail("siri-app-shortcuts must retain the repository-wide absence audit");
     }
     const expectedRule = nativeCapabilityRules[capability.id];
     if (!expectedRule) {
@@ -397,6 +582,7 @@ if (!isNonEmptyArray(ledger.native_only_capabilities)) {
 
 checkRoutes();
 checkDeepLinks();
+checkNativeInventory();
 for (const overlay of ledger.overlays ?? []) {
   checkEntry(overlay, "overlays");
   if (overlay?.web?.canonical_url !== null) {

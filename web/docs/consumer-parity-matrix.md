@@ -8,7 +8,7 @@ Delivery-Profile: web-release-train
 
 This document freezes the native-to-Web contract for the authenticated Bookgolas consumer product. The native Flutter app and the cross-platform BLab contract are the reference. The marketing site, legal pages and admin console are separate surfaces and are not evidence of consumer parity.
 
-The machine-checkable source of truth is consumer-parity-ledger.json. Every route, overlay and capability entry has a native source, one Web disposition, a current or planned Web target, all required state dispositions, user-facing actions and an owning issue.
+The machine-checkable source of truth is consumer-parity-ledger.json. Every route, overlay and capability entry has a native source, one Web disposition, a current or planned Web target, all required state dispositions, user-facing actions and an owning issue. The independent native expected-surface inventory in native-consumer-surface-inventory.json makes omitted native routes, overlays and actions fail validation.
 
 The ledger records the current repository state, not a claim that planned routes already work. A complete status requires independent data and browser evidence; no entry is marked complete in this initial freeze. Deep-link mappings are machine-checked in the ledger as well as summarized below.
 
@@ -77,6 +77,7 @@ The complete inventory is in the ledger. It includes:
 - navigation and discovery: search mode menu, Global Recall, book Recall, record detail, source detail, bookstore selection, recommendation actions and reading-book selection;
 - statistics and calendar: day detail, reading goal and custom date range;
 - book and reading flows: reading management, pause/delete confirmations, book info, full title, page update, reading timer, daily goal, daily target, target date, planned-book editor, completion and review prompt;
+- book detail metadata: external review-link editor, mind-map leaf detail and mind-map cluster detail;
 - private media and OCR: image source, image replacement, memorable-page capture, existing image, extracted text, full text, OCR quota and full-screen image viewer;
 - account and feedback: review exit/save confirmations, password change, account deletion, notification time picker, disabled Pro state and floating timer;
 - shared BLDS primitives: context menu and search overlay.
@@ -118,8 +119,8 @@ The exact profile text is in the ledger. A missing profile key is a validation f
 | --- | --- |
 | bookgolas://book/search | /{locale}/books/new |
 | bookgolas://book/detail/{bookId} | /{locale}/books/{bookId} |
-| bookgolas://book/record/{bookId} | /{locale}/library?record={bookId} |
-| bookgolas://book/scan/{bookId} | /{locale}/books/scan?bookId={bookId} |
+| bookgolas://book/record/{bookId} | /{locale}/books/{bookId}?tab=record |
+| bookgolas://book/scan/{bookId} | /{locale}/books/{bookId}?scan=1 |
 | Auth callback with next | Validated /{locale}/... consumer path, otherwise /{locale}/home |
 
 ## Validation
@@ -136,9 +137,15 @@ npm run test:parity-matrix -- --fixture complete-without-evidence
 npm run test:parity-matrix -- --fixture complete-with-invalid-evidence
 npm run test:parity-matrix -- --fixture invalid-native-boundary
 npm run test:parity-matrix -- --fixture missing-deep-link
+npm run test:parity-matrix -- --fixture invalid-deep-link-target
+npm run test:parity-matrix -- --fixture missing-native-overlay
+npm run test:parity-matrix -- --fixture missing-native-action
+npm run test:parity-matrix -- --fixture complete-with-fabricated-evidence
+npm run test:parity-matrix -- --fixture invalid-billing-route
+npm run test:parity-matrix -- --fixture invalid-billing-overlay
 ~~~
 
-The first command must exit 0. Every fixture command must fail, proving the checker rejects missing dispositions, duplicate canonical URLs, missing error-state entries, complete status without independent data/browser evidence and invalid native-only boundaries. The default `npm test` also runs the parity checker so the ledger cannot bypass the Web quality gate. The checker further rejects missing actions, missing evidence owners, missing deep links and incomplete native-only capability coverage.
+The first command must exit 0. Every fixture command must fail, proving the checker rejects missing dispositions, duplicate canonical URLs, missing error-state entries, complete status without independent data/browser evidence, invalid native-only boundaries, wrong deep-link destinations, omitted native surfaces/actions and accidental Web billing activation. The default `npm test` also runs the parity checker so the ledger cannot bypass the Web quality gate. The checker further rejects missing actions, missing evidence owners, missing deep links and incomplete native-only capability coverage.
 
 ## Evidence sources
 
@@ -152,5 +159,6 @@ The first command must exit 0. Every fixture command must fail, proving the chec
 - Existing Web routes and states: web/src/app/
 - Existing Web consumer adapters: web/src/components/consumer/ and web/src/lib/consumer/
 - BLDS public contract: blab_design_system repository and BLDS issue 12
+- Independent native expected-surface inventory: web/docs/native-consumer-surface-inventory.json
 
 Plan: .omo/plans/bookgolas-web-app-parity.md
