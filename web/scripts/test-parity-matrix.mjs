@@ -304,6 +304,7 @@ const negativeFixtureNames = [
   "invalid-billing-route",
   "invalid-billing-overlay",
   "invalid-billing-claim",
+  "invalid-disabled-current",
   "complete-with-aliased-evidence",
   "unsafe-source-reference",
   "invalid-native-source",
@@ -325,6 +326,7 @@ const negativeFixtureNames = [
   "complete-with-unit-test-browser-evidence",
   "invalid-web-target",
   "invalid-web-target-missing-path",
+  "invalid-web-target-directory",
   "invalid-web-target-scheme",
   "invalid-web-target-data",
   "invalid-web-target-mailto",
@@ -360,6 +362,7 @@ const negativeFixtureExpectations = {
   "invalid-billing-route": "subscription must use disposition disabled",
   "invalid-billing-overlay": "pro-features must use disposition disabled",
   "invalid-billing-claim": "contains a billing claim",
+  "invalid-disabled-current": "must not define Web current evidence",
   "complete-with-aliased-evidence": "evidence sources and artifacts must be independent",
   "unsafe-source-reference": "references a missing or unsafe path",
   "invalid-native-source": "references a missing or unsafe path",
@@ -380,6 +383,7 @@ const negativeFixtureExpectations = {
   "complete-with-unit-test-browser-evidence": "evidence 2 artifact has an invalid role or is not tracked",
   "invalid-web-target": "Web target must not be an external URL",
   "invalid-web-target-missing-path": "Web target references a missing or unsafe path",
+  "invalid-web-target-directory": "Web target must reference a tracked file",
   "invalid-web-target-scheme": "Web target must not be an external URL",
   "invalid-web-target-data": "Web target must not be an external URL",
   "invalid-web-target-mailto": "Web target must not be an external URL",
@@ -401,6 +405,7 @@ const negativeFixtureExpectations = {
 const disabledConsumerWebRules = {
   subscription: { disposition: "disabled", status: "disabled" },
   "pro-features": { disposition: "disabled", status: "disabled" },
+  subscriptions: { disposition: "disabled", status: "disabled" },
 };
 const billingClaimPattern = /\b(revenuecat|billing|purchase|restore|upgrade|customer center|paywall|pro feature|pro-features)\b/i;
 const subscriptionWebPathPattern = /\bsubscriptions?\b/i;
@@ -544,6 +549,12 @@ if (fixtureName === "invalid-billing-claim") {
     disposition: "route",
     status: "planned",
   };
+}
+
+if (fixtureName === "invalid-disabled-current") {
+  ledger.native_only_capabilities.find((entry) => entry.id === "subscriptions").web.current = [
+    "web/src/app/[locale]/page.tsx",
+  ];
 }
 
 if (fixtureName === "complete-with-aliased-evidence") {
@@ -745,6 +756,10 @@ if (fixtureName === "invalid-web-target") {
 
 if (fixtureName === "invalid-web-target-missing-path") {
   ledger.routes[0].web.target = ["web/src/does-not-exist.ts"];
+}
+
+if (fixtureName === "invalid-web-target-directory") {
+  ledger.routes[0].web.target = ["web/src/"];
 }
 
 if (fixtureName === "invalid-web-target-scheme") {
@@ -1148,6 +1163,8 @@ function checkWebTargets(entry, web) {
         const targetPath = resolveSafeRepositoryPath(target);
         if (!targetPath) {
           fail(entry.id + " Web target references a missing or unsafe path " + target);
+        } else if (!fs.statSync(targetPath).isFile()) {
+          fail(entry.id + " Web target must reference a tracked file " + target);
         } else if (!isTrackedRepositoryReference(target)) {
           fail(entry.id + " Web target references an untracked path " + target);
         }
@@ -1222,6 +1239,12 @@ function checkEntry(entry, groupName) {
     }
     if (isNonEmptyArray(web.target)) {
       fail(entry.id + " must not define a Web target");
+    }
+    if (isNonEmptyArray(web.current)) {
+      fail(entry.id + " must not define Web current evidence");
+    }
+    if (isNonEmptyArray(entry.evidence)) {
+      fail(entry.id + " must not define complete Web evidence");
     }
   }
 

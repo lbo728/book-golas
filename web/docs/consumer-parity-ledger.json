@@ -1186,7 +1186,9 @@
       "native_surface": "Privacy and consent information",
       "native_source": [
         "app/lib/ui/auth/widgets/my_page_screen.dart",
-        "app/lib/ui/auth/utils/legal_content.dart"
+        "app/lib/ui/auth/utils/legal_content.dart",
+        "app/lib/data/services/ad_service.dart",
+        "app/lib/data/services/fcm_service.dart"
       ],
       "native_entry": "My Page legal and privacy settings.",
       "web": {
@@ -1212,13 +1214,13 @@
         },
         {
           "id": "manage-consent",
-          "label": "Review applicable provider or notification consent",
+          "label": "Review AdMob privacy options or notification permission",
           "owner": "#438",
           "status": "planned"
         }
       ],
       "evidence_owner": "#416",
-      "notes": "The Web route must not imply consent to capabilities that are unavailable or disabled."
+      "notes": "Privacy policy content is separate from the native AdMob privacy-options form and FCM notification-permission boundary; the Web route must not imply consent to capabilities that are unavailable or disabled."
     }
   ],
   "overlays": [
