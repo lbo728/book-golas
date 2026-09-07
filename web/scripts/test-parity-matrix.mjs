@@ -169,6 +169,14 @@ const requiredDeepLinkIds = [
   "book-scan-deep-link",
   "auth-next-return",
 ];
+const requiredNativeActionAssertions = {
+  routes: {
+    "book-detail": ["resume-reading", "start-planned-reading"],
+  },
+  native_only_capabilities: {
+    "siri-app-shortcuts": ["continue-reading-shortcut", "scan-page-shortcut", "add-book-shortcut"],
+  },
+};
 const nativeCapabilityRequiredSources = {
   "siri-app-shortcuts": [
     "app/ios/Runner/BookgolasShortcuts.swift",
@@ -203,6 +211,7 @@ const negativeFixtureNames = [
   "invalid-source-inventory",
   "invalid-canonical-path",
   "complete-with-cross-role-alias",
+  "missing-action-assertion",
 ];
 const negativeFixtureExpectations = {
   "missing-disposition": "has invalid web disposition",
@@ -231,6 +240,7 @@ const negativeFixtureExpectations = {
   "invalid-source-inventory": "source_inventory paths references a missing or unsafe path",
   "invalid-canonical-path": "canonical_url must be a locale-relative path",
   "complete-with-cross-role-alias": "evidence sources and artifacts must be independent",
+  "missing-action-assertion": "required native action assertion is missing",
 };
 const disabledConsumerWebRules = {
   subscription: { disposition: "disabled", status: "disabled" },
@@ -441,6 +451,10 @@ if (fixtureName === "complete-with-cross-role-alias") {
       commit: currentCommit,
     },
   ];
+}
+
+if (fixtureName === "missing-action-assertion") {
+  delete nativeInventory.native_action_assertions.routes["book-detail"]["resume-reading"];
 }
 
 function fail(message) {
@@ -970,6 +984,17 @@ function checkNativeActionAssertions() {
   if (!assertionGroups || typeof assertionGroups !== "object" || Array.isArray(assertionGroups)) {
     fail("native inventory native_action_assertions are missing");
     return;
+  }
+
+  for (const [groupName, entryRequirements] of Object.entries(requiredNativeActionAssertions)) {
+    for (const [entryId, requiredActions] of Object.entries(entryRequirements)) {
+      const assertions = assertionGroups[groupName]?.[entryId];
+      for (const actionId of requiredActions) {
+        if (!assertions || !Object.prototype.hasOwnProperty.call(assertions, actionId)) {
+          fail("required native action assertion is missing: " + groupName + "." + entryId + "." + actionId);
+        }
+      }
+    }
   }
 
   for (const [groupName, entryAssertions] of Object.entries(assertionGroups)) {
