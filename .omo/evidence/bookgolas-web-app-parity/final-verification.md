@@ -18,9 +18,11 @@ Date: 2026-09-09
 ## Local reset
 
 - `npm run reset:fixtures` — blocked until Docker Desktop can complete its macOS administrator-authenticated engine initialization.
+- When Docker is available, the reset command also uploads `cover.png` to `book-images/user-a/book-a.png` and `book-images/user-b/book-b.png` using the ephemeral local service-role key from `supabase status`.
 
 ## Provenance
 
 - Issue: #414
 - Branch: `codex/feature/web/1.1.0/BOK-414-browser-fixtures`
 - Target: `version/web/1.1.0`
+- Plan: `.omo/plans/bookgolas-web-app-parity.md`

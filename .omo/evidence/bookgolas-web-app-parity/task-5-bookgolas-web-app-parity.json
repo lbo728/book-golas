@@ -36,6 +36,8 @@
     "local_reset_command": "npm run reset:fixtures",
     "status": "blocked_by_environment",
     "reason": "Docker Desktop engine initialization requires macOS administrator authentication while the host session is locked",
-    "safety": "The reset command is restricted to supabase db reset --local and the committed local seed uses only reserved .invalid addresses and fixed UUIDs."
-  }
+    "safety": "The reset command is restricted to supabase db reset --local and the committed local seed uses only reserved .invalid addresses, fixed UUIDs and a synthetic PNG.",
+    "storage_upload": "The reset script uploads the synthetic PNG to both local book-images paths after the database reset."
+  },
+  "plan": ".omo/plans/bookgolas-web-app-parity.md"
 }

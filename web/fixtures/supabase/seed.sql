@@ -1,6 +1,14 @@
 -- Local-only fixture seed. Use through `npm run reset:fixtures`.
 -- The .invalid addresses and fixed UUIDs are synthetic and must never be used remotely.
 
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('book-images', 'book-images', true)
+ON CONFLICT (id) DO UPDATE SET public = EXCLUDED.public;
+
+DELETE FROM storage.objects
+WHERE bucket_id = 'book-images'
+  AND name IN ('user-a/book-a.png', 'user-b/book-b.png');
+
 DELETE FROM public.book_images
 WHERE id IN (
   '00000000-0000-4000-8000-000000000201',

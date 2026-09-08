@@ -5,8 +5,10 @@ const webRoot = path.resolve(import.meta.dirname, "..");
 const fixtureRoot = path.join(webRoot, "fixtures/supabase");
 const manifestPath = path.join(fixtureRoot, "consumer-fixtures.json");
 const seedPath = path.join(fixtureRoot, "seed.sql");
+const resetScriptPath = path.join(webRoot, "scripts/reset-local-fixtures.mjs");
 const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
 const seed = fs.readFileSync(seedPath, "utf8");
+const resetScript = fs.readFileSync(resetScriptPath, "utf8");
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const secretPatterns = [
   /service[_-]?role[_-]?key\s*[:=]\s*[^$\s]+/i,
@@ -24,6 +26,9 @@ requireCondition(manifest.fixture_id === "bookgolas-web-414", "fixture id is not
 requireCondition(manifest.users.length === 2, "fixture must contain User A and User B");
 requireCondition(manifest.books.length === 2, "fixture must contain two books");
 requireCondition(manifest.images.length === 2, "fixture must contain two images");
+requireCondition(seed.includes("INSERT INTO storage.buckets"), "seed is missing the book-images bucket");
+requireCondition(resetScript.includes('"--local"'), "reset script must remain local-only");
+requireCondition(resetScript.includes('storage.from("book-images")'), "reset script is missing storage upload");
 
 const userKeys = new Set();
 const userIds = new Set();
@@ -66,6 +71,7 @@ for (const image of manifest.images) {
     `image asset escapes Web fixture root: ${image.key}`,
   );
   requireCondition(fs.existsSync(assetPath), `image asset is missing: ${image.asset_path}`);
+  requireCondition(seed.includes(image.storage_path), `seed is missing storage path: ${image.storage_path}`);
   requireCondition(seed.includes(image.id), `seed is missing image ${image.key}`);
 }
 

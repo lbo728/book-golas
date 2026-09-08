@@ -1,10 +1,12 @@
+import fs from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
+import { createClient } from "@supabase/supabase-js";
 
 const repositoryRoot = path.resolve(import.meta.dirname, "../..");
 const result = spawnSync(
   "supabase",
-  ["db", "reset", "--local", "--sql-paths", "web/fixtures/supabase/seed.sql", "--yes"],
+  ["db", "reset", "--local", "--sql-paths", "../web/fixtures/supabase/seed.sql", "--yes"],
   { cwd: repositoryRoot, stdio: "inherit" },
 );
 
@@ -15,4 +17,51 @@ if (result.error) {
 if (result.status !== 0) {
   process.exit(result.status ?? 1);
 }
-console.log("local Supabase fixtures reset from web/fixtures/supabase/seed.sql");
+
+const status = spawnSync("supabase", ["status", "--output", "env"], {
+  cwd: repositoryRoot,
+  encoding: "utf8",
+});
+if (status.error || status.status !== 0) {
+  console.error(`local Supabase status could not be read: ${status.error?.message ?? "status command failed"}`);
+  process.exit(status.status ?? 1);
+}
+
+const localEnv = new Map();
+for (const line of status.stdout.split("\n")) {
+  const match = line.match(/^([A-Z0-9_]+)=(.*)$/);
+  if (!match) continue;
+  localEnv.set(match[1], match[2].replace(/^"|"$/g, ""));
+}
+
+const apiUrl = localEnv.get("API_URL");
+const serviceRoleKey = localEnv.get("SERVICE_ROLE_KEY");
+if (!apiUrl || !serviceRoleKey) {
+  console.error("local Supabase status did not provide API_URL and SERVICE_ROLE_KEY");
+  process.exit(1);
+}
+
+const parsedApiUrl = new URL(apiUrl);
+if (!["localhost", "127.0.0.1", "::1", "[::1]"].includes(parsedApiUrl.hostname)) {
+  console.error("local Supabase storage upload requires a loopback API URL");
+  process.exit(1);
+}
+
+const supabaseAdmin = createClient(apiUrl, serviceRoleKey, {
+  auth: { autoRefreshToken: false, persistSession: false },
+});
+const asset = fs.readFileSync(
+  path.resolve(repositoryRoot, "web/fixtures/supabase/assets/cover.png"),
+);
+for (const storagePath of ["user-a/book-a.png", "user-b/book-b.png"]) {
+  const { error } = await supabaseAdmin.storage.from("book-images").upload(storagePath, asset, {
+    contentType: "image/png",
+    upsert: true,
+  });
+  if (error) {
+    console.error(`local Supabase storage fixture upload failed for ${storagePath}: ${error.message}`);
+    process.exit(1);
+  }
+}
+
+console.log("local Supabase fixtures reset and uploaded: 2 users, 2 books, 2 images");

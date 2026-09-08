@@ -21,7 +21,7 @@ cd web
 npm run reset:fixtures
 ```
 
-The reset command is fail-closed to the local Supabase CLI and applies `web/fixtures/supabase/seed.sql` with `supabase db reset --local --sql-paths`. It does not accept a linked or remote project. The SQL creates two isolated auth users, two owned books and two owned image records. The image bytes are available at `web/fixtures/supabase/assets/cover.png` for storage upload tests.
+The reset command is fail-closed to the local Supabase CLI and applies `web/fixtures/supabase/seed.sql` with `supabase db reset --local --sql-paths`. It does not accept a linked or remote project. The SQL creates two isolated auth users, two owned books, two owned image records and the local `book-images` bucket; the reset script uploads the synthetic PNG to both fixture storage paths.
 
 Disposable account helpers require `BOOKGOLAS_TEST_SUPABASE_URL` and `BOOKGOLAS_TEST_SUPABASE_SERVICE_ROLE_KEY` from the environment. The helper rejects non-local hosts and generates a fresh `.invalid` email and random password for each account. Secrets are never stored in fixtures or committed files.
 
