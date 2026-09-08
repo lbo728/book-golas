@@ -45,7 +45,16 @@ if (!loadingButton.includes('aria-busy="true"') || !loadingButton.includes("disa
   console.error("BLDS loading button lost its disabled/aria-busy contract");
   process.exit(1);
 }
-if (!textField.includes('data-blab-component="text-field"') || !textField.includes('aria-invalid="true"') || !textField.includes('role="alert"')) {
+if (
+  !textField.includes('data-blab-component="text-field"') ||
+  !textField.includes('id="email"') ||
+  !textField.includes('<label') ||
+  !textField.includes('for="email"') ||
+  !textField.includes('aria-describedby="email-error"') ||
+  !textField.includes('aria-invalid="true"') ||
+  !textField.includes('id="email-error"') ||
+  !textField.includes('role="alert"')
+) {
   console.error("BLDS text field lost its label/error accessibility contract");
   process.exit(1);
 }

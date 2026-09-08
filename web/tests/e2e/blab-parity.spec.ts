@@ -28,14 +28,15 @@ for (const locale of ["ko", "en"] as const) {
         await refreshButton.focus();
         await expect(refreshButton).toBeFocused();
         await refreshButton.click();
-        await expect(page.locator(".blab-error-state, .blab-empty-state").first()).toBeVisible();
-        const retryAction = page.getByRole("button", {
+        const errorNotice = page.locator(".blab-error-state").first();
+        await expect(errorNotice).toBeVisible();
+        const retryAction = errorNotice.locator("..").getByRole("button", {
           name: locale === "ko" ? "새로고침" : "Refresh",
-        }).last();
+        });
         await retryAction.focus();
         await expect(retryAction).toBeFocused();
         await retryAction.click();
-        await expect(page.locator(".blab-error-state, .blab-empty-state").first()).toBeVisible();
+        await expect(errorNotice).toBeVisible();
 
         const buttonStyle = await refreshButton.evaluate((element) => {
           const style = getComputedStyle(element);
