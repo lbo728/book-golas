@@ -4,6 +4,7 @@ import { getMessages } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
+import { BlabThemeSync } from "@/components/consumer/blab-theme-sync";
 
 export const metadata: Metadata = {
   title: {
@@ -32,6 +33,7 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider messages={messages}>
+      <BlabThemeSync />
       {children}
     </NextIntlClientProvider>
   );

@@ -2,21 +2,19 @@
 
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
+import { ConsumerButton } from "@/components/consumer/blab-primitives";
 
 export function RefreshButton() {
   const router = useRouter();
   const t = useTranslations("consumer");
 
   return (
-    <Button
+    <ConsumerButton
       type="button"
-      variant="outline"
-      size="sm"
+      variant="secondary"
       onClick={() => router.refresh()}
-      className="border-white/15 bg-white/[0.04] text-white hover:bg-white/10 hover:text-white"
     >
       {t("home.refresh")}
-    </Button>
+    </ConsumerButton>
   );
 }

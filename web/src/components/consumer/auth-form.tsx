@@ -4,11 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { supabase } from "@/lib/supabase";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { ConsumerButton, ConsumerTextField } from "@/components/consumer/blab-primitives";
 import {
-  getPasswordMinLength,
+  getPasswordValidationError,
   signInWithPassword,
   signOutUser,
   type AuthMode,
@@ -58,15 +56,10 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
     setErrorKey(null);
     setSuccessKey(null);
 
-    if (mode === "reset-password" && isRecovery) {
-      if (password.length < 8) {
-        setErrorKey("errors.passwordShort");
-        return;
-      }
-      if (password !== confirmation) {
-        setErrorKey("errors.passwordMismatch");
-        return;
-      }
+    const passwordValidationError = getPasswordValidationError(mode, isRecovery, password, confirmation);
+    if (passwordValidationError) {
+      setErrorKey(passwordValidationError === "short" ? "errors.passwordShort" : "errors.passwordMismatch");
+      return;
     }
 
     setIsPending(true);
@@ -149,8 +142,6 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
           ? t("recoveryDescription")
           : t("resetDescription");
   const isEmailForm = mode !== "reset-password" || !isRecovery;
-  const passwordMinLength = getPasswordMinLength(mode, isRecovery);
-
   return (
     <div className="w-full max-w-md">
       <div className="mb-8 text-center">
@@ -171,16 +162,13 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
       >
         {isEmailForm ? (
           <div className="space-y-2">
-            <Label htmlFor="consumer-email" className="text-white/80">
-              {t("email")}
-            </Label>
-            <Input
+            <ConsumerTextField
               id="consumer-email"
-              type="email"
+              label={t("email")}
+              inputType="email"
               autoComplete="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="h-11 border-white/15 bg-black/20 text-white"
               required
             />
           </div>
@@ -188,17 +176,13 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
 
         {mode !== "reset-password" || isRecovery ? (
           <div className="mt-5 space-y-2">
-            <Label htmlFor="consumer-password" className="text-white/80">
-              {isRecovery ? t("newPassword") : t("password")}
-            </Label>
-            <Input
+            <ConsumerTextField
               id="consumer-password"
-              type="password"
+              label={isRecovery ? t("newPassword") : t("password")}
+              obscureText
               autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="h-11 border-white/15 bg-black/20 text-white"
-              minLength={passwordMinLength}
               required
             />
           </div>
@@ -206,17 +190,13 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
 
         {mode === "reset-password" && isRecovery ? (
           <div className="mt-5 space-y-2">
-            <Label htmlFor="consumer-password-confirm" className="text-white/80">
-              {t("confirmPassword")}
-            </Label>
-            <Input
+            <ConsumerTextField
               id="consumer-password-confirm"
-              type="password"
+              label={t("confirmPassword")}
+              obscureText
               autoComplete="new-password"
               value={confirmation}
               onChange={(event) => setConfirmation(event.target.value)}
-              className="h-11 border-white/15 bg-black/20 text-white"
-              minLength={8}
               required
             />
           </div>
@@ -233,10 +213,13 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
           </p>
         ) : null}
 
-        <Button
+        <ConsumerButton
           type="submit"
           disabled={isPending}
-          className="mt-6 h-11 w-full rounded-xl bg-indigo-400 text-white hover:bg-indigo-300"
+          isFullWidth
+          loading={isPending}
+          loadingLabel={t("processing")}
+          className="mt-6"
         >
           {isPending
             ? t("processing")
@@ -247,7 +230,7 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
                 : isRecovery
                   ? t("updatePassword")
                   : t("sendReset")}
-        </Button>
+        </ConsumerButton>
 
         {mode === "sign-in" ? (
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm">

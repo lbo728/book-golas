@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { supabase } from "@/lib/supabase";
-import { Button } from "@/components/ui/button";
+import { ConsumerButton } from "@/components/consumer/blab-primitives";
 import { signOutUser } from "@/lib/consumer/auth";
 
 export function SignOutButton({ locale }: { locale: string }) {
@@ -27,16 +27,16 @@ export function SignOutButton({ locale }: { locale: string }) {
 
   return (
     <div className="flex flex-col items-end gap-2">
-      <Button
+      <ConsumerButton
         type="button"
-        variant="ghost"
-        size="sm"
+        variant="secondary"
         onClick={signOut}
         disabled={isPending}
-        className="text-white/60 hover:bg-white/10 hover:text-white"
+        loading={isPending}
+        loadingLabel={t("nav.signOut")}
       >
         {t("nav.signOut")}
-      </Button>
+      </ConsumerButton>
       {hasError ? (
         <p className="text-right text-xs text-rose-200" role="alert">
           {t("nav.signOutError")}

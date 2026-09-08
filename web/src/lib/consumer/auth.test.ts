@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   getPasswordMinLength,
+  getPasswordValidationError,
   signInWithPassword,
   signOutUser,
 } from "./auth";
@@ -11,6 +12,13 @@ describe("consumer authentication contracts", () => {
     expect(getPasswordMinLength("sign-up", false)).toBe(8);
     expect(getPasswordMinLength("reset-password", true)).toBe(8);
     expect(getPasswordMinLength("reset-password", false)).toBeUndefined();
+  });
+
+  it("preserves submit-time password validation for migrated BLDS fields", () => {
+    expect(getPasswordValidationError("sign-in", false, "short", "")).toBeNull();
+    expect(getPasswordValidationError("sign-up", false, "short", "")).toBe("short");
+    expect(getPasswordValidationError("reset-password", true, "long-enough", "short")).toBe("short");
+    expect(getPasswordValidationError("reset-password", true, "long-enough", "different")).toBe("mismatch");
   });
 
   it("passes short existing-account credentials to the auth provider", async () => {

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
+import { ConsumerButton } from "@/components/consumer/blab-primitives";
 import { updateReadingProgress } from "@/app/actions/reading-progress";
 
 type ProgressUpdaterProps = {
@@ -93,13 +93,14 @@ export function ProgressUpdater({
           />
         </div>
         <span className="pb-2 text-sm text-white/55">/ {totalPages}</span>
-        <Button
+        <ConsumerButton
           type="submit"
           disabled={isPending || totalPages < 0}
-          className="h-11 rounded-xl bg-indigo-400 px-5 text-white hover:bg-indigo-300"
+          loading={isPending}
+          loadingLabel={t("reading.saving")}
         >
-          {isPending ? t("reading.saving") : t("reading.save")}
-        </Button>
+          {t("reading.save")}
+        </ConsumerButton>
       </div>
 
       {errorMessage ? (

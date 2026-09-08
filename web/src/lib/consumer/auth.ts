@@ -24,6 +24,23 @@ export function getPasswordMinLength(
   return isRecovery ? 8 : undefined;
 }
 
+export type PasswordValidationError = "short" | "mismatch";
+
+export function getPasswordValidationError(
+  mode: AuthMode,
+  isRecovery: boolean,
+  password: string,
+  confirmation: string,
+): PasswordValidationError | null {
+  const minimum = getPasswordMinLength(mode, isRecovery);
+  if (minimum !== undefined && password.length < minimum) return "short";
+  if (mode === "reset-password" && isRecovery && minimum !== undefined && confirmation.length < minimum) {
+    return "short";
+  }
+  if (mode === "reset-password" && isRecovery && password !== confirmation) return "mismatch";
+  return null;
+}
+
 export function signInWithPassword(
   auth: PasswordAuthClient,
   email: string,

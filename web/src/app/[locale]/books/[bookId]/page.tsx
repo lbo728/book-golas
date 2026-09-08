@@ -46,6 +46,7 @@ export default async function BookDetailPage({
                 ? t("states.errorDescription")
                 : t("states.permissionDescription")
             }
+            tone={result.code === "unavailable" ? "error" : "empty"}
             action={
               <Link
                 href={getConsumerPath(locale, "/home")}

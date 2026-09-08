@@ -1,29 +1,32 @@
 import type { ReactNode } from "react";
+import {
+  ConsumerCard,
+  ConsumerEmptyState,
+  ConsumerErrorState,
+} from "@/components/consumer/blab-primitives";
 
 type ConsumerNoticeProps = {
   title: string;
   description: string;
   action?: ReactNode;
+  tone?: "empty" | "error";
 };
 
 export function ConsumerNotice({
   title,
   description,
   action,
+  tone = "empty",
 }: ConsumerNoticeProps) {
+  const State = tone === "error" ? ConsumerErrorState : ConsumerEmptyState;
+
   return (
-    <section
-      className="rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-center shadow-2xl shadow-black/20"
+    <ConsumerCard
+      className="text-center"
       role="status"
     >
-      <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-400/15 text-2xl">
-        📚
-      </div>
-      <h2 className="text-xl font-semibold text-white">{title}</h2>
-      <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-white/60">
-        {description}
-      </p>
+      <State title={title} message={description} icon="📚" />
       {action ? <div className="mt-6 flex justify-center">{action}</div> : null}
-    </section>
+    </ConsumerCard>
   );
 }

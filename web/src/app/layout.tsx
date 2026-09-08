@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Plus_Jakarta_Sans } from "next/font/google";
 import { getLocale } from "next-intl/server";
+import "@byungsker/blab-design-system/styles.css";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -14,6 +15,12 @@ const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-body",
   display: "swap",
 });
+
+const themeBootstrapScript = `
+  const root = document.documentElement;
+  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  root.dataset.blabTheme = prefersLight ? "light" : "dark";
+`;
 
 export const metadata: Metadata = {
   title: {
@@ -34,14 +41,20 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
+      data-blab-theme="dark"
+      suppressHydrationWarning
       className={`${spaceGrotesk.variable} ${plusJakarta.variable}`}
     >
+      <head>
+        <script
+          id="blab-theme-bootstrap"
+          dangerouslySetInnerHTML={{ __html: themeBootstrapScript }}
+        />
+      </head>
       <body
         className="antialiased"
         style={{
           fontFamily: "var(--font-body)",
-          backgroundColor: "#0D0F1A",
-          color: "#FAFAFA",
           WebkitFontSmoothing: "antialiased",
         }}
       >
