@@ -79,3 +79,17 @@ for (const locale of ["ko", "en"] as const) {
     });
   }
 }
+
+test("missing-session fails closed for the consumer home", async ({ page }) => {
+  await page.goto("/en/home", { waitUntil: "networkidle" });
+  const destination = new URL(page.url());
+
+  if (destination.pathname === "/en/auth/sign-in") {
+    expect(destination.searchParams.get("next")).toBe("/en/home");
+    return;
+  }
+
+  expect(destination.pathname).toBe("/en/home");
+  await expect(page.locator(".blab-error-state")).toBeVisible();
+  await expect(page.locator('a[href*="/books/"]')).toHaveCount(0);
+});

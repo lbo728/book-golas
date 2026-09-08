@@ -18,19 +18,24 @@
     ],
     "result": "PASS",
     "projects": ["chromium", "firefox", "webkit"],
-    "listed_tests": 12,
+    "listed_tests": 15,
     "fixture_contract": "2 isolated users, 2 books, 2 images"
+  },
+  "negative": {
+    "command": "npm run test:e2e -- --project=chromium --grep missing-session",
+    "result": "PASS",
+    "assertion": "missing consumer session fails closed without exposing book routes"
   },
   "surface": {
     "command": "npm run test:e2e -- --project=chromium",
     "result": "PASS",
-    "tests": 4,
+    "tests": 5,
     "evidence_writer": "Chromium only; Firefox and WebKit do not overwrite canonical screenshots"
   },
   "cleanup": {
     "local_reset_command": "npm run reset:fixtures",
     "status": "blocked_by_environment",
-    "reason": "Docker Desktop is unavailable on this host",
+    "reason": "Docker Desktop engine initialization requires macOS administrator authentication while the host session is locked",
     "safety": "The reset command is restricted to supabase db reset --local and the committed local seed uses only reserved .invalid addresses and fixed UUIDs."
   }
 }

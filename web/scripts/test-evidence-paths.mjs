@@ -1,32 +1,67 @@
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { evidenceDirectory } from "./evidence.mjs";
+import { evidenceDirectory, taskEvidenceDirectory } from "./evidence.mjs";
 
-const repositoryRoot = path.resolve(evidenceDirectory, "../../../..");
-const evidenceRelativePath = "web/docs/evidence/bookgolas-web-app-parity";
+const repositoryRoot = path.resolve(import.meta.dirname, "../..");
+const visualEvidenceRelativePath = "web/docs/evidence/bookgolas-web-app-parity";
+const taskEvidenceRelativePath = ".omo/evidence/bookgolas-web-app-parity";
 const failures = [];
+/** Collect a validation failure without stopping the remaining checks. */
 const requireCondition = (condition, message) => {
   if (!condition) failures.push(message);
 };
 
-requireCondition(fs.existsSync(evidenceDirectory), "task evidence directory is missing");
+requireCondition(fs.existsSync(evidenceDirectory), "visual evidence directory is missing");
 const sumsPath = path.join(evidenceDirectory, "SHA256SUMS");
 requireCondition(fs.existsSync(sumsPath), "SHA256SUMS is missing");
 requireCondition(fs.existsSync(path.join(evidenceDirectory, "final-verification.md")), "final verification record is missing");
+requireCondition(fs.existsSync(taskEvidenceDirectory), "task evidence directory is missing");
+const taskSumsPath = path.join(taskEvidenceDirectory, "SHA256SUMS");
+requireCondition(fs.existsSync(taskSumsPath), "task SHA256SUMS is missing");
+requireCondition(
+  fs.existsSync(path.join(taskEvidenceDirectory, "task-5-bookgolas-web-app-parity.json")),
+  "task evidence record is missing",
+);
+requireCondition(
+  fs.existsSync(path.join(taskEvidenceDirectory, "final-verification.md")),
+  "task final verification record is missing",
+);
 
-if (fs.existsSync(sumsPath)) {
-  const entries = fs.readFileSync(sumsPath, "utf8").trim().split("\n").filter(Boolean);
-  requireCondition(entries.length > 0, "SHA256SUMS is empty");
+/** Validate scope, containment, existence and digest for one evidence manifest. */
+function validateChecksumManifest(manifestPath, allowedRelativePath, label) {
+  if (!fs.existsSync(manifestPath)) return;
+
+  const entries = fs.readFileSync(manifestPath, "utf8").trim().split("\n").filter(Boolean);
+  requireCondition(entries.length > 0, `${label} SHA256SUMS is empty`);
   for (const entry of entries) {
-    const [, , relativePath] = entry.match(/^([0-9a-f]{64})  (.+)$/i) ?? [];
-    requireCondition(Boolean(relativePath), `malformed checksum entry: ${entry}`);
-    if (relativePath) {
-      requireCondition(relativePath.startsWith(`${evidenceRelativePath}/`), `evidence path escapes allowed directory: ${relativePath}`);
-      requireCondition(!path.isAbsolute(relativePath) && !relativePath.split(path.sep).includes(".."), `evidence path is not repository relative: ${relativePath}`);
-      requireCondition(fs.existsSync(path.join(repositoryRoot, relativePath)), `checksum target is missing: ${relativePath}`);
+    const [, expectedDigest, relativePath] = entry.match(/^([0-9a-f]{64})  (.+)$/i) ?? [];
+    requireCondition(Boolean(expectedDigest && relativePath), `malformed checksum entry: ${entry}`);
+    if (!expectedDigest || !relativePath) continue;
+
+    const targetPath = path.resolve(repositoryRoot, relativePath);
+    const repositoryRelativePath = path.relative(repositoryRoot, targetPath);
+    requireCondition(
+      relativePath.startsWith(`${allowedRelativePath}/`),
+      `evidence path escapes allowed directory: ${relativePath}`,
+    );
+    requireCondition(
+      repositoryRelativePath !== "" &&
+        repositoryRelativePath !== ".." &&
+        !repositoryRelativePath.startsWith(`..${path.sep}`) &&
+        !path.isAbsolute(repositoryRelativePath),
+      `evidence path is not repository relative: ${relativePath}`,
+    );
+    requireCondition(fs.existsSync(targetPath), `checksum target is missing: ${relativePath}`);
+    if (fs.existsSync(targetPath)) {
+      const actualDigest = crypto.createHash("sha256").update(fs.readFileSync(targetPath)).digest("hex");
+      requireCondition(actualDigest === expectedDigest.toLowerCase(), `checksum mismatch: ${relativePath}`);
     }
   }
 }
+
+validateChecksumManifest(sumsPath, visualEvidenceRelativePath, "visual evidence");
+validateChecksumManifest(taskSumsPath, taskEvidenceRelativePath, "task evidence");
 
 if (failures.length > 0) {
   console.error(failures.join("\n"));

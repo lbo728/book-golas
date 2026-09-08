@@ -2,6 +2,15 @@ import { defineConfig } from "@playwright/test";
 
 const configuredBaseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3000";
 const parsedBaseURL = new URL(configuredBaseURL);
+const loopbackHosts = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
+if (
+  !["http:", "https:"].includes(parsedBaseURL.protocol) ||
+  !loopbackHosts.has(parsedBaseURL.hostname) ||
+  parsedBaseURL.username ||
+  parsedBaseURL.password
+) {
+  throw new Error("PLAYWRIGHT_BASE_URL must be a credential-free loopback HTTP(S) URL");
+}
 if (!parsedBaseURL.port) parsedBaseURL.port = "3000";
 const baseURL = parsedBaseURL.toString().replace(/\/$/, "");
 const port = parsedBaseURL.port;

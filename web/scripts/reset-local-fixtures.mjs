@@ -4,7 +4,7 @@ import path from "node:path";
 const repositoryRoot = path.resolve(import.meta.dirname, "../..");
 const result = spawnSync(
   "supabase",
-  ["db", "reset", "--local", "--sql-paths", "../web/fixtures/supabase/seed.sql", "--yes"],
+  ["db", "reset", "--local", "--sql-paths", "web/fixtures/supabase/seed.sql", "--yes"],
   { cwd: repositoryRoot, stdio: "inherit" },
 );
 

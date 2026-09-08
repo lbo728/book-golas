@@ -27,7 +27,7 @@ Disposable account helpers require `BOOKGOLAS_TEST_SUPABASE_URL` and `BOOKGOLAS_
 
 ## Evidence contract
 
-`npm run test:evidence-paths` verifies that the task evidence directory, verification record and SHA256 manifest remain repository-relative and inside `web/docs/evidence/bookgolas-web-app-parity/`. Browser captures may be written there by Playwright; `test-results/` remains ignored and disposable.
+`npm run test:evidence-paths` verifies the task record under `.omo/evidence/bookgolas-web-app-parity/` and the visual capture manifest under `web/docs/evidence/bookgolas-web-app-parity/`. Browser captures may be written to the visual directory by Playwright; `test-results/` remains ignored and disposable.
 
 RED: the three requested commands were absent or incomplete before this task.
 

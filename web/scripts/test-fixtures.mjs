@@ -8,7 +8,13 @@ const seedPath = path.join(fixtureRoot, "seed.sql");
 const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
 const seed = fs.readFileSync(seedPath, "utf8");
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const secretPatterns = [
+  /service[_-]?role[_-]?key\s*[:=]\s*[^$\s]+/i,
+  /\bsk-[A-Za-z0-9]{20,}\b/,
+  /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/,
+];
 const failures = [];
+/** Collect a fixture contract failure without hiding additional violations. */
 const requireCondition = (condition, message) => {
   if (!condition) failures.push(message);
 };
@@ -51,7 +57,14 @@ for (const image of manifest.images) {
   requireCondition(bookKeys.has(image.book_key), `image book is missing: ${image.key}`);
   requireCondition(image.mime_type === "image/png", `unexpected image type: ${image.key}`);
   const assetPath = path.resolve(webRoot, "..", image.asset_path);
-  requireCondition(assetPath.startsWith(webRoot), `image asset escapes Web fixture root: ${image.key}`);
+  const assetRelativePath = path.relative(webRoot, assetPath);
+  requireCondition(
+    assetRelativePath !== "" &&
+      assetRelativePath !== ".." &&
+      !assetRelativePath.startsWith(`..${path.sep}`) &&
+      !path.isAbsolute(assetRelativePath),
+    `image asset escapes Web fixture root: ${image.key}`,
+  );
   requireCondition(fs.existsSync(assetPath), `image asset is missing: ${image.asset_path}`);
   requireCondition(seed.includes(image.id), `seed is missing image ${image.key}`);
 }
@@ -59,9 +72,17 @@ for (const image of manifest.images) {
 const trackedFixtureFiles = [manifestPath, seedPath];
 for (const filePath of trackedFixtureFiles) {
   const contents = fs.readFileSync(filePath, "utf8");
-  requireCondition(!/service[_-]?role[_-]?key\s*[:=]\s*[^$\s]+/i.test(contents), `possible service role secret in ${filePath}`);
-  requireCondition(!/\bsk-[A-Za-z0-9]{20,}\b/.test(contents), `possible provider token in ${filePath}`);
+  requireCondition(!secretPatterns.some((pattern) => pattern.test(contents)), `possible secret in ${filePath}`);
 }
+
+const negativeSecretFixture = fs.readFileSync(
+  path.join(fixtureRoot, "negative/unlabeled-service-role.txt"),
+  "utf8",
+);
+requireCondition(
+  secretPatterns.some((pattern) => pattern.test(negativeSecretFixture)),
+  "unlabeled JWT negative fixture was not detected",
+);
 
 if (failures.length > 0) {
   console.error(failures.join("\n"));
