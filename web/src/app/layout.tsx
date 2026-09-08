@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Plus_Jakarta_Sans } from "next/font/google";
 import { getLocale } from "next-intl/server";
+import "@byungsker/blab-design-system/styles.css";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -34,14 +35,13 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
+      data-blab-theme="dark"
       className={`${spaceGrotesk.variable} ${plusJakarta.variable}`}
     >
       <body
         className="antialiased"
         style={{
           fontFamily: "var(--font-body)",
-          backgroundColor: "#0D0F1A",
-          color: "#FAFAFA",
           WebkitFontSmoothing: "antialiased",
         }}
       >

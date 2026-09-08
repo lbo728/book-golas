@@ -144,6 +144,16 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  html[data-blab-theme="dark"] body {
+    background: var(--blab-surface-scaffold);
+    color: var(--blab-text-primary);
+  }
+
+  html[data-blab-theme="light"] body {
+    background: var(--blab-surface-scaffold);
+    color: var(--blab-text-primary);
+  }
 }
 
 @layer utilities {

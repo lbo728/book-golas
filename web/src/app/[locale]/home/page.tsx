@@ -30,16 +30,16 @@ export default async function ConsumerHomePage({
   const result = user ? await fetchOwnedBooks() : { books: [], code: "unavailable" as const };
 
   return (
-    <div className="min-h-screen bg-[#0d0f1a] text-white">
+    <div className="bookgolas-consumer-page min-h-screen bg-[var(--blab-surface-scaffold)] text-[var(--blab-text-primary)]">
       <ConsumerHeader locale={locale} authenticated={Boolean(user)} />
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-indigo-200">{t("home.eyebrow")}</p>
+            <p className="text-sm font-medium text-[var(--blab-color-primary)]">{t("home.eyebrow")}</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
               {t("home.title")}
             </h1>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-white/60">
+            <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--blab-text-tertiary)]">
               {t("home.description")}
             </p>
           </div>
@@ -52,10 +52,10 @@ export default async function ConsumerHomePage({
 
         <section className="mt-8" aria-labelledby="consumer-books-heading">
           <div className="mb-4 flex items-center justify-between gap-4">
-            <h2 id="consumer-books-heading" className="text-lg font-semibold text-white">
+            <h2 id="consumer-books-heading" className="text-lg font-semibold text-[var(--blab-text-primary)]">
               {t("home.booksHeading")}
             </h2>
-            <span className="text-sm text-white/50">
+            <span className="text-sm text-[var(--blab-text-tertiary)]">
               {t("home.bookCount", { count: result.books.length })}
             </span>
           </div>
@@ -64,6 +64,7 @@ export default async function ConsumerHomePage({
             <ConsumerNotice
               title={t("states.errorTitle")}
               description={t("states.errorDescription")}
+              tone="error"
               action={<RefreshButton />}
             />
           ) : result.books.length === 0 ? (

@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { ConsumerLoadingState } from "@/components/consumer/blab-primitives";
 
 export default async function ConsumerHomeLoading() {
   const t = await getTranslations("consumer");
@@ -6,7 +7,7 @@ export default async function ConsumerHomeLoading() {
   return (
     <main className="mesh-gradient min-h-screen px-4 py-12 sm:px-6" aria-busy="true">
       <div className="mx-auto max-w-6xl">
-        <p className="text-sm text-white/60">{t("states.loading")}</p>
+        <ConsumerLoadingState label={t("states.loading")} />
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           {[0, 1, 2, 3].map((item) => (
             <div
