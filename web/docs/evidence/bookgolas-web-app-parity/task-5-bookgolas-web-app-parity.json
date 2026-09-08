@@ -1,0 +1,36 @@
+{
+  "issue": 414,
+  "target_delivery_unit": "web",
+  "target_version": "1.1.0",
+  "delivery_profile": "web-release-train",
+  "red": {
+    "before": [
+      "npm run test:e2e -- --list was not defined",
+      "only the Chromium Playwright project was configured",
+      "fixture and evidence path contracts were not present"
+    ]
+  },
+  "green": {
+    "commands": [
+      "npm run test:e2e -- --list",
+      "npm run test:fixtures",
+      "npm run test:evidence-paths"
+    ],
+    "result": "PASS",
+    "projects": ["chromium", "firefox", "webkit"],
+    "listed_tests": 12,
+    "fixture_contract": "2 isolated users, 2 books, 2 images"
+  },
+  "surface": {
+    "command": "npm run test:e2e -- --project=chromium",
+    "result": "PASS",
+    "tests": 4,
+    "evidence_writer": "Chromium only; Firefox and WebKit do not overwrite canonical screenshots"
+  },
+  "cleanup": {
+    "local_reset_command": "npm run reset:fixtures",
+    "status": "blocked_by_environment",
+    "reason": "Docker Desktop is unavailable on this host",
+    "safety": "The reset command is restricted to supabase db reset --local and the committed local seed uses only reserved .invalid addresses and fixed UUIDs."
+  }
+}
