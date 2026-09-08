@@ -16,6 +16,12 @@ const plusJakarta = Plus_Jakarta_Sans({
   display: "swap",
 });
 
+const themeBootstrapScript = `
+  const root = document.documentElement;
+  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  root.dataset.blabTheme = prefersLight ? "light" : "dark";
+`;
+
 export const metadata: Metadata = {
   title: {
     default: "북골라스",
@@ -36,8 +42,15 @@ export default async function RootLayout({
     <html
       lang={locale}
       data-blab-theme="dark"
+      suppressHydrationWarning
       className={`${spaceGrotesk.variable} ${plusJakarta.variable}`}
     >
+      <head>
+        <script
+          id="blab-theme-bootstrap"
+          dangerouslySetInnerHTML={{ __html: themeBootstrapScript }}
+        />
+      </head>
       <body
         className="antialiased"
         style={{
