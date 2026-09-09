@@ -16,12 +16,14 @@ import {
   NotificationSettingsSchema,
   NoteSchema,
   PaginationSchema,
+  PageInfoSchema,
   ProgressEventSchema,
   RecommendationResultSchema,
   RecallSearchHistorySchema,
   RecallSearchRequestSchema,
   RecallSearchResultSchema,
   ReadingSessionSchema,
+  SortSchema,
   UserSchema,
   consumerRoutes,
   type ProductSchema,
@@ -161,7 +163,21 @@ const schemaFixtures: readonly [string, ProductSchema<unknown>, unknown][] = [
   [
     "recommendation",
     RecommendationResultSchema,
-    { success: true, recommendations: [{ title: "Recommended", author: "Author", reason: "Reason", keywords: ["essay"], imageUrl: null }], stats: null, error: null },
+    {
+      success: true,
+      recommendations: [{ title: "Recommended", author: "Author", reason: "Reason", keywords: ["essay"] }],
+      profile: {
+        stats: {
+          totalBooksCompleted: 3,
+          averageRating: 4.5,
+          favoriteGenres: [{ genre: "essay", count: 2 }],
+          averageCompletionDays: 12,
+          highEngagementBookCount: 1,
+        },
+        booksAnalyzed: 3,
+      },
+      error: null,
+    },
   ],
   ["consent", ConsentSchema, { kind: "ai", status: "granted", version: "2026-01", grantedAt: dates.created }],
   ["notification", NotificationSchema, { id: ids.record, category: "daily_reminder", title: "Read", body: "Read today", readAt: null, createdAt: dates.created }],
@@ -181,9 +197,19 @@ describe("product contract schemas", () => {
   });
 
   it("defines canonical localized and auth routes", () => {
-    expect(consumerRoutes.login("ko")).toBe("/ko/login");
-    expect(consumerRoutes.app("en")).toBe("/en/app");
-    expect(consumerRoutes.book("ko", ids.book)).toBe(`/ko/app/books/${ids.book}`);
+    expect(consumerRoutes.login("ko")).toBe("/ko/auth/sign-in");
+    expect(consumerRoutes.signup("en")).toBe("/en/auth/sign-up");
+    expect(consumerRoutes.forgotPassword("ko")).toBe("/ko/auth/reset-password");
+    expect(consumerRoutes.app("en")).toBe("/en/home");
+    expect(consumerRoutes.library("ko")).toBe("/ko/library");
+    expect(consumerRoutes.stats("ko")).toBe("/ko/stats");
+    expect(consumerRoutes.calendar("ko")).toBe("/ko/calendar");
+    expect(consumerRoutes.account("ko")).toBe("/ko/account");
+    expect(consumerRoutes.newBook("ko")).toBe("/ko/books/new");
+    expect(consumerRoutes.book("ko", ids.book)).toBe(`/ko/books/${ids.book}`);
+    expect(consumerRoutes.reading("ko", ids.book)).toBe(`/ko/reading/${ids.book}`);
+    expect(consumerRoutes.recall("ko")).toBe("/ko/library?mode=recall");
+    expect(consumerRoutes.privacy("en")).toBe("/en/privacy");
     expect(consumerRoutes.authCallback).toBe("/auth/callback");
     expect(consumerRoutes.authResetPassword).toBe("/auth/reset-password");
   });
@@ -195,6 +221,9 @@ describe("product contract boundaries", () => {
     expect(() => BookSchema.parse({ ...book, status: "paused" })).toThrow();
     expect(() => PaginationSchema.parse({ limit: 0 })).toThrow();
     expect(() => PaginationSchema.parse({ limit: 101 })).toThrow();
+    expect(PaginationSchema.parse({})).toEqual({ limit: 25 });
+    expect(SortSchema.parse({ field: "updated_at", direction: "desc" })).toEqual({ field: "updated_at", direction: "desc" });
+    expect(PageInfoSchema.parse({ nextCursor: null, hasMore: false })).toEqual({ nextCursor: null, hasMore: false });
   });
 
   it("preserves stable HTTP meanings in typed errors", () => {

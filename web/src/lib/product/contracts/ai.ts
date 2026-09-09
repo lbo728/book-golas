@@ -50,16 +50,27 @@ export const BookRecommendationSchema = z
     author: z.string().trim().min(1).max(500),
     reason: z.string().trim().min(1).max(2000),
     keywords: z.array(z.string().trim().min(1).max(80)),
-    imageUrl: z.string().trim().min(1).nullable(),
+    imageUrl: z.string().trim().min(1).nullable().optional(),
   })
+  .strict();
+
+export const FavoriteGenreSchema = z
+  .object({ genre: z.string().trim().min(1).max(120), count: z.number().int().min(0) })
   .strict();
 
 export const RecommendationStatsSchema = z
   .object({
     totalBooksCompleted: z.number().int().min(0),
     averageRating: z.number().min(0).max(5),
-    favoriteGenres: z.array(z.string().trim().min(1).max(120)),
+    favoriteGenres: z.array(FavoriteGenreSchema),
     averageCompletionDays: z.number().int().min(0),
+    highEngagementBookCount: z.number().int().min(0),
+  })
+  .strict();
+
+export const RecommendationProfileSchema = z
+  .object({
+    stats: RecommendationStatsSchema,
     booksAnalyzed: z.number().int().min(0),
   })
   .strict();
@@ -68,8 +79,8 @@ export const RecommendationResultSchema = z
   .object({
     success: z.boolean(),
     recommendations: z.array(BookRecommendationSchema),
-    stats: RecommendationStatsSchema.nullable(),
-    error: z.string().nullable(),
+    profile: RecommendationProfileSchema,
+    error: z.string().nullable().optional(),
   })
   .strict();
 
@@ -78,4 +89,6 @@ export type RecallSearchResult = z.infer<typeof RecallSearchResultSchema>;
 export type RecallSearchHistory = z.infer<typeof RecallSearchHistorySchema>;
 export type Insight = z.infer<typeof InsightSchema>;
 export type BookRecommendation = z.infer<typeof BookRecommendationSchema>;
+export type FavoriteGenre = z.infer<typeof FavoriteGenreSchema>;
 export type RecommendationResult = z.infer<typeof RecommendationResultSchema>;
+export type RecommendationProfile = z.infer<typeof RecommendationProfileSchema>;
