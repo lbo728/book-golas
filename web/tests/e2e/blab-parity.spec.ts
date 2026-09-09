@@ -14,7 +14,7 @@ const viewports = [
 
 for (const locale of ["ko", "en"] as const) {
   for (const viewport of viewports) {
-    test(`${locale} BLDS consumer contract at ${viewport.id}`, async ({ page }) => {
+    test(`${locale} BLDS consumer contract at ${viewport.id}`, async ({ page }, testInfo) => {
       fs.mkdirSync(evidenceDirectory, { recursive: true });
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
       for (const theme of ["light", "dark"] as const) {
@@ -52,16 +52,18 @@ for (const locale of ["ko", "en"] as const) {
         );
         expect(Number.parseFloat(buttonStyle.transitionDuration)).toBeLessThanOrEqual(0.001);
 
-        const screenshotPath = path.join(
-          evidenceDirectory,
-          `task-9-5-blab-react-parity-${locale}-${viewport.id}-${theme}.png`,
-        );
-        await page.screenshot({ path: screenshotPath, fullPage: true });
-        if (locale === "ko" && viewport.id === "mobile" && theme === "dark") {
-          await page.screenshot({
-            path: path.join(evidenceDirectory, "task-9-5-blab-react-parity.png"),
-            fullPage: true,
-          });
+        if (testInfo.project.name === "chromium") {
+          const screenshotPath = path.join(
+            evidenceDirectory,
+            `task-9-5-blab-react-parity-${locale}-${viewport.id}-${theme}.png`,
+          );
+          await page.screenshot({ path: screenshotPath, fullPage: true });
+          if (locale === "ko" && viewport.id === "mobile" && theme === "dark") {
+            await page.screenshot({
+              path: path.join(evidenceDirectory, "task-9-5-blab-react-parity.png"),
+              fullPage: true,
+            });
+          }
         }
 
         await page.goto(`/${locale}/auth/sign-in`, { waitUntil: "networkidle" });
@@ -77,3 +79,17 @@ for (const locale of ["ko", "en"] as const) {
     });
   }
 }
+
+test("missing-session fails closed for the consumer home", async ({ page }) => {
+  await page.goto("/en/home", { waitUntil: "networkidle" });
+  const destination = new URL(page.url());
+
+  if (destination.pathname === "/en/auth/sign-in") {
+    expect(destination.searchParams.get("next")).toBe("/en/home");
+    return;
+  }
+
+  expect(destination.pathname).toBe("/en/home");
+  await expect(page.locator(".blab-error-state")).toBeVisible();
+  await expect(page.locator('a[href*="/books/"]')).toHaveCount(0);
+});
