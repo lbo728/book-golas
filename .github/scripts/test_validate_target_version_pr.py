@@ -221,6 +221,24 @@ class WebVersionPathTests(unittest.TestCase):
                         self.registry,
                     )
 
+    def test_rejects_malformed_sibling_version_override(self):
+        self.config["delivery_units"]["web"][
+            "additional_allowed_paths_by_version"
+        ]["1.0.2"] = None
+        with self.assertRaisesRegex(
+            PolicyError, "invalid additional paths for 1.0.2"
+        ):
+            validate(
+                self.config,
+                "codex/feature/web/1.1.0/parity-contract",
+                "version/web/1.1.0",
+                "Target-Delivery-Unit: web\n"
+                "Target-Version: 1.1.0\n"
+                "Delivery-Profile: web-release-train\n",
+                ["web/src/app/page.tsx"],
+                self.registry,
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

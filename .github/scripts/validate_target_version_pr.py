@@ -166,24 +166,29 @@ def validate(
         raise PolicyError(
             f"delivery unit {unit} has invalid additional_allowed_paths_by_version"
         )
+    for configured_version, configured_version_additions in additional_allowed_paths_by_version.items():
+        if (
+            not isinstance(configured_version, str)
+            or re.fullmatch(SEMVER, configured_version) is None
+        ):
+            raise PolicyError(
+                f"delivery unit {unit} has invalid additional paths for {configured_version}"
+            )
+        if (
+            not isinstance(configured_version_additions, list)
+            or not configured_version_additions
+            or not all(
+                isinstance(pattern, str) and pattern
+                for pattern in configured_version_additions
+            )
+        ):
+            raise PolicyError(
+                f"delivery unit {unit} has invalid additional paths for {configured_version}"
+            )
     if version not in additional_allowed_paths_by_version:
         version_additions = []
     else:
         configured_version_additions = additional_allowed_paths_by_version[version]
-        if (
-            not isinstance(configured_version_additions, list)
-            or not configured_version_additions
-        ):
-            raise PolicyError(
-                f"delivery unit {unit} has invalid additional paths for {version}"
-            )
-        if not all(
-            isinstance(pattern, str) and pattern
-            for pattern in configured_version_additions
-        ):
-            raise PolicyError(
-                f"delivery unit {unit} has invalid additional paths for {version}"
-            )
         version_additions = configured_version_additions
     effective_allowed_paths = [*allowed_paths, *version_additions]
     invalid_paths = [
