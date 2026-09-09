@@ -3,13 +3,13 @@
   "target_delivery_unit": "web",
   "target_version": "1.1.0",
   "delivery_profile": "web-release-train",
-  "tested_commit": "d9c8869d2cbfb2d4316d2d87b0dfd3994f446e98",
+  "tested_commit": "1408c69d8f330d69b577a396592e049a08eeac2b",
   "red": {
-    "command": "npm run test:product-contracts with web/src/lib/product/contracts temporarily moved outside the configured Vitest filter",
+    "command": "npm run test:product-contracts after adding the unsafe dynamic route regression test and before BookIdSchema validation",
     "result": "FAIL as expected",
     "exit_code": 1,
-    "observed": "No test files found, exiting with code 1",
-    "purpose": "Controlled missing-boundary probe before restoring the contract directory"
+    "observed": "1 failed, 40 passed; consumerRoutes.book('../account') did not throw",
+    "purpose": "Failing-first security regression for dynamic route segments"
   },
   "green": {
     "commands": [
@@ -18,9 +18,9 @@
       "npm test"
     ],
     "result": "PASS",
-    "product_contract_tests": "2 files, 40 tests passed",
-    "cross_user_negative": "1 targeted test passed, 39 tests skipped",
-    "full_suite": "8 files, 67 tests passed; parity, negative fixtures, BLDS parity, BLDS negative and SSR state checks passed"
+    "product_contract_tests": "2 files, 41 tests passed",
+    "cross_user_negative": "1 targeted test passed, 40 tests skipped",
+    "full_suite": "8 files, 68 tests passed; parity, negative fixtures, BLDS parity, BLDS negative and SSR state checks passed"
   },
   "surface": {
     "command": "npm run build",
@@ -33,6 +33,7 @@
     "commands": [
       "npm run typecheck",
       "npm run lint",
+      "npm run test:evidence-paths",
       "git diff --check",
       "git status --short"
     ],
@@ -45,6 +46,7 @@
     "Existing recommendation Edge Function non-2xx responses remain raw error envelopes; adapting provider errors to ApiErrorResponse is deferred to the downstream integration/security boundary task and is not claimed here.",
     "The protected /private/tmp/bookgolas-web-blds-453 path was absent before this work and was never reset, checked out or deleted."
   ],
+  "runtime_transcript": ".omo/evidence/bookgolas-web-app-parity/task-2-runtime-transcript.md",
   "plan": ".omo/plans/bookgolas-web-app-parity.md",
   "plan_footer": "Plan: .omo/plans/bookgolas-web-app-parity.md"
 }
