@@ -73,6 +73,85 @@ class DeliveryUnitNameTests(unittest.TestCase):
                 registry,
             )
 
+    def test_rejects_explicit_null_version_path_override(self):
+        config = {
+            "allowed_actor_prefixes": ["codex"],
+            "delivery_units": {
+                "agent_api_cli": {
+                    "profile": "package-or-local",
+                    "mode": "continuous",
+                    "active_versions": ["0.1.0"],
+                    "target_version_source": ".byungskerlab/release-lines.json",
+                    "production_branch": "main",
+                    "allowed_paths": ["agent-api/**"],
+                    "additional_allowed_paths_by_version": {"0.1.0": None},
+                },
+            },
+        }
+        registry = {
+            "delivery_units": {
+                "agent_api_cli": {
+                    "active_versions": ["0.1.0"],
+                },
+            },
+        }
+        with self.assertRaisesRegex(
+            PolicyError, "invalid additional paths for 0.1.0"
+        ):
+            validate(
+                config,
+                "codex/feature/agent_api_cli/0.1.0/contract",
+                "main",
+                "Target-Delivery-Unit: agent_api_cli\n"
+                "Target-Version: 0.1.0\n"
+                "Delivery-Profile: package-or-local\n",
+                ["agent-api/README.md"],
+                registry,
+            )
+
+    def test_accepts_promotion_delivery_unit_with_underscore(self):
+        config = {
+            "allowed_actor_prefixes": ["codex"],
+            "delivery_units": {
+                "agent_api_cli": {
+                    "profile": "package-or-local",
+                    "mode": "continuous",
+                    "active_versions": ["0.1.0"],
+                    "target_version_source": ".byungskerlab/release-lines.json",
+                    "production_branch": "main",
+                    "allowed_paths": ["agent-api/**"],
+                },
+            },
+        }
+        registry = {
+            "delivery_units": {
+                "agent_api_cli": {
+                    "active_versions": ["0.1.0"],
+                    "promotion_sources": {
+                        "release": {
+                            "0.1.0": {
+                                "branch": "main",
+                                "sha": "0" * 40,
+                            },
+                        },
+                    },
+                },
+            },
+        }
+        result = validate(
+            config,
+            "codex/release/agent_api_cli/0.1.0",
+            "main",
+            "Target-Delivery-Unit: agent_api_cli\n"
+            "Target-Version: 0.1.0\n"
+            "Delivery-Profile: package-or-local\n"
+            "Promotion-Source-SHA: " + "0" * 40 + "\n",
+            ["agent-api/README.md"],
+            registry,
+            ancestry_checker=lambda _sha: True,
+        )
+        self.assertIn("agent_api_cli", result)
+
 
 class WebVersionPathTests(unittest.TestCase):
     def setUp(self):

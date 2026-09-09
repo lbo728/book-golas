@@ -166,10 +166,10 @@ def validate(
         raise PolicyError(
             f"delivery unit {unit} has invalid additional_allowed_paths_by_version"
         )
-    configured_version_additions = additional_allowed_paths_by_version.get(version)
-    if configured_version_additions is None:
+    if version not in additional_allowed_paths_by_version:
         version_additions = []
     else:
+        configured_version_additions = additional_allowed_paths_by_version[version]
         if (
             not isinstance(configured_version_additions, list)
             or not configured_version_additions
