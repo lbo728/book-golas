@@ -77,7 +77,8 @@
         "AGENTS.md",
         ".github/workflows/quality.yml",
         "docs/**",
-        "web/**"
+        "web/**",
+        ".omo/evidence/bookgolas-web-app-parity/**"
       ],
       "sync_only_paths": [
         ".github/workflows/quality.yml"
