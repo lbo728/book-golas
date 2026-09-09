@@ -13,9 +13,15 @@ if (!projectId) throw new Error("local Supabase project id is missing");
 const fixtureRows = [
   ["00000000-0000-4000-8000-000000002011", "abandoned", "will_retry"],
   ["00000000-0000-4000-8000-000000002012", "paused", "will_retry"],
-  ["00000000-0000-4000-8000-000000002013", "finished", "completed"],
-  ["00000000-0000-4000-8000-000000002014", "not_started", "planned"],
-  ["00000000-0000-4000-8000-000000002015", "in_progress", "reading"],
+  ["00000000-0000-4000-8000-000000002013", "dropped", "will_retry"],
+  ["00000000-0000-4000-8000-000000002014", "on_hold", "will_retry"],
+  ["00000000-0000-4000-8000-000000002015", "finished", "completed"],
+  ["00000000-0000-4000-8000-000000002016", "complete", "completed"],
+  ["00000000-0000-4000-8000-000000002017", "done", "completed"],
+  ["00000000-0000-4000-8000-000000002018", "not_started", "planned"],
+  ["00000000-0000-4000-8000-000000002019", "queued", "planned"],
+  ["00000000-0000-4000-8000-000000002020", "in_progress", "reading"],
+  ["00000000-0000-4000-8000-000000002021", "active", "reading"],
 ];
 const fixtureIds = fixtureRows.map(([id]) => `'${id}'`).join(", ");
 
@@ -92,6 +98,19 @@ FROM public.books
 WHERE id IN (${fixtureIds});
 ROLLBACK;
 `;
+const unknownSql = `
+BEGIN;
+ALTER TABLE public.books DROP CONSTRAINT IF EXISTS books_status_check;
+INSERT INTO public.books (
+  id, title, start_date, target_date, current_page, total_pages, user_id, status, deleted_at
+) VALUES (
+  '00000000-0000-4000-8000-000000002022', 'Unknown status fixture',
+  '2026-01-01T00:00:00Z', '2026-12-31T00:00:00Z', 0, 100,
+  '00000000-0000-4000-8000-000000001001', 'mystery', NULL
+);
+${migration}
+ROLLBACK;
+`;
 
 let container;
 try {
@@ -105,7 +124,14 @@ try {
   if (JSON.stringify(rows) !== JSON.stringify(expected)) {
     throw new Error(`legacy status mapping mismatch: ${JSON.stringify(rows)}`);
   }
-  console.log("status migration contract passed: legacy status mapping and unknown-value guard");
+  const unknown = runSql(container, unknownSql);
+  if (
+    unknown.status === 0 ||
+    !unknown.stderr.includes("unsupported legacy book statuses: mystery")
+  ) {
+    throw new Error("unknown legacy status was not rejected with the typed migration error");
+  }
+  console.log("status migration contract passed: all legacy aliases and unknown-value guard");
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
