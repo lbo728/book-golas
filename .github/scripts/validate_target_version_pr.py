@@ -17,12 +17,12 @@ from typing import Any, Callable
 SEMVER = r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)"
 WORK_RE = re.compile(
     rf"^(?P<type>feature|fix|chore|refactor|docs|ci|migration|sync)/"
-    rf"(?P<unit>[a-z0-9][a-z0-9-]*)/(?P<version>{SEMVER})/"
+    rf"(?P<unit>[a-z0-9][a-z0-9_-]*)/(?P<version>{SEMVER})/"
     r"(?P<scope>[A-Za-z0-9][A-Za-z0-9._-]*)$"
 )
 PROMOTION_RE = re.compile(
     rf"^(?P<type>release|hotfix)/"
-    rf"(?P<unit>[a-z0-9][a-z0-9-]*)/(?P<version>{SEMVER})$"
+    rf"(?P<unit>[a-z0-9][a-z0-9_-]*)/(?P<version>{SEMVER})$"
 )
 METADATA_KEYS = (
     "Target-Delivery-Unit",
@@ -159,12 +159,47 @@ def validate(
     allowed_paths = policy.get("allowed_paths")
     if not isinstance(allowed_paths, list) or not allowed_paths:
         raise PolicyError(f"delivery unit {unit} has no allowed_paths policy")
+    additional_allowed_paths_by_version = policy.get(
+        "additional_allowed_paths_by_version", {}
+    )
+    if not isinstance(additional_allowed_paths_by_version, dict):
+        raise PolicyError(
+            f"delivery unit {unit} has invalid additional_allowed_paths_by_version"
+        )
+    for configured_version, configured_version_additions in additional_allowed_paths_by_version.items():
+        if (
+            not isinstance(configured_version, str)
+            or re.fullmatch(SEMVER, configured_version) is None
+        ):
+            raise PolicyError(
+                f"delivery unit {unit} has invalid additional paths for {configured_version}"
+            )
+        if (
+            not isinstance(configured_version_additions, list)
+            or not configured_version_additions
+            or not all(
+                isinstance(pattern, str) and pattern
+                for pattern in configured_version_additions
+            )
+        ):
+            raise PolicyError(
+                f"delivery unit {unit} has invalid additional paths for {configured_version}"
+            )
+    if version not in additional_allowed_paths_by_version:
+        version_additions = []
+    else:
+        configured_version_additions = additional_allowed_paths_by_version[version]
+        version_additions = configured_version_additions
+    effective_allowed_paths = [*allowed_paths, *version_additions]
     invalid_paths = [
         path
         for path in changed_files
         if path.startswith("/")
         or ".." in Path(path).parts
-        or not any(fnmatch.fnmatchcase(path, pattern) for pattern in allowed_paths)
+        or not any(
+            fnmatch.fnmatchcase(path, pattern)
+            for pattern in effective_allowed_paths
+        )
     ]
     if invalid_paths:
         raise PolicyError(
