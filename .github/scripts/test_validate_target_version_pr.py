@@ -169,6 +169,7 @@ class WebVersionPathTests(unittest.TestCase):
                         "1.1.0": [
                             ".omo/evidence/bookgolas-web-app-parity/**",
                             "supabase/migrations/**",
+                            "supabase/functions/**",
                         ],
                     },
                 },
@@ -193,6 +194,7 @@ class WebVersionPathTests(unittest.TestCase):
             [
                 ".omo/evidence/bookgolas-web-app-parity/receipt.md",
                 "supabase/migrations/20260910000000_progress.sql",
+                "supabase/functions/reading-insights/index.ts",
             ],
             self.registry,
         )
@@ -207,7 +209,11 @@ class WebVersionPathTests(unittest.TestCase):
                 "Target-Delivery-Unit: web\n"
                 "Target-Version: 1.0.2\n"
                 "Delivery-Profile: web-release-train\n",
-                ["supabase/migrations/20260910000000_progress.sql"],
+                [
+                    ".omo/evidence/bookgolas-web-app-parity/receipt.md",
+                    "supabase/migrations/20260910000000_progress.sql",
+                    "supabase/functions/reading-insights/index.ts",
+                ],
                 self.registry,
             )
 
