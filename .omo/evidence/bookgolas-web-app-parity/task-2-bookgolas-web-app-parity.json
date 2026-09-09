@@ -3,7 +3,7 @@
   "target_delivery_unit": "web",
   "target_version": "1.1.0",
   "delivery_profile": "web-release-train",
-  "tested_commit": "5214f1372de5b0d25579710c0571ad56ebab8512",
+  "tested_commit": "2713916a9c0d44f76b631c53afc026c4019ff392",
   "red": {
     "command": "npm run test:product-contracts after adding the unsafe dynamic route regression test and before BookIdSchema validation",
     "result": "FAIL as expected",
@@ -16,7 +16,8 @@
       "observed": [
         "Runtime locale values were interpolated without LocaleSchema validation.",
         "Recommendation success and failure envelopes were not mutually exclusive.",
-        "Fixture tests re-parsed their own output instead of checking independent input."
+        "Fixture tests re-parsed their own output instead of checking independent input.",
+        "Auth continuation paths accepted traversal and a locale different from the request locale."
       ],
       "purpose": "Review-driven red gate for the route and recommendation contract boundaries"
     }
@@ -28,13 +29,14 @@
       "npm test"
     ],
     "result": "PASS",
-    "product_contract_tests": "2 files, 43 tests passed",
-    "cross_user_negative": "1 targeted test passed, 40 tests skipped",
-    "full_suite": "8 files, 70 tests passed; parity, 59 negative fixtures, BLDS parity, BLDS negative and SSR state checks passed",
+    "product_contract_tests": "2 files, 44 tests passed",
+    "cross_user_negative": "1 targeted test passed, 43 tests skipped",
+    "full_suite": "8 files, 71 tests passed; parity, 59 negative fixtures, BLDS parity, BLDS negative and SSR state checks passed",
     "hardening": [
       "LocaleSchema now validates every localized route helper at runtime.",
       "RecommendationResultSchema is a strict discriminated success/failure union with the authoritative profile envelope.",
-      "Canonical fixture tests parse independent input once and assert locale and recommendation negative cases."
+      "Canonical fixture tests parse independent input once and assert locale and recommendation negative cases.",
+      "Auth continuation paths reject traversal, encoded traversal, and locale mismatches."
     ]
   },
   "surface": {
