@@ -19,7 +19,8 @@
       "sync_bases": [
         "dev",
         "main",
-        "version/web/1.0.2"
+        "version/web/1.0.2",
+        "version/web/1.1.0"
       ],
       "allowed_paths": [
         ".byungskerlab/branch-policy.json",
