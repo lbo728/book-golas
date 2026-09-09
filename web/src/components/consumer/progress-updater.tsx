@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ConsumerButton } from "@/components/consumer/blab-primitives";
@@ -22,9 +22,15 @@ export function ProgressUpdater({
   const t = useTranslations("consumer");
   const router = useRouter();
   const [page, setPage] = useState(String(currentPage));
+  const [expectedPage, setExpectedPage] = useState(currentPage);
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setPage(String(currentPage));
+    setExpectedPage(currentPage);
+  }, [currentPage]);
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -37,21 +43,25 @@ export function ProgressUpdater({
       return;
     }
 
+    const idempotencyKey = crypto.randomUUID();
     startTransition(async () => {
       try {
         const result = await updateReadingProgress({
           locale,
           bookId,
           currentPage: nextPage,
+          expectedCurrentPage: expectedPage,
+          idempotencyKey,
         });
 
         if (!result.ok) {
           setErrorCode(result.code);
-          if (result.code === "history_unavailable") router.refresh();
+          if (result.code === "conflict") router.refresh();
           return;
         }
 
         setPage(String(result.book.currentPage));
+        setExpectedPage(result.book.currentPage);
         setSaved(true);
         router.refresh();
       } catch {
