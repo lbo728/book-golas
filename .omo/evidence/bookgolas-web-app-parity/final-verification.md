@@ -11,19 +11,20 @@ Date: 2026-09-09
 - `npm run lint` — PASS.
 - `npm run typecheck` — PASS.
 - `npm test` — PASS: 27 Vitest tests, parity matrix, 59 negative parity fixtures, BLDS parity/negative/SSR contracts.
-- `npm run test:e2e -- --project=chromium` — PASS: 5 tests covering ko/en light/dark consumer states and missing-session handling.
+- `npm run test:e2e` — PASS: 15 tests across Chromium, Firefox and WebKit covering ko/en light/dark consumer states and missing-session handling.
 - `npm run build` — PASS: 19 generated application routes.
 - external `PLAYWRIGHT_BASE_URL` — PASS: non-loopback URL rejected; IPv6 loopback accepted.
 
-## Local reset
+## Fixture reset
 
-- `npm run reset:fixtures` — PASS on the Tailscale-linked `byungsker` MacBook Docker Desktop host using an isolated `book-golas-414-remote` project and ports 55321–55327. The run reset the local database and uploaded `cover.png` to `book-images/user-a/book-a.png` and `book-images/user-b/book-b.png` using the ephemeral local service-role key from `supabase status`.
+- `npm run test:fixtures:runtime` — PASS on an isolated Tailscale-linked Docker Desktop host at commit `ac0e51bcbee52f58c6eb0cede78d82765889331a`. The run reset the local database, uploaded `cover.png`, and listed/downloaded `book-images/user-a/book-a.png` and `book-images/user-b/book-b.png` through the Storage API with matching 68-byte contents.
 - The first real reset exposed a Supabase Storage protection error from direct `storage.objects` deletion; removing that redundant seed statement produced the passing reset above. The current MacBook Docker engine remains unavailable while locked.
-- Redacted runtime transcript with CLI version, isolated ports, reset exit code, and Storage API object verification: `.omo/evidence/bookgolas-web-app-parity/remote-reset-verification.md`.
+- Redacted runtime transcript with exact tested revision, source hashes, reset exit code, and Storage API object verification: `.omo/evidence/bookgolas-web-app-parity/remote-reset-verification.md`.
 
 ## Provenance
 
 - Issue: #414
 - Branch: `codex/feature/web/1.1.0/BOK-414-browser-fixtures`
 - Target: `version/web/1.1.0`
+- Tested commit: `ac0e51bcbee52f58c6eb0cede78d82765889331a`
 - Plan: `.omo/plans/bookgolas-web-app-parity.md`

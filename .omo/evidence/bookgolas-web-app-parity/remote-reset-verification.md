@@ -1,31 +1,24 @@
 # Remote fixture reset transcript
 
-host=byungsker-mackbook.tail990faf.ts.net
 transport=Tailscale SSH
-project=book-golas-414-remote
-ports=55321,55322,55323,55324,55327,55329
+target=isolated Supabase project on a remote Docker Desktop host
+tested_commit=ac0e51bcbee52f58c6eb0cede78d82765889331a
+source_files_clean=true
+supabase_cli=2.109.1
+docker_server=29.7.2 docker_ostype=linux docker_arch=aarch64
+seed_sha256=5d80e1ae55e18d37a223c4b2b72895eb8d6b565b94b003316b056c36e84c9513
+reset_script_sha256=e417649006d7141805875845a352f285caffc7b0b2bdcbe87cbf4b838e1592b8
+runtime_script_sha256=bfc040d9b3cbd7ee5910f4f03caebf2661cfcb8e82cb304524f8e0a69a4b5fad
 
-$ supabase --version
-2.109.1
+$ npm run test:fixtures
+fixture contract passed: 2 isolated users, 2 books, 2 images, local-only credentials and reset seed
 
-$ docker info --format ...
-ServerVersion=29.7.2 OSType=linux Architecture=aarch64
-
-$ supabase status --output env (redacted URL fields only)
-API_URL="http://127.0.0.1:55321"
-DB_URL="postgresql://postgres:postgres@127.0.0.1:55322/postgres"
-INBUCKET_URL="http://127.0.0.1:55324"
-STUDIO_URL="http://127.0.0.1:55323"
-
-$ npm run reset:fixtures
+$ npm run test:fixtures:runtime
 reset_exit=0
-Resetting local database...
-Recreating database...
-Seeding data from web/fixtures/supabase/seed.sql...
-Restarting containers...
-Finished supabase db reset on branch codex/feature/web/1.1.0/BOK-414-browser-fixtures.
+Finished supabase db reset on branch HEAD.
 local Supabase fixtures reset and uploaded: 2 users, 2 books, 2 images
+fixture runtime contract passed: verified_objects=user-a/book-a.png,user-b/book-b.png bytes=68
 
-$ Storage API object verification
-user-a: book-a.png
-user-b: book-b.png
+storage_api_verification=list_and_download_each_expected_object_and_compare_to_cover.png
+browser_e2e=15_passed_across_chromium_firefox_webkit
+cleanup=isolated Supabase project stopped after verification; unrelated projects preserved

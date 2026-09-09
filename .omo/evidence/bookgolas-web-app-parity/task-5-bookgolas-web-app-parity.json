@@ -15,8 +15,9 @@
     "commands": [
       "npm run test:e2e -- --list",
       "npm run test:fixtures",
+      "npm run test:fixtures:runtime",
       "npm run test:evidence-paths",
-      "remote Tailscale Docker host: npm run reset:fixtures"
+      "remote Tailscale Docker host: npm run test:fixtures:runtime"
     ],
     "result": "PASS",
     "projects": [
@@ -28,10 +29,9 @@
     "fixture_contract": "2 isolated users, 2 books, 2 images",
     "remote_reset": {
       "result": "PASS",
-      "host": "byungsker-mackbook via Tailscale SSH",
-      "supabase_project": "book-golas-414-remote",
-      "ports": "55320, 55321-55324, 55327 and 55329 isolated from existing baro-app services",
-      "fixture_upload": "2 synthetic PNG objects uploaded through the Storage API",
+      "tested_commit": "ac0e51bcbee52f58c6eb0cede78d82765889331a",
+      "fixture_upload": "2 synthetic PNG objects uploaded, listed and downloaded through the Storage API",
+      "storage_bytes": 68,
       "evidence": ".omo/evidence/bookgolas-web-app-parity/remote-reset-verification.md"
     }
   },
@@ -41,18 +41,24 @@
     "assertion": "missing consumer session fails closed without exposing book routes"
   },
   "surface": {
-    "command": "npm run test:e2e -- --project=chromium",
+    "command": "npm run test:e2e",
     "result": "PASS",
-    "tests": 5,
+    "tests": 15,
+    "projects": [
+      "chromium",
+      "firefox",
+      "webkit"
+    ],
     "evidence_writer": "Chromium only; Firefox and WebKit do not overwrite canonical screenshots"
   },
   "cleanup": {
     "local_reset_command": "npm run reset:fixtures",
     "status": "PASS_ON_REMOTE_DOCKER_HOST",
-    "reason": "Validated against a real Docker Desktop engine on the Tailscale-linked byungsker MacBook; the local locked host remains unavailable.",
+    "reason": "Validated against a real Docker Desktop engine on an isolated Tailscale-linked remote host; the local locked host remains unavailable.",
     "safety": "The reset command is restricted to supabase db reset --local and the committed local seed uses only reserved .invalid addresses, fixed UUIDs and a synthetic PNG.",
     "storage_upload": "The reset script uploads the synthetic PNG to both local book-images paths after the database reset using the ephemeral local service-role key.",
-    "runtime_transcript": ".omo/evidence/bookgolas-web-app-parity/remote-reset-verification.md"
+    "runtime_transcript": ".omo/evidence/bookgolas-web-app-parity/remote-reset-verification.md",
+    "tested_commit": "ac0e51bcbee52f58c6eb0cede78d82765889331a"
   },
   "plan": ".omo/plans/bookgolas-web-app-parity.md"
 }
