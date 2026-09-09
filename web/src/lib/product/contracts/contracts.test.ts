@@ -246,4 +246,9 @@ describe("product contract boundaries", () => {
     expect("user_id" in cancellation).toBe(false);
     expect(() => CancellationRequestSchema.parse({ ...cancellation, user_id: ids.user })).toThrow();
   });
+
+  it("rejects unsafe dynamic route segments", () => {
+    expect(() => consumerRoutes.book("ko", "../account")).toThrow();
+    expect(() => consumerRoutes.reading("ko", "x/y")).toThrow();
+  });
 });

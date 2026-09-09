@@ -1,4 +1,6 @@
-import type { Locale } from "./common";
+import { BookIdSchema, type Locale } from "./common";
+
+const bookIdSegment = (bookId: string) => BookIdSchema.parse(bookId);
 
 export const consumerRoutes = {
   login: (locale: Locale) => `/${locale}/auth/sign-in`,
@@ -14,11 +16,11 @@ export const consumerRoutes = {
   account: (locale: Locale) => `/${locale}/account`,
   bookList: (locale: Locale) => `/${locale}/book-list`,
   newBook: (locale: Locale) => `/${locale}/books/new`,
-  book: (locale: Locale, bookId: string) => `/${locale}/books/${bookId}`,
-  reading: (locale: Locale, bookId: string) => `/${locale}/reading/${bookId}`,
+  book: (locale: Locale, bookId: string) => `/${locale}/books/${bookIdSegment(bookId)}`,
+  reading: (locale: Locale, bookId: string) => `/${locale}/reading/${bookIdSegment(bookId)}`,
   recall: (locale: Locale) => `/${locale}/library?mode=recall`,
-  review: (locale: Locale, bookId: string) => `/${locale}/books/${bookId}/review`,
-  mindMap: (locale: Locale, bookId: string) => `/${locale}/books/${bookId}/mind-map`,
+  review: (locale: Locale, bookId: string) => `/${locale}/books/${bookIdSegment(bookId)}/review`,
+  mindMap: (locale: Locale, bookId: string) => `/${locale}/books/${bookIdSegment(bookId)}/mind-map`,
   scan: (locale: Locale) => `/${locale}/books/scan`,
   subscription: (locale: Locale) => `/${locale}/subscription`,
   privacy: (locale: Locale) => `/${locale}/privacy`,

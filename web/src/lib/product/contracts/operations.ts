@@ -135,6 +135,13 @@ export const InsightRequestSchema = z
         message: "custom insight ranges require from and to",
       });
     }
+    if (request.from && request.to && Date.parse(request.from) > Date.parse(request.to)) {
+      context.addIssue({
+        code: "custom",
+        path: ["to"],
+        message: "custom insight range must end on or after it starts",
+      });
+    }
   });
 
 export const RecommendationRequestSchema = z.object({ locale: LocaleSchema }).strict();

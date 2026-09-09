@@ -25,7 +25,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 const requestFixtures: readonly [string, ProductSchema<unknown>, unknown][] = [
-  ["auth", AuthRequestSchema, { email: "fixture@local.invalid", password: "password123", locale: "ko", next: "/ko/app" }],
+  ["auth", AuthRequestSchema, { email: "fixture@local.invalid", password: "password123", locale: "ko", next: "/ko/home" }],
   ["book-list", BookListRequestSchema, { pagination: { limit: 25 }, sort: { field: "updated_at", direction: "desc" }, status: "reading" }],
   ["book-search", BookSearchRequestSchema, { query: "fixture", locale: "en", pagination: { limit: 10 } }],
   [
@@ -76,5 +76,6 @@ describe("consumer request contracts", () => {
 
   it("requires a bounded date range for custom insights", () => {
     expect(() => InsightRequestSchema.parse({ locale: "ko", range: "custom" })).toThrow();
+    expect(() => InsightRequestSchema.parse({ locale: "ko", range: "custom", from: "2026-01-02T00:00:00.000Z", to: "2026-01-01T00:00:00.000Z" })).toThrow();
   });
 });
