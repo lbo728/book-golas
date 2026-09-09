@@ -5,16 +5,19 @@ import { createServerSupabaseClient } from "@/lib/supabase-server";
 import {
   consumerBookSelect,
   isBookId,
-  isValidReadingPage,
   parseConsumerBook,
   type ConsumerBook,
 } from "@/lib/consumer/types";
 import { isConsumerLocale } from "@/lib/consumer/paths";
+import { RequestIdSchema } from "@/lib/product/contracts/common";
 
 type UpdateReadingProgressInput = {
   locale: string;
   bookId: string;
   currentPage: number;
+  expectedCurrentPage: number;
+  idempotencyKey: string;
+  readingTime?: number;
 };
 
 type UpdateReadingProgressResult =
@@ -26,7 +29,6 @@ type UpdateReadingProgressResult =
         | "unauthenticated"
         | "not_found"
         | "conflict"
-        | "history_unavailable"
         | "unavailable";
     };
 
@@ -37,7 +39,14 @@ export async function updateReadingProgress(
     !isConsumerLocale(input.locale) ||
     !isBookId(input.bookId) ||
     !Number.isSafeInteger(input.currentPage) ||
-    input.currentPage < 0
+    input.currentPage < 0 ||
+    !Number.isSafeInteger(input.expectedCurrentPage) ||
+    input.expectedCurrentPage < 0 ||
+    !RequestIdSchema.safeParse(input.idempotencyKey).success ||
+    (input.readingTime !== undefined &&
+      (!Number.isSafeInteger(input.readingTime) ||
+        input.readingTime < 0 ||
+        input.readingTime > 28_800))
   ) {
     return { ok: false, code: "invalid_input" };
   }
@@ -51,76 +60,71 @@ export async function updateReadingProgress(
 
     if (authError || !user) return { ok: false, code: "unauthenticated" };
 
-    const { data: currentBook, error: readError } = await supabase
+    const { data: progressData, error: progressError } = await supabase.rpc(
+      "update_reading_progress",
+      {
+        p_book_id: input.bookId,
+        p_current_page: input.currentPage,
+        p_expected_current_page: input.expectedCurrentPage,
+        p_idempotency_key: input.idempotencyKey,
+        p_reading_time: input.readingTime ?? 0,
+      },
+    );
+
+    if (progressError) {
+      return { ok: false, code: mapProgressError(progressError) };
+    }
+
+    const progressResult = getProgressResult(progressData);
+    if (!progressResult || typeof progressResult.history_recorded !== "boolean") {
+      return { ok: false, code: "unavailable" };
+    }
+
+    const { data: updatedBook, error: readError } = await supabase
       .from("books")
-      .select("id,current_page,total_pages,status")
+      .select(consumerBookSelect)
       .eq("id", input.bookId)
       .eq("user_id", user.id)
       .is("deleted_at", null)
       .maybeSingle();
 
     if (readError) return { ok: false, code: "unavailable" };
-    if (!currentBook) return { ok: false, code: "not_found" };
-
-    const previousPage = Number.isSafeInteger(currentBook.current_page)
-      ? currentBook.current_page
-      : 0;
-    const totalPages = Number.isSafeInteger(currentBook.total_pages)
-      ? currentBook.total_pages
-      : 0;
-
-    if (!isValidReadingPage(input.currentPage, totalPages)) {
-      return { ok: false, code: "invalid_input" };
-    }
-
-    const nextStatus =
-      totalPages > 0 && input.currentPage >= totalPages
-        ? "completed"
-        : currentBook.status ?? "reading";
-
-    const { data: updatedBook, error: updateError } = await supabase
-      .from("books")
-      .update({
-        current_page: input.currentPage,
-        status: nextStatus,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", input.bookId)
-      .eq("user_id", user.id)
-      .eq("current_page", previousPage)
-      .is("deleted_at", null)
-      .select(consumerBookSelect)
-      .maybeSingle();
-
-    if (updateError) return { ok: false, code: "unavailable" };
     if (!updatedBook || typeof updatedBook !== "object") {
-      return { ok: false, code: "conflict" };
+      return { ok: false, code: "not_found" };
     }
 
     const book = parseConsumerBook(updatedBook as Record<string, unknown>);
     if (!book) return { ok: false, code: "unavailable" };
 
-    if (input.currentPage > previousPage) {
-      const { error: historyError } = await supabase
-        .from("reading_progress_history")
-        .insert({
-          user_id: user.id,
-          book_id: input.bookId,
-          page: input.currentPage,
-          previous_page: previousPage,
-        });
-      if (historyError) {
-        revalidateReadingProgressPaths(input);
-        return { ok: false, code: "history_unavailable" };
-      }
-    }
-
     revalidateReadingProgressPaths(input);
 
-    return { ok: true, book, historyRecorded: true };
+    return {
+      ok: true,
+      book,
+      historyRecorded: progressResult.history_recorded,
+    };
   } catch {
     return { ok: false, code: "unavailable" };
   }
+}
+
+function getProgressResult(data: unknown): Record<string, unknown> | null {
+  const result = Array.isArray(data) ? data[0] : data;
+  return result && typeof result === "object"
+    ? (result as Record<string, unknown>)
+    : null;
+}
+
+function mapProgressError(error: { code?: string; message?: string }) {
+  if (error.code === "42501" || error.message === "unauthorized") {
+    return "unauthenticated" as const;
+  }
+  if (error.code === "P0002" || error.message === "book_not_found") {
+    return "not_found" as const;
+  }
+  if (error.code === "P0001") return "conflict" as const;
+  if (error.code === "22023") return "invalid_input" as const;
+  return "unavailable" as const;
 }
 
 function revalidateReadingProgressPaths(input: UpdateReadingProgressInput) {
