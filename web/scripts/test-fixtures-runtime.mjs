@@ -82,4 +82,8 @@ for (const [directory, filename] of expectedObjects) {
   }
 }
 
-console.log("fixture runtime contract passed: reset completed and both Storage API objects match cover.png");
+console.log(
+  `fixture runtime contract passed: verified_objects=${expectedObjects
+    .map(([directory, filename]) => `${directory}/${filename}`)
+    .join(",")} bytes=${asset.length}`,
+);
