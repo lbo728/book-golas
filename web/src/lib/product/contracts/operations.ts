@@ -29,14 +29,51 @@ export const DeleteAccountResultSchema = z
   })
   .strict();
 
+const LocalizedPathSchema = z
+  .string()
+  .trim()
+  .superRefine((next, context) => {
+    const [rawPath] = next.split(/[?#]/, 1);
+    const segments = rawPath.split("/");
+    if (!rawPath.startsWith("/") || rawPath.startsWith("//") || rawPath.includes("\\") || segments.length < 2) {
+      context.addIssue({ code: "custom", message: "next must be a local localized path" });
+      return;
+    }
+    if (!LocaleSchema.safeParse(segments[1]).success) {
+      context.addIssue({ code: "custom", message: "next must start with a supported locale" });
+      return;
+    }
+    for (const segment of segments.slice(2)) {
+      let decodedSegment: string;
+      try {
+        decodedSegment = decodeURIComponent(segment);
+      } catch {
+        context.addIssue({ code: "custom", message: "next contains an invalid encoded path segment" });
+        return;
+      }
+      if (decodedSegment === "." || decodedSegment === ".." || decodedSegment.includes("/") || decodedSegment.includes("\\")) {
+        context.addIssue({ code: "custom", message: "next cannot contain traversal segments" });
+        return;
+      }
+    }
+  });
+
 export const AuthRequestSchema = z
   .object({
     email: z.string().email(),
     password: z.string().min(1).max(256),
     locale: LocaleSchema,
-    next: z.string().regex(/^\/(ko|en)(\/|$)/).optional(),
+    next: LocalizedPathSchema.optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((request, context) => {
+    if (request.next) {
+      const nextLocale = request.next.split(/[?#]/, 1)[0].split("/")[1];
+      if (nextLocale !== request.locale) {
+        context.addIssue({ code: "custom", path: ["next"], message: "next locale must match request locale" });
+      }
+    }
+  });
 
 export const BookListRequestSchema = z
   .object({

@@ -77,4 +77,12 @@ describe("consumer request contracts", () => {
     expect(() => InsightRequestSchema.parse({ locale: "ko", range: "custom" })).toThrow();
     expect(() => InsightRequestSchema.parse({ locale: "ko", range: "custom", from: "2026-01-02T00:00:00.000Z", to: "2026-01-01T00:00:00.000Z" })).toThrow();
   });
+
+  it("keeps auth continuation paths localized and traversal-safe", () => {
+    const auth = { email: "fixture@local.invalid", password: "password123", locale: "ko" as const };
+    expect(AuthRequestSchema.parse({ ...auth, next: "/ko/home" }).next).toBe("/ko/home");
+    expect(() => AuthRequestSchema.parse({ ...auth, next: "/ko/../../admin" })).toThrow();
+    expect(() => AuthRequestSchema.parse({ ...auth, next: "/ko/%2e%2e/admin" })).toThrow();
+    expect(() => AuthRequestSchema.parse({ ...auth, next: "/en/home" })).toThrow();
+  });
 });
