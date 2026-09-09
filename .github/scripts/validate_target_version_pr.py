@@ -159,12 +159,42 @@ def validate(
     allowed_paths = policy.get("allowed_paths")
     if not isinstance(allowed_paths, list) or not allowed_paths:
         raise PolicyError(f"delivery unit {unit} has no allowed_paths policy")
+    additional_allowed_paths_by_version = policy.get(
+        "additional_allowed_paths_by_version", {}
+    )
+    if not isinstance(additional_allowed_paths_by_version, dict):
+        raise PolicyError(
+            f"delivery unit {unit} has invalid additional_allowed_paths_by_version"
+        )
+    configured_version_additions = additional_allowed_paths_by_version.get(version)
+    if configured_version_additions is None:
+        version_additions = []
+    else:
+        if (
+            not isinstance(configured_version_additions, list)
+            or not configured_version_additions
+        ):
+            raise PolicyError(
+                f"delivery unit {unit} has invalid additional paths for {version}"
+            )
+        if not all(
+            isinstance(pattern, str) and pattern
+            for pattern in configured_version_additions
+        ):
+            raise PolicyError(
+                f"delivery unit {unit} has invalid additional paths for {version}"
+            )
+        version_additions = configured_version_additions
+    effective_allowed_paths = [*allowed_paths, *version_additions]
     invalid_paths = [
         path
         for path in changed_files
         if path.startswith("/")
         or ".." in Path(path).parts
-        or not any(fnmatch.fnmatchcase(path, pattern) for pattern in allowed_paths)
+        or not any(
+            fnmatch.fnmatchcase(path, pattern)
+            for pattern in effective_allowed_paths
+        )
     ]
     if invalid_paths:
         raise PolicyError(
