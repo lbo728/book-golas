@@ -74,10 +74,15 @@ const restartLocalSupabase = () => {
   return !start.error && start.status === 0;
 };
 
-let localEnv = readLocalEnv();
-let supabaseAdmin = createClient(localEnv.apiUrl, localEnv.serviceRoleKey, {
+const createLocalAdminClient = ({ apiUrl, serviceRoleKey }) => createClient(apiUrl, serviceRoleKey, {
   auth: { autoRefreshToken: false, persistSession: false },
+  global: {
+    fetch: (input, init) => fetch(input, { ...init, redirect: "error" }),
+  },
 });
+
+let localEnv = readLocalEnv();
+let supabaseAdmin = createLocalAdminClient(localEnv);
 const asset = fs.readFileSync(
   path.resolve(repositoryRoot, "web/fixtures/supabase/assets/cover.png"),
 );
@@ -94,9 +99,7 @@ for (const storagePath of ["user-a/book-a.png", "user-b/book-b.png"]) {
     }
     if (attempt === 0 && restartLocalSupabase()) {
       localEnv = readLocalEnv();
-      supabaseAdmin = createClient(localEnv.apiUrl, localEnv.serviceRoleKey, {
-        auth: { autoRefreshToken: false, persistSession: false },
-      });
+      supabaseAdmin = createLocalAdminClient(localEnv);
       continue;
     }
     console.error(`local Supabase storage fixture upload failed for ${storagePath}: ${error.message}`);

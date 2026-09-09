@@ -32,6 +32,7 @@ requireCondition(
 function validateChecksumManifest(manifestPath, allowedRelativePath, label) {
   if (!fs.existsSync(manifestPath)) return;
 
+  const allowedDirectory = path.resolve(repositoryRoot, allowedRelativePath);
   const entries = fs.readFileSync(manifestPath, "utf8").trim().split("\n").filter(Boolean);
   requireCondition(entries.length > 0, `${label} SHA256SUMS is empty`);
   for (const entry of entries) {
@@ -41,8 +42,12 @@ function validateChecksumManifest(manifestPath, allowedRelativePath, label) {
 
     const targetPath = path.resolve(repositoryRoot, relativePath);
     const repositoryRelativePath = path.relative(repositoryRoot, targetPath);
+    const allowedDirectoryRelativePath = path.relative(allowedDirectory, targetPath);
     requireCondition(
-      relativePath.startsWith(`${allowedRelativePath}/`),
+      allowedDirectoryRelativePath !== "" &&
+        allowedDirectoryRelativePath !== ".." &&
+        !allowedDirectoryRelativePath.startsWith(`..${path.sep}`) &&
+        !path.isAbsolute(allowedDirectoryRelativePath),
       `evidence path escapes allowed directory: ${relativePath}`,
     );
     requireCondition(

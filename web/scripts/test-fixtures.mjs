@@ -8,6 +8,11 @@ const seedPath = path.join(fixtureRoot, "seed.sql");
 const resetScriptPath = path.join(webRoot, "scripts/reset-local-fixtures.mjs");
 const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
 const seed = fs.readFileSync(seedPath, "utf8");
+const normalizedSeed = seed
+  .replace(/\s+/g, " ")
+  .replace(/\(\s+/g, "(")
+  .replace(/\s+\)/g, ")")
+  .trim();
 const resetScript = fs.readFileSync(resetScriptPath, "utf8");
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const secretPatterns = [
@@ -20,6 +25,9 @@ const failures = [];
 const requireCondition = (condition, message) => {
   if (!condition) failures.push(message);
 };
+const sqlLiteral = (value) => `'${String(value).replaceAll("'", "''")}'`;
+const containsSeedRow = (values) => normalizedSeed.includes(`(${values.join(", ")})`);
+const toSeedTimestamp = (value) => value.replace(".000Z", "Z");
 
 requireCondition(manifest.schema_version === 1, "fixture schema_version must be 1");
 requireCondition(manifest.fixture_id === "bookgolas-web-414", "fixture id is not pinned");
@@ -41,6 +49,7 @@ requireCondition(resetScript.includes("upsert: true"), "storage fixture upload m
 
 const userKeys = new Set();
 const userIds = new Set();
+const usersByKey = new Map(manifest.users.map((user) => [user.key, user]));
 for (const user of manifest.users) {
   requireCondition(uuid.test(user.id), `invalid user UUID: ${user.key}`);
   requireCondition(!userIds.has(user.id), `duplicate user UUID: ${user.id}`);
@@ -48,12 +57,21 @@ for (const user of manifest.users) {
   requireCondition(user.email.endsWith("@local.invalid"), `fixture email must use .invalid: ${user.key}`);
   userKeys.add(user.key);
   userIds.add(user.id);
-  requireCondition(seed.includes(user.id), `seed is missing user ${user.key}`);
-  requireCondition(seed.includes(user.email), `seed is missing email for ${user.key}`);
+  requireCondition(
+    containsSeedRow([
+      sqlLiteral(user.id),
+      sqlLiteral(user.email),
+      sqlLiteral(user.nickname),
+      sqlLiteral(user.nickname),
+      `${sqlLiteral(`{"fixture_key":"${user.key}"}`)}::jsonb`,
+    ]),
+    `seed is missing the exact public user row for ${user.key}`,
+  );
 }
 
 const bookKeys = new Set();
 const bookIds = new Set();
+const booksByKey = new Map(manifest.books.map((book) => [book.key, book]));
 for (const book of manifest.books) {
   requireCondition(uuid.test(book.id), `invalid book UUID: ${book.key}`);
   requireCondition(!bookIds.has(book.id), `duplicate book UUID: ${book.id}`);
@@ -62,7 +80,25 @@ for (const book of manifest.books) {
   requireCondition(["planned", "reading", "completed", "will_retry"].includes(book.status), `invalid book status: ${book.key}`);
   bookKeys.add(book.key);
   bookIds.add(book.id);
-  requireCondition(seed.includes(book.id), `seed is missing book ${book.key}`);
+  const owner = usersByKey.get(book.user_key);
+  if (owner) {
+    requireCondition(
+      containsSeedRow([
+        sqlLiteral(book.id),
+        sqlLiteral(book.title),
+        sqlLiteral(book.author),
+        sqlLiteral(toSeedTimestamp(book.start_date)),
+        sqlLiteral(toSeedTimestamp(book.target_date)),
+        sqlLiteral(`/storage/v1/object/public/book-images/${book.image_path}`),
+        book.current_page,
+        book.total_pages,
+        sqlLiteral(owner.id),
+        sqlLiteral(book.status),
+        book.attempt_count,
+      ]),
+      `seed is missing the exact book relationship for ${book.key}`,
+    );
+  }
 }
 
 for (const image of manifest.images) {
@@ -80,8 +116,22 @@ for (const image of manifest.images) {
     `image asset escapes Web fixture root: ${image.key}`,
   );
   requireCondition(fs.existsSync(assetPath), `image asset is missing: ${image.asset_path}`);
-  requireCondition(seed.includes(image.storage_path), `seed is missing storage path: ${image.storage_path}`);
-  requireCondition(seed.includes(image.id), `seed is missing image ${image.key}`);
+  const owner = usersByKey.get(image.user_key);
+  const book = booksByKey.get(image.book_key);
+  const imageLabel = image.key.match(/_([ab])_image$/i)?.[1]?.toUpperCase();
+  if (owner && book && imageLabel) {
+    requireCondition(
+      containsSeedRow([
+        sqlLiteral(image.id),
+        sqlLiteral(book.id),
+        sqlLiteral(`/storage/v1/object/public/book-images/${image.storage_path}`),
+        sqlLiteral(`Fixture image ${imageLabel}`),
+        sqlLiteral(owner.id),
+        image.page_number,
+      ]),
+      `seed is missing the exact image relationship for ${image.key}`,
+    );
+  }
 }
 
 const trackedFixtureFiles = [manifestPath, seedPath];
