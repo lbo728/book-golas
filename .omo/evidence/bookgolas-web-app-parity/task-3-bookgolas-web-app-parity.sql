@@ -51,6 +51,44 @@ WHERE schemaname = 'public'
     'Users can insert sessions for their own active books'
   )
 ORDER BY tablename, policyname;
+\echo 'SURFACE: table privilege boundaries'
+DO $$
+DECLARE
+  table_name text;
+  role_name text;
+  privilege_name text;
+BEGIN
+  FOREACH table_name IN ARRAY ARRAY[
+    'books',
+    'book_images',
+    'reading_progress_history',
+    'reading_sessions'
+  ] LOOP
+    FOREACH role_name IN ARRAY ARRAY['anon', 'authenticated'] LOOP
+      FOREACH privilege_name IN ARRAY ARRAY['TRUNCATE', 'REFERENCES', 'TRIGGER'] LOOP
+        IF has_table_privilege(
+          role_name,
+          format('public.%s', table_name),
+          privilege_name
+        ) THEN
+          RAISE EXCEPTION
+            'table privilege contract: % has % on public.%',
+            role_name,
+            privilege_name,
+            table_name;
+        END IF;
+      END LOOP;
+    END LOOP;
+  END LOOP;
+END;
+$$;
+SELECT 'SURFACE' AS phase,
+  has_table_privilege('anon', 'public.books', 'TRUNCATE') AS anon_books_truncate,
+  has_table_privilege('authenticated', 'public.books', 'TRUNCATE') AS authenticated_books_truncate,
+  has_table_privilege('anon', 'public.books', 'REFERENCES') AS anon_books_references,
+  has_table_privilege('authenticated', 'public.books', 'REFERENCES') AS authenticated_books_references,
+  has_table_privilege('anon', 'public.books', 'TRIGGER') AS anon_books_trigger,
+  has_table_privilege('authenticated', 'public.books', 'TRIGGER') AS authenticated_books_trigger;
 \echo 'CLEANUP: fixture state'
 SELECT 'CLEANUP' AS phase,
   (SELECT count(*) FROM public.books WHERE id IN (

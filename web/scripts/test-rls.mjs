@@ -243,6 +243,39 @@ DELETE FROM public.users
 WHERE id IN ('${userA}', '${userB}');
 `;
 
+const privilegeSql = `
+DO $$
+DECLARE
+  table_name text;
+  role_name text;
+  privilege_name text;
+BEGIN
+  FOREACH table_name IN ARRAY ARRAY[
+    'books',
+    'book_images',
+    'reading_progress_history',
+    'reading_sessions'
+  ] LOOP
+    FOREACH role_name IN ARRAY ARRAY['anon', 'authenticated'] LOOP
+      FOREACH privilege_name IN ARRAY ARRAY['TRUNCATE', 'REFERENCES', 'TRIGGER'] LOOP
+        IF has_table_privilege(
+          role_name,
+          format('public.%s', table_name),
+          privilege_name
+        ) THEN
+          RAISE EXCEPTION
+            'table privilege contract: % has % on public.%',
+            role_name,
+            privilege_name,
+            table_name;
+        END IF;
+      END LOOP;
+    END LOOP;
+  END LOOP;
+END;
+$$;
+`;
+
 const grep = process.argv[2] === "--grep" ? process.argv[3] : undefined;
 if (grep && grep !== "user-b-isolation") {
   throw new Error(`unsupported RLS scenario: ${grep}`);
@@ -252,6 +285,10 @@ let container;
 let exitCode = 0;
 try {
   container = findDatabaseContainer();
+  const privileges = runSql(container, privilegeSql);
+  if (privileges.status !== 0) {
+    throw new Error(privileges.stderr.trim() || "table privilege contract failed");
+  }
   const fixture = runSql(container, fixtureSql);
   if (fixture.status !== 0) throw new Error(fixture.stderr.trim() || "fixture setup failed");
   const result = runSql(container, isolationSql);

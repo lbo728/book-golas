@@ -52,6 +52,14 @@ ALTER TABLE public.books
   ADD CONSTRAINT books_status_check
     CHECK (status IN ('planned', 'reading', 'completed', 'will_retry'));
 
+REVOKE ALL PRIVILEGES
+ON TABLE
+  public.books,
+  public.book_images,
+  public.reading_progress_history,
+  public.reading_sessions
+FROM PUBLIC, anon, authenticated;
+
 GRANT SELECT, INSERT, UPDATE, DELETE
 ON public.books, public.book_images
 TO authenticated;
