@@ -21,7 +21,10 @@
     "test:evidence-paths": "node scripts/test-evidence-paths.mjs",
     "test:parity-matrix": "node scripts/test-parity-matrix.mjs",
     "test:parity-matrix:negative": "node scripts/test-parity-matrix.mjs --assert-fixtures",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:rls": "node scripts/test-rls.mjs",
+    "test:progress-rpc": "node scripts/test-progress-rpc.mjs",
+    "test:status-migration": "node scripts/test-status-migration.mjs"
   },
   "dependencies": {
     "@byungsker/blab-design-system": "file:vendor/byungsker-blab-design-system-0.2.0.tgz",
