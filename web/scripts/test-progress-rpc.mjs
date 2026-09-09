@@ -92,7 +92,8 @@ DELETE FROM public.books WHERE id = '${bookA}';
 const callRpc = (container, currentPage, expectedPage, key, userId = userA, readingTime = 120) =>
   runSql(
     container,
-    `BEGIN;
+    `\\set VERBOSITY verbose
+BEGIN;
 SET LOCAL ROLE authenticated;
 SET LOCAL request.jwt.claim.sub = '${userId}';
 SELECT row_to_json(result)
