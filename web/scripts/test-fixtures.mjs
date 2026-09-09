@@ -27,12 +27,17 @@ requireCondition(manifest.users.length === 2, "fixture must contain User A and U
 requireCondition(manifest.books.length === 2, "fixture must contain two books");
 requireCondition(manifest.images.length === 2, "fixture must contain two images");
 requireCondition(seed.includes("INSERT INTO storage.buckets"), "seed is missing the book-images bucket");
+requireCondition(
+  !/\b(?:delete|update|insert\s+into)\s+storage\.objects\b/i.test(seed),
+  "seed must not mutate storage.objects directly",
+);
 requireCondition(resetScript.includes('"--local"'), "reset script must remain local-only");
 requireCondition(
   resetScript.includes('"../web/fixtures/supabase/seed.sql"'),
   "reset script must resolve the seed path from the Supabase directory",
 );
 requireCondition(resetScript.includes('storage.from("book-images")'), "reset script is missing storage upload");
+requireCondition(resetScript.includes("upsert: true"), "storage fixture upload must be idempotent");
 
 const userKeys = new Set();
 const userIds = new Set();

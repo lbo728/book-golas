@@ -15,6 +15,7 @@
     "test:blab-browser": "playwright test tests/e2e/blab-parity.spec.ts --project=chromium",
     "test:e2e": "playwright test",
     "test:fixtures": "node scripts/test-fixtures.mjs",
+    "test:fixtures:runtime": "node scripts/test-fixtures-runtime.mjs",
     "reset:fixtures": "node scripts/reset-local-fixtures.mjs",
     "test:evidence-paths": "node scripts/test-evidence-paths.mjs",
     "test:parity-matrix": "node scripts/test-parity-matrix.mjs",
