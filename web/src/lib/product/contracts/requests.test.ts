@@ -62,9 +62,8 @@ const requestFixtures: readonly [string, ProductSchema<unknown>, unknown][] = [
 ];
 
 describe("consumer request contracts", () => {
-  it.each(requestFixtures)("round-trips the %s request", (name, schema, fixture) => {
-    const parsed = schema.parse(fixture);
-    expect(schema.parse(parsed), name).toEqual(parsed);
+  it.each(requestFixtures)("accepts the canonical %s request", (name, schema, fixture) => {
+    expect(schema.parse(fixture), name).toEqual(fixture);
   });
 
   it("does not accept a caller-selected user_id on any request", () => {

@@ -26,6 +26,7 @@ import {
   SortSchema,
   UserSchema,
   consumerRoutes,
+  type Locale,
   type ProductSchema,
 } from "./index";
 
@@ -40,6 +41,17 @@ const ids = {
 const dates = {
   created: "2026-01-01T00:00:00.000Z",
   updated: "2026-01-02T00:00:00.000Z",
+};
+
+const recommendationProfile = {
+  stats: {
+    totalBooksCompleted: 3,
+    averageRating: 4.5,
+    favoriteGenres: [{ genre: "essay", count: 2 }],
+    averageCompletionDays: 12,
+    highEngagementBookCount: 1,
+  },
+  booksAnalyzed: 3,
 };
 
 const book = {
@@ -166,17 +178,7 @@ const schemaFixtures: readonly [string, ProductSchema<unknown>, unknown][] = [
     {
       success: true,
       recommendations: [{ title: "Recommended", author: "Author", reason: "Reason", keywords: ["essay"] }],
-      profile: {
-        stats: {
-          totalBooksCompleted: 3,
-          averageRating: 4.5,
-          favoriteGenres: [{ genre: "essay", count: 2 }],
-          averageCompletionDays: 12,
-          highEngagementBookCount: 1,
-        },
-        booksAnalyzed: 3,
-      },
-      error: null,
+      profile: recommendationProfile,
     },
   ],
   ["consent", ConsentSchema, { kind: "ai", status: "granted", version: "2026-01", grantedAt: dates.created }],
@@ -191,9 +193,8 @@ const schemaFixtures: readonly [string, ProductSchema<unknown>, unknown][] = [
 ];
 
 describe("product contract schemas", () => {
-  it.each(schemaFixtures)("round-trips the %s schema", (_name, schema, fixture) => {
-    const parsed = schema.parse(fixture);
-    expect(schema.parse(parsed)).toEqual(parsed);
+  it.each(schemaFixtures)("accepts the canonical %s fixture", (_name, schema, fixture) => {
+    expect(schema.parse(fixture)).toEqual(fixture);
   });
 
   it("defines canonical localized and auth routes", () => {
@@ -250,5 +251,30 @@ describe("product contract boundaries", () => {
   it("rejects unsafe dynamic route segments", () => {
     expect(() => consumerRoutes.book("ko", "../account")).toThrow();
     expect(() => consumerRoutes.reading("ko", "x/y")).toThrow();
+  });
+
+  it("rejects unsafe locale route segments", () => {
+    expect(() => consumerRoutes.login("../en" as Locale)).toThrow();
+    expect(() => consumerRoutes.book("ko/../../admin" as Locale, ids.book)).toThrow();
+  });
+
+  it("keeps recommendation success and failure states exclusive", () => {
+    const success = {
+      success: true,
+      recommendations: [],
+      profile: recommendationProfile,
+    };
+    const failure = {
+      success: false,
+      recommendations: [],
+      profile: { ...recommendationProfile, booksAnalyzed: 0 },
+      error: "No completed books found",
+    };
+
+    expect(RecommendationResultSchema.parse(success)).toEqual(success);
+    expect(RecommendationResultSchema.parse(failure)).toEqual(failure);
+    expect(() => RecommendationResultSchema.parse({ ...success, error: "unexpected" })).toThrow();
+    expect(() => RecommendationResultSchema.parse({ ...failure, error: undefined })).toThrow();
+    expect(() => RecommendationResultSchema.parse({ ...failure, success: true })).toThrow();
   });
 });

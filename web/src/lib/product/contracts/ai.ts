@@ -75,14 +75,27 @@ export const RecommendationProfileSchema = z
   })
   .strict();
 
-export const RecommendationResultSchema = z
+const RecommendationSuccessSchema = z
   .object({
-    success: z.boolean(),
+    success: z.literal(true),
     recommendations: z.array(BookRecommendationSchema),
     profile: RecommendationProfileSchema,
-    error: z.string().nullable().optional(),
   })
   .strict();
+
+const RecommendationFailureSchema = z
+  .object({
+    success: z.literal(false),
+    recommendations: z.array(BookRecommendationSchema).length(0),
+    profile: RecommendationProfileSchema,
+    error: z.string().trim().min(1).max(2000),
+  })
+  .strict();
+
+export const RecommendationResultSchema = z.discriminatedUnion("success", [
+  RecommendationSuccessSchema,
+  RecommendationFailureSchema,
+]);
 
 export type RecallSource = z.infer<typeof RecallSourceSchema>;
 export type RecallSearchResult = z.infer<typeof RecallSearchResultSchema>;
