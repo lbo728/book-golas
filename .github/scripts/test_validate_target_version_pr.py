@@ -74,5 +74,64 @@ class DeliveryUnitNameTests(unittest.TestCase):
             )
 
 
+class WebVersionPathTests(unittest.TestCase):
+    def setUp(self):
+        self.config = {
+            "allowed_actor_prefixes": ["codex"],
+            "delivery_units": {
+                "web": {
+                    "profile": "web-release-train",
+                    "mode": "version-line",
+                    "active_versions": ["1.0.2", "1.1.0"],
+                    "target_version_source": ".byungskerlab/release-lines.json",
+                    "production_branch": "main",
+                    "allowed_paths": ["web/**"],
+                    "additional_allowed_paths_by_version": {
+                        "1.1.0": [
+                            ".omo/evidence/bookgolas-web-app-parity/**",
+                            "supabase/migrations/**",
+                        ],
+                    },
+                },
+            },
+        }
+        self.registry = {
+            "delivery_units": {
+                "web": {
+                    "active_versions": ["1.0.2", "1.1.0"],
+                },
+            },
+        }
+
+    def test_accepts_web_1_1_version_paths(self):
+        result = validate(
+            self.config,
+            "codex/feature/web/1.1.0/parity-contract",
+            "version/web/1.1.0",
+            "Target-Delivery-Unit: web\n"
+            "Target-Version: 1.1.0\n"
+            "Delivery-Profile: web-release-train\n",
+            [
+                ".omo/evidence/bookgolas-web-app-parity/receipt.md",
+                "supabase/migrations/20260910000000_progress.sql",
+            ],
+            self.registry,
+        )
+        self.assertIn("web-release-train", result)
+
+    def test_rejects_web_1_0_2_version_paths(self):
+        with self.assertRaisesRegex(PolicyError, "changed paths are outside delivery unit web"):
+            validate(
+                self.config,
+                "codex/feature/web/1.0.2/legacy-admin",
+                "version/web/1.0.2",
+                "Target-Delivery-Unit: web\n"
+                "Target-Version: 1.0.2\n"
+                "Delivery-Profile: web-release-train\n",
+                ["supabase/migrations/20260910000000_progress.sql"],
+                self.registry,
+            )
+
+
 if __name__ == "__main__":
     unittest.main()
