@@ -201,21 +201,25 @@ class WebVersionPathTests(unittest.TestCase):
         self.assertIn("web-release-train", result)
 
     def test_rejects_web_1_0_2_version_paths(self):
-        with self.assertRaisesRegex(PolicyError, "changed paths are outside delivery unit web"):
-            validate(
-                self.config,
-                "codex/feature/web/1.0.2/legacy-admin",
-                "version/web/1.0.2",
-                "Target-Delivery-Unit: web\n"
-                "Target-Version: 1.0.2\n"
-                "Delivery-Profile: web-release-train\n",
-                [
-                    ".omo/evidence/bookgolas-web-app-parity/receipt.md",
-                    "supabase/migrations/20260910000000_progress.sql",
-                    "supabase/functions/reading-insights/index.ts",
-                ],
-                self.registry,
-            )
+        for path in (
+            ".omo/evidence/bookgolas-web-app-parity/receipt.md",
+            "supabase/migrations/20260910000000_progress.sql",
+            "supabase/functions/reading-insights/index.ts",
+        ):
+            with self.subTest(path=path):
+                with self.assertRaisesRegex(
+                    PolicyError, "changed paths are outside delivery unit web"
+                ):
+                    validate(
+                        self.config,
+                        "codex/feature/web/1.0.2/legacy-admin",
+                        "version/web/1.0.2",
+                        "Target-Delivery-Unit: web\n"
+                        "Target-Version: 1.0.2\n"
+                        "Delivery-Profile: web-release-train\n",
+                        [path],
+                        self.registry,
+                    )
 
 
 if __name__ == "__main__":
