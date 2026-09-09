@@ -17,7 +17,7 @@ Date: 2026-09-09
 
 ## Fixture reset
 
-- `npm run test:fixtures:runtime` — PASS on an isolated Tailscale-linked Docker Desktop host at commit `ac0e51bcbee52f58c6eb0cede78d82765889331a`. The run reset the local database, uploaded `cover.png`, and listed/downloaded `book-images/user-a/book-a.png` and `book-images/user-b/book-b.png` through the Storage API with matching 68-byte contents.
+- `npm run test:fixtures:runtime` — PASS on an isolated Tailscale-linked Docker Desktop host at final code commit `0460df44e964b83e6c1d284669c5a55d73b78922`. The run reset the local database, uploaded `cover.png`, and listed/downloaded `book-images/user-a/book-a.png` and `book-images/user-b/book-b.png` through the Storage API with matching 68-byte contents.
 - The first real reset exposed a Supabase Storage protection error from direct `storage.objects` deletion; removing that redundant seed statement produced the passing reset above. The current MacBook Docker engine remains unavailable while locked.
 - Redacted runtime transcript with exact tested revision, source hashes, reset exit code, and Storage API object verification: `.omo/evidence/bookgolas-web-app-parity/remote-reset-verification.md`.
 
@@ -26,5 +26,5 @@ Date: 2026-09-09
 - Issue: #414
 - Branch: `codex/feature/web/1.1.0/BOK-414-browser-fixtures`
 - Target: `version/web/1.1.0`
-- Tested commit: `ac0e51bcbee52f58c6eb0cede78d82765889331a`
+- Tested commit: `0460df44e964b83e6c1d284669c5a55d73b78922`
 - Plan: `.omo/plans/bookgolas-web-app-parity.md`
