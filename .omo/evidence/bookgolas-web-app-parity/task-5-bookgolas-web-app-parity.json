@@ -30,8 +30,9 @@
       "result": "PASS",
       "host": "byungsker-mackbook via Tailscale SSH",
       "supabase_project": "book-golas-414-remote",
-      "ports": "55321-55327 isolated from existing baro-app services",
-      "fixture_upload": "2 synthetic PNG objects uploaded through the Storage API"
+      "ports": "55320, 55321-55324, 55327 and 55329 isolated from existing baro-app services",
+      "fixture_upload": "2 synthetic PNG objects uploaded through the Storage API",
+      "evidence": ".omo/evidence/bookgolas-web-app-parity/remote-reset-verification.md"
     }
   },
   "negative": {
@@ -50,7 +51,8 @@
     "status": "PASS_ON_REMOTE_DOCKER_HOST",
     "reason": "Validated against a real Docker Desktop engine on the Tailscale-linked byungsker MacBook; the local locked host remains unavailable.",
     "safety": "The reset command is restricted to supabase db reset --local and the committed local seed uses only reserved .invalid addresses, fixed UUIDs and a synthetic PNG.",
-    "storage_upload": "The reset script uploads the synthetic PNG to both local book-images paths after the database reset using the ephemeral local service-role key."
+    "storage_upload": "The reset script uploads the synthetic PNG to both local book-images paths after the database reset using the ephemeral local service-role key.",
+    "runtime_transcript": ".omo/evidence/bookgolas-web-app-parity/remote-reset-verification.md"
   },
   "plan": ".omo/plans/bookgolas-web-app-parity.md"
 }

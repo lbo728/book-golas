@@ -19,6 +19,7 @@ Date: 2026-09-09
 
 - `npm run reset:fixtures` — PASS on the Tailscale-linked `byungsker` MacBook Docker Desktop host using an isolated `book-golas-414-remote` project and ports 55321–55327. The run reset the local database and uploaded `cover.png` to `book-images/user-a/book-a.png` and `book-images/user-b/book-b.png` using the ephemeral local service-role key from `supabase status`.
 - The first real reset exposed a Supabase Storage protection error from direct `storage.objects` deletion; removing that redundant seed statement produced the passing reset above. The current MacBook Docker engine remains unavailable while locked.
+- Redacted runtime transcript with CLI version, isolated ports, reset exit code, and Storage API object verification: `.omo/evidence/bookgolas-web-app-parity/remote-reset-verification.md`.
 
 ## Provenance
 
