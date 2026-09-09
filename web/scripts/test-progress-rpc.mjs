@@ -134,6 +134,17 @@ try {
   assert(duplicate.history_id === first.history_id, "duplicate key created a different history event");
   assert(duplicate.updated_at === first.updated_at, "duplicate key changed the stored result");
 
+  const idempotencyConflict = callRpc(container, 13, 10, keyFirst);
+  assert(idempotencyConflict.status !== 0, "changed request reused the idempotency key");
+  assert(
+    idempotencyConflict.stderr.includes("idempotency_conflict"),
+    "idempotency conflict message is not typed",
+  );
+  assert(
+    idempotencyConflict.stderr.includes("P0001"),
+    "idempotency conflict SQLSTATE is not P0001",
+  );
+
   const stale = runSql(
     container,
     `\\set VERBOSITY verbose
@@ -195,7 +206,7 @@ COMMIT;
   assert(crossOwner.status !== 0, "cross-owner progress RPC unexpectedly succeeded");
   assert(crossOwner.stderr.includes("book_not_found"), "cross-owner RPC did not return typed not-found");
   assert(crossOwner.stderr.includes("P0002"), "cross-owner RPC SQLSTATE is not P0002");
-  console.log("progress RPC contract passed: atomic write, stale conflict, idempotency, backward edit, completion, owner boundary");
+  console.log("progress RPC contract passed: atomic write, stale conflict, idempotency replay/conflict, backward edit, completion, owner boundary");
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));
   exitCode = 1;

@@ -26,7 +26,7 @@
 ## SHA-256 of implementation files
 
 - `a759ad0d0474f7ca385913c5246e93a0499c335dca4d624d05a610b11c91c2c7`  .omo/evidence/bookgolas-web-app-parity/task-3-bookgolas-web-app-parity.sql
-- `234ad69ce8b980058ed85821cd42745846524a1da6317f4b9a4fd80a6555f055`  docs/guides/reading-progress-contract.md
+- `0f0893dbef8d91cec43e851ef62840e203a33c80a4311ad6b4e2a50501562fbb`  docs/guides/reading-progress-contract.md
 - `75ecb4a762177b07443342dffffd839cd83b8f1958f8bbcd65008d489c0e7d37`  supabase/migrations/20260909163608_harden_ownership_and_progress_contract.sql
 - `be4da1a0187941b4dda5d60b595165af31e2f041180825de023337ca7472c1cc`  web/package.json
 - `5a6c6f56bcf6db9f92e7894a96e9597dae3e026ceffed36d721df0c4f024faca`  web/scripts/test-progress-rpc.mjs
