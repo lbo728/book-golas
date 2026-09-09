@@ -3,13 +3,23 @@
   "target_delivery_unit": "web",
   "target_version": "1.1.0",
   "delivery_profile": "web-release-train",
-  "tested_commit": "1408c69d8f330d69b577a396592e049a08eeac2b",
+  "tested_commit": "5214f1372de5b0d25579710c0571ad56ebab8512",
   "red": {
     "command": "npm run test:product-contracts after adding the unsafe dynamic route regression test and before BookIdSchema validation",
     "result": "FAIL as expected",
     "exit_code": 1,
     "observed": "1 failed, 40 passed; consumerRoutes.book('../account') did not throw",
-    "purpose": "Failing-first security regression for dynamic route segments"
+    "purpose": "Failing-first security regression for dynamic route segments",
+    "review_followup": {
+      "commit": "85401b8903548bf425b03b87ee9d05263f8e8f5e",
+      "result": "BLOCK as expected before hardening",
+      "observed": [
+        "Runtime locale values were interpolated without LocaleSchema validation.",
+        "Recommendation success and failure envelopes were not mutually exclusive.",
+        "Fixture tests re-parsed their own output instead of checking independent input."
+      ],
+      "purpose": "Review-driven red gate for the route and recommendation contract boundaries"
+    }
   },
   "green": {
     "commands": [
@@ -18,9 +28,14 @@
       "npm test"
     ],
     "result": "PASS",
-    "product_contract_tests": "2 files, 41 tests passed",
+    "product_contract_tests": "2 files, 43 tests passed",
     "cross_user_negative": "1 targeted test passed, 40 tests skipped",
-    "full_suite": "8 files, 68 tests passed; parity, negative fixtures, BLDS parity, BLDS negative and SSR state checks passed"
+    "full_suite": "8 files, 70 tests passed; parity, 59 negative fixtures, BLDS parity, BLDS negative and SSR state checks passed",
+    "hardening": [
+      "LocaleSchema now validates every localized route helper at runtime.",
+      "RecommendationResultSchema is a strict discriminated success/failure union with the authoritative profile envelope.",
+      "Canonical fixture tests parse independent input once and assert locale and recommendation negative cases."
+    ]
   },
   "surface": {
     "command": "npm run build",
@@ -35,10 +50,11 @@
       "npm run lint",
       "npm run test:evidence-paths",
       "git diff --check",
-      "git status --short"
+      "git status --short",
+      "shasum -a 256 -c .omo/evidence/bookgolas-web-app-parity/SHA256SUMS"
     ],
     "result": "PASS",
-    "observed": "No debug statements, temporary fixtures or inspector processes remain; the temporary review worktree was removed after each review pass",
+    "observed": "No debug statements, temporary fixtures or inspector processes remain; the temporary review worktree was removed after each review pass; evidence checksums validate",
     "authorization_boundary": "All exported ConsumerRequestSchemas are strict and reject caller-selected user_id fields"
   },
   "scope_notes": [
